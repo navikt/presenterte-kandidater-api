@@ -1,0 +1,8 @@
+{
+    "ingress": [
+        "https://presenterte-kandidater-api.dev.intern.nav.no"
+    ],
+    "kafka-pool": "nav-dev",
+    "gcp-cluster": "dev-gcp",
+    "kafka_consumer_group_id": "presenterte-kandidater-api-rapidconsumer-1"
+}

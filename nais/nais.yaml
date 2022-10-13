@@ -1,0 +1,42 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: presenterte-kandidater-api
+  namespace: toi
+  labels:
+    team: toi
+spec:
+  image: {{ image }}
+  port: 8333
+  vault:
+    enabled: true
+  ingresses:
+  {{#each ingress as |url|}}
+     - {{ url }}
+  {{/each}}
+  liveness:
+    path: /internal/isAlive
+  readiness:
+    path: /internal/isReady
+  webproxy: true
+  azure:
+    application:
+      enabled: true
+      claims:
+        extra:
+          - NAVident
+  accessPolicy:
+    inbound:
+      rules:
+        - application: rekrutteringsbistand-container
+          namespace: toi
+          cluster: {{ gcp-cluster }}
+  kafka:
+    pool: {{ kafka-pool }}
+  env:
+    - name: KAFKA_RAPID_TOPIC
+      value: toi.rapid-1
+    - name: KAFKA_CONSUMER_GROUP_ID
+      value: {{ kafka_consumer_group_id }}
+    - name: KAFKA_RESET_POLICY
+      value: "latest"
