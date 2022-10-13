@@ -13,8 +13,7 @@ class PresenterteKandidaterLytter(private val rapidsConnection: RapidsConnection
         River(rapidsConnection).apply {
             validate {
                 it.demandKey("aktoerId")
-                it.rejectKey("@event_name")
-                it.demandValue("ressurs", "PRESENTERTE_KANDIDATER")
+                it.demandValue("@event_name", "presenterte_kandidater")
             }
         }.register(this)
     }
