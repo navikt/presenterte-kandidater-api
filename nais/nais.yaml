@@ -13,7 +13,6 @@ spec:
      - {{ url }}
   {{/each}}
   liveness:
-    port: 8080
     path: /isalive
   readiness:
     port: 8080
