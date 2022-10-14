@@ -25,7 +25,7 @@ spec:
       claims:
         extra:
           - NAVident
-  promethius:
+  prometheus:
     enabled: true
     path: /metrics
   accessPolicy:
