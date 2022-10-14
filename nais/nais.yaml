@@ -7,7 +7,7 @@ metadata:
     team: toi
 spec:
   image: {{ image }}
-  port: 8444
+  port: 8080
   ingresses:
   {{#each ingress as |url|}}
      - {{ url }}
