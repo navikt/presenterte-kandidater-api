@@ -15,9 +15,9 @@ spec:
      - {{ url }}
   {{/each}}
   liveness:
-    path: /isAlive
+    path: /isalive
   readiness:
-    path: /isReady
+    path: /isready
   webproxy: true
   azure:
     application:
