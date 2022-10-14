@@ -15,9 +15,9 @@ spec:
      - {{ url }}
   {{/each}}
   liveness:
-    path: /internal/isAlive
+    path: /isAlive
   readiness:
-    path: /internal/isReady
+    path: /isReady
   webproxy: true
   azure:
     application:
@@ -25,6 +25,9 @@ spec:
       claims:
         extra:
           - NAVident
+  promethius:
+    enabled: true
+    path: /metrics
   accessPolicy:
     inbound:
       rules:
