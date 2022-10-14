@@ -31,7 +31,7 @@ fun startApp(
 
 val hentKandidater: () -> (Context) -> Unit = {
     { context ->
-        context.status(200)
+        context.json("heisann").status(200)
     }
 }
 
