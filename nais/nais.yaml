@@ -7,14 +7,16 @@ metadata:
     team: toi
 spec:
   image: {{ image }}
-  port: 8080
+  port: 9000
   ingresses:
   {{#each ingress as |url|}}
      - {{ url }}
   {{/each}}
   liveness:
+    port: 8080
     path: /isalive
   readiness:
+    port: 8080
     path: /isready
   azure:
     application:
@@ -22,6 +24,7 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
+    port: 8080
   replicas:
     min: 1
     max: 1
