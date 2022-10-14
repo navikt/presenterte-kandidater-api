@@ -7,7 +7,7 @@ metadata:
     team: toi
 spec:
   image: {{ image }}
-  port: 8333
+  port: 8444
   vault:
     enabled: true
   ingresses:
@@ -18,13 +18,9 @@ spec:
     path: /isalive
   readiness:
     path: /isready
-  webproxy: true
   azure:
     application:
       enabled: true
-      claims:
-        extra:
-          - NAVident
   prometheus:
     enabled: true
     path: /metrics
