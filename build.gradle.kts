@@ -5,7 +5,7 @@ plugins {
 }
 
 application {3
-    mainClass.set("ApplicationKt")
+    mainClass.set("no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt")
 }
 
 repositories {

@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.toi.hjemmel
+package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.helse.rapids_rivers.RapidApplication
 import org.slf4j.Logger
