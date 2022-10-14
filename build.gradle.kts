@@ -5,7 +5,7 @@ plugins {
 }
 
 application {3
-    mainClass.set("AppKt")
+    mainClass.set("ApplicationKt")
 }
 
 repositories {
