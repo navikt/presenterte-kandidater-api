@@ -12,7 +12,6 @@ import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 
 enum class Rolle : RouteRole {
-    VEILEDER,
     ARBEIDSGIVER,
     UNPROTECTED
 }
@@ -23,7 +22,6 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
         val erAutentisert =
             when {
                 roller.contains(Rolle.UNPROTECTED) -> true
-                roller.contains(Rolle.VEILEDER) -> autentiserVeileder(hentTokenClaims(ctx, issuerProperties[Rolle.VEILEDER]!!))
                 roller.contains(Rolle.ARBEIDSGIVER) -> autentiserArbeidsgiver(hentTokenClaims(ctx, issuerProperties[Rolle.ARBEIDSGIVER]!!))
                 else -> false
             }
@@ -40,7 +38,7 @@ fun interface Autentiseringsmetode {
     operator fun invoke(claims: JwtTokenClaims?): Boolean
 }
 
-val autentiserVeileder = Autentiseringsmetode { it?.get("NAVident")?.toString()?.isNotEmpty() ?: false }
+
 val autentiserArbeidsgiver = Autentiseringsmetode { it != null }
 
 
