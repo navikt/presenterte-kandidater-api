@@ -39,7 +39,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: rekrutteringsbistand-container
+        - application: presenterte-kandidater
           namespace: toi
           cluster: {{ gcp-cluster }}
   kafka:
