@@ -13,6 +13,7 @@ fun startLocalApplication() {
         Rolle.ARBEIDSGIVER to IssuerProperties(
             URL("http://localhost:18301/default/.well-known/openid-configuration"),
             listOf("default"),
+            "tokenX"
         ),
     )
 
