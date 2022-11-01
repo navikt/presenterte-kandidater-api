@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.toi
+package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import java.net.URL

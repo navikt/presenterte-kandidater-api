@@ -5,12 +5,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.post
-import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
-import no.nav.arbeidsgiver.toi.Rolle
-import no.nav.arbeidsgiver.toi.hentIssuerProperties
-import no.nav.arbeidsgiver.toi.styrTilgang
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
 
@@ -51,21 +46,17 @@ fun opprettJavalinMedTilgangskontroll(
 
 fun main() {
     val env = System.getenv()
-    //val datasource = DatabaseKonfigurasjon(env).lagDatasource()
-    //val repository = Repository(datasource)
     val issuerProperties = hentIssuerProperties(System.getenv())
     val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
 
+    // val datasource = DatabaseKonfigurasjon(env).lagDatasource()
+    // val repository = Repository(datasource)
+    // repository.kjørFlywayMigreringer()
+
     lateinit var rapidIsAlive: () -> Boolean
-    val rapidsConnection = RapidApplication.create(env, configure = { _, kafkarapid ->
-        rapidIsAlive = kafkarapid::isRunning
-    }).apply {
-        this.register(object : RapidsConnection.StatusListener {
-            override fun onStartup(rapidsConnection: RapidsConnection) {
-                //repository.kjørFlywayMigreringer()
-            }
-        })
-    }
+    val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
+        rapidIsAlive = kafkaRapid::isRunning
+    })
 
     startApp(javalin, rapidsConnection, rapidIsAlive)
 }
