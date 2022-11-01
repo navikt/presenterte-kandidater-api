@@ -37,18 +37,12 @@ dependencies {
     implementation("org.flywaydb:flyway-core:8.0.2")
     implementation("org.postgresql:postgresql:42.3.1")
     implementation("com.zaxxer:HikariCP:5.0.0")
-    implementation("no.nav:vault-jdbc:1.3.7")
     implementation("no.nav.security:token-validation-core:1.3.9")
 
     implementation("org.apache.kafka:kafka-clients:2.8.0")
-    implementation("io.confluent:kafka-avro-serializer:6.0.1")
-    implementation("org.apache.avro:avro:1.11.0")
-
     implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
 
     testImplementation(kotlin("test"))
     testImplementation("org.assertj:assertj-core:3.21.0")
     testImplementation("no.nav.security:mock-oauth2-server:0.3.6")
-    testImplementation("com.github.tomakehurst:wiremock:2.27.2")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
