@@ -2,21 +2,33 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
+import io.javalin.Javalin
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeAll
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KandidatControllerTest {
 
     private val mockOAuth2Server = MockOAuth2Server()
+    private lateinit var javalin: Javalin
 
     @BeforeAll
     fun init() {
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication()
+        javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+
+        startLocalApplication(javalin)
+    }
+
+    @AfterAll
+    fun cleanUp() {
+        mockOAuth2Server.shutdown()
+        javalin.stop()
     }
 
     @Test
