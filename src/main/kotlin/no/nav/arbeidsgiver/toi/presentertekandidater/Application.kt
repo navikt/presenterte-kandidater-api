@@ -49,9 +49,9 @@ fun main() {
     val issuerProperties = hentIssuerProperties(System.getenv())
     val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
 
-    // val datasource = DatabaseKonfigurasjon(env).lagDatasource()
-    // val repository = Repository(datasource)
-    // repository.kjørFlywayMigreringer()
+    val datasource = Databasekonfigurasjon(env).lagDatasource()
+    val repository = Repository(datasource)
+    repository.kjørFlywayMigreringer()
 
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
@@ -60,9 +60,3 @@ fun main() {
 
     startApp(javalin, rapidsConnection, rapidIsAlive)
 }
-
-val Any.log: Logger
-    get() = LoggerFactory.getLogger(this::class.java)
-
-fun log(name: String): Logger = LoggerFactory.getLogger(name)
-
