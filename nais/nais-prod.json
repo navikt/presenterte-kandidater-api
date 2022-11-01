@@ -5,5 +5,7 @@
     "kafka-pool": "nav-prod",
     "gcp-cluster": "prod-gcp",
     "fss-cluster": "prod-fss",
-    "kafka_consumer_group_id": "presenterte-kandidagter-api-rapidconsumer-1"
+    "kafka_consumer_group_id": "presenterte-kandidagter-api-rapidconsumer-1",
+    "gcp_db_tier": "db-custom-1-3840",
+    "gcp_disk_autoresize": "true"
 }
