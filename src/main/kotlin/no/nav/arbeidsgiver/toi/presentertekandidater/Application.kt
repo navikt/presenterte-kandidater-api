@@ -1,8 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.helse.rapids_rivers.RapidApplication
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.http.Context
