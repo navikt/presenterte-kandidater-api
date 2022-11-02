@@ -48,5 +48,19 @@ class Repository(private val dataSource: DataSource) {
             .load()
             .migrate()
     }
+
+    fun hentKandidat(aktørId: String): Kandidat? {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("select * from kandidat where aktør_id = ?").apply {
+                this.setObject(1, aktørId)
+            }.executeQuery()
+
+            if (!resultSet.next()) {
+                return null
+            }
+
+            return Kandidat.fraDatabase(resultSet)
+        }
+    }
 }
 

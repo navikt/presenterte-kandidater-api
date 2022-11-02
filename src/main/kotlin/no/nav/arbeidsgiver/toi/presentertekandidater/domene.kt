@@ -28,10 +28,23 @@ data class Kandidatliste(
 }
 
 data class Kandidat(
-    val id: BigInteger,
+    val id: BigInteger? = null,
     val aktørId: String,
     val kandidatlisteId: BigInteger,
     val hendelsestidspunkt: LocalDate,
     val hendelsestype: String,
     val arbeidsgiversStatus: String,
-)
+) {
+    companion object {
+        fun fraDatabase(rs: ResultSet): Kandidat {
+            return Kandidat(
+                id = rs.getBigDecimal("id").toBigInteger(),
+                aktørId = rs.getString("aktør_id"),
+                kandidatlisteId = rs.getBigDecimal("kandidatliste_id").toBigInteger(),
+                hendelsestidspunkt = LocalDate.from(rs.getTimestamp("hendelsestidspunkt").toInstant()),
+                hendelsestype = rs.getString("hendelsestype"),
+                arbeidsgiversStatus = rs.getString("arbeidsgiversStatus"),
+            )
+        }
+    }
+}
