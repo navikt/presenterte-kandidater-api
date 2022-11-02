@@ -26,8 +26,10 @@ fun startLocalApplication(javalin: Javalin = opprettJavalinMedTilgangskontroll(i
         .withDatabaseName("dbname")
         .withUsername("username")
         .withPassword("pwd")
+
     postgres.start()
     log("LocalApplication").info("Started Postgres ${postgres.jdbcUrl}")
+
     val repository = Repository(lagDatasource(postgres))
     repository.kjørFlywayMigreringer()
 
