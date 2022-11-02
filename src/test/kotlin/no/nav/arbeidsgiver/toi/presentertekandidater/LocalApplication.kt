@@ -22,6 +22,12 @@ val issuerProperties = mapOf(
 )
 
 fun startLocalApplication(javalin: Javalin = opprettJavalinMedTilgangskontroll(issuerProperties)) {
+    opprettTestRepositoryMedLokalPostgres()
+    val rapid = TestRapid()
+    startApp(javalin, rapid) { true }
+}
+
+fun opprettTestRepositoryMedLokalPostgres(): Repository {
     var postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
         .withDatabaseName("dbname")
         .withUsername("username")
@@ -32,10 +38,7 @@ fun startLocalApplication(javalin: Javalin = opprettJavalinMedTilgangskontroll(i
 
     val repository = Repository(lagDatasource(postgres))
     repository.kjørFlywayMigreringer()
-
-    val rapid = TestRapid()
-
-    startApp(javalin, rapid) { true }
+    return repository
 }
 
 fun lagDatasource(postgres: PostgreSQLContainer<*>) = HikariConfig().apply {
