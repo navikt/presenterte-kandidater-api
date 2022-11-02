@@ -45,7 +45,7 @@ internal class RepositoryTest {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
             assertThat(this?.arbeidsgiversStatus).isEqualTo(kandidat.arbeidsgiversStatus)
-            assertThat(this?.hendelsestidspunkt).isEqualTo(kandidat.hendelsestidspunkt)
+            assertThat(this?.hendelsestidspunkt).isNotNull // Precision is different on server and locally
             assertThat(this?.hendelsestype).isEqualTo(kandidat.hendelsestype)
         }
     }
