@@ -8,9 +8,15 @@ import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.net.URL
+import io.mockk.mockk
+
+lateinit var repository : Repository
+
 
 fun main() {
-    startLocalApplication()
+    repository = opprettTestRepositoryMedLokalPostgres()
+    val presenterteKandidaterService = PresenterteKandidaterService(repository)
+    startLocalApplication(presenterteKandidaterService = presenterteKandidaterService)
 }
 
 val issuerProperties = mapOf(
@@ -21,10 +27,8 @@ val issuerProperties = mapOf(
     ),
 )
 
-fun startLocalApplication(javalin: Javalin = opprettJavalinMedTilgangskontroll(issuerProperties)) {
-    opprettTestRepositoryMedLokalPostgres()
-    val rapid = TestRapid()
-    startApp(javalin, rapid) { true }
+fun startLocalApplication(javalin: Javalin = opprettJavalinMedTilgangskontroll(issuerProperties), rapid: TestRapid = TestRapid(), presenterteKandidaterService:  PresenterteKandidaterService = mockk<PresenterteKandidaterService>()) {
+    startApp(javalin, rapid, presenterteKandidaterService) { true }
 }
 
 fun opprettTestRepositoryMedLokalPostgres(): Repository {

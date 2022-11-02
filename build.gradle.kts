@@ -48,4 +48,6 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.17.5")
     testImplementation("org.testcontainers:postgresql:1.17.5")
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
+    testImplementation ("io.mockk:mockk:1.13.2")
+
 }

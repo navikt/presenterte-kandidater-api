@@ -10,7 +10,8 @@ import no.nav.security.token.support.core.configuration.IssuerProperties
 fun startApp(
     javalin: Javalin,
     rapidsConnection: RapidsConnection,
-    rapidIsAlive: () -> Boolean
+    presenterteKandidaterService: PresenterteKandidaterService,
+    rapidIsAlive: () -> Boolean,
 ) {
     javalin.routes {
         get("/isalive", isAlive(rapidIsAlive), Rolle.UNPROTECTED)
@@ -18,7 +19,7 @@ fun startApp(
     }
 
     rapidsConnection.also {
-        PresenterteKandidaterLytter(it)
+        PresenterteKandidaterLytter(it, presenterteKandidaterService)
     }.start()
 }
 
@@ -51,10 +52,12 @@ fun main() {
     val repository = Repository(datasource)
     repository.kjørFlywayMigreringer()
 
+    val presenterteKandidaterService = PresenterteKandidaterService(repository)
+
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
         rapidIsAlive = kafkaRapid::isRunning
     })
 
-    startApp(javalin, rapidsConnection, rapidIsAlive)
+    startApp(javalin, rapidsConnection, presenterteKandidaterService, rapidIsAlive)
 }
