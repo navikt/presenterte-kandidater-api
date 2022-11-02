@@ -51,7 +51,7 @@ class KandidatControllerTest {
         Assertions.assertThat(response.statusCode).isEqualTo(403)
     }
 
-        @Test
+    @Test
     fun `GET mot kandidater-endepunkt gir httpstatus 403 uten token`() {
         val (_, response) = Fuel
             .get("http://localhost:9000/kandidater")
