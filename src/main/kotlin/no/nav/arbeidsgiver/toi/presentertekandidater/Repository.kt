@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.flywaydb.core.Flyway
+import java.sql.Timestamp
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -23,6 +24,28 @@ class Repository(private val dataSource: DataSource) {
                 this.setString(3, kandidatliste.status)
                 this.setBoolean(4, kandidatliste.slettet)
                 this.setString(5, kandidatliste.virksomhetsnummer)
+            }.execute()
+        }
+    }
+
+    fun lagre(kandidat: Kandidat) {
+        dataSource.connection.use {
+            val sql = """
+                insert into kandidat(
+                    aktør_id,
+                    kandidatliste_id,
+                    hendelsestidspunkt,
+                    hendelsestype,
+                    arbeidsgivers_status
+                ) values (?, ?, ?, ?, ?)
+            """.trimIndent()
+
+            it.prepareStatement(sql).apply {
+                this.setObject(1, kandidat.aktørId)
+                this.setObject(2, kandidat.kandidatlisteId)
+                this.setTimestamp(3, Timestamp.valueOf(kandidat.hendelsestidspunkt))
+                this.setString(4, kandidat.hendelsestype)
+                this.setString(5, kandidat.arbeidsgiversStatus)
             }.execute()
         }
     }

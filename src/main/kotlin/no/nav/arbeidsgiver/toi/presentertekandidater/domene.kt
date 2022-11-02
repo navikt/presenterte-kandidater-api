@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import java.math.BigInteger
 import java.sql.ResultSet
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class Kandidatliste(
@@ -31,7 +31,7 @@ data class Kandidat(
     val id: BigInteger? = null,
     val aktørId: String,
     val kandidatlisteId: BigInteger,
-    val hendelsestidspunkt: LocalDate,
+    val hendelsestidspunkt: LocalDateTime,
     val hendelsestype: String,
     val arbeidsgiversStatus: String,
 ) {
@@ -41,9 +41,9 @@ data class Kandidat(
                 id = rs.getBigDecimal("id").toBigInteger(),
                 aktørId = rs.getString("aktør_id"),
                 kandidatlisteId = rs.getBigDecimal("kandidatliste_id").toBigInteger(),
-                hendelsestidspunkt = LocalDate.from(rs.getTimestamp("hendelsestidspunkt").toInstant()),
+                hendelsestidspunkt = rs.getTimestamp("hendelsestidspunkt").toLocalDateTime(),
                 hendelsestype = rs.getString("hendelsestype"),
-                arbeidsgiversStatus = rs.getString("arbeidsgiversStatus"),
+                arbeidsgiversStatus = rs.getString("arbeidsgivers_status"),
             )
         }
     }
