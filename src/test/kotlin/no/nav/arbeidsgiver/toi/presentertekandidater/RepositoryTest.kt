@@ -38,7 +38,6 @@ internal class RepositoryTest {
             aktørId = "1234567891012",
             kandidatlisteId = kandidatliste!!.id!!,
             arbeidsgiversStatus = "Status",
-            hendelsestidspunkt = LocalDateTime.now(),
             hendelsestype = "Type",
         )
         repository.lagre(kandidat)
@@ -61,14 +60,12 @@ internal class RepositoryTest {
                 aktørId = "1234567891012",
                 kandidatlisteId = kandidatliste?.id!!,
                 arbeidsgiversStatus = "Status",
-                hendelsestidspunkt = LocalDateTime.now(),
                 hendelsestype = "Type",
             ),
             Kandidat(
                 aktørId = "2234567891012",
                 kandidatlisteId = kandidatliste?.id!!,
                 arbeidsgiversStatus = "Status",
-                hendelsestidspunkt = LocalDateTime.now(),
                 hendelsestype = "Type",
             )
         )
@@ -85,5 +82,30 @@ internal class RepositoryTest {
         val kandidatlister = repository.hentKandidatlisterMedAntall(GYLDIG_KANDIDATLISTE.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
         assertThat(kandidatlister[0].antallKandidater).isEqualTo(0)
+    }
+
+    @Test
+    fun `Henting av kandidatliste med kandidater`() {
+        repository.lagre(GYLDIG_KANDIDATLISTE)
+        val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)
+        repository.lagre(Kandidat(
+            aktørId = "test",
+            arbeidsgiversStatus = "status",
+            kandidatlisteId = kandidatliste?.id!!,
+            hendelsestype = "type"
+        ))
+
+        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(GYLDIG_KANDIDATLISTE.stillingId)
+        assertThat(listeMedKandidater).isNotNull
+        assertThat(listeMedKandidater?.kandidater?.size).isEqualTo(1)
+        assertThat(listeMedKandidater?.kandidater!![0].kandidatlisteId).isEqualTo(kandidatliste.id)
+    }
+
+    @Test
+    fun `Henting av kandidatliste med tom liste kandidater`() {
+        repository.lagre(GYLDIG_KANDIDATLISTE)
+        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(GYLDIG_KANDIDATLISTE.stillingId)
+        assertThat(listeMedKandidater).isNotNull
+        assertThat(listeMedKandidater?.kandidater).isEmpty()
     }
 }

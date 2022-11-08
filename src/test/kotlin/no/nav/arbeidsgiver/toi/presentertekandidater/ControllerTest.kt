@@ -64,6 +64,13 @@ class ControllerTest {
     fun `GET mot kandidaterliste med kandidater gir status 200`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         repository.lagre(RepositoryTest.GYLDIG_KANDIDATLISTE.copy(stillingId = stillingId))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        repository.lagre(Kandidat(
+            aktørId = "test",
+            arbeidsgiversStatus = "status",
+            kandidatlisteId = kandidatliste?.id!!,
+            hendelsestype = "type"
+        ))
         val (_, response) = Fuel
             .get("http://localhost:9000/kandidatliste/$stillingId")
             .authentication().bearer(hentToken(mockOAuth2Server))
@@ -78,7 +85,17 @@ class ControllerTest {
                   "tittel": "Tittel",
                   "status": "Status",
                   "slettet": false,
-                  "virksomhetsnummer": "123456789"
+                  "virksomhetsnummer": "123456789",
+                  "kandidater": [
+                    {
+                      "id": 1,
+                      "aktørId": "test",
+                      "kandidatlisteId": 1,
+                      "hendelsestidspunkt": "2022-11-08T14:26:10.033344",
+                      "hendelsestype": "type",
+                      "arbeidsgiversStatus": "status"
+                    }
+                  ]
                 }
             """.filter { !it.isWhitespace() }))
     }

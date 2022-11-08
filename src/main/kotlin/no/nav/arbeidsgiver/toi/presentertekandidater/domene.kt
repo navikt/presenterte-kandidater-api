@@ -44,7 +44,7 @@ data class Kandidat(
     val id: BigInteger? = null,
     val aktørId: String,
     val kandidatlisteId: BigInteger,
-    val hendelsestidspunkt: LocalDateTime,
+    val hendelsestidspunkt: LocalDateTime = LocalDateTime.now(),
     val hendelsestype: String,
     val arbeidsgiversStatus: String,
 ) {

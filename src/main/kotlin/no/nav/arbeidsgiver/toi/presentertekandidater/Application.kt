@@ -1,11 +1,17 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.helse.rapids_rivers.RapidApplication
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.http.Context
+import io.javalin.plugin.json.JavalinJackson
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
+import java.util.TimeZone
 import java.util.UUID
 
 fun startApp(
@@ -27,7 +33,6 @@ fun startApp(
     }.start()
 }
 
-
 val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = {repository ->
     { context ->
         val virksomhetsnummer = context.queryParam("virksomhetsnummer")
@@ -46,7 +51,7 @@ val hentKandidatlisteMedKandidater: (repository: Repository) -> (Context) -> Uni
         if (stillingId.isNullOrBlank()) {
            context.status(400)
         } else {
-            val liste = repository.hentKandidatliste(UUID.fromString(stillingId))
+            val liste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
             if (liste == null) {
                 context.status(404)
             } else {
@@ -74,6 +79,13 @@ fun opprettJavalinMedTilgangskontroll(
     Javalin.create {
         it.defaultContentType = "application/json"
         it.accessManager(styrTilgang(issuerProperties))
+        it.jsonMapper(JavalinJackson(
+            jacksonObjectMapper()
+                .registerModule(JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+        ))
     }.start(9000)
 
 fun main() {

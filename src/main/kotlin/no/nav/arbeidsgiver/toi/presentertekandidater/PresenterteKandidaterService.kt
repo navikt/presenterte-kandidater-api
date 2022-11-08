@@ -25,7 +25,6 @@ class PresenterteKandidaterService(private val repository: Repository) {
         return Kandidat(
             aktørId = hendelse.aktørId,
             kandidatlisteId = kandidatlisteId,
-            hendelsestidspunkt = hendelse.tidspunkt.toLocalDateTime(),
             hendelsestype = hendelse.type.toString(),
             arbeidsgiversStatus = "dummy-IKKE_VURDERT"
         )
