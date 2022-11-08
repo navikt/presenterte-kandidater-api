@@ -11,16 +11,30 @@ fun startApp(
     javalin: Javalin,
     rapidsConnection: RapidsConnection,
     presenterteKandidaterService: PresenterteKandidaterService,
+    repository: Repository,
     rapidIsAlive: () -> Boolean,
 ) {
     javalin.routes {
         get("/isalive", isAlive(rapidIsAlive), Rolle.UNPROTECTED)
         get("/kandidater", hentKandidater(/*repository::hentKandidater*/), Rolle.ARBEIDSGIVER)
+        get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
     }
 
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, presenterteKandidaterService)
     }.start()
+}
+
+val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = {repository ->
+    { context ->
+        val virksomhetsnummer = context.queryParam("virksomhetsnummer")
+        if(virksomhetsnummer.isNullOrBlank()) {
+           context.status(400)
+        } else {
+            val lister = repository.hentKandidatlister(virksomhetsnummer)
+            context.json(lister).status(200)
+        }
+    }
 }
 
 val hentKandidater: () -> (Context) -> Unit = {
@@ -59,5 +73,5 @@ fun main() {
         rapidIsAlive = kafkaRapid::isRunning
     })
 
-    startApp(javalin, rapidsConnection, presenterteKandidaterService, rapidIsAlive)
+    startApp(javalin, rapidsConnection, presenterteKandidaterService,repository, rapidIsAlive )
 }

@@ -17,7 +17,7 @@ internal class RepositoryTest {
     )
 
     @Test
-    fun `Persistering av kandidatliste går OK`() {
+    fun `Persistering og henting av kandidatliste går OK`() {
         repository.lagre(GYLDIG_KANDIDATLISTE)
         repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId).apply {
             assertThat(this?.id).isNotNull
@@ -28,7 +28,7 @@ internal class RepositoryTest {
     }
 
     @Test
-    fun `Persistering av kandidat går OK`() {
+    fun `Persistering og henting av kandidat går OK`() {
         repository.lagre(GYLDIG_KANDIDATLISTE)
         val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)
 

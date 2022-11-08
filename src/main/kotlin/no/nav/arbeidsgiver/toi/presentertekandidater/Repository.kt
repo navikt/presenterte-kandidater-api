@@ -64,6 +64,19 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentKandidatlister(virksomhetsnummer: String): List<Kandidatliste> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("select * from kandidatliste where virksomhetsnummer = ?").apply {
+                this.setObject(1, virksomhetsnummer)
+            }.executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) Kandidatliste.fraDatabase(resultSet)
+                else null
+            }.toList()
+        }
+    }
+
 
     fun kjørFlywayMigreringer() {
         Flyway.configure()
