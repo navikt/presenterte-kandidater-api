@@ -61,10 +61,33 @@ class ControllerTest {
     }
 
     @Test
-    fun `GET mot kandidaterlister gir status 200`() {
+    fun `GET mot kandidaterliste med kandidater gir status 200`() {
+        val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
+        repository.lagre(RepositoryTest.GYLDIG_KANDIDATLISTE.copy(stillingId = stillingId))
+        val (_, response) = Fuel
+            .get("http://localhost:9000/kandidatliste/$stillingId")
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        Assertions.assertThat(response.body().asString("application/json"))
+            .isEqualTo(("""
+                {
+                  "id": 1,
+                  "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
+                  "tittel": "Tittel",
+                  "status": "Status",
+                  "slettet": false,
+                  "virksomhetsnummer": "123456789"
+                }
+            """.filter { !it.isWhitespace() }))
+    }
+
+    @Test
+    fun `GET mot kandidaterliste gir status 200`() {
         repository.lagre(RepositoryTest.GYLDIG_KANDIDATLISTE.copy(stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")))
         val (_, response) = Fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123456789")
+            .get("http://localhost:9000/kandidatliste?virksomhetsnummer=123456789")
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 

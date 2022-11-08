@@ -6,6 +6,7 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.http.Context
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
+import java.util.UUID
 
 fun startApp(
     javalin: Javalin,
@@ -17,6 +18,7 @@ fun startApp(
     javalin.routes {
         get("/isalive", isAlive(rapidIsAlive), Rolle.UNPROTECTED)
         get("/kandidater", hentKandidater(/*repository::hentKandidater*/), Rolle.ARBEIDSGIVER)
+        get("/kandidatliste/{stillingId}", hentKandidatlisteMedKandidater(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
     }
 
@@ -34,6 +36,22 @@ val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = {reposit
         } else {
             val lister = repository.hentKandidatlisterMedAntall(virksomhetsnummer)
             context.json(lister).status(200)
+        }
+    }
+}
+
+val hentKandidatlisteMedKandidater: (repository: Repository) -> (Context) -> Unit = { repository ->
+    { context ->
+        val stillingId = context.pathParam("stillingId")
+        if (stillingId.isNullOrBlank()) {
+           context.status(400)
+        } else {
+            val liste = repository.hentKandidatliste(UUID.fromString(stillingId))
+            if (liste == null) {
+                context.status(404)
+            } else {
+                context.json(liste).status(200)
+            }
         }
     }
 }
