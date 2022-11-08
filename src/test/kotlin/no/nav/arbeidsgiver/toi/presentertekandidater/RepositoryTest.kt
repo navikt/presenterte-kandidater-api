@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import java.util.UUID
 
 internal class RepositoryTest {
@@ -64,7 +63,7 @@ internal class RepositoryTest {
             ),
             Kandidat(
                 aktørId = "2234567891012",
-                kandidatlisteId = kandidatliste?.id!!,
+                kandidatlisteId = kandidatliste.id!!,
                 arbeidsgiversStatus = "Status",
                 hendelsestype = "Type",
             )
