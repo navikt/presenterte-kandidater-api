@@ -25,6 +25,7 @@ fun startApp(
     }.start()
 }
 
+
 val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = {repository ->
     { context ->
         val virksomhetsnummer = context.queryParam("virksomhetsnummer")

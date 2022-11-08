@@ -6,15 +6,17 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 internal class RepositoryTest {
+    companion object {
+        val GYLDIG_KANDIDATLISTE = Kandidatliste(
+            stillingId = UUID.randomUUID(),
+            tittel = "Tittel",
+            status = "Status",
+            virksomhetsnummer = "123456789"
+        )
+    }
 
     val repository = opprettTestRepositoryMedLokalPostgres()
 
-    val GYLDIG_KANDIDATLISTE = Kandidatliste(
-        stillingId = UUID.randomUUID(),
-        tittel = "Tittel",
-        status = "Status",
-        virksomhetsnummer = "123456789"
-    )
 
     @Test
     fun `Persistering og henting av kandidatliste går OK`() {
@@ -48,5 +50,17 @@ internal class RepositoryTest {
             assertThat(this?.hendelsestidspunkt).isNotNull // Precision is different on server and locally
             assertThat(this?.hendelsestype).isEqualTo(kandidat.hendelsestype)
         }
+    }
+
+    @Test
+    fun `Henting av kandidatlister utifra virksomhetsnummer`() {
+        listOf(
+            GYLDIG_KANDIDATLISTE,
+            GYLDIG_KANDIDATLISTE.copy(stillingId = UUID.randomUUID(), virksomhetsnummer = "2"),
+            GYLDIG_KANDIDATLISTE.copy(stillingId = UUID.randomUUID()),
+        ).forEach { repository.lagre(it) }
+
+        val kandidatlister = repository.hentKandidatlister(GYLDIG_KANDIDATLISTE.virksomhetsnummer)
+        assertThat(kandidatlister.size).isEqualTo(2)
     }
 }
