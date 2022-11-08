@@ -77,6 +77,36 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAntallKandidaterForKandidatlister(virksomhetsnummer: String): Map<UUID, Int> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                |select kl.stilling_id as id,count(*) as antall
+                |from kandidater k, kandidatliste kl 
+                |where k.kandidatliste_id = kl.id
+                |    AND kl.virksomhetsnummer = ?
+                |GROUP BY kl.id
+                |""".trimMargin()
+            ).apply {
+                this.setObject(1, virksomhetsnummer)
+            }.executeQuery()
+
+            return generateSequence {
+                val id = UUID.fromString(resultSet.getString("id"))
+                val antall = resultSet.getInt("antall")
+                id to antall
+            }.toMap()
+        }
+    }
+
+    fun hentKandidatlisterMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
+        val kandidatlister = hentKandidatlister(virksomhetsnummer)
+        val antallKandidater = hentAntallKandidaterForKandidatlister(virksomhetsnummer)
+        return kandidatlister.map {
+            KandidatlisteMedAntallKandidater(kandidatliste = it, antallKandidater = antallKandidater[it.stillingId]?:0)
+        }
+    }
+
 
     fun kjørFlywayMigreringer() {
         Flyway.configure()

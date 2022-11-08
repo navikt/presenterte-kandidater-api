@@ -27,6 +27,10 @@ data class Kandidatliste(
     }
 }
 
+data class KandidatlisteMedAntallKandidater(
+    val kandidatliste: Kandidatliste,
+    val antallKandidater: Int)
+
 data class Kandidat(
     val id: BigInteger? = null,
     val aktørId: String,
