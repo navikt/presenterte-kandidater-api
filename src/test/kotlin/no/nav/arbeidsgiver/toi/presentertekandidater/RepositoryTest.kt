@@ -53,18 +53,6 @@ internal class RepositoryTest {
     }
 
     @Test
-    fun `Henting av kandidatlister utifra virksomhetsnummer`() {
-        listOf(
-            GYLDIG_KANDIDATLISTE,
-            GYLDIG_KANDIDATLISTE.copy(stillingId = UUID.randomUUID(), virksomhetsnummer = "2"),
-            GYLDIG_KANDIDATLISTE.copy(stillingId = UUID.randomUUID()),
-        ).forEach { repository.lagre(it) }
-
-        val kandidatlister = repository.hentKandidatlister(GYLDIG_KANDIDATLISTE.virksomhetsnummer)
-        assertThat(kandidatlister.size).isEqualTo(2)
-    }
-
-    @Test
     fun `Henting av kandidatlister med antall hvor listen har kandidater`() {
         repository.lagre(GYLDIG_KANDIDATLISTE)
         val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)

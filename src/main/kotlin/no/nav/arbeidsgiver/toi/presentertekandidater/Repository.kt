@@ -64,28 +64,16 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidatlister(virksomhetsnummer: String): List<Kandidatliste> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement("select * from kandidatliste where virksomhetsnummer = ?").apply {
-                this.setObject(1, virksomhetsnummer)
-            }.executeQuery()
 
-            return generateSequence {
-                if (resultSet.next()) Kandidatliste.fraDatabase(resultSet)
-                else null
-            }.toList()
-        }
-    }
-
-    fun hentAntallKandidaterForKandidatlister(virksomhetsnummer: String): Map<UUID, Int> {
+    fun hentKandidatlisterMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
-                |select kl.stilling_id as id,count(*) as antall
-                |from kandidat k, kandidatliste kl 
-                |where k.kandidatliste_id = kl.id
-                |    AND kl.virksomhetsnummer = ?
-                |GROUP BY kl.id
+                |select kl.*,count(k.*) as antall
+                |from kandidatliste kl 
+                |left join kandidat k on k.kandidatliste_id = kl.id 
+                |where  kl.virksomhetsnummer = ?
+                |group by kl.id, kl.stilling_id, kl.tittel, kl.status, kl.slettet, kl.virksomhetsnummer
                 |""".trimMargin()
             ).apply {
                 this.setObject(1, virksomhetsnummer)
@@ -93,19 +81,11 @@ class Repository(private val dataSource: DataSource) {
 
             return generateSequence {
                 if (resultSet.next()) {
-                    val id = UUID.fromString(resultSet.getString("id"))
+                    val kandidatliste = Kandidatliste.fraDatabase(resultSet)
                     val antall = resultSet.getInt("antall")
-                    id to antall
+                    KandidatlisteMedAntallKandidater(kandidatliste = kandidatliste, antallKandidater = antall)
                 } else null
-            }.toMap()
-        }
-    }
-
-    fun hentKandidatlisterMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
-        val kandidatlister = hentKandidatlister(virksomhetsnummer)
-        val antallKandidater = hentAntallKandidaterForKandidatlister(virksomhetsnummer)
-        return kandidatlister.map {
-            KandidatlisteMedAntallKandidater(kandidatliste = it, antallKandidater = antallKandidater[it.stillingId]?:0)
+            }.toList()
         }
     }
 

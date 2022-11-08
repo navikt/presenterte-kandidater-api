@@ -32,7 +32,7 @@ val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = {reposit
         if(virksomhetsnummer.isNullOrBlank()) {
            context.status(400)
         } else {
-            val lister = repository.hentKandidatlister(virksomhetsnummer)
+            val lister = repository.hentKandidatlisterMedAntall(virksomhetsnummer)
             context.json(lister).status(200)
         }
     }
