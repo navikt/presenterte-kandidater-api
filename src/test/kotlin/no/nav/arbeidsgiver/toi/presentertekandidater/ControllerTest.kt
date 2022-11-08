@@ -73,12 +73,15 @@ class ControllerTest {
             .isEqualTo(("""
                 [
                   {
-                    "id": 1,
-                    "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
-                    "tittel": "Tittel",
-                    "status": "Status",
-                    "slettet": false,
-                    "virksomhetsnummer": "123456789"
+                    "kandidatliste": {
+                      "id": 1,
+                      "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
+                      "tittel": "Tittel",
+                      "status": "Status",
+                      "slettet": false,
+                      "virksomhetsnummer": "123456789"
+                    },
+                    "antallKandidater": 0
                   }
                 ]
             """.filter { !it.isWhitespace() }))
