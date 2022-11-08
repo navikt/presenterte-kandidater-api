@@ -14,22 +14,31 @@ data class Kandidatliste(
     val virksomhetsnummer: String,
 ) {
     companion object {
-        fun fraDatabase(rs: ResultSet): Kandidatliste {
-            return Kandidatliste(
-                id = rs.getBigDecimal("id").toBigInteger(),
-                stillingId = rs.getObject("stilling_id") as UUID,
-                tittel = rs.getString("tittel"),
-                status = rs.getString("status"),
-                slettet = rs.getBoolean("slettet"),
-                virksomhetsnummer = rs.getString("virksomhetsnummer"),
-            )
-        }
+        fun fraDatabase(rs: ResultSet) = Kandidatliste(
+            id = rs.getBigDecimal("id").toBigInteger(),
+            stillingId = rs.getObject("stilling_id") as UUID,
+            tittel = rs.getString("tittel"),
+            status = rs.getString("status"),
+            slettet = rs.getBoolean("slettet"),
+            virksomhetsnummer = rs.getString("virksomhetsnummer"),
+        )
     }
 }
 
 data class KandidatlisteMedAntallKandidater(
     val kandidatliste: Kandidatliste,
-    val antallKandidater: Int)
+    val antallKandidater: Int
+)
+
+data class KandidatlisteMedKandidat(
+    val id: BigInteger? = null,
+    val stillingId: UUID,
+    val tittel: String,
+    val status: String,
+    val slettet: Boolean = false,
+    val virksomhetsnummer: String,
+    val kandidater: List<Kandidat>
+)
 
 data class Kandidat(
     val id: BigInteger? = null,

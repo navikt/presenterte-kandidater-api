@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.flywaydb.core.Flyway
+import java.math.BigInteger
 import java.sql.Timestamp
 import java.util.UUID
 import javax.sql.DataSource
@@ -87,6 +88,40 @@ class Repository(private val dataSource: DataSource) {
                 } else null
             }.toList()
         }
+    }
+
+    fun hentKandidater(kandidatlisteId: BigInteger): List<Kandidat> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement("select * from kandidat where kandidatliste_id = ?").apply {
+                this.setObject(1, kandidatlisteId)
+            }.executeQuery()
+
+            return  generateSequence {
+                if(resultSet.next()) {
+                    Kandidat.fraDatabase(resultSet)
+                } else null
+            }.toList()
+        }
+    }
+
+    fun hentKandidatlisteMedKandidater(stillingId: UUID): KandidatlisteMedKandidat? {
+        val kandidatliste = hentKandidatliste(stillingId)
+
+        if(kandidatliste?.id == null) {
+            return null
+        }
+
+        val kandidater =  hentKandidater(kandidatliste.id)
+
+        return KandidatlisteMedKandidat(
+            id = kandidatliste.id,
+            stillingId = kandidatliste.stillingId,
+            tittel = kandidatliste.tittel,
+            status = kandidatliste.status,
+            slettet = kandidatliste.slettet,
+            virksomhetsnummer = kandidatliste.virksomhetsnummer,
+            kandidater = kandidater
+        )
     }
 
 
