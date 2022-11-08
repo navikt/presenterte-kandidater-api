@@ -1,11 +1,13 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.math.BigInteger
 import java.sql.ResultSet
 import java.time.LocalDateTime
 import java.util.UUID
 
 data class Kandidatliste(
+    @JsonIgnore
     val id: BigInteger? = null,
     val stillingId: UUID,
     val tittel: String,
@@ -31,6 +33,7 @@ data class KandidatlisteMedAntallKandidater(
 )
 
 data class KandidatlisteMedKandidat(
+    @JsonIgnore
     val id: BigInteger? = null,
     val stillingId: UUID,
     val tittel: String,
@@ -41,6 +44,7 @@ data class KandidatlisteMedKandidat(
 )
 
 data class Kandidat(
+    @JsonIgnore
     val id: BigInteger? = null,
     val aktørId: String,
     val kandidatlisteId: BigInteger,
