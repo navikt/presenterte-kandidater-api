@@ -47,6 +47,7 @@ data class Kandidat(
     @JsonIgnore
     val id: BigInteger? = null,
     val aktørId: String,
+    @JsonIgnore
     val kandidatlisteId: BigInteger,
     val hendelsestidspunkt: LocalDateTime = LocalDateTime.now(),
     val hendelsestype: String,

@@ -94,7 +94,6 @@ class ControllerTest {
                   "kandidater": [
                     {
                       "aktørId": "test",
-                      "kandidatlisteId": 1,
                       "hendelsestidspunkt": "2022-01-01T00:00:00",
                       "hendelsestype": "type",
                       "arbeidsgiversStatus": "status"
