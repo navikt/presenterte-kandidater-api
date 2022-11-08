@@ -82,7 +82,7 @@ class Repository(private val dataSource: DataSource) {
             val resultSet = it.prepareStatement(
                 """
                 |select kl.stilling_id as id,count(*) as antall
-                |from kandidater k, kandidatliste kl 
+                |from kandidat k, kandidatliste kl 
                 |where k.kandidatliste_id = kl.id
                 |    AND kl.virksomhetsnummer = ?
                 |GROUP BY kl.id
@@ -92,9 +92,11 @@ class Repository(private val dataSource: DataSource) {
             }.executeQuery()
 
             return generateSequence {
-                val id = UUID.fromString(resultSet.getString("id"))
-                val antall = resultSet.getInt("antall")
-                id to antall
+                if (resultSet.next()) {
+                    val id = UUID.fromString(resultSet.getString("id"))
+                    val antall = resultSet.getInt("antall")
+                    id to antall
+                } else null
             }.toMap()
         }
     }

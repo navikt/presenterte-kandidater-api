@@ -63,4 +63,39 @@ internal class RepositoryTest {
         val kandidatlister = repository.hentKandidatlister(GYLDIG_KANDIDATLISTE.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(2)
     }
+
+    @Test
+    fun `Henting av kandidatlister med antall hvor listen har kandidater`() {
+        repository.lagre(GYLDIG_KANDIDATLISTE)
+        val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)
+        val kandidater = listOf(
+            Kandidat(
+                aktørId = "1234567891012",
+                kandidatlisteId = kandidatliste?.id!!,
+                arbeidsgiversStatus = "Status",
+                hendelsestidspunkt = LocalDateTime.now(),
+                hendelsestype = "Type",
+            ),
+            Kandidat(
+                aktørId = "2234567891012",
+                kandidatlisteId = kandidatliste?.id!!,
+                arbeidsgiversStatus = "Status",
+                hendelsestidspunkt = LocalDateTime.now(),
+                hendelsestype = "Type",
+            )
+        )
+        kandidater.forEach { repository.lagre(it)}
+
+        val kandidatlister = repository.hentKandidatlisterMedAntall(GYLDIG_KANDIDATLISTE.virksomhetsnummer)
+        assertThat(kandidatlister.size).isEqualTo(1)
+        assertThat(kandidatlister[0].antallKandidater).isEqualTo(2)
+    }
+
+    @Test
+    fun `Henting av kandidatlister med antall hvor listen IKKE har kandidater`() {
+        repository.lagre(GYLDIG_KANDIDATLISTE)
+        val kandidatlister = repository.hentKandidatlisterMedAntall(GYLDIG_KANDIDATLISTE.virksomhetsnummer)
+        assertThat(kandidatlister.size).isEqualTo(1)
+        assertThat(kandidatlister[0].antallKandidater).isEqualTo(0)
+    }
 }
