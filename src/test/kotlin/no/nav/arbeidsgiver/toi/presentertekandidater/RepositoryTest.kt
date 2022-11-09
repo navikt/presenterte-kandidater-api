@@ -9,7 +9,7 @@ internal class RepositoryTest {
         val GYLDIG_KANDIDATLISTE = Kandidatliste(
             stillingId = UUID.randomUUID(),
             tittel = "Tittel",
-            status = "Status",
+            status = Kandidatliste.Status.ÅPEN,
             virksomhetsnummer = "123456789"
         )
     }
@@ -36,7 +36,7 @@ internal class RepositoryTest {
         val kandidat = Kandidat(
             aktørId = "1234567891012",
             kandidatlisteId = kandidatliste!!.id!!,
-            arbeidsgiversStatus = "Status",
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
             hendelsestype = "Type",
         )
         repository.lagre(kandidat)
@@ -44,7 +44,7 @@ internal class RepositoryTest {
         repository.hentKandidat(kandidat.aktørId).apply {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
-            assertThat(this?.arbeidsgiversStatus).isEqualTo(kandidat.arbeidsgiversStatus)
+            assertThat(this?.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
             assertThat(this?.hendelsestidspunkt).isNotNull // Precision is different on server and locally
             assertThat(this?.hendelsestype).isEqualTo(kandidat.hendelsestype)
         }
@@ -58,13 +58,13 @@ internal class RepositoryTest {
             Kandidat(
                 aktørId = "1234567891012",
                 kandidatlisteId = kandidatliste?.id!!,
-                arbeidsgiversStatus = "Status",
+                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
                 hendelsestype = "Type",
             ),
             Kandidat(
                 aktørId = "2234567891012",
                 kandidatlisteId = kandidatliste.id!!,
-                arbeidsgiversStatus = "Status",
+                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
                 hendelsestype = "Type",
             )
         )
@@ -89,7 +89,7 @@ internal class RepositoryTest {
         val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)
         repository.lagre(Kandidat(
             aktørId = "test",
-            arbeidsgiversStatus = "status",
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
             kandidatlisteId = kandidatliste?.id!!,
             hendelsestype = "type"
         ))

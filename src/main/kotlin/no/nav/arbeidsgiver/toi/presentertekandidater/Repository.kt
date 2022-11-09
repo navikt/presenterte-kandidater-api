@@ -22,7 +22,7 @@ class Repository(private val dataSource: DataSource) {
             it.prepareStatement(sql).apply {
                 this.setObject(1, kandidatliste.stillingId)
                 this.setString(2, kandidatliste.tittel)
-                this.setString(3, kandidatliste.status)
+                this.setString(3, kandidatliste.status.name)
                 this.setBoolean(4, kandidatliste.slettet)
                 this.setString(5, kandidatliste.virksomhetsnummer)
             }.execute()
@@ -46,7 +46,7 @@ class Repository(private val dataSource: DataSource) {
                 this.setObject(2, kandidat.kandidatlisteId)
                 this.setTimestamp(3, Timestamp.valueOf(kandidat.hendelsestidspunkt))
                 this.setString(4, kandidat.hendelsestype)
-                this.setString(5, kandidat.arbeidsgiversStatus)
+                this.setString(5, kandidat.arbeidsgiversVurdering.name)
             }.execute()
         }
     }
@@ -117,7 +117,7 @@ class Repository(private val dataSource: DataSource) {
             id = kandidatliste.id,
             stillingId = kandidatliste.stillingId,
             tittel = kandidatliste.tittel,
-            status = kandidatliste.status,
+            status = kandidatliste.status.name,
             slettet = kandidatliste.slettet,
             virksomhetsnummer = kandidatliste.virksomhetsnummer,
             kandidater = kandidater

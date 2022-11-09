@@ -10,7 +10,6 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -71,7 +70,7 @@ class ControllerTest {
         repository.lagre(
             Kandidat(
                 aktørId = "test",
-                arbeidsgiversStatus = "status",
+                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
                 kandidatlisteId = kandidatliste?.id!!,
                 hendelsestype = "type",
                 hendelsestidspunkt = hendelsestidspunkt
@@ -88,7 +87,7 @@ class ControllerTest {
                 {
                   "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
                   "tittel": "Tittel",
-                  "status": "Status",
+                  "status": "ÅPEN",
                   "slettet": false,
                   "virksomhetsnummer": "123456789",
                   "kandidater": [
@@ -96,7 +95,7 @@ class ControllerTest {
                       "aktørId": "test",
                       "hendelsestidspunkt": "2022-01-01T00:00:00",
                       "hendelsestype": "type",
-                      "arbeidsgiversStatus": "status"
+                      "arbeidsgiversVurdering": "AKTUELL"
                     }
                   ]
                 }
@@ -125,7 +124,7 @@ class ControllerTest {
                     "kandidatliste": {
                       "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
                       "tittel": "Tittel",
-                      "status": "Status",
+                      "status": "ÅPEN",
                       "slettet": false,
                       "virksomhetsnummer": "123456788"
                     },

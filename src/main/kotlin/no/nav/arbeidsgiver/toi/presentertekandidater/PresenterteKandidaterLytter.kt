@@ -15,7 +15,7 @@ class PresenterteKandidaterLytter(private val rapidsConnection: RapidsConnection
                 it.demandKey("aktørId")
                 it.demandValue("@event_name", "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand")
                 it.demandKey("kandidathendelse")
-                it.demandKey("stillingstittel")
+                it.demandKey("stilling")
             }
         }.register(this)
     }
@@ -24,14 +24,12 @@ class PresenterteKandidaterLytter(private val rapidsConnection: RapidsConnection
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val aktørId = packet["aktørId"].asText()
         val kandidathendelsePacket = packet["kandidathendelse"]
         val eventtype = kandidathendelsePacket["type"]
-        log.info("Mottok event $eventtype for aktørid $aktørId")
         val stillingstittel = packet["stillingstittel"].asText()
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
+        log.info("Mottok event $eventtype for aktørid ${kandidathendelse.aktørId}")
         presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
     }
-
 }
 

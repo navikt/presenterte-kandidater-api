@@ -11,21 +11,26 @@ data class Kandidatliste(
     val id: BigInteger? = null,
     val stillingId: UUID,
     val tittel: String,
-    val status: String,
+    val status: Status,
     val slettet: Boolean = false,
     val virksomhetsnummer: String,
 ) {
     companion object {
+
         fun fraDatabase(rs: ResultSet) = Kandidatliste(
             id = rs.getBigDecimal("id").toBigInteger(),
             stillingId = rs.getObject("stilling_id") as UUID,
             tittel = rs.getString("tittel"),
-            status = rs.getString("status"),
+            status = Status.valueOf(rs.getString("status")),
             slettet = rs.getBoolean("slettet"),
             virksomhetsnummer = rs.getString("virksomhetsnummer"),
         )
     }
+    enum class Status {
+        ÅPEN, LUKKET
+    }
 }
+
 
 data class KandidatlisteMedAntallKandidater(
     val kandidatliste: Kandidatliste,
@@ -51,7 +56,7 @@ data class Kandidat(
     val kandidatlisteId: BigInteger,
     val hendelsestidspunkt: LocalDateTime = LocalDateTime.now(),
     val hendelsestype: String,
-    val arbeidsgiversStatus: String,
+    val arbeidsgiversVurdering: ArbeidsgiversVurdering,
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {
@@ -61,8 +66,15 @@ data class Kandidat(
                 kandidatlisteId = rs.getBigDecimal("kandidatliste_id").toBigInteger(),
                 hendelsestidspunkt = rs.getTimestamp("hendelsestidspunkt").toLocalDateTime(),
                 hendelsestype = rs.getString("hendelsestype"),
-                arbeidsgiversStatus = rs.getString("arbeidsgivers_status"),
+                arbeidsgiversVurdering = ArbeidsgiversVurdering.valueOf(rs.getString("arbeidsgivers_status")),
             )
         }
+    }
+
+    enum class ArbeidsgiversVurdering {
+        AKTUELL,
+        TIL_VURDERING,
+        IKKE_AKTUELL,
+        FÅTT_JOBBEN,
     }
 }

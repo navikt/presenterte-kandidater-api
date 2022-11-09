@@ -5,8 +5,18 @@ import java.math.BigInteger
 class PresenterteKandidaterService(private val repository: Repository) {
 
     fun lagreKandidathendelse(kandidathendelse: Kandidathendelse, stillingstittel : String) {
-        //Endringer på kandidatliste siden sist?
-        //val kandidatliste = lagreKandidatliste(kandidathendelse, stillingstittel)
+        val kandidatliste = repository.hentKandidatliste(kandidathendelse.kandidatlisteId)
+        if (kandidatliste == null) {
+            repository.lagre(
+                Kandidatliste(
+                    stillingId = kandidathendelse.stillingsId,
+                    status = Kandidatliste.Status.ÅPEN,
+                    virksomhetsnummer = kandidathendelse.organisasjonsnummer,
+                    tittel = stillingstittel
+                )
+            )
+            lagreKandidatliste(kandidathendelse, stillingstittel)
+        }
         //lagreKandidat(kandidathendelse, kandidatliste.id!!)
     }
 
@@ -26,7 +36,7 @@ class PresenterteKandidaterService(private val repository: Repository) {
             aktørId = hendelse.aktørId,
             kandidatlisteId = kandidatlisteId,
             hendelsestype = hendelse.type.toString(),
-            arbeidsgiversStatus = "dummy-IKKE_VURDERT"
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL
         )
     }
 
@@ -34,12 +44,9 @@ class PresenterteKandidaterService(private val repository: Repository) {
         return Kandidatliste(
             stillingId = hendelse.stillingsId,
             tittel = stillingstittel,
-            status = "dummy-PÅGÅENDE",
+            status = Kandidatliste.Status.ÅPEN,
             slettet = hendelse.type.equals("dummy-SLETTET"),
             virksomhetsnummer = hendelse.organisasjonsnummer
         )
     }
-
-
-
 }

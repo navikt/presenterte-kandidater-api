@@ -7,7 +7,7 @@ data class Kandidathendelse(
     val type: Type,
     val aktørId: String,
     val organisasjonsnummer: String,
-    val kandidatlisteId: UUID? = null,
+    val kandidatlisteId: UUID,
     val tidspunkt: ZonedDateTime,
     val stillingsId: UUID,
     val utførtAvNavIdent: String? = null,
