@@ -12,7 +12,6 @@ class PresenterteKandidaterLytter(private val rapidsConnection: RapidsConnection
     init {
         River(rapidsConnection).apply {
             validate {
-                it.demandKey("aktørId")
                 it.demandValue("@event_name", "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand")
                 it.demandKey("kandidathendelse")
                 it.demandKey("stilling")
@@ -26,7 +25,7 @@ class PresenterteKandidaterLytter(private val rapidsConnection: RapidsConnection
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelsePacket = packet["kandidathendelse"]
         val eventtype = kandidathendelsePacket["type"]
-        val stillingstittel = packet["stillingstittel"].asText()
+        val stillingstittel = packet["stilling"]["stillingstittel"].asText()
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
         log.info("Mottok event $eventtype for aktørid ${kandidathendelse.aktørId}")
         presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)

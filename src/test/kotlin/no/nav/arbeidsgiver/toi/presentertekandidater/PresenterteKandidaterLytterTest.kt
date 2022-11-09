@@ -3,10 +3,13 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import io.javalin.Javalin
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.util.*
+import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
@@ -25,11 +28,22 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `tester melding på rapid`() {
+    fun `når vi får en melding om kandidathendelse så skal kandidatlisten og kandidaten lagres med riktige verdier `() {
         val kandidathendelseMelding = kandidathendelseMelding()
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         testRapid.sendTestMessage(kandidathendelseMelding)
-//        repository.hentKandidatliste()
+        val kandidatliste = repository.hentKandidatliste(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
+
+        // Verifiser kandidatliste
+        assertNotNull(kandidatliste)
+        assertThat(kandidatliste.stillingId).isEqualTo(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
+        assertThat(kandidatliste.tittel).isEqualTo("Noen skal få denne jobben!")
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+        assertThat(kandidatliste.slettet).isFalse
+        assertThat(kandidatliste.virksomhetsnummer).isEqualTo("912998827")
+        assertNotNull(kandidatliste.id)
+
+        // Verifiser kandidat
 
     }
 
