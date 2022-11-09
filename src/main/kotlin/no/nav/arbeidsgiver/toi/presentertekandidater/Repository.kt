@@ -12,19 +12,23 @@ class Repository(private val dataSource: DataSource) {
             val sql = """
                 insert into kandidatliste(
                     stilling_id,
+                    uuid,
                     tittel,
                     status,
                     slettet,
-                    virksomhetsnummer
-                ) values (?, ?, ?, ?, ?)
+                    virksomhetsnummer,
+                    sist_endret
+                ) values (?, ?, ?, ?, ?, ?, ?)
             """.trimIndent()
 
             it.prepareStatement(sql).apply {
                 this.setObject(1, kandidatliste.stillingId)
-                this.setString(2, kandidatliste.tittel)
-                this.setString(3, kandidatliste.status.name)
-                this.setBoolean(4, kandidatliste.slettet)
-                this.setString(5, kandidatliste.virksomhetsnummer)
+                this.setObject(2, kandidatliste.uuid)
+                this.setString(3, kandidatliste.tittel)
+                this.setString(4, kandidatliste.status.name)
+                this.setBoolean(5, kandidatliste.slettet)
+                this.setString(6, kandidatliste.virksomhetsnummer)
+                this.setTimestamp(7, Timestamp(kandidatliste.sistEndret.toInstant().toEpochMilli()))
             }.execute()
         }
     }
@@ -35,18 +39,14 @@ class Repository(private val dataSource: DataSource) {
                 insert into kandidat(
                     aktør_id,
                     kandidatliste_id,
-                    hendelsestidspunkt,
-                    hendelsestype,
-                    arbeidsgivers_status
-                ) values (?, ?, ?, ?, ?)
+                    uuid
+                ) values (?, ?, ?)
             """.trimIndent()
 
             it.prepareStatement(sql).apply {
                 this.setObject(1, kandidat.aktørId)
                 this.setObject(2, kandidat.kandidatlisteId)
-                this.setTimestamp(3, Timestamp.valueOf(kandidat.hendelsestidspunkt))
-                this.setString(4, kandidat.hendelsestype)
-                this.setString(5, kandidat.arbeidsgiversVurdering.name)
+                this.setObject(3, kandidat.uuid)
             }.execute()
         }
     }
@@ -115,6 +115,7 @@ class Repository(private val dataSource: DataSource) {
 
         return KandidatlisteMedKandidat(
             id = kandidatliste.id,
+            uuid = kandidatliste.uuid,
             stillingId = kandidatliste.stillingId,
             tittel = kandidatliste.tittel,
             status = kandidatliste.status.name,

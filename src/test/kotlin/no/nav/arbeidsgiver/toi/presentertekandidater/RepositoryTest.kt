@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.ZonedDateTime
 import java.util.UUID
 
 internal class RepositoryTest {
@@ -10,7 +11,9 @@ internal class RepositoryTest {
             stillingId = UUID.randomUUID(),
             tittel = "Tittel",
             status = Kandidatliste.Status.ÅPEN,
-            virksomhetsnummer = "123456789"
+            virksomhetsnummer = "123456789",
+            uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
+            sistEndret = ZonedDateTime.now()
         )
     }
 
@@ -33,20 +36,19 @@ internal class RepositoryTest {
         repository.lagre(GYLDIG_KANDIDATLISTE)
         val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)
 
+        val uuid = UUID.randomUUID()
+
         val kandidat = Kandidat(
             aktørId = "1234567891012",
             kandidatlisteId = kandidatliste!!.id!!,
-            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
-            hendelsestype = "Type",
+            uuid = uuid
         )
         repository.lagre(kandidat)
 
         repository.hentKandidat(kandidat.aktørId).apply {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
-            assertThat(this?.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
-            assertThat(this?.hendelsestidspunkt).isNotNull // Precision is different on server and locally
-            assertThat(this?.hendelsestype).isEqualTo(kandidat.hendelsestype)
+            assertThat(this?.uuid).isEqualTo(uuid)
         }
     }
 
@@ -58,14 +60,12 @@ internal class RepositoryTest {
             Kandidat(
                 aktørId = "1234567891012",
                 kandidatlisteId = kandidatliste?.id!!,
-                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
-                hendelsestype = "Type",
+                uuid = UUID.randomUUID()
             ),
             Kandidat(
                 aktørId = "2234567891012",
                 kandidatlisteId = kandidatliste.id!!,
-                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
-                hendelsestype = "Type",
+                uuid = UUID.randomUUID()
             )
         )
         kandidater.forEach { repository.lagre(it)}
@@ -87,17 +87,18 @@ internal class RepositoryTest {
     fun `Henting av kandidatliste med kandidater`() {
         repository.lagre(GYLDIG_KANDIDATLISTE)
         val kandidatliste = repository.hentKandidatliste(GYLDIG_KANDIDATLISTE.stillingId)
+        val kandidatUUID = UUID.randomUUID()
         repository.lagre(Kandidat(
             aktørId = "test",
-            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
             kandidatlisteId = kandidatliste?.id!!,
-            hendelsestype = "type"
+            uuid = kandidatUUID
         ))
 
         val listeMedKandidater = repository.hentKandidatlisteMedKandidater(GYLDIG_KANDIDATLISTE.stillingId)
         assertThat(listeMedKandidater).isNotNull
         assertThat(listeMedKandidater?.kandidater?.size).isEqualTo(1)
         assertThat(listeMedKandidater?.kandidater!![0].kandidatlisteId).isEqualTo(kandidatliste.id)
+        assertThat(listeMedKandidater?.kandidater[0].uuid).isEqualTo(kandidatUUID)
     }
 
     @Test

@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import java.math.BigInteger
+import java.time.ZonedDateTime
+import java.util.*
 
 class PresenterteKandidaterService(private val repository: Repository) {
 
@@ -10,9 +12,11 @@ class PresenterteKandidaterService(private val repository: Repository) {
             repository.lagre(
                 Kandidatliste(
                     stillingId = kandidathendelse.stillingsId,
+                    uuid = UUID.randomUUID(),
                     status = Kandidatliste.Status.ÅPEN,
                     virksomhetsnummer = kandidathendelse.organisasjonsnummer,
-                    tittel = stillingstittel
+                    tittel = stillingstittel,
+                    sistEndret = ZonedDateTime.now()
                 )
             )
             lagreKandidatliste(kandidathendelse, stillingstittel)
@@ -35,18 +39,19 @@ class PresenterteKandidaterService(private val repository: Repository) {
         return Kandidat(
             aktørId = hendelse.aktørId,
             kandidatlisteId = kandidatlisteId,
-            hendelsestype = hendelse.type.toString(),
-            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL
+            uuid = UUID.randomUUID()
         )
     }
 
     private fun mapKandidathendelseToKandidatliste(hendelse: Kandidathendelse, stillingstittel: String) : Kandidatliste {
         return Kandidatliste(
             stillingId = hendelse.stillingsId,
+            uuid = UUID.randomUUID(),
             tittel = stillingstittel,
             status = Kandidatliste.Status.ÅPEN,
             slettet = hendelse.type.equals("dummy-SLETTET"),
-            virksomhetsnummer = hendelse.organisasjonsnummer
+            virksomhetsnummer = hendelse.organisasjonsnummer,
+            sistEndret = ZonedDateTime.now()
         )
     }
 }

@@ -70,10 +70,8 @@ class ControllerTest {
         repository.lagre(
             Kandidat(
                 aktørId = "test",
-                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.AKTUELL,
                 kandidatlisteId = kandidatliste?.id!!,
-                hendelsestype = "type",
-                hendelsestidspunkt = hendelsestidspunkt
+                uuid = UUID.fromString("28e2c1f6-dea5-46d1-90cd-bfbd994e06df")
             )
         )
         val (_, response) = Fuel
@@ -86,6 +84,7 @@ class ControllerTest {
             .isEqualTo(("""
                 {
                   "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
+                  "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
                   "tittel": "Tittel",
                   "status": "ÅPEN",
                   "slettet": false,
@@ -93,9 +92,7 @@ class ControllerTest {
                   "kandidater": [
                     {
                       "aktørId": "test",
-                      "hendelsestidspunkt": "2022-01-01T00:00:00",
-                      "hendelsestype": "type",
-                      "arbeidsgiversVurdering": "AKTUELL"
+                      "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df",
                     }
                   ]
                 }
