@@ -66,7 +66,6 @@ class ControllerTest {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         repository.lagre(RepositoryTest.GYLDIG_KANDIDATLISTE.copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val hendelsestidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0, 0)
         repository.lagre(
             Kandidat(
                 aktørId = "test",
@@ -83,16 +82,16 @@ class ControllerTest {
         Assertions.assertThat(response.body().asString("application/json;charset=utf-8"))
             .isEqualTo(("""
                 {
-                  "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
                   "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
+                  "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
                   "tittel": "Tittel",
                   "status": "ÅPEN",
                   "slettet": false,
                   "virksomhetsnummer": "123456789",
                   "kandidater": [
                     {
-                      "aktørId": "test",
                       "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df",
+                      "aktørId": "test"
                     }
                   ]
                 }
@@ -115,20 +114,25 @@ class ControllerTest {
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
         Assertions.assertThat(response.body().asString("application/json;charset=utf-8"))
-            .isEqualTo(("""
+            .contains(("""
                 [
                   {
                     "kandidatliste": {
+                      "uuid":"7ea380f8-a0af-433f-8cbc-51c5788a7d29",
                       "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
                       "tittel": "Tittel",
                       "status": "ÅPEN",
                       "slettet": false,
-                      "virksomhetsnummer": "123456788"
+                      "virksomhetsnummer": "123456788",
+                      "sistEndret":"
+                     """.filter { !it.isWhitespace() }))
+
+            .contains("""  
+                      "
                     },
                     "antallKandidater": 0
                   }
                 ]
             """.filter { !it.isWhitespace() })
-            )
     }
 }
