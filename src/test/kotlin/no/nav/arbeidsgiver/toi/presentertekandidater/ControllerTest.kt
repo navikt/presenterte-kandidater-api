@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -61,7 +62,7 @@ class ControllerTest {
     @Test
     fun `GET mot kandidaterliste med kandidater gir status 200`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
-        repository.lagre(RepositoryTest.GYLDIG_KANDIDATLISTE.copy(stillingId = stillingId))
+        repository.lagre(kandidatliste().copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
         repository.lagre(
             Kandidat(
@@ -101,7 +102,7 @@ class ControllerTest {
         val uuid = UUID.randomUUID()
 
         repository.lagre(
-            RepositoryTest.GYLDIG_KANDIDATLISTE.copy(
+            kandidatliste().copy(
                 virksomhetsnummer = "123456788",
                 stillingId = uuid
             )
@@ -134,4 +135,13 @@ class ControllerTest {
                 ]
             """.filter { !it.isWhitespace() })
     }
+
+    private fun kandidatliste() = Kandidatliste(
+        stillingId = UUID.randomUUID(),
+        tittel = "Tittel",
+        status = Kandidatliste.Status.ÅPEN,
+        virksomhetsnummer = "123456789",
+        uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
+        sistEndret = ZonedDateTime.now()
+    )
 }
