@@ -1,10 +1,11 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.fail
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.postgresql.util.PSQLException
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.test.assertFails
 
 internal class RepositoryTest {
     companion object {
@@ -112,6 +113,37 @@ internal class RepositoryTest {
 
     @Test
     fun `Skal ikke kunne lagre to kandidatlister med samme stillingsId`() {
+        val fellesStillingid = UUID.randomUUID()
+
+        val kandidatliste1 = Kandidatliste(
+            stillingId = fellesStillingid,
+            tittel = "Tittel",
+            status = Kandidatliste.Status.ÅPEN,
+            virksomhetsnummer = "123456789",
+            uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
+            sistEndret = ZonedDateTime.now()
+        )
+
+        val kandidatliste2 = Kandidatliste(
+            stillingId = fellesStillingid,
+            tittel = "Tittel2",
+            status = Kandidatliste.Status.LUKKET,
+            virksomhetsnummer = "123456780",
+            uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d28"),
+            sistEndret = ZonedDateTime.now()
+        )
+
+
+        repository.lagre(kandidatliste1)
+ 
+        assertThatThrownBy{
+            repository.lagre(kandidatliste2)
+        }.isInstanceOf(PSQLException::class.java)
+
+    }
+
+    @Test
+    fun `Skal kunne lagre samme kandidat i to lister`() {
         fail<String>("Ikke implementert")
     }
 }
