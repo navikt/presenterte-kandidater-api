@@ -13,30 +13,32 @@ internal class RepositoryTest {
 
     @Test
     fun `Persistering og henting av kandidatliste går OK`() {
-        repository.lagre(lagKandidatliste())
-        repository.hentKandidatliste(lagKandidatliste().stillingId).apply {
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        repository.hentKandidatliste(kandidatliste.stillingId).apply {
             assertThat(this?.id).isNotNull
-            assertThat(this?.tittel).isEqualTo(lagKandidatliste().tittel)
-            assertThat(this?.status).isEqualTo(lagKandidatliste().status)
-            assertThat(this?.virksomhetsnummer).isEqualTo(lagKandidatliste().virksomhetsnummer)
+            assertThat(this?.tittel).isEqualTo(kandidatliste.tittel)
+            assertThat(this?.status).isEqualTo(kandidatliste.status)
+            assertThat(this?.virksomhetsnummer).isEqualTo(kandidatliste.virksomhetsnummer)
         }
     }
 
     @Test
     fun `Persistering og henting av kandidat går OK`() {
-        repository.lagre(lagKandidatliste())
-        val kandidatliste = repository.hentKandidatliste(lagKandidatliste().stillingId)
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
 
         val uuid = UUID.randomUUID()
 
         val kandidat = Kandidat(
             aktørId = "1234567891012",
-            kandidatlisteId = kandidatliste!!.id!!,
+            kandidatlisteId = lagretKandidatliste!!.id!!,
             uuid = uuid
         )
         repository.lagre(kandidat)
 
-        repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!).apply {
+        repository.hentKandidat(kandidat.aktørId, lagretKandidatliste.id!!).apply {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
             assertThat(this?.uuid).isEqualTo(uuid)
@@ -45,57 +47,63 @@ internal class RepositoryTest {
 
     @Test
     fun `Henting av kandidatlister med antall hvor listen har kandidater`() {
-        repository.lagre(lagKandidatliste())
-        val kandidatliste = repository.hentKandidatliste(lagKandidatliste().stillingId)
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
         val kandidater = listOf(
             Kandidat(
                 aktørId = "1234567891012",
-                kandidatlisteId = kandidatliste?.id!!,
+                kandidatlisteId = lagretKandidatliste?.id!!,
                 uuid = UUID.randomUUID()
             ),
             Kandidat(
                 aktørId = "2234567891012",
-                kandidatlisteId = kandidatliste.id!!,
+                kandidatlisteId = lagretKandidatliste.id!!,
                 uuid = UUID.randomUUID()
             )
         )
         kandidater.forEach { repository.lagre(it)}
 
-        val kandidatlister = repository.hentKandidatlisterMedAntall(lagKandidatliste().virksomhetsnummer)
+        val kandidatlister = repository.hentKandidatlisterMedAntall(kandidatliste.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
         assertThat(kandidatlister[0].antallKandidater).isEqualTo(2)
     }
 
     @Test
     fun `Henting av kandidatlister med antall hvor listen IKKE har kandidater`() {
-        repository.lagre(lagKandidatliste())
-        val kandidatlister = repository.hentKandidatlisterMedAntall(lagKandidatliste().virksomhetsnummer)
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        val kandidatlister = repository.hentKandidatlisterMedAntall(kandidatliste.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
         assertThat(kandidatlister[0].antallKandidater).isEqualTo(0)
     }
 
     @Test
     fun `Henting av kandidatliste med kandidater`() {
-        repository.lagre(lagKandidatliste())
-        val kandidatliste = repository.hentKandidatliste(lagKandidatliste().stillingId)
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
         val kandidatUUID = UUID.randomUUID()
-        repository.lagre(Kandidat(
-            aktørId = "test",
-            kandidatlisteId = kandidatliste?.id!!,
-            uuid = kandidatUUID
-        ))
+        repository.lagre(
+            Kandidat(
+                aktørId = "test",
+                kandidatlisteId = lagretKandidatliste?.id!!,
+                uuid = kandidatUUID
+            )
+        )
 
-        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(lagKandidatliste().stillingId)
+        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(kandidatliste.stillingId)
         assertThat(listeMedKandidater).isNotNull
         assertThat(listeMedKandidater?.kandidater?.size).isEqualTo(1)
-        assertThat(listeMedKandidater?.kandidater!![0].kandidatlisteId).isEqualTo(kandidatliste.id)
+        assertThat(listeMedKandidater?.kandidater!![0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
         assertThat(listeMedKandidater?.kandidater[0].uuid).isEqualTo(kandidatUUID)
     }
 
     @Test
     fun `Henting av kandidatliste med tom liste kandidater`() {
-        repository.lagre(lagKandidatliste())
-        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(lagKandidatliste().stillingId)
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(kandidatliste.stillingId)
         assertThat(listeMedKandidater).isNotNull
         assertThat(listeMedKandidater?.kandidater).isEmpty()
     }
