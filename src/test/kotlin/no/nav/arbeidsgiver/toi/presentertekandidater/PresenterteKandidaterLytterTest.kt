@@ -4,10 +4,7 @@ import io.javalin.Javalin
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -21,10 +18,21 @@ class PresenterteKandidaterLytterTest {
 
     @BeforeAll
     fun init() {
+        javalin = opprettJavalinMedTilgangskontroll(no.nav.arbeidsgiver.toi.presentertekandidater.issuerProperties)
         testRapid = TestRapid()
         repository = opprettTestRepositoryMedLokalPostgres()
         presenterteKandidaterService = PresenterteKandidaterService(repository)
-        startLocalApplication(rapid = testRapid, presenterteKandidaterService = presenterteKandidaterService)
+        startLocalApplication(
+            rapid = testRapid,
+            presenterteKandidaterService = presenterteKandidaterService,
+            javalin = javalin
+        )
+
+    }
+
+    @AfterAll
+    fun cleanUp() {
+        javalin.stop()
     }
 
     @Test

@@ -16,7 +16,11 @@ lateinit var repository : Repository
 fun main() {
     repository = opprettTestRepositoryMedLokalPostgres()
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
-    startLocalApplication(presenterteKandidaterService = presenterteKandidaterService, repository = repository)
+    startLocalApplication(
+        presenterteKandidaterService = presenterteKandidaterService,
+        repository = repository,
+        javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    )
 }
 
 val issuerProperties = mapOf(
@@ -27,7 +31,7 @@ val issuerProperties = mapOf(
     ),
 )
 
-fun startLocalApplication(javalin: Javalin = opprettJavalinMedTilgangskontroll(issuerProperties),
+fun startLocalApplication(javalin: Javalin,
                           rapid: TestRapid = TestRapid(),
                           presenterteKandidaterService:  PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
                           repository: Repository = opprettTestRepositoryMedLokalPostgres()
