@@ -10,11 +10,10 @@ import org.testcontainers.utility.DockerImageName
 import java.net.URL
 import io.mockk.mockk
 
-lateinit var repository : Repository
+private val repository = opprettTestRepositoryMedLokalPostgres()
 
 
 fun main() {
-    repository = opprettTestRepositoryMedLokalPostgres()
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
     startLocalApplication(
         presenterteKandidaterService = presenterteKandidaterService,
@@ -40,7 +39,7 @@ fun startLocalApplication(javalin: Javalin,
 }
 
 fun opprettTestRepositoryMedLokalPostgres(): Repository {
-    var postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
+    val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
         .withDatabaseName("dbname")
         .withUsername("username")
         .withPassword("pwd")

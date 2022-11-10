@@ -11,12 +11,11 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LivenessTest {
-    private lateinit var javalin: Javalin
+
+    private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
 
     @BeforeAll
     fun init() {
-        javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
-
         startLocalApplication(javalin)
     }
 

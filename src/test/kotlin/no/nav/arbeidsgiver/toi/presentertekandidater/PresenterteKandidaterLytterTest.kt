@@ -1,8 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import io.javalin.Javalin
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.*
 import java.util.*
@@ -11,23 +9,18 @@ import kotlin.test.assertNotNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
 
-    private lateinit var javalin: Javalin
-    private lateinit var testRapid: TestRapid
-    private lateinit var presenterteKandidaterService: PresenterteKandidaterService
-    private lateinit var repository: Repository
+    private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    private val testRapid = TestRapid()
+    private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val presenterteKandidaterService = PresenterteKandidaterService(repository)
 
     @BeforeAll
     fun init() {
-        javalin = opprettJavalinMedTilgangskontroll(no.nav.arbeidsgiver.toi.presentertekandidater.issuerProperties)
-        testRapid = TestRapid()
-        repository = opprettTestRepositoryMedLokalPostgres()
-        presenterteKandidaterService = PresenterteKandidaterService(repository)
         startLocalApplication(
             rapid = testRapid,
             presenterteKandidaterService = presenterteKandidaterService,
             javalin = javalin
         )
-
     }
 
     @AfterAll
