@@ -29,14 +29,15 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `når vi får en melding om kandidathendelse så skal kandidatlisten og kandidaten lagres med riktige verdier `() {
+    fun `når vi får melding om kandidathendelse så skal kandidatlisten og kandidaten lagres`() {
         val kandidathendelseMelding = kandidathendelseMelding()
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         testRapid.sendTestMessage(kandidathendelseMelding)
-        val kandidatliste = repository.hentKandidatliste(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
+        val kandidatliste = repository.hentKandidatlisteMedKandidater(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
 
         // Verifiser kandidatliste
         assertNotNull(kandidatliste)
+        assertThat(kandidatliste.uuid)
         assertThat(kandidatliste.stillingId).isEqualTo(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
         assertThat(kandidatliste.tittel).isEqualTo("Noen skal få denne jobben!")
         assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
@@ -45,7 +46,17 @@ class PresenterteKandidaterLytterTest {
         assertNotNull(kandidatliste.id)
 
         // Verifiser kandidat
+        assertThat(kandidatliste.kandidater).hasSize(1)
+        val kandidat = kandidatliste.kandidater.first()
+        assertNotNull(kandidat.id)
+        assertThat(kandidat.aktørId).isEqualTo("2040897398605")
+        assertThat(kandidat.kandidatlisteId).isEqualTo(kandidatliste.id)
+        assertNotNull(kandidat.uuid)
+    }
 
+    @Test
+    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret skal vi ikke lagre på nytt`() {
+        fail<String>("Ikke implementert")
     }
 
     private fun kandidathendelseMelding() =

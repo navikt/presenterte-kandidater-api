@@ -50,7 +50,7 @@ data class KandidatlisteMedKandidat(
     val uuid: UUID,
     val stillingId: UUID,
     val tittel: String,
-    val status: String,
+    val status: Kandidatliste.Status,
     val slettet: Boolean = false,
     val virksomhetsnummer: String,
     val kandidater: List<Kandidat>

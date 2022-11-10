@@ -118,7 +118,7 @@ class Repository(private val dataSource: DataSource) {
             uuid = kandidatliste.uuid,
             stillingId = kandidatliste.stillingId,
             tittel = kandidatliste.tittel,
-            status = kandidatliste.status.name,
+            status = kandidatliste.status,
             slettet = kandidatliste.slettet,
             virksomhetsnummer = kandidatliste.virksomhetsnummer,
             kandidater = kandidater
