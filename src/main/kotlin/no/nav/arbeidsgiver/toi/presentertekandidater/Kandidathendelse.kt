@@ -7,15 +7,10 @@ data class Kandidathendelse(
     val type: Type,
     val aktørId: String,
     val organisasjonsnummer: String,
-    val kandidatlisteId: UUID,
     val tidspunkt: ZonedDateTime,
     val stillingsId: UUID,
     val utførtAvNavIdent: String? = null,
     val utførtAvNavKontorKode: String? = null,
-    val synligKandidat: Boolean,
-    val harHullICv: Boolean?,
-    val alder: Int?,
-    val tilretteleggingsbehov: List<String>
 )
 
 enum class Type() {
