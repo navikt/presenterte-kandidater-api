@@ -172,10 +172,11 @@ class Repository(private val dataSource: DataSource) {
             .migrate()
     }
 
-    fun hentKandidat(aktørId: String): Kandidat? {
+    fun hentKandidat(aktørId: String, kandidatlisteId: BigInteger): Kandidat? {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("select * from kandidat where aktør_id = ?").apply {
+            val resultSet = it.prepareStatement("select * from kandidat where aktør_id = ? and kandidatliste_id = ?").apply {
                 this.setObject(1, aktørId)
+                this.setObject(2, kandidatlisteId)
             }.executeQuery()
 
             if (!resultSet.next()) {

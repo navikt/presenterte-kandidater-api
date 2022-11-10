@@ -10,17 +10,18 @@ class PresenterteKandidaterService(private val repository: Repository) {
         val kandidatliste = repository.hentKandidatliste(kandidathendelse.stillingsId)
         if (kandidatliste == null) {
             lagreKandidatliste(kandidathendelse, stillingstittel)
-
         } else {
             oppdaterKandidatliste(kandidathendelse, stillingstittel)
         }
 
         val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
-        val kandidat = repository.hentKandidat(kandidathendelse.aktørId)
-        if (kandidat == null && kandidatlisteLagret?.id != null) {
-            lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
-        }
 
+        if (kandidatlisteLagret?.id != null) {
+            val kandidat = repository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id)
+            if (kandidat == null) {
+                lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
+            }
+        }
     }
 
     private fun lagreKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {

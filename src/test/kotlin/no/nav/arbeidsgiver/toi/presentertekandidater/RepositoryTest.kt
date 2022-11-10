@@ -46,7 +46,7 @@ internal class RepositoryTest {
         )
         repository.lagre(kandidat)
 
-        repository.hentKandidat(kandidat.aktørId).apply {
+        repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!).apply {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
             assertThat(this?.uuid).isEqualTo(uuid)

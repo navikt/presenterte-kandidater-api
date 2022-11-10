@@ -98,10 +98,12 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidaterliste gir status 200`() {
+        val uuid = UUID.randomUUID()
+
         repository.lagre(
             RepositoryTest.GYLDIG_KANDIDATLISTE.copy(
                 virksomhetsnummer = "123456788",
-                stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
+                stillingId = uuid
             )
         )
         val (_, response) = Fuel
@@ -116,7 +118,7 @@ class ControllerTest {
                   {
                     "kandidatliste": {
                       "uuid":"7ea380f8-a0af-433f-8cbc-51c5788a7d29",
-                      "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
+                      "stillingId": "$uuid",
                       "tittel": "Tittel",
                       "status": "ÅPEN",
                       "slettet": false,
