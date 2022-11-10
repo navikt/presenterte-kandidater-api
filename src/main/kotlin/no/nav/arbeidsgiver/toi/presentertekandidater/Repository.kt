@@ -65,6 +65,26 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentAlt(): List<KandidatlisteMedAntallKandidater> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                |select kl.*,count(k.*) as antall
+                |from kandidatliste kl 
+                |left join kandidat k on k.kandidatliste_id = kl.id 
+                |group by kl.id, kl.stilling_id, kl.tittel, kl.status, kl.slettet, kl.virksomhetsnummer
+                |""".trimMargin()
+            ).executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    val kandidatliste = Kandidatliste.fraDatabase(resultSet)
+                    val antall = resultSet.getInt("antall")
+                    KandidatlisteMedAntallKandidater(kandidatliste = kandidatliste, antallKandidater = antall)
+                } else null
+            }.toList()
+        }
+    }
 
     fun hentKandidatlisterMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
         dataSource.connection.use {

@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -107,5 +108,10 @@ internal class RepositoryTest {
         val listeMedKandidater = repository.hentKandidatlisteMedKandidater(GYLDIG_KANDIDATLISTE.stillingId)
         assertThat(listeMedKandidater).isNotNull
         assertThat(listeMedKandidater?.kandidater).isEmpty()
+    }
+
+    @Test
+    fun `Skal ikke kunne lagre to kandidatlister med samme stillingsId`() {
+        fail<String>("Ikke implementert")
     }
 }

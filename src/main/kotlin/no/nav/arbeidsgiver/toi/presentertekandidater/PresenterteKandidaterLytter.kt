@@ -8,7 +8,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 
-class PresenterteKandidaterLytter(private val rapidsConnection: RapidsConnection, private val presenterteKandidaterService: PresenterteKandidaterService) : River.PacketListener {
+class PresenterteKandidaterLytter(rapidsConnection: RapidsConnection, private val presenterteKandidaterService: PresenterteKandidaterService) : River.PacketListener {
     init {
         River(rapidsConnection).apply {
             validate {

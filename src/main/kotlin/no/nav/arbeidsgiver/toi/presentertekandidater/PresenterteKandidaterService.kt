@@ -7,18 +7,8 @@ import java.util.*
 class PresenterteKandidaterService(private val repository: Repository) {
 
     fun lagreKandidathendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
-        val kandidatliste = repository.hentKandidatliste(kandidathendelse.kandidatlisteId)
+        val kandidatliste = repository.hentKandidatliste(kandidathendelse.stillingsId)
         if (kandidatliste == null) {
-            repository.lagre(
-                Kandidatliste(
-                    stillingId = kandidathendelse.stillingsId,
-                    uuid = UUID.randomUUID(),
-                    status = Kandidatliste.Status.ÅPEN,
-                    virksomhetsnummer = kandidathendelse.organisasjonsnummer,
-                    tittel = stillingstittel,
-                    sistEndret = ZonedDateTime.now()
-                )
-            )
             lagreKandidatliste(kandidathendelse, stillingstittel)
             val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
 

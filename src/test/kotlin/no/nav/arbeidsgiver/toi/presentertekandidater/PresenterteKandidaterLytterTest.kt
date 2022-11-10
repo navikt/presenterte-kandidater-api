@@ -29,16 +29,19 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `når vi får melding om kandidathendelse så skal kandidatlisten og kandidaten lagres`() {
-        val kandidathendelseMelding = kandidathendelseMelding()
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+    fun `Skal lagre kandidatliste og kandidat når vi får melding om kandidathendelse`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val kandidathendelseMelding = kandidathendelseMelding(aktørId = aktørId, stillingsId = stillingsId)
         testRapid.sendTestMessage(kandidathendelseMelding)
-        val kandidatliste = repository.hentKandidatlisteMedKandidater(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val kandidatliste =
+            repository.hentKandidatlisteMedKandidater(stillingsId)
 
         // Verifiser kandidatliste
         assertNotNull(kandidatliste)
         assertThat(kandidatliste.uuid)
-        assertThat(kandidatliste.stillingId).isEqualTo(UUID.fromString("fa85076a-504a-4396-a55f-2f414e1d5a16"))
+        assertThat(kandidatliste.stillingId).isEqualTo(stillingsId)
         assertThat(kandidatliste.tittel).isEqualTo("Noen skal få denne jobben!")
         assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
         assertThat(kandidatliste.slettet).isFalse
@@ -49,32 +52,47 @@ class PresenterteKandidaterLytterTest {
         assertThat(kandidatliste.kandidater).hasSize(1)
         val kandidat = kandidatliste.kandidater.first()
         assertNotNull(kandidat.id)
-        assertThat(kandidat.aktørId).isEqualTo("2040897398605")
+        assertThat(kandidat.aktørId).isEqualTo(aktørId)
         assertThat(kandidat.kandidatlisteId).isEqualTo(kandidatliste.id)
         assertNotNull(kandidat.uuid)
     }
 
     @Test
-    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret skal vi ikke lagre i ny rad`() {
-        fail<String>("Ikke implementert")
+    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret men med endrete opplysninger skal den oppdateres`() {
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val stillingsId = UUID.randomUUID()
+
+        val førsteAktørId = "2040897398605"
+        val førsteStillingstittel = "Klovn søkes"
+        val førsteKandidathendelsesmelding = kandidathendelseMelding(førsteAktørId, førsteStillingstittel, stillingsId)
+        testRapid.sendTestMessage(førsteKandidathendelsesmelding)
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
+
+        val andreAktørId = "2040897398605"
+        val andreStillingstittel = "Narr søkes"
+        val andreKandidathendelsesmelding = kandidathendelseMelding(andreAktørId, andreStillingstittel, stillingsId)
+        testRapid.sendTestMessage(andreKandidathendelsesmelding)
+        val oppdatertKandidatliste =
+            repository.hentKandidatliste(stillingsId)
+        assertThat(oppdatertKandidatliste!!.tittel).isEqualTo(andreStillingstittel)
     }
 
-    @Test
-    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har skal den oppdateres hvis opplysningene er endret`() {
-        fail<String>("Ikke implementert")
-    }
-
-    private fun kandidathendelseMelding() =
+    private fun kandidathendelseMelding(
+        aktørId: String,
+        stillingstittel: String = "Noen skal få denne jobben!",
+        stillingsId: UUID
+    ) =
         """
             {
               "@event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
               "kandidathendelse": {
                 "type": "CV_DELT_VIA_REKRUTTERINGSBISTAND",
-                "aktørId": "2040897398605",
+                "aktørId": "$aktørId",
                 "organisasjonsnummer": "912998827",
                 "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
                 "tidspunkt": "2022-11-09T10:37:45.108+01:00",
-                "stillingsId": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+                "stillingsId": "$stillingsId",
                 "utførtAvNavIdent": "Z994633",
                 "utførtAvNavKontorKode": "0313",
                 "synligKandidat": true,
@@ -103,13 +121,13 @@ class PresenterteKandidaterLytterTest {
               ],
               "stillingsinfo": {
                 "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
-                "stillingsid": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+                "stillingsid": "$stillingsId",
                 "eier": null,
                 "notat": null,
                 "stillingskategori": "STILLING"
               },
               "stilling": {
-                "stillingstittel": "Noen skal få denne jobben!"
+                "stillingstittel": "$stillingstittel"
               },
               "@forårsaket_av": {
                 "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
