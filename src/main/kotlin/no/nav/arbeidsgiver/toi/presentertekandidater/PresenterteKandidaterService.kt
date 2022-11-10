@@ -6,7 +6,7 @@ import java.util.*
 
 class PresenterteKandidaterService(private val repository: Repository) {
 
-    fun lagreKandidathendelse(kandidathendelse: Kandidathendelse, stillingstittel : String) {
+    fun lagreKandidathendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
         val kandidatliste = repository.hentKandidatliste(kandidathendelse.kandidatlisteId)
         if (kandidatliste == null) {
             repository.lagre(
@@ -20,11 +20,17 @@ class PresenterteKandidaterService(private val repository: Repository) {
                 )
             )
             lagreKandidatliste(kandidathendelse, stillingstittel)
+            val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
+
+            val kandidat = repository.hentKandidat(kandidathendelse.aktørId)
+            if (kandidat == null && kandidatlisteLagret?.id != null) {
+                lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
+            }
         }
-        //lagreKandidat(kandidathendelse, kandidatliste.id!!)
+
     }
 
-    private fun lagreKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel : String) : Kandidatliste {
+    private fun lagreKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
         val kandidatliste = mapKandidathendelseToKandidatliste(kandidathendelse, stillingstittel)
         repository.lagre(kandidatliste) //returnere objektet for id?
         return kandidatliste
@@ -35,7 +41,7 @@ class PresenterteKandidaterService(private val repository: Repository) {
         repository.lagre(kandidat)
     }
 
-    private fun mapKandidathendelseToKandidat(hendelse: Kandidathendelse, kandidatlisteId : BigInteger) : Kandidat {
+    private fun mapKandidathendelseToKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {
         return Kandidat(
             aktørId = hendelse.aktørId,
             kandidatlisteId = kandidatlisteId,
@@ -43,7 +49,7 @@ class PresenterteKandidaterService(private val repository: Repository) {
         )
     }
 
-    private fun mapKandidathendelseToKandidatliste(hendelse: Kandidathendelse, stillingstittel: String) : Kandidatliste {
+    private fun mapKandidathendelseToKandidatliste(hendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
         return Kandidatliste(
             stillingId = hendelse.stillingsId,
             uuid = UUID.randomUUID(),
