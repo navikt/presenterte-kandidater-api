@@ -33,6 +33,25 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun oppdater(kandidatliste: Kandidatliste) {
+        dataSource.connection.use {
+            val sql = """
+                update kandidatliste
+                set tittel=?, status=?,slettet=?,virksomhetsnummer=?,sist_endret=?
+                where stilling_id=?
+            """.trimIndent()
+
+            it.prepareStatement(sql).apply {
+                this.setString(1, kandidatliste.tittel)
+                this.setString(2, kandidatliste.status.name)
+                this.setBoolean(3, kandidatliste.slettet)
+                this.setString(4, kandidatliste.virksomhetsnummer)
+                this.setTimestamp(5, Timestamp(kandidatliste.sistEndret.toInstant().toEpochMilli()))
+                this.setObject(6, kandidatliste.stillingId)
+            }.execute()
+        }
+    }
+
     fun lagre(kandidat: Kandidat) {
         dataSource.connection.use {
             val sql = """

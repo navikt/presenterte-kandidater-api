@@ -70,7 +70,7 @@ class PresenterteKandidaterLytterTest {
         assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
 
         val andreAktørId = "2040897398605"
-        val andreStillingstittel = "Narr søkes"
+        val andreStillingstittel = "Hoffnarr søkes"
         val andreKandidathendelsesmelding = kandidathendelseMelding(andreAktørId, andreStillingstittel, stillingsId)
         testRapid.sendTestMessage(andreKandidathendelsesmelding)
         val oppdatertKandidatliste =

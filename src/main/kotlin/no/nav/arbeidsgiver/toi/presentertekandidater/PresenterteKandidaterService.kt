@@ -10,12 +10,15 @@ class PresenterteKandidaterService(private val repository: Repository) {
         val kandidatliste = repository.hentKandidatliste(kandidathendelse.stillingsId)
         if (kandidatliste == null) {
             lagreKandidatliste(kandidathendelse, stillingstittel)
-            val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
 
-            val kandidat = repository.hentKandidat(kandidathendelse.aktørId)
-            if (kandidat == null && kandidatlisteLagret?.id != null) {
-                lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
-            }
+        } else {
+            oppdaterKandidatliste(kandidathendelse, stillingstittel)
+        }
+
+        val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
+        val kandidat = repository.hentKandidat(kandidathendelse.aktørId)
+        if (kandidat == null && kandidatlisteLagret?.id != null) {
+            lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
         }
 
     }
@@ -23,6 +26,12 @@ class PresenterteKandidaterService(private val repository: Repository) {
     private fun lagreKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
         val kandidatliste = mapKandidathendelseToKandidatliste(kandidathendelse, stillingstittel)
         repository.lagre(kandidatliste) //returnere objektet for id?
+        return kandidatliste
+    }
+
+    private fun oppdaterKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
+        val kandidatliste = mapKandidathendelseToKandidatliste(kandidathendelse, stillingstittel)
+        repository.oppdater(kandidatliste) //returnere objektet for id?
         return kandidatliste
     }
 
