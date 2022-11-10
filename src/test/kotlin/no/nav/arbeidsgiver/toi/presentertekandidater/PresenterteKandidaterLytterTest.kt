@@ -55,7 +55,12 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret skal vi ikke lagre på nytt`() {
+    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret skal vi ikke lagre i ny rad`() {
+        fail<String>("Ikke implementert")
+    }
+
+    @Test
+    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har skal den oppdateres hvis opplysningene er endret`() {
         fail<String>("Ikke implementert")
     }
 
