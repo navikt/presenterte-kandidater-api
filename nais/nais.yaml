@@ -58,3 +58,5 @@ spec:
       value: {{ kafka_consumer_group_id }}
     - name: KAFKA_RESET_POLICY
       value: "latest"
+    - name: OPENSEARCH_URL
+      value: {{ opensearch_url }}

@@ -6,5 +6,6 @@
     "gcp-cluster": "dev-gcp",
     "kafka_consumer_group_id": "presenterte-kandidater-api-rapidconsumer-1",
     "gcp_db_tier": "db-f1-micro",
-    "gcp_disk_autoresize": "false"
+    "gcp_disk_autoresize": "false",
+    "opensearch_url": "https://opensearch-toi-kandidat-nav-dev.aivencloud.com:26482"
 }
