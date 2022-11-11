@@ -109,14 +109,14 @@ class PresenterteKandidaterLytterTest {
                   "time": "2022-11-09T10:38:00.057867691",
                   "service": "rekrutteringsbistand-stilling-api",
                   "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
-                  "image": "docker.pkg.github.com/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
                 },
                 {
                   "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
                   "time": "2022-11-09T10:38:02.181523695",
                   "service": "rekrutteringsbistand-stilling-api",
                   "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
-                  "image": "docker.pkg.github.com/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
                 }
               ],
               "stillingsinfo": {
