@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
+import javax.management.monitor.StringMonitor
 
 class OpenSearchKlient(private val envs: Map<String, String>) {
 
@@ -54,5 +55,9 @@ data class KandidatFraOpenSearch(
     @JsonAlias("aktorId")
     val aktørId: String,
     val fornavn: String,
-    val etternavn: String)
+    val etternavn: String,
+    val bosted: String,
+    val mobiltelefonnummer: String,
+    val epost: String
+)
 

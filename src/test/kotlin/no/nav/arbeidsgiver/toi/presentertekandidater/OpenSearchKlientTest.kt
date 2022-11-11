@@ -40,6 +40,11 @@ class OpenSearchKlientTest {
         assertThat(kandidat.aktørId).isEqualTo(aktørId)
         assertThat(kandidat.fornavn).isEqualTo(fornavn)
         assertThat(kandidat.etternavn).isEqualTo(etternavn)
+        assertThat(kandidat.bosted).isEqualTo("Svolvær")
+        assertThat(kandidat.epost).isEqualTo("hei@hei.com")
+        assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
+
+        // Resten som trengs i CV-visning
     }
 
     @Test
@@ -87,8 +92,8 @@ class OpenSearchKlientTest {
          					"fodselsdato": "1970-12-14T23:00:00.000+00:00",
          					"fodselsdatoErDnr": false,
          					"formidlingsgruppekode": "ARBS",
-         					"epostadresse": null,
-         					"mobiltelefon": null,
+         					"epostadresse": "hei@hei.no",
+         					"mobiltelefon": "99887766",
          					"harKontaktinformasjon": false,
          					"telefon": null,
          					"statsborgerskap": "",
