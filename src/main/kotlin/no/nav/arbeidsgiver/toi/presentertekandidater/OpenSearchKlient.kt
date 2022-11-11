@@ -1,11 +1,16 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonAlias
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 
 class OpenSearchKlient(private val envs: Map<String, String>) {
+
+    val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun hentKandiat(aktørid: String): KandidatFraOpenSearch? {
         val url = envs["OPENSEARCH_URL"] +
@@ -32,10 +37,10 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     }
 
     private fun mapHentÉnKandidat(body: String): KandidatFraOpenSearch {
-        val responsJsonNode = jacksonObjectMapper().readTree(body)
-        val kandidatJson = jacksonObjectMapper().writeValueAsString(responsJsonNode["hits"]["hits"][0]["_source"])
+        val responsJsonNode = objectMapper.readTree(body)
+        val kandidatJson = objectMapper.writeValueAsString(responsJsonNode["hits"]["hits"][0]["_source"])
 
-        val kandidat: KandidatFraOpenSearch = jacksonObjectMapper().readValue(kandidatJson,KandidatFraOpenSearch::class.java)
+        val kandidat: KandidatFraOpenSearch = objectMapper.readValue(kandidatJson,KandidatFraOpenSearch::class.java)
         return kandidat
     }
 }

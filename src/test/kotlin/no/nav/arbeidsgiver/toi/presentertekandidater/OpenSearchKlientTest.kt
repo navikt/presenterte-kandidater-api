@@ -42,6 +42,15 @@ class OpenSearchKlientTest {
         assertThat(kandidat.etternavn).isEqualTo(etternavn)
     }
 
+    @Test
+    fun `hentKandiat skal returnere null når kandidat ikke finnes`() {
+        val aktørId = "12345"
+        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = ingenTreffKandidatOpensearchJson)
+
+        val kandidat = openSearchKlient.hentKandiat(aktørId)
+        assertThat(kandidat).isNull()
+    }
+
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
         wiremockServer.stubFor(get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
             .withBasicAuth("gunnar", "xyz")
@@ -179,4 +188,26 @@ class OpenSearchKlientTest {
          	}
          }
      """.trimIndent()
+
+    val ingenTreffKandidatOpensearchJson =
+        """
+            {
+            	"took": 5,
+            	"timed_out": false,
+            	"_shards": {
+            		"total": 3,
+            		"successful": 3,
+            		"skipped": 0,
+            		"failed": 0
+            	},
+            	"hits": {
+            		"total": {
+            			"value": 0,
+            			"relation": "eq"
+            		},
+            		"max_score": null,
+            		"hits": []
+            	}
+            }
+        """.trimIndent()
  }
