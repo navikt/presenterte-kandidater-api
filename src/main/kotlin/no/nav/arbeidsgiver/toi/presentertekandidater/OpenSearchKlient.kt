@@ -56,8 +56,11 @@ data class KandidatFraOpenSearch(
     val aktørId: String,
     val fornavn: String,
     val etternavn: String,
+    @JsonAlias("poststed")
     val bosted: String,
+    @JsonAlias("mobiltelefon")
     val mobiltelefonnummer: String,
+    @JsonAlias("epostadresse")
     val epost: String
 )
 

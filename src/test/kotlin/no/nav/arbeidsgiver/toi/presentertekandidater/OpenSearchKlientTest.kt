@@ -41,7 +41,7 @@ class OpenSearchKlientTest {
         assertThat(kandidat.fornavn).isEqualTo(fornavn)
         assertThat(kandidat.etternavn).isEqualTo(etternavn)
         assertThat(kandidat.bosted).isEqualTo("Svolvær")
-        assertThat(kandidat.epost).isEqualTo("hei@hei.com")
+        assertThat(kandidat.epost).isEqualTo("hei@hei.no")
         assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
 
         // Resten som trengs i CV-visning
