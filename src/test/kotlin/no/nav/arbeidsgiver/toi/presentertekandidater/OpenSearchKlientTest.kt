@@ -45,6 +45,7 @@ class OpenSearchKlientTest {
         assertThat(kandidat.epost).isEqualTo("hei@hei.no")
         assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
         assertThat(kandidat.alder).isEqualTo(40)
+        assertThat(kandidat.kompetanse).containsExactlyInAnyOrder("Sykepleievitenskap", "Markedsanalyse")
 
         // Resten som trengs i CV-visning
     }
@@ -66,134 +67,161 @@ class OpenSearchKlientTest {
 
      fun esKandidatJson(aktørId: String, fornavn: String, etternavn: String) = """
          {
-         	"took": 78,
-         	"timed_out": false,
-         	"_shards": {
-         		"total": 3,
-         		"successful": 3,
-         		"skipped": 0,
-         		"failed": 0
-         	},
-         	"hits": {
-         		"total": {
-         			"value": 1,
-         			"relation": "eq"
-         		},
-         		"max_score": 2.3671236,
-         		"hits": [
-         			{
-         				"_index": "veilederkandidat_os4",
-         				"_type": "_doc",
-         				"_id": "PAM019w4pxbus",
-         				"_score": 2.3671236,
-         				"_source": {
-         					"aktorId": "$aktørId",
-         					"fodselsnummer": "15927099516",
-         					"fornavn": "$fornavn",
-         					"etternavn": "$etternavn",
-         					"fodselsdato": "${ZonedDateTime.now().minusYears(40)}",
-         					"fodselsdatoErDnr": false,
-         					"formidlingsgruppekode": "ARBS",
-         					"epostadresse": "hei@hei.no",
-         					"mobiltelefon": "99887766",
-         					"harKontaktinformasjon": false,
-         					"telefon": null,
-         					"statsborgerskap": "",
-         					"kandidatnr": "PAM019w4pxbus",
-         					"arenaKandidatnr": "PAM019w4pxbus",
-         					"beskrivelse": "",
-         					"samtykkeStatus": "G",
-         					"samtykkeDato": "2022-09-26T11:02:19.387+00:00",
-         					"adresselinje1": "Skipperveien 16",
-         					"adresselinje2": "",
-         					"adresselinje3": "",
-         					"postnummer": "8300",
-         					"poststed": "Svolvær",
-         					"landkode": null,
-         					"kommunenummer": 1865,
-         					"kommunenummerkw": 1865,
-         					"kommunenummerstring": "1865",
-         					"fylkeNavn": "Nordland",
-         					"kommuneNavn": "Vågan",
-         					"disponererBil": false,
-         					"tidsstempel": "2022-09-26T11:02:19.387+00:00",
-         					"doed": false,
-         					"frKode": "0",
-         					"kvalifiseringsgruppekode": "BATT",
-         					"hovedmaalkode": "SKAFFEA",
-         					"orgenhet": "1860",
-         					"navkontor": "NAV Lofoten",
-         					"fritattKandidatsok": null,
-         					"fritattAgKandidatsok": null,
-         					"utdanning": [],
-         					"fagdokumentasjon": [],
-         					"yrkeserfaring": [],
-         					"kompetanseObj": [],
-         					"annenerfaringObj": [],
-         					"sertifikatObj": [],
-         					"forerkort": [],
-         					"sprak": [],
-         					"kursObj": [],
-         					"vervObj": [],
-         					"geografiJobbonsker": [
-         						{
-         							"geografiKodeTekst": "Oslo",
-         							"geografiKode": "NO03"
-         						}
-         					],
-         					"yrkeJobbonskerObj": [
-         						{
-         							"styrkKode": null,
-         							"styrkBeskrivelse": "Kokkelærling",
-         							"sokeTitler": [
-         								"Kokkelærling",
-         								"Kokkelærling",
-         								"Kokk",
-         								"Kafekokk",
-         								"Lærlingplass"
-         							],
-         							"primaertJobbonske": false
-         						}
-         					],
-         					"omfangJobbonskerObj": [
-         						{
-         							"omfangKode": "DELTID",
-         							"omfangKodeTekst": "Deltid"
-         						}
-         					],
-         					"ansettelsesformJobbonskerObj": [
-         						{
-         							"ansettelsesformKode": "ENGASJEMENT",
-         							"ansettelsesformKodeTekst": "Engasjement"
-         						}
-         					],
-         					"arbeidstidsordningJobbonskerObj": [],
-         					"arbeidsdagerJobbonskerObj": [],
-         					"arbeidstidJobbonskerObj": [
-         						{
-         							"arbeidstidKode": "DAGTID",
-         							"arbeidstidKodeTekst": "Dagtid"
-         						}
-         					],
-         					"samletKompetanseObj": [],
-         					"totalLengdeYrkeserfaring": 0,
-         					"synligForArbeidsgiverSok": false,
-         					"synligForVeilederSok": true,
-         					"oppstartKode": "LEDIG_NAA",
-         					"veileder": null,
-         					"inkluderingsbehov": false,
-         					"tilretteleggingsbehov": false,
-         					"godkjenninger": [],
-         					"perioderMedInaktivitet": {
-         						"startdatoForInnevarendeInaktivePeriode": null,
-         						"sluttdatoerForInaktivePerioderPaToArEllerMer": []
-         					},
-         					"veilTilretteleggingsbehov": []
-         				}
-         			}
-         		]
-         	}
-         }
+              "took": 78,
+              "timed_out": false,
+              "_shards": {
+                "total": 3,
+                "successful": 3,
+                "skipped": 0,
+                "failed": 0
+              },
+              "hits": {
+                "total": {
+                  "value": 1,
+                  "relation": "eq"
+                },
+                "max_score": 2.3671236,
+                "hits": [
+                  {
+                    "_index": "veilederkandidat_os4",
+                    "_type": "_doc",
+                    "_id": "PAM019w4pxbus",
+                    "_score": 2.3671236,
+                    "_source": {
+                      "aktorId": "$aktørId",
+                      "fodselsnummer": "15927099516",
+                      "fornavn": "$fornavn",
+                      "etternavn": "$etternavn",
+                      "fodselsdato": "${ZonedDateTime.now().minusYears(40)}",
+                      "fodselsdatoErDnr": false,
+                      "formidlingsgruppekode": "ARBS",
+                      "epostadresse": "hei@hei.no",
+                      "mobiltelefon": "99887766",
+                      "harKontaktinformasjon": false,
+                      "telefon": null,
+                      "statsborgerskap": "",
+                      "kandidatnr": "PAM019w4pxbus",
+                      "arenaKandidatnr": "PAM019w4pxbus",
+                      "beskrivelse": "",
+                      "samtykkeStatus": "G",
+                      "samtykkeDato": "2022-09-26T11:02:19.387+00:00",
+                      "adresselinje1": "Skipperveien 16",
+                      "adresselinje2": "",
+                      "adresselinje3": "",
+                      "postnummer": "8300",
+                      "poststed": "Svolvær",
+                      "landkode": null,
+                      "kommunenummer": 1865,
+                      "kommunenummerkw": 1865,
+                      "kommunenummerstring": "1865",
+                      "fylkeNavn": "Nordland",
+                      "kommuneNavn": "Vågan",
+                      "disponererBil": false,
+                      "tidsstempel": "2022-09-26T11:02:19.387+00:00",
+                      "doed": false,
+                      "frKode": "0",
+                      "kvalifiseringsgruppekode": "BATT",
+                      "hovedmaalkode": "SKAFFEA",
+                      "orgenhet": "1860",
+                      "navkontor": "NAV Lofoten",
+                      "fritattKandidatsok": null,
+                      "fritattAgKandidatsok": null,
+                      "utdanning": [],
+                      "fagdokumentasjon": [],
+                      "yrkeserfaring": [],
+                      "kompetanseObj": [
+                        {
+                          "fraDato": null,
+                          "kompKode": null,
+                          "kompKodeNavn": "Sykepleievitenskap",
+                          "sokeNavn": [
+                            "Sykepleievitenskap",
+                            "Sykepleievitenskap",
+                            "Helsefag",
+                            "Implementere omsorgtjenester"
+                          ],
+                          "alternativtNavn": "Sykepleievitenskap",
+                          "beskrivelse": ""
+                        },
+                        {
+                          "fraDato": null,
+                          "kompKode": null,
+                          "kompKodeNavn": "Markedsanalyse",
+                          "sokeNavn": [
+                            "Markedsanalyse",
+                            "Markedsanalyse",
+                            "Markedsføringsforskning"
+                          ],
+                          "alternativtNavn": "Markedsanalyse",
+                          "beskrivelse": ""
+                        }
+                      ],
+                      "annenerfaringObj": [],
+                      "sertifikatObj": [],
+                      "forerkort": [],
+                      "sprak": [],
+                      "kursObj": [],
+                      "vervObj": [],
+                      "geografiJobbonsker": [
+                        {
+                          "geografiKodeTekst": "Oslo",
+                          "geografiKode": "NO03"
+                        }
+                      ],
+                      "yrkeJobbonskerObj": [
+                        {
+                          "styrkKode": null,
+                          "styrkBeskrivelse": "Kokkelærling",
+                          "sokeTitler": [
+                            "Kokkelærling",
+                            "Kokkelærling",
+                            "Kokk",
+                            "Kafekokk",
+                            "Lærlingplass"
+                          ],
+                          "primaertJobbonske": false
+                        }
+                      ],
+                      "omfangJobbonskerObj": [
+                        {
+                          "omfangKode": "DELTID",
+                          "omfangKodeTekst": "Deltid"
+                        }
+                      ],
+                      "ansettelsesformJobbonskerObj": [
+                        {
+                          "ansettelsesformKode": "ENGASJEMENT",
+                          "ansettelsesformKodeTekst": "Engasjement"
+                        }
+                      ],
+                      "arbeidstidsordningJobbonskerObj": [],
+                      "arbeidsdagerJobbonskerObj": [],
+                      "arbeidstidJobbonskerObj": [
+                        {
+                          "arbeidstidKode": "DAGTID",
+                          "arbeidstidKodeTekst": "Dagtid"
+                        }
+                      ],
+                      "samletKompetanseObj": [],
+                      "totalLengdeYrkeserfaring": 0,
+                      "synligForArbeidsgiverSok": false,
+                      "synligForVeilederSok": true,
+                      "oppstartKode": "LEDIG_NAA",
+                      "veileder": null,
+                      "inkluderingsbehov": false,
+                      "tilretteleggingsbehov": false,
+                      "godkjenninger": [],
+                      "perioderMedInaktivitet": {
+                        "startdatoForInnevarendeInaktivePeriode": null,
+                        "sluttdatoerForInaktivePerioderPaToArEllerMer": []
+                      },
+                      "veilTilretteleggingsbehov": []
+                    }
+                  }
+                ]
+              }
+            }
+     
      """.trimIndent()
 
     val ingenTreffKandidatOpensearchJson =

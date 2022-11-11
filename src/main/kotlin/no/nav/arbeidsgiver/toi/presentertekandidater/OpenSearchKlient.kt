@@ -71,7 +71,8 @@ data class KandidatFraOpenSearch(
     val epost: String,
     @JsonAlias("fodselsdato")
     @JsonDeserialize(using = AlderDeserializer::class)
-    val alder: Int
+    val alder: Int,
+    val kompetanse: List<String>
 )
 
 private class AlderDeserializer(): StdDeserializer<Int>(Int::class.java) {
