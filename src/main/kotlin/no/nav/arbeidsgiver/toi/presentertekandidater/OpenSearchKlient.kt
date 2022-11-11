@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.authentication
 
 class OpenSearchKlient(private val envs: Map<String, String>) {
 
@@ -10,7 +11,11 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         val url = envs["OPENSEARCH_URL"] +
         "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
-        val (_, response) = Fuel.get(url).response()
+        val (_, response) = Fuel
+            .get(url)
+            //authentication()
+            //.basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
+            .response()
         return if (response.statusCode == 200) {
             log.info("Hentkandidat fra openserch ok")
             val body = response.body().asString("UTF-8")

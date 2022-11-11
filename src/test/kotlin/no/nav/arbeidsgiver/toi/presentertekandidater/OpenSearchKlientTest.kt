@@ -17,8 +17,13 @@ class OpenSearchKlientTest {
     @BeforeAll
     fun setUp() {
         wiremockServer.start()
-        val miljøvariabler = mapOf("OPENSEARCH_URL" to "https://localhost:${wiremockServer.port()}/")
+        val miljøvariabler = mapOf(
+            "OPENSEARCH_URL" to "http://localhost:${wiremockServer.port()}",
+            "OPENSEARCH_USERNAME" to "gunnar",
+            "OPENSEARCH_PASSWORD" to "xyz"
+        )
         openSearchKlient = OpenSearchKlient(miljøvariabler)
+
     }
 
     @Test
@@ -39,6 +44,7 @@ class OpenSearchKlientTest {
 
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
         wiremockServer.stubFor(get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
+            //.withBasicAuth("gunnar", "xyz")
             .willReturn(ok(responsBody)))
     }
 
