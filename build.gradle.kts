@@ -43,6 +43,7 @@ dependencies {
     implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
 
     testImplementation(kotlin("test"))
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.0")
     testImplementation("org.assertj:assertj-core:3.21.0")
     testImplementation("no.nav.security:mock-oauth2-server:0.3.6")
     testImplementation("org.testcontainers:testcontainers:1.17.5")
