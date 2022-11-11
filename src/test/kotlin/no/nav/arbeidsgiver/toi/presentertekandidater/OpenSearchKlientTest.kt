@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.time.ZonedDateTime
 import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -43,6 +44,7 @@ class OpenSearchKlientTest {
         assertThat(kandidat.bosted).isEqualTo("Svolvær")
         assertThat(kandidat.epost).isEqualTo("hei@hei.no")
         assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
+        assertThat(kandidat.alder).isEqualTo(40)
 
         // Resten som trengs i CV-visning
     }
@@ -89,7 +91,7 @@ class OpenSearchKlientTest {
          					"fodselsnummer": "15927099516",
          					"fornavn": "$fornavn",
          					"etternavn": "$etternavn",
-         					"fodselsdato": "1970-12-14T23:00:00.000+00:00",
+         					"fodselsdato": "${ZonedDateTime.now().minusYears(40)}",
          					"fodselsdatoErDnr": false,
          					"formidlingsgruppekode": "ARBS",
          					"epostadresse": "hei@hei.no",

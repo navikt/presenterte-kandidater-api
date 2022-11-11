@@ -61,6 +61,6 @@ data class KandidatFraOpenSearch(
     @JsonAlias("mobiltelefon")
     val mobiltelefonnummer: String,
     @JsonAlias("epostadresse")
-    val epost: String
-)
+    val epost: String,
+    val alder: Int)
 
