@@ -36,12 +36,17 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    private fun mapHentÉnKandidat(body: String): KandidatFraOpenSearch {
+    private fun mapHentÉnKandidat(body: String): KandidatFraOpenSearch? {
         val responsJsonNode = objectMapper.readTree(body)
-        val kandidatJson = objectMapper.writeValueAsString(responsJsonNode["hits"]["hits"][0]["_source"])
+        val hits = responsJsonNode["hits"]["hits"]
+        val harTreff = hits.toList().isNotEmpty()
 
-        val kandidat: KandidatFraOpenSearch = objectMapper.readValue(kandidatJson,KandidatFraOpenSearch::class.java)
-        return kandidat
+        return if (harTreff) {
+            val kandidatJson = objectMapper.writeValueAsString(hits.first()["_source"])
+            return objectMapper.readValue(kandidatJson,KandidatFraOpenSearch::class.java)
+        } else {
+            null
+        }
     }
 }
 
