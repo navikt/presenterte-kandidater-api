@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -72,11 +73,23 @@ data class KandidatFraOpenSearch(
     @JsonAlias("fodselsdato")
     @JsonDeserialize(using = AlderDeserializer::class)
     val alder: Int,
+    @JsonAlias("kompetanseObj")
+    @JsonProperty("kompKodeNavn")
     val kompetanse: List<String>
 )
 
-private class AlderDeserializer(): StdDeserializer<Int>(Int::class.java) {
+private class AlderDeserializer: StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
         return Period.between(ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(), ZonedDateTime.now().toLocalDate()).years
     }
 }
+
+private class KompetanseDeserializer: StdDeserializer<List<String>>(List::class.java) {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
+        val liste = ctxt.readValue(parser, List::class.java)
+        liste.map { it. }
+    }
+
+}
+
+
