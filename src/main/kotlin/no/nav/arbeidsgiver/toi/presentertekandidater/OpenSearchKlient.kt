@@ -1,12 +1,19 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonAlias
+import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
-import javax.management.monitor.StringMonitor
+import java.time.Period
+import java.time.ZonedDateTime
+
 
 class OpenSearchKlient(private val envs: Map<String, String>) {
 
@@ -62,5 +69,13 @@ data class KandidatFraOpenSearch(
     val mobiltelefonnummer: String,
     @JsonAlias("epostadresse")
     val epost: String,
-    val alder: Int)
+    @JsonAlias("fodselsdato")
+    @JsonDeserialize(using = AlderDeserializer::class)
+    val alder: Int
+)
 
+private class AlderDeserializer(): StdDeserializer<Int>(Int::class.java) {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
+        return Period.between(ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(), ZonedDateTime.now().toLocalDate()).years
+    }
+}
