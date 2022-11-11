@@ -4,8 +4,11 @@ import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.postgresql.util.PSQLException
 import java.math.BigInteger
+import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.test.assertNotNull
 
 internal class RepositoryTest {
     
@@ -118,7 +121,8 @@ internal class RepositoryTest {
             status = Kandidatliste.Status.ÅPEN,
             virksomhetsnummer = "123456789",
             uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
-            sistEndret = ZonedDateTime.now()
+            sistEndret = ZonedDateTime.now(),
+            opprettet = ZonedDateTime.now()
         )
 
         val kandidatliste2 = Kandidatliste(
@@ -127,7 +131,8 @@ internal class RepositoryTest {
             status = Kandidatliste.Status.LUKKET,
             virksomhetsnummer = "123456780",
             uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d28"),
-            sistEndret = ZonedDateTime.now()
+            sistEndret = ZonedDateTime.now(),
+            opprettet = ZonedDateTime.now()
         )
 
 
@@ -161,6 +166,18 @@ internal class RepositoryTest {
         assertThat(kandidatliste1MedKandidater.kandidater.first().aktørId).isEqualTo(aktørID)
         assertThat(kandidatliste2MedKandidater.kandidater.first().aktørId).isEqualTo(aktørID)
     }
+
+    @Test
+    fun `Datofelt skal lagres med riktig tidssone`() {
+        val kandidatliste = lagKandidatliste()
+
+        repository.lagre(kandidatliste)
+
+        val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
+        assertNotNull(lagretKandidatliste)
+        assertThat(lagretKandidatliste.sistEndret).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
+        assertThat(lagretKandidatliste.opprettet).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
+    }
     
     private fun lagKandidatliste() = Kandidatliste(
         stillingId = UUID.randomUUID(),
@@ -168,7 +185,8 @@ internal class RepositoryTest {
         status = Kandidatliste.Status.ÅPEN,
         virksomhetsnummer = "123456789",
         uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
-        sistEndret = ZonedDateTime.now()
+        sistEndret = ZonedDateTime.now(),
+        opprettet = ZonedDateTime.now()
     )
 
     private fun lagKandidat(kandidatlisteId: BigInteger, aktørId: String) = Kandidat(

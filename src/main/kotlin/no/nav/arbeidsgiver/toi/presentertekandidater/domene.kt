@@ -18,7 +18,8 @@ data class Kandidatliste(
     val status: Status,
     val slettet: Boolean = false,
     val virksomhetsnummer: String,
-    val sistEndret: ZonedDateTime
+    val sistEndret: ZonedDateTime,
+    val opprettet: ZonedDateTime
 ) {
     companion object {
 
@@ -30,7 +31,8 @@ data class Kandidatliste(
             status = Status.valueOf(rs.getString("status")),
             slettet = rs.getBoolean("slettet"),
             virksomhetsnummer = rs.getString("virksomhetsnummer"),
-            sistEndret = rs.getTimestamp("sist_endret").toInstant().atZone(ZoneId.of("Europe/Oslo"))
+            sistEndret = rs.getTimestamp("sist_endret").toInstant().atZone(ZoneId.of("Europe/Oslo")),
+            opprettet = rs.getTimestamp("opprettet").toInstant().atZone(ZoneId.of("Europe/Oslo"))
         )
     }
     enum class Status {

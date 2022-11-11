@@ -49,6 +49,7 @@ class PresenterteKandidaterService(private val repository: Repository) {
         )
     }
 
+    // TODO: Skal kun brukes når kandidathendelse gjelder første gang applikasjonen får vite om kandidatlista
     private fun mapKandidathendelseToKandidatliste(hendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
         return Kandidatliste(
             stillingId = hendelse.stillingsId,
@@ -57,7 +58,8 @@ class PresenterteKandidaterService(private val repository: Repository) {
             status = Kandidatliste.Status.ÅPEN,
             slettet = hendelse.type.equals("dummy-SLETTET"),
             virksomhetsnummer = hendelse.organisasjonsnummer,
-            sistEndret = ZonedDateTime.now()
+            sistEndret = ZonedDateTime.now(),
+            opprettet = ZonedDateTime.now()
         )
     }
 }

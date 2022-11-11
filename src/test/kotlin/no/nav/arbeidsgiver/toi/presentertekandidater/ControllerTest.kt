@@ -142,6 +142,7 @@ class ControllerTest {
         status = Kandidatliste.Status.ÅPEN,
         virksomhetsnummer = "123456789",
         uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
-        sistEndret = ZonedDateTime.now()
+        sistEndret = ZonedDateTime.now(),
+        opprettet = ZonedDateTime.now()
     )
 }
