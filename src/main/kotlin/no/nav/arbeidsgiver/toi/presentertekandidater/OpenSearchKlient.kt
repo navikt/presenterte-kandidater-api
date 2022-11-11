@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -74,7 +75,7 @@ data class KandidatFraOpenSearch(
     @JsonDeserialize(using = AlderDeserializer::class)
     val alder: Int,
     @JsonAlias("kompetanseObj")
-    @JsonProperty("kompKodeNavn")
+    @JsonDeserialize(using = KompetanseDeserializer::class)
     val kompetanse: List<String>
 )
 
@@ -86,10 +87,8 @@ private class AlderDeserializer: StdDeserializer<Int>(Int::class.java) {
 
 private class KompetanseDeserializer: StdDeserializer<List<String>>(List::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
-        val liste = ctxt.readValue(parser, List::class.java)
-        liste.map { it. }
+        return ctxt.readValue(parser, JsonNode::class.java).map { it["kompKodeNavn"].textValue() }
     }
-
 }
 
 
