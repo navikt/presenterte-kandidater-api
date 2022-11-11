@@ -11,15 +11,16 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         val url = envs["OPENSEARCH_URL"] +
         "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
-        val (_, response) = Fuel
+        val (_, response, result) = Fuel
             .get(url)
-            //authentication()
-            //.basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
-            .response()
+            .authentication()
+            .basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
+            .responseString()
+
         return if (response.statusCode == 200) {
             log.info("Hentkandidat fra openserch ok")
-            val body = response.body().asString("UTF-8")
-            mapHentKandidat(body)
+            val body = result.get()
+            mapHentÉnKandidat(body)
 
         } else if (response.statusCode == 404) {
             log.info("Hentkandidat fra openserch fant ikke kandidat")
@@ -30,8 +31,11 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    private fun mapHentKandidat(body: String): KandidatFraOpenSearch {
-        val kandidat: KandidatFraOpenSearch = jacksonObjectMapper().readValue(body,KandidatFraOpenSearch::class.java)
+    private fun mapHentÉnKandidat(body: String): KandidatFraOpenSearch {
+        val responsJsonNode = jacksonObjectMapper().readTree(body)
+        val kandidatJson = jacksonObjectMapper().writeValueAsString(responsJsonNode["hits"]["hits"][0]["_source"])
+
+        val kandidat: KandidatFraOpenSearch = jacksonObjectMapper().readValue(kandidatJson,KandidatFraOpenSearch::class.java)
         return kandidat
     }
 }

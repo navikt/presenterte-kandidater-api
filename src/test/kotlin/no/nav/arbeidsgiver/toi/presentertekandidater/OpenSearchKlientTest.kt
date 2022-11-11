@@ -44,7 +44,7 @@ class OpenSearchKlientTest {
 
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
         wiremockServer.stubFor(get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
-            //.withBasicAuth("gunnar", "xyz")
+            .withBasicAuth("gunnar", "xyz")
             .willReturn(ok(responsBody)))
     }
 
