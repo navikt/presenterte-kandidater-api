@@ -1,7 +1,8 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 
 class Databasekonfigurasjon(env: Map<String, String>) {
     private val host = env.variable("NAIS_DATABASE_PRESENTERTE_KANDIDATER_API_PRESENTERTE_KANDIDATER_DB_HOST")

@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole

@@ -9,6 +9,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.net.URL
 import io.mockk.mockk
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 
 private val repository = opprettTestRepositoryMedLokalPostgres()
 
