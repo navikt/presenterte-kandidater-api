@@ -1,8 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonAlias
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -10,8 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.datatype.jsr310.deser.key.ZonedDateTimeKeyDeserializer
-import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
@@ -24,7 +20,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun hentKandiat(aktørid: String): KandidatFraOpenSearch? {
+    fun hentKandiat(aktørid: String): OpensearchData.Kandidat? {
         val url = envs["OPENSEARCH_URL"] +
                 "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
@@ -48,48 +44,55 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    private fun mapHentÉnKandidat(body: String): KandidatFraOpenSearch? {
+    private fun mapHentÉnKandidat(body: String): OpensearchData.Kandidat? {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
         val harTreff = hits.toList().isNotEmpty()
 
         return if (harTreff) {
             val kandidatJson = objectMapper.writeValueAsString(hits.first()["_source"])
-            return objectMapper.readValue(kandidatJson, KandidatFraOpenSearch::class.java)
+            return objectMapper.readValue(kandidatJson, OpensearchData.Kandidat::class.java)
         } else {
             null
         }
     }
 }
 
-data class KandidatFraOpenSearch(
-    @JsonAlias("aktorId")
-    val aktørId: String,
-    val fornavn: String,
-    val etternavn: String,
-    @JsonAlias("poststed")
-    val bosted: String,
-    @JsonAlias("mobiltelefon")
-    val mobiltelefonnummer: String,
-    @JsonAlias("epostadresse")
-    val epost: String,
-    @JsonAlias("fodselsdato")
-    @JsonDeserialize(using = AlderDeserializer::class)
-    val alder: Int,
-    @JsonAlias("kompetanseObj")
-    @JsonDeserialize(using = KompetanseDeserializer::class)
-    val kompetanse: List<String>,
-    val yrkeserfaring: List<YrkeserfaringFraOpenSearch>
-)
+class OpensearchData {
+    data class Kandidat(
+        @JsonAlias("aktorId")
+        val aktørId: String,
+        val fornavn: String,
+        val etternavn: String,
+        @JsonAlias("poststed")
+        val bosted: String,
+        @JsonAlias("mobiltelefon")
+        val mobiltelefonnummer: String,
+        @JsonAlias("epostadresse")
+        val epost: String,
+        @JsonAlias("fodselsdato")
+        @JsonDeserialize(using = AlderDeserializer::class)
+        val alder: Int,
+        @JsonAlias("kompetanseObj")
+        @JsonDeserialize(using = KompetanseDeserializer::class)
+        val kompetanse: List<String>,
+        @JsonAlias("yrkeserfaring")
+        val arbeidserfaring: List<Arbeidserfaring>,
+        @JsonAlias("yrkeJobbonskerObj")
+        @JsonDeserialize(using = ØnsketYrkeDeserializer::class)
+        val ønsketYrke: List<String>
+    )
 
-data class YrkeserfaringFraOpenSearch(
-    val fraDato: ZonedDateTime,
-    val tilDato: ZonedDateTime,
-    val arbeidsgiver: String,
-    val sted: String,
-    val stillingstittel: String,
-    val beskrivelse: String,
-)
+    data class Arbeidserfaring(
+        val fraDato: ZonedDateTime,
+        val tilDato: ZonedDateTime,
+        val arbeidsgiver: String,
+        val sted: String,
+        val stillingstittel: String,
+        val beskrivelse: String,
+    )
+
+}
 
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
@@ -104,6 +107,12 @@ private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
 private class KompetanseDeserializer : StdDeserializer<List<String>>(List::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).map { it["kompKodeNavn"].textValue() }
+    }
+}
+
+private class ØnsketYrkeDeserializer : StdDeserializer<List<String>>(List::class.java) {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
+        return ctxt.readValue(parser, JsonNode::class.java).map { it["styrkBeskrivelse"].textValue() }
     }
 }
 

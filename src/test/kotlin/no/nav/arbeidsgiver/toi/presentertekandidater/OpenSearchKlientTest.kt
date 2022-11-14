@@ -46,8 +46,8 @@ class OpenSearchKlientTest {
         assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
         assertThat(kandidat.alder).isEqualTo(40)
         assertThat(kandidat.kompetanse).containsExactlyInAnyOrder("Sykepleievitenskap", "Markedsanalyse")
-        assertThat(kandidat.yrkeserfaring).containsExactlyInAnyOrder(
-            YrkeserfaringFraOpenSearch(
+        assertThat(kandidat.arbeidserfaring).containsExactlyInAnyOrder(
+            OpensearchData.Arbeidserfaring(
                 fraDato = ZonedDateTime.parse("2018-06-30T22:00:00.000+00:00[UTC]"),
                 tilDato = ZonedDateTime.parse("2022-04-30T22:00:00.000+00:00[UTC]"),
                 arbeidsgiver = "Stormote AS",
@@ -55,7 +55,7 @@ class OpenSearchKlientTest {
                 stillingstittel = "Butikkmedarbeider klesbutikk",
                 beskrivelse = "Jobb i butikk som drev med både klær og tekstil. Som grossist og til privatkunder."
                 ),
-            YrkeserfaringFraOpenSearch(
+            OpensearchData.Arbeidserfaring(
                 fraDato = ZonedDateTime.parse("2015-04-30T22:00:00.000+00:00[UTC]"),
                 tilDato = ZonedDateTime.parse("2018-02-28T23:00:00.000+00:00[UTC]"),
                 arbeidsgiver = "H&M Storo",
@@ -64,6 +64,7 @@ class OpenSearchKlientTest {
                 beskrivelse = "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg."
             )
         )
+        assertThat(kandidat.ønsketYrke).containsExactlyInAnyOrder("Kokkelærling", "Skipskokk")
 
         // Resten som trengs i CV-visning
     }
@@ -273,6 +274,18 @@ class OpenSearchKlientTest {
                         {
                           "styrkKode": null,
                           "styrkBeskrivelse": "Kokkelærling",
+                          "sokeTitler": [
+                            "Kokkelærling",
+                            "Kokkelærling",
+                            "Kokk",
+                            "Kafekokk",
+                            "Lærlingplass"
+                          ],
+                          "primaertJobbonske": false
+                        },
+                        {
+                          "styrkKode": null,
+                          "styrkBeskrivelse": "Skipskokk",
                           "sokeTitler": [
                             "Kokkelærling",
                             "Kokkelærling",
