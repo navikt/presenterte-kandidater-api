@@ -79,7 +79,7 @@ class OpensearchData {
         @JsonAlias("yrkeserfaring")
         val arbeidserfaring: List<Arbeidserfaring>,
         @JsonAlias("yrkeJobbonskerObj")
-        @JsonDeserialize(using = ØnsketYrkeDeserializer::class)
+        @JsonDeserialize( using = ØnsketYrkeDeserializer::class)
         val ønsketYrke: List<String>
     )
 
@@ -104,15 +104,12 @@ private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     }
 }
 
-private class KompetanseDeserializer : StdDeserializer<List<String>>(List::class.java) {
-    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
-        return ctxt.readValue(parser, JsonNode::class.java).map { it["kompKodeNavn"].textValue() }
-    }
-}
+private class KompetanseDeserializer : TilStringlisteDeserializer("kompKodeNavn")
+private class ØnsketYrkeDeserializer : TilStringlisteDeserializer("styrkBeskrivelse")
 
-private class ØnsketYrkeDeserializer : StdDeserializer<List<String>>(List::class.java) {
+private open class TilStringlisteDeserializer(val felt: String) : StdDeserializer<List<String>>(List::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
-        return ctxt.readValue(parser, JsonNode::class.java).map { it["styrkBeskrivelse"].textValue() }
+        return ctxt.readValue(parser, JsonNode::class.java).map { it[felt].textValue() }
     }
 }
 
