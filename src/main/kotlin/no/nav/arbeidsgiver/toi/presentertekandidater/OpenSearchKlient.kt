@@ -24,7 +24,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
 
     fun hentKandiat(aktørid: String): KandidatFraOpenSearch? {
         val url = envs["OPENSEARCH_URL"] +
-        "/veilederkandidat_current/_search?q=aktorId:$aktørid"
+                "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
         val (_, response, result) = Fuel
             .get(url)
@@ -53,7 +53,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
 
         return if (harTreff) {
             val kandidatJson = objectMapper.writeValueAsString(hits.first()["_source"])
-            return objectMapper.readValue(kandidatJson,KandidatFraOpenSearch::class.java)
+            return objectMapper.readValue(kandidatJson, KandidatFraOpenSearch::class.java)
         } else {
             null
         }
@@ -76,16 +76,48 @@ data class KandidatFraOpenSearch(
     val alder: Int,
     @JsonAlias("kompetanseObj")
     @JsonDeserialize(using = KompetanseDeserializer::class)
-    val kompetanse: List<String>
+    val kompetanse: List<String>,
+    @JsonDeserialize(using = YrkeserfaringFraOpenSearch.YrkeserfaringDeserializer::class)
+    val yrkeserfaring: List<YrkeserfaringFraOpenSearch>
 )
 
-private class AlderDeserializer: StdDeserializer<Int>(Int::class.java) {
-    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
-        return Period.between(ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(), ZonedDateTime.now().toLocalDate()).years
+data class YrkeserfaringFraOpenSearch(
+    val fraDato: ZonedDateTime,
+    val tilDato: ZonedDateTime,
+    val arbeidsgiver: String,
+    val sted: String,
+    val stillingstittel: String,
+    val beskrivelse: String,
+) {
+    constructor(node: JsonNode) :
+            this(
+                fraDato = ZonedDateTime.parse(node["fraDato"].textValue()),
+                tilDato = ZonedDateTime.parse(node["tilDato"].textValue()),
+                arbeidsgiver = node["arbeidsgiver"].textValue(),
+                sted = node["sted"].textValue(),
+                stillingstittel = node["stillingstittel"].textValue(),
+                beskrivelse = node["beskrivelse"].textValue()
+            )
+
+    class YrkeserfaringDeserializer : StdDeserializer<List<YrkeserfaringFraOpenSearch>>(List::class.java) {
+        override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<YrkeserfaringFraOpenSearch> {
+            return ctxt.readValue(parser, JsonNode::class.java).map {
+                YrkeserfaringFraOpenSearch(it)
+            }
+        }
     }
 }
 
-private class KompetanseDeserializer: StdDeserializer<List<String>>(List::class.java) {
+private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
+        return Period.between(
+            ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(),
+            ZonedDateTime.now().toLocalDate()
+        ).years
+    }
+}
+
+private class KompetanseDeserializer : StdDeserializer<List<String>>(List::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).map { it["kompKodeNavn"].textValue() }
     }

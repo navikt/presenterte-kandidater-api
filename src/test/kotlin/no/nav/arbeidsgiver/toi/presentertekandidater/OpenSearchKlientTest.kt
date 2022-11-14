@@ -46,6 +46,24 @@ class OpenSearchKlientTest {
         assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
         assertThat(kandidat.alder).isEqualTo(40)
         assertThat(kandidat.kompetanse).containsExactlyInAnyOrder("Sykepleievitenskap", "Markedsanalyse")
+        assertThat(kandidat.yrkeserfaring).containsExactlyInAnyOrder(
+            YrkeserfaringFraOpenSearch(
+                fraDato = ZonedDateTime.parse("2018-06-30T22:00:00.000+00:00"),
+                tilDato = ZonedDateTime.parse("2022-04-30T22:00:00.000+00:00"),
+                arbeidsgiver = "Stormote AS",
+                sted = "Oslo",
+                stillingstittel = "Butikkmedarbeider klesbutikk",
+                beskrivelse = "Jobb i butikk som drev med både klær og tekstil. Som grossist og til privatkunder."
+                ),
+            YrkeserfaringFraOpenSearch(
+                fraDato = ZonedDateTime.parse("2015-04-30T22:00:00.000+00:00"),
+                tilDato = ZonedDateTime.parse("2018-02-28T23:00:00.000+00:00"),
+                arbeidsgiver = "H&M Storo",
+                sted = "Oslo",
+                stillingstittel = "Butikkmedarbeider klesbutikk",
+                beskrivelse = "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg."
+            )
+        )
 
         // Resten som trengs i CV-visning
     }
@@ -209,7 +227,7 @@ class OpenSearchKlientTest {
                           "yrkeserfaringManeder": 34,
                           "utelukketForFremtiden": false,
                           "beskrivelse": "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg.",
-                          "sted": "oslo"
+                          "sted": "Oslo"
                         }
                       ],
                       "kompetanseObj": [
