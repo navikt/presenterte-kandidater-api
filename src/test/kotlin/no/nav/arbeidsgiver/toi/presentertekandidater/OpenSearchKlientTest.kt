@@ -128,7 +128,90 @@ class OpenSearchKlientTest {
                       "fritattAgKandidatsok": null,
                       "utdanning": [],
                       "fagdokumentasjon": [],
-                      "yrkeserfaring": [],
+                      "yrkeserfaring": [
+                        {
+                          "fraDato": "2018-06-30T22:00:00.000+00:00",
+                          "tilDato": "2022-04-30T22:00:00.000+00:00",
+                          "arbeidsgiver": "Stormote AS",
+                          "styrkKode": "5223",
+                          "styrkKode4Siffer": "5223",
+                          "styrkKode3Siffer": "522",
+                          "stillingstittel": "Butikkmedarbeider klesbutikk",
+                          "stillingstitlerForTypeahead": [
+                            "Selger motebutikk",
+                            "Butikkmedarbeider klesbutikk",
+                            "Konfeksjonsselger"
+                          ],
+                          "alternativStillingstittel": "Butikkmedarbeider klesbutikk",
+                          "sokeTitler": [
+                            "Selger motebutikk",
+                            "Salgsassistent",
+                            "Provisjonsselger",
+                            "Juniorselger",
+                            "Salg- og Kundeservicemedarbeider",
+                            "Butikkmedarbeider klesbutikk",
+                            "Salgskraft",
+                            "Konfeksjonsselger",
+                            "Salgskonsulent",
+                            "Salgsrådgiver",
+                            "Salgsmedarbeider",
+                            "Salg - Kundebehandler",
+                            "Salgs- og kunderådgiver",
+                            "Kundeservicemedarbeider (salg)",
+                            "Rådgivende selger",
+                            "Salgsspesialist",
+                            "Salgsperson",
+                            "Selger"
+                          ],
+                          "organisasjonsnummer": null,
+                          "naceKode": null,
+                          "yrkeserfaringManeder": 46,
+                          "utelukketForFremtiden": false,
+                          "beskrivelse": "Jobb i butikk som drev med både klær og tekstil. Som grossist og til privatkunder.",
+                          "sted": "Oslo"
+                        },
+                        {
+                          "fraDato": "2015-04-30T22:00:00.000+00:00",
+                          "tilDato": "2018-02-28T23:00:00.000+00:00",
+                          "arbeidsgiver": "H&M Storo",
+                          "styrkKode": "5223",
+                          "styrkKode4Siffer": "5223",
+                          "styrkKode3Siffer": "522",
+                          "stillingstittel": "Butikkmedarbeider klesbutikk",
+                          "stillingstitlerForTypeahead": [
+                            "Selger motebutikk",
+                            "Butikkmedarbeider klesbutikk",
+                            "Konfeksjonsselger"
+                          ],
+                          "alternativStillingstittel": "Butikkmedarbeider klesbutikk",
+                          "sokeTitler": [
+                            "Selger motebutikk",
+                            "Salgsassistent",
+                            "Provisjonsselger",
+                            "Juniorselger",
+                            "Salg- og Kundeservicemedarbeider",
+                            "Butikkmedarbeider klesbutikk",
+                            "Salgskraft",
+                            "Konfeksjonsselger",
+                            "Salgskonsulent",
+                            "Salgsrådgiver",
+                            "Salgsmedarbeider",
+                            "Salg - Kundebehandler",
+                            "Salgs- og kunderådgiver",
+                            "Kundeservicemedarbeider (salg)",
+                            "Rådgivende selger",
+                            "Salgsspesialist",
+                            "Salgsperson",
+                            "Selger"
+                          ],
+                          "organisasjonsnummer": null,
+                          "naceKode": null,
+                          "yrkeserfaringManeder": 34,
+                          "utelukketForFremtiden": false,
+                          "beskrivelse": "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg.",
+                          "sted": "oslo"
+                        }
+                      ],
                       "kompetanseObj": [
                         {
                           "fraDato": null,
@@ -203,7 +286,7 @@ class OpenSearchKlientTest {
                         }
                       ],
                       "samletKompetanseObj": [],
-                      "totalLengdeYrkeserfaring": 0,
+                      "totalLengdeYrkeserfaring": 33,
                       "synligForArbeidsgiverSok": false,
                       "synligForVeilederSok": true,
                       "oppstartKode": "LEDIG_NAA",
@@ -221,7 +304,6 @@ class OpenSearchKlientTest {
                 ]
               }
             }
-     
      """.trimIndent()
 
     val ingenTreffKandidatOpensearchJson =
