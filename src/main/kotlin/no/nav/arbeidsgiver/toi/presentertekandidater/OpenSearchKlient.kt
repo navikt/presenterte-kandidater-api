@@ -81,6 +81,9 @@ class OpensearchData {
         @JsonAlias("yrkeJobbonskerObj")
         @JsonDeserialize( using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
         val ønsketYrke: List<String>
+        // val sammendrag: List<String> TODO: Hvor ligger dette?
+        //val utdanning: List<Utdanning>
+        //val språk: List<Språk>
     )
 
     data class Arbeidserfaring(
