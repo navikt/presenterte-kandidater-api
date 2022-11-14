@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.datatype.jsr310.deser.key.ZonedDateTimeKeyDeserializer
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
@@ -77,7 +79,6 @@ data class KandidatFraOpenSearch(
     @JsonAlias("kompetanseObj")
     @JsonDeserialize(using = KompetanseDeserializer::class)
     val kompetanse: List<String>,
-    @JsonDeserialize(using = YrkeserfaringFraOpenSearch.YrkeserfaringDeserializer::class)
     val yrkeserfaring: List<YrkeserfaringFraOpenSearch>
 )
 
@@ -88,25 +89,8 @@ data class YrkeserfaringFraOpenSearch(
     val sted: String,
     val stillingstittel: String,
     val beskrivelse: String,
-) {
-    constructor(node: JsonNode) :
-            this(
-                fraDato = ZonedDateTime.parse(node["fraDato"].textValue()),
-                tilDato = ZonedDateTime.parse(node["tilDato"].textValue()),
-                arbeidsgiver = node["arbeidsgiver"].textValue(),
-                sted = node["sted"].textValue(),
-                stillingstittel = node["stillingstittel"].textValue(),
-                beskrivelse = node["beskrivelse"].textValue()
-            )
+)
 
-    class YrkeserfaringDeserializer : StdDeserializer<List<YrkeserfaringFraOpenSearch>>(List::class.java) {
-        override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<YrkeserfaringFraOpenSearch> {
-            return ctxt.readValue(parser, JsonNode::class.java).map {
-                YrkeserfaringFraOpenSearch(it)
-            }
-        }
-    }
-}
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
