@@ -41,7 +41,7 @@ private val hentKandidatlisteMedKandidater: (repository: Repository, opensearchK
             val liste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
             val aktørider = liste?.kandidater?.map { it.aktørId }
             if(aktørider != null) {
-                opensearchKlient.hentKandidater(aktørider)
+                opensearchKlient.hentCver(aktørider)
             }
             if (liste == null) {
                 context.status(404)

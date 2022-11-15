@@ -35,7 +35,7 @@ class OpenSearchKlientTest {
         val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = fornavn, etternavn = etternavn)
         stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
 
-        val kandidat = openSearchKlient.hentKandiat(aktørId)
+        val kandidat = openSearchKlient.hentCv(aktørId)
 
         assertNotNull(kandidat)
         assertThat(kandidat.aktørId).isEqualTo(aktørId)
@@ -104,7 +104,7 @@ class OpenSearchKlientTest {
         val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = fornavn, etternavn = etternavn)
         stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
 
-        val kandidatsammendrag = openSearchKlient.hentKandidater(listOf(aktørId)).get(aktørId)
+        val kandidatsammendrag = openSearchKlient.hentCver(listOf(aktørId)).get(aktørId)
 
         assertNotNull(kandidatsammendrag)
         assertThat(kandidatsammendrag?.fornavn).isEqualTo(fornavn)
@@ -119,7 +119,7 @@ class OpenSearchKlientTest {
         val aktørId = "12345"
         stubHentingAvEnKandidat(aktørId = aktørId, responsBody = Testdata.ingenTreffKandidatOpensearchJson)
 
-        val kandidat = openSearchKlient.hentKandiat(aktørId)
+        val kandidat = openSearchKlient.hentCv(aktørId)
         assertThat(kandidat).isNull()
     }
 
@@ -128,7 +128,7 @@ class OpenSearchKlientTest {
         val aktørId = "12345"
         stubHentingAvEnKandidat(aktørId = aktørId, responsBody = Testdata.ingenTreffKandidatOpensearchJson)
 
-        val kandidat = openSearchKlient.hentKandidater(listOf(aktørId))
+        val kandidat = openSearchKlient.hentCver(listOf(aktørId))
         assertThat(kandidat.get(aktørId)).isNull()
     }
 

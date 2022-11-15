@@ -23,79 +23,79 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun hentKandiat(aktørid: String): OpensearchData.Kandidat? {
-        val (response, result) = hentKandidat(aktørid)
+    fun hentCv(aktørid: String): OpensearchData.Cv? {
+        val (response, result) = hentCvFraOpenSearch(aktørid)
 
         return when (response.statusCode) {
             200 -> {
-                log.info("Hentkandidat fra openserch ok")
+                log.info("hentCv fra openserch ok")
                 val body = result.get()
-                mapHentÉnKandidat(body)
+                mapHentÉnCv(body)
 
             }
 
             404 -> {
-                log.info("Hentkandidat fra openserch fant ikke kandidat")
+                log.info("hentCv fra openserch fant ikke cv")
                 null
             }
 
             else -> {
-                log.error("Hentkandidat fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
+                log.error("hentCv fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
             }
         }
     }
 
-    private fun mapHentÉnKandidat(body: String): OpensearchData.Kandidat? {
+    private fun mapHentÉnCv(body: String): OpensearchData.Cv? {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
         val harTreff = hits.toList().isNotEmpty()
 
         return if (harTreff) {
-            val kandidatJson = objectMapper.writeValueAsString(hits.first()["_source"])
-            return objectMapper.readValue(kandidatJson, OpensearchData.Kandidat::class.java)
+            val cvJson = objectMapper.writeValueAsString(hits.first()["_source"])
+            return objectMapper.readValue(cvJson, OpensearchData.Cv::class.java)
         } else {
             null
         }
     }
 
-    private fun mapHentKandidatsammendrag(body: String): OpensearchData.Kandidatsammendrag? {
+    private fun mapHentKandidatsammendrag(body: String): OpensearchData.CvSammendrag? {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
         val harTreff = hits.toList().isNotEmpty()
 
         return if (harTreff) {
-            val kandidatJson = objectMapper.writeValueAsString(hits.first()["_source"])
-            return objectMapper.readValue(kandidatJson, OpensearchData.Kandidatsammendrag::class.java)
+            val cvJson = objectMapper.writeValueAsString(hits.first()["_source"])
+            return objectMapper.readValue(cvJson, OpensearchData.CvSammendrag::class.java)
         } else {
             null
         }
     }
 
-    fun hentKandidatsammendrag(aktørid: String): OpensearchData.Kandidatsammendrag? {
-        val (response, result) = hentKandidat(aktørid)
+    fun hentCvSammendrag(aktørid: String): OpensearchData.CvSammendrag? {
+        val (response, result) = hentCvFraOpenSearch(aktørid)
 
         return when (response.statusCode) {
             200 -> {
-                log.info("hentKandidatsammendrag fra openserch ok")
+                log.info("hentCvSammendrag fra openserch ok")
                 val body = result.get()
                 mapHentKandidatsammendrag(body)
 
             }
 
             404 -> {
-                log.info("hentKandidatsammendrag fra openserch fant ikke kandidat")
+                log.info("hentCvSammendrag fra openserch fant ikke cv")
                 null
             }
 
             else -> {
-                log.error("hentKandidatsammendrag fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
+                log.error("hentCvSammendrag fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
             }
         }
     }
 
-    private fun hentKandidat(aktørid: String): Pair<Response, Result<String, FuelError>> {
+    private fun hentCvFraOpenSearch(aktørid: String): Pair<Response, Result<String, FuelError>> {
         val url = envs["OPENSEARCH_URL"] +
                 "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
@@ -108,16 +108,16 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     }
 
     //TODO: Skriv om til et opensearch kall for å hente alle cver/kandidater samtidig
-    fun hentKandidater(aktørIder: List<String>): Map<String, OpensearchData.Kandidatsammendrag?> =
+    fun hentCver(aktørIder: List<String>): Map<String, OpensearchData.CvSammendrag?> =
         aktørIder.map {
-            val kandidat = hentKandidatsammendrag(it)
-            it to kandidat
+            val cv = hentCvSammendrag(it)
+            it to cv
         }.toMap()
 }
 
 class OpensearchData {
 
-    data class Kandidatsammendrag(
+    data class CvSammendrag(
         val fornavn: String,
         val etternavn: String,
         @JsonAlias("kompetanseObj")
@@ -131,7 +131,7 @@ class OpensearchData {
         val ønsketYrke: List<String>
     )
 
-    data class Kandidat(
+    data class Cv(
         @JsonAlias("aktorId")
         val aktørId: String,
         val fornavn: String,
