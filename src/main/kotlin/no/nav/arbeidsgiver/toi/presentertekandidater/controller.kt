@@ -8,7 +8,6 @@ import java.util.*
 
 fun startKandidatlisteController(javalin: Javalin, repository: Repository, opensearchKlient: OpenSearchKlient) {
     javalin.routes {
-        get("/kandidater", hentKandidater(/*repository::hentKandidater*/), Rolle.ARBEIDSGIVER)
         get(
             "/kandidatliste/{stillingId}",
             hentKandidatlisteMedKandidater(repository, opensearchKlient),

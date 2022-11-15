@@ -42,19 +42,9 @@ class ControllerTest {
     }
 
     @Test
-    fun `GET mot kandidater-endepunkt gir httpstatus 200`() {
+    fun `GET mot kandidatlister-endepunkt gir httpstatus 403 uten et gyldig token`() {
         val (_, response) = Fuel
-            .get("http://localhost:9000/kandidater")
-            .authentication().bearer(hentToken(mockOAuth2Server))
-            .response()
-
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
-    }
-
-    @Test
-    fun `GET mot kandidater-endepunkt gir httpstatus 403 uten et gyldig token`() {
-        val (_, response) = Fuel
-            .get("http://localhost:9000/kandidater")
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123")
             .authentication().bearer(hentUgyldigToken(mockOAuth2Server))
             .response()
 
@@ -64,7 +54,7 @@ class ControllerTest {
     @Test
     fun `GET mot kandidater-endepunkt gir httpstatus 403 uten token`() {
         val (_, response) = Fuel
-            .get("http://localhost:9000/kandidater")
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123")
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)
@@ -72,12 +62,17 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidaterliste med kandidater gir status 200`() {
+        val aktørId = "1234"
+
+        val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = "Per", etternavn = "Person")
+        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
+
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
         repository.lagre(
             Kandidat(
-                aktørId = "test",
+                aktørId = aktørId,
                 kandidatlisteId = kandidatliste?.id!!,
                 uuid = UUID.fromString("28e2c1f6-dea5-46d1-90cd-bfbd994e06df")
             )
@@ -100,7 +95,15 @@ class ControllerTest {
                   "kandidater": [
                     {
                       "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df",
-                      "aktørId": "test"
+                      "aktørId": "test",
+                      "opprettet": ${ZonedDateTime.now()}
+                      "cv": {
+                            "fornavn": "Per",
+                            "etternavn: "Person",
+                            "kompetanse": ["Sykepleievitenskap", "Markedsanalyse"],
+                            "arbeidserfaring": ["Butikkmedarbeider klesbutikk", "Butikkmedarbeider klesbutikk"],
+                            "ønsketYrke": ["Kokkelærling", "Skipskokk"]
+                      }
                     }
                   ]
                 }
