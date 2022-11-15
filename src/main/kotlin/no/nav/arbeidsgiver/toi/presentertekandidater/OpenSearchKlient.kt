@@ -87,8 +87,8 @@ class OpensearchData {
         val ønsketYrke: List<String>,
         @JsonAlias("beskrivelse")
         val sammendrag: String,
-        val utdanning: List<Utdanning>
-        //val språk: List<Språk>
+        val utdanning: List<Utdanning>,
+        val språk: List<Språk>
     )
 
     data class Arbeidserfaring(
@@ -109,6 +109,12 @@ class OpensearchData {
         val fra: ZonedDateTime,
         @JsonAlias("tilDato")
         val til: ZonedDateTime
+    )
+
+    data class Språk(
+        val navn: String,
+        val muntlig: String,
+        val skriftlig: String
     )
 }
 

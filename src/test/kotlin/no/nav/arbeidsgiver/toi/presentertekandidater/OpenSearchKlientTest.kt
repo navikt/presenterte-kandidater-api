@@ -82,6 +82,18 @@ class OpenSearchKlientTest {
                 beskrivelse = "Sykepleie",
             )
         )
+        assertThat(kandidat.språk).containsExactlyInAnyOrder(
+            OpensearchData.Språk(
+                navn = "Engelsk",
+                muntlig = "VELDIG_GODT",
+                skriftlig = "GODT"
+            ),
+            OpensearchData.Språk(
+                navn = "Norsk",
+                muntlig = "FOERSTESPRAAK",
+                skriftlig = "FOERSTESPRAAK"
+            )
+        )
 
         // Resten som trengs i CV-visning
     }
@@ -101,7 +113,8 @@ class OpenSearchKlientTest {
             .willReturn(ok(responsBody)))
     }
 
-         fun esKandidatJson(aktørId: String, fornavn: String, etternavn: String) = """{
+     fun esKandidatJson(aktørId: String, fornavn: String, etternavn: String) = """
+            {
               "took": 78,
               "timed_out": false,
               "_shards": {
@@ -296,7 +309,26 @@ class OpenSearchKlientTest {
                       "annenerfaringObj": [],
                       "sertifikatObj": [],
                       "forerkort": [],
-                      "sprak": [],
+                      "sprak": [
+                        {
+                          "fraDato": null,
+                          "sprakKode": null,
+                          "sprakKodeTekst": "Engelsk",
+                          "alternativTekst": "Engelsk",
+                          "beskrivelse": "Muntlig: VELDIG_GODT Skriftlig: GODT",
+                          "ferdighetMuntlig": "VELDIG_GODT",
+                          "ferdighetSkriftlig": "GODT"
+                        },
+                        {
+                          "fraDato": null,
+                          "sprakKode": null,
+                          "sprakKodeTekst": "Norsk",
+                          "alternativTekst": "Norsk",
+                          "beskrivelse": "Muntlig: FOERSTESPRAAK Skriftlig: FOERSTESPRAAK",
+                          "ferdighetMuntlig": "FOERSTESPRAAK",
+                          "ferdighetSkriftlig": "FOERSTESPRAAK"
+                        }
+                      ],
                       "kursObj": [],
                       "vervObj": [],
                       "geografiJobbonsker": [
@@ -370,7 +402,7 @@ class OpenSearchKlientTest {
                 ]
               }
             }
-     """.trimIndent()
+         """.trimIndent()
 
     val ingenTreffKandidatOpensearchJson =
         """
