@@ -32,24 +32,33 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
 
 private val hentKandidatlisteMedKandidater: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, opensearchKlient ->
-    { context ->
-        val stillingId = context.pathParam("stillingId")
-        if (stillingId.isNullOrBlank()) {
-            context.status(400)
-        } else {
-            val liste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
-            val aktørider = liste?.kandidater?.map { it.aktørId }
-            if(aktørider != null) {
-                opensearchKlient.hentCver(aktørider)
-            }
-            if (liste == null) {
-                context.status(404)
+        { context ->
+            val stillingId = context.pathParam("stillingId")
+            if (stillingId.isNullOrBlank()) {
+                context.status(400)
             } else {
-                context.json(liste).status(200)
+                val kandidatliste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
+                if (kandidatliste == null) {
+                    context.status(404)
+                } else {
+                    val aktørider = kandidatliste.kandidater.map { it.aktørId }
+                    val cver = opensearchKlient.hentSammendragForCver(aktørider)
+
+                    val kandidatlistesammendrag = Kandidatlistesammendrag(
+
+
+                    )
+                }
+
+
+                if (kandidatliste == null) {
+                    context.status(404)
+                } else {
+                    context.json(kandidatliste).status(200)
+                }
             }
         }
     }
-}
 
 private val hentKandidater: () -> (Context) -> Unit = {
     { context ->

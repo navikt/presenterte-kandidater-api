@@ -1,10 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.ktor.server.util.*
 import java.math.BigInteger
 import java.sql.ResultSet
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -46,7 +44,7 @@ data class KandidatlisteMedAntallKandidater(
     val antallKandidater: Int
 )
 
-data class KandidatlisteMedKandidat(
+data class Kandidatlistesammendrag(
     @JsonIgnore
     val id: BigInteger? = null,
     val uuid: UUID,
@@ -55,7 +53,7 @@ data class KandidatlisteMedKandidat(
     val status: Kandidatliste.Status,
     val slettet: Boolean = false,
     val virksomhetsnummer: String,
-    val kandidater: List<Kandidat>
+    val kandidater: List<Kandidatsammendrag>
 )
 
 data class Kandidat(
@@ -65,6 +63,7 @@ data class Kandidat(
     val aktørId: String,
     @JsonIgnore
     val kandidatlisteId: BigInteger,
+    val cv: OpensearchData.CvSammendrag
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {
@@ -84,3 +83,9 @@ data class Kandidat(
         FÅTT_JOBBEN,
     }
 }
+
+data class Kandidatsammendrag (
+    // TODO: Bruk en egen KandidatDto til frontend, uten aktørId og Id.
+    val kandidat: Kandidat,
+    val cv: OpensearchData.CvSammendrag,
+)

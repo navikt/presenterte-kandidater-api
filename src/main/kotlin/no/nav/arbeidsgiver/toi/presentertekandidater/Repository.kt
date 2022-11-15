@@ -143,7 +143,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidatlisteMedKandidater(stillingId: UUID): KandidatlisteMedKandidat? {
+    fun hentKandidatlisteMedKandidater(stillingId: UUID): KandidatlisteMedKandidater? {
         val kandidatliste = hentKandidatliste(stillingId)
 
         if(kandidatliste?.id == null) {
@@ -152,7 +152,7 @@ class Repository(private val dataSource: DataSource) {
 
         val kandidater =  hentKandidater(kandidatliste.id)
 
-        return KandidatlisteMedKandidat(
+        return KandidatlisteMedKandidater(
             id = kandidatliste.id,
             uuid = kandidatliste.uuid,
             stillingId = kandidatliste.stillingId,

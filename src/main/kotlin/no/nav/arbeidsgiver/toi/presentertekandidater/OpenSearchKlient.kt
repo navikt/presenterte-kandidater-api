@@ -108,7 +108,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     }
 
     //TODO: Skriv om til et opensearch kall for å hente alle cver/kandidater samtidig
-    fun hentCver(aktørIder: List<String>): Map<String, OpensearchData.CvSammendrag?> =
+    fun hentSammendragForCver(aktørIder: List<String>): Map<String, OpensearchData.CvSammendrag?> =
         aktørIder.map {
             val cv = hentCvSammendrag(it)
             it to cv
