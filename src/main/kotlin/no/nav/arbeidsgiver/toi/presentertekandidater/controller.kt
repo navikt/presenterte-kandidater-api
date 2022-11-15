@@ -14,7 +14,7 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository) {
             hentKandidatlisteMedKandidater(repository),
             Rolle.ARBEIDSGIVER
         )
-        get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
+        get("/kandidatlister/{virksomhetsnummer}", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
     }
 }
 
