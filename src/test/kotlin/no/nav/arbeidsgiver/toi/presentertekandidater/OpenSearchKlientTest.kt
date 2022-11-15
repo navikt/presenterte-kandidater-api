@@ -66,6 +66,22 @@ class OpenSearchKlientTest {
         )
         assertThat(kandidat.ønsketYrke).containsExactlyInAnyOrder("Kokkelærling", "Skipskokk")
         assertThat(kandidat.sammendrag).isEqualTo("Dette er et sammendrag.")
+        assertThat(kandidat.utdanning).containsExactlyInAnyOrder(
+            OpensearchData.Utdanning(
+                fra = ZonedDateTime.parse("2019-07-31T22:00:00.000+00:00[UTC]"),
+                til = ZonedDateTime.parse("2021-05-31T22:00:00.000+00:00[UTC]"),
+                utdanningsretning = "Master markedsføring",
+                utdannelsessted = "NHH",
+                beskrivelse = "Markedsføring",
+            ),
+            OpensearchData.Utdanning(
+                fra = ZonedDateTime.parse("1997-05-31T22:00:00.000+00:00[UTC]"),
+                til = ZonedDateTime.parse("2000-05-31T22:00:00.000+00:00[UTC]"),
+                utdanningsretning = "Bachelor i Sykepleie",
+                utdannelsessted = "Lovisenberg høyskole",
+                beskrivelse = "Sykepleie",
+            )
+        )
 
         // Resten som trengs i CV-visning
     }
@@ -85,8 +101,7 @@ class OpenSearchKlientTest {
             .willReturn(ok(responsBody)))
     }
 
-     fun esKandidatJson(aktørId: String, fornavn: String, etternavn: String) = """
-         {
+         fun esKandidatJson(aktørId: String, fornavn: String, etternavn: String) = """{
               "took": 78,
               "timed_out": false,
               "_shards": {
@@ -146,7 +161,26 @@ class OpenSearchKlientTest {
                       "navkontor": "NAV Lofoten",
                       "fritattKandidatsok": null,
                       "fritattAgKandidatsok": null,
-                      "utdanning": [],
+                      "utdanning": [
+                        {
+                          "fraDato": "2019-07-31T22:00:00.000+00:00",
+                          "tilDato": "2021-05-31T22:00:00.000+00:00",
+                          "utdannelsessted": "NHH",
+                          "nusKode": "7",
+                          "alternativGrad": "Master markedsføring",
+                          "yrkestatus": "INGEN",
+                          "beskrivelse": "Markedsføring"
+                        },
+                        {
+                          "fraDato": "1997-05-31T22:00:00.000+00:00",
+                          "tilDato": "2000-05-31T22:00:00.000+00:00",
+                          "utdannelsessted": "Lovisenberg høyskole",
+                          "nusKode": "6",
+                          "alternativGrad": "Bachelor i Sykepleie",
+                          "yrkestatus": "INGEN",
+                          "beskrivelse": "Sykepleie"
+                        }
+                      ],
                       "fagdokumentasjon": [],
                       "yrkeserfaring": [
                         {

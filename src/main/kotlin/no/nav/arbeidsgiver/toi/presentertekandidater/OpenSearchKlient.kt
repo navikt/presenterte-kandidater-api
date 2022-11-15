@@ -87,6 +87,7 @@ class OpensearchData {
         val ønsketYrke: List<String>,
         @JsonAlias("beskrivelse")
         val sammendrag: String,
+        val utdanning: List<Utdanning>
         //val utdanning: List<Utdanning>
         //val språk: List<Språk>
     )
@@ -100,6 +101,13 @@ class OpensearchData {
         val beskrivelse: String,
     )
 
+    data class Utdanning(
+        val utdanningsretning: String,
+        val beskrivelse: String,
+        val utdannelsessted: String,
+        val fra: ZonedDateTime,
+        val til: ZonedDateTime
+    )
 }
 
 
