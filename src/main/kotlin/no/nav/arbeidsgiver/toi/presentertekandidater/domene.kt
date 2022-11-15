@@ -45,14 +45,7 @@ data class KandidatlisteMedAntallKandidater(
 )
 
 data class Kandidatlistesammendrag(
-    @JsonIgnore
-    val id: BigInteger? = null,
-    val uuid: UUID,
-    val stillingId: UUID,
-    val tittel: String,
-    val status: Kandidatliste.Status,
-    val slettet: Boolean = false,
-    val virksomhetsnummer: String,
+    val kandidatliste: Kandidatliste,
     val kandidater: List<Kandidatsammendrag>
 )
 
@@ -62,8 +55,7 @@ data class Kandidat(
     val uuid: UUID,
     val aktørId: String,
     @JsonIgnore
-    val kandidatlisteId: BigInteger,
-    val cv: OpensearchData.CvSammendrag
+    val kandidatlisteId: BigInteger
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {
@@ -87,5 +79,5 @@ data class Kandidat(
 data class Kandidatsammendrag (
     // TODO: Bruk en egen KandidatDto til frontend, uten aktørId og Id.
     val kandidat: Kandidat,
-    val cv: OpensearchData.CvSammendrag,
+    val cv: OpensearchData.CvSammendrag?,
 )

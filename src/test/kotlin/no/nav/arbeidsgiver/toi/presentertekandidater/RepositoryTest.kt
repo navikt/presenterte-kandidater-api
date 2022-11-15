@@ -95,20 +95,22 @@ internal class RepositoryTest {
             )
         )
 
-        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(kandidatliste.stillingId)
+        val listeMedKandidater = repository.hentKandidatliste(kandidatliste.stillingId)
+        val kandidater = repository.hentKandidater(listeMedKandidater?.id!!)
         assertThat(listeMedKandidater).isNotNull
-        assertThat(listeMedKandidater?.kandidater?.size).isEqualTo(1)
-        assertThat(listeMedKandidater?.kandidater!![0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
-        assertThat(listeMedKandidater?.kandidater[0].uuid).isEqualTo(kandidatUUID)
+        assertThat(kandidater?.size).isEqualTo(1)
+        assertThat(kandidater!![0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
+        assertThat(kandidater[0].uuid).isEqualTo(kandidatUUID)
     }
 
     @Test
     fun `Henting av kandidatliste med tom liste kandidater`() {
         val kandidatliste = lagKandidatliste()
         repository.lagre(kandidatliste)
-        val listeMedKandidater = repository.hentKandidatlisteMedKandidater(kandidatliste.stillingId)
+        val listeMedKandidater = repository.hentKandidatliste(kandidatliste.stillingId)
+        val kandidater = repository.hentKandidater(listeMedKandidater?.id!!)
         assertThat(listeMedKandidater).isNotNull
-        assertThat(listeMedKandidater?.kandidater).isEmpty()
+        assertThat(kandidater).isEmpty()
     }
 
     @Test
@@ -159,12 +161,14 @@ internal class RepositoryTest {
         repository.lagre(kandidatPåListe1)
         repository.lagre(kandidatPåListe2)
 
-        val kandidatliste1MedKandidater = repository.hentKandidatlisteMedKandidater(kandidatliste1.stillingId)
-        val kandidatliste2MedKandidater = repository.hentKandidatlisteMedKandidater(kandidatliste2.stillingId)
-        assertThat(kandidatliste1MedKandidater!!.kandidater).hasSize(1)
-        assertThat(kandidatliste2MedKandidater!!.kandidater).hasSize(1)
-        assertThat(kandidatliste1MedKandidater.kandidater.first().aktørId).isEqualTo(aktørID)
-        assertThat(kandidatliste2MedKandidater.kandidater.first().aktørId).isEqualTo(aktørID)
+        val kandidatliste1MedKandidater = repository.hentKandidatliste(kandidatliste1.stillingId)
+        val kandidater1 = repository.hentKandidater(kandidatliste1MedKandidater?.id!!)
+        val kandidatliste2MedKandidater = repository.hentKandidatliste(kandidatliste2.stillingId)
+        val kandidater2 = repository.hentKandidater(kandidatliste2MedKandidater?.id!!)
+        assertThat(kandidater1).hasSize(1)
+        assertThat(kandidater2).hasSize(1)
+        assertThat(kandidater1.first().aktørId).isEqualTo(aktørID)
+        assertThat(kandidater2.first().aktørId).isEqualTo(aktørID)
     }
 
     @Test

@@ -10,7 +10,7 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
     javalin.routes {
         get(
             "/kandidatliste/{stillingId}",
-            hentKandidatlisteMedKandidater(repository, opensearchKlient),
+            hentKandidatlistesammendrag(repository, opensearchKlient),
             Rolle.ARBEIDSGIVER
         )
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
@@ -30,38 +30,27 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
     }
 }
 
-private val hentKandidatlisteMedKandidater: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
+private val hentKandidatlistesammendrag: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, opensearchKlient ->
         { context ->
             val stillingId = context.pathParam("stillingId")
             if (stillingId.isNullOrBlank()) {
                 context.status(400)
             } else {
-                val kandidatliste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
+                val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))
                 if (kandidatliste == null) {
                     context.status(404)
                 } else {
-                    val aktørider = kandidatliste.kandidater.map { it.aktørId }
+                    val kandidater = repository.hentKandidater(kandidatliste.id!!)
+                    val aktørider = kandidater.map { it.aktørId }
                     val cver = opensearchKlient.hentSammendragForCver(aktørider)
-
-                    val kandidatlistesammendrag = Kandidatlistesammendrag(
-
-
-                    )
-                }
-
-
-                if (kandidatliste == null) {
-                    context.status(404)
-                } else {
-                    context.json(kandidatliste).status(200)
+                    val sammendragForKandidater =
+                        kandidater.map { Kandidatsammendrag(kandidat = it, cv = cver[it.aktørId]) }
+                    val kandidatlistesammendrag =
+                        Kandidatlistesammendrag(kandidatliste = kandidatliste, kandidater = sammendragForKandidater)
+                    context.json(kandidatlistesammendrag).status(200)
                 }
             }
         }
     }
 
-private val hentKandidater: () -> (Context) -> Unit = {
-    { context ->
-        context.json("heisann").status(200)
-    }
-}

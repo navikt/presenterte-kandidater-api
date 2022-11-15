@@ -14,6 +14,9 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import java.util.TimeZone
 
+val defaultObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
 fun main() {
     val env = System.getenv()
     val issuerProperties = hentIssuerProperties(env)

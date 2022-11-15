@@ -143,28 +143,6 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidatlisteMedKandidater(stillingId: UUID): KandidatlisteMedKandidater? {
-        val kandidatliste = hentKandidatliste(stillingId)
-
-        if(kandidatliste?.id == null) {
-            return null
-        }
-
-        val kandidater =  hentKandidater(kandidatliste.id)
-
-        return KandidatlisteMedKandidater(
-            id = kandidatliste.id,
-            uuid = kandidatliste.uuid,
-            stillingId = kandidatliste.stillingId,
-            tittel = kandidatliste.tittel,
-            status = kandidatliste.status,
-            slettet = kandidatliste.slettet,
-            virksomhetsnummer = kandidatliste.virksomhetsnummer,
-            kandidater = kandidater
-        )
-    }
-
-
     fun kjørFlywayMigreringer() {
         Flyway.configure()
             .dataSource(dataSource)

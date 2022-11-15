@@ -36,7 +36,8 @@ class PresenterteKandidaterLytterTest {
         testRapid.sendTestMessage(kandidathendelseMelding)
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val kandidatliste =
-            repository.hentKandidatlisteMedKandidater(stillingsId)
+            repository.hentKandidatliste(stillingsId)
+        val kandidater = repository.hentKandidater(kandidatliste?.id!!)
 
         // Verifiser kandidatliste
         assertNotNull(kandidatliste)
@@ -49,8 +50,8 @@ class PresenterteKandidaterLytterTest {
         assertNotNull(kandidatliste.id)
 
         // Verifiser kandidat
-        assertThat(kandidatliste.kandidater).hasSize(1)
-        val kandidat = kandidatliste.kandidater.first()
+        assertThat(kandidater).hasSize(1)
+        val kandidat = kandidater.first()
         assertNotNull(kandidat.id)
         assertThat(kandidat.aktørId).isEqualTo(aktørId)
         assertThat(kandidat.kandidatlisteId).isEqualTo(kandidatliste.id)

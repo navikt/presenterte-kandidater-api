@@ -83,31 +83,48 @@ class ControllerTest {
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
-        Assertions.assertThat(response.body().asString("application/json;charset=utf-8"))
-            .isEqualTo(("""
+        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        val kandidatlisteFromJson = defaultObjectMapper.readTree(jsonbody)
+        val opprettetDato = kandidatlisteFromJson["kandidatliste"]["opprettet"].asText()
+        Assertions.assertThat(jsonbody)
+            .isEqualToIgnoringWhitespace(("""
                 {
-                  "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
-                  "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
-                  "tittel": "Tittel",
-                  "status": "ÅPEN",
-                  "slettet": false,
-                  "virksomhetsnummer": "123456789",
-                  "kandidater": [
-                    {
-                      "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df",
-                      "aktørId": "test",
-                      "opprettet": ${ZonedDateTime.now()}
-                      "cv": {
-                            "fornavn": "Per",
-                            "etternavn: "Person",
-                            "kompetanse": ["Sykepleievitenskap", "Markedsanalyse"],
-                            "arbeidserfaring": ["Butikkmedarbeider klesbutikk", "Butikkmedarbeider klesbutikk"],
-                            "ønsketYrke": ["Kokkelærling", "Skipskokk"]
-                      }
-                    }
-                  ]
-                }
-            """.filter { !it.isWhitespace() })
+  "kandidatliste": {
+    "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
+    "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
+    "tittel": "Tittel",
+    "status": "ÅPEN",
+    "slettet": false,
+    "virksomhetsnummer": "123456789",
+    "sistEndret": "2022-11-15T14:46:39.051+01:00",
+    "opprettet": "${opprettetDato}"
+  },
+  "kandidater": [
+    {
+      "kandidat": {
+        "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df",
+        "aktørId": "1234"
+      },
+      "cv": {
+        "fornavn": "Per",
+        "etternavn": "Person",
+        "kompetanse": [
+          "Sykepleievitenskap",
+          "Markedsanalyse"
+        ],
+        "arbeidserfaring": [
+          "Butikkmedarbeider klesbutikk",
+          "Butikkmedarbeider klesbutikk"
+        ],
+        "ønsketYrke": [
+          "Kokkelærling",
+          "Skipskokk"
+        ]
+      }
+    }
+  ]
+}
+            """.trim())
             )
     }
 
@@ -156,8 +173,8 @@ class ControllerTest {
         status = Kandidatliste.Status.ÅPEN,
         virksomhetsnummer = "123456789",
         uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
-        sistEndret = ZonedDateTime.now(),
-        opprettet = ZonedDateTime.now()
+        sistEndret = ZonedDateTime.parse("2022-11-15T14:46:39.051+01:00"),
+        opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
     )
 
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
