@@ -2,6 +2,8 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeAll
@@ -17,11 +19,20 @@ class ControllerTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val wiremockServer = WireMockServer(8888)
 
     @BeforeAll
     fun init() {
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, repository = repository)
+        wiremockServer.start()
+        val miljøvariabler = mapOf(
+            "OPENSEARCH_URL" to "http://localhost:${wiremockServer.port()}",
+            "OPENSEARCH_USERNAME" to "gunnar",
+            "OPENSEARCH_PASSWORD" to "xyz"
+        )
+        val openSearchKlient = OpenSearchKlient(miljøvariabler)
+        startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
+
     }
 
     @AfterAll
@@ -145,4 +156,11 @@ class ControllerTest {
         sistEndret = ZonedDateTime.now(),
         opprettet = ZonedDateTime.now()
     )
+
+    fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
+        wiremockServer.stubFor(
+            WireMock.get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
+            .withBasicAuth("gunnar", "xyz")
+            .willReturn(WireMock.ok(responsBody)))
+    }
 }
