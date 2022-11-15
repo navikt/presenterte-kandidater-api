@@ -33,10 +33,12 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
                 mapHentÉnKandidat(body)
 
             }
+
             404 -> {
                 log.info("Hentkandidat fra openserch fant ikke kandidat")
                 null
             }
+
             else -> {
                 log.error("Hentkandidat fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
@@ -57,7 +59,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    private fun mapHentKandidatsammendrag(body: String) : OpensearchData.Kandidatsammendrag? {
+    private fun mapHentKandidatsammendrag(body: String): OpensearchData.Kandidatsammendrag? {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
         val harTreff = hits.toList().isNotEmpty()
@@ -70,7 +72,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    fun hentKandidatsammendrag(aktørid: String) : OpensearchData.Kandidatsammendrag? {
+    fun hentKandidatsammendrag(aktørid: String): OpensearchData.Kandidatsammendrag? {
         val (response, result) = hentKandidat(aktørid)
 
         return when (response.statusCode) {
@@ -80,10 +82,12 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
                 mapHentKandidatsammendrag(body)
 
             }
+
             404 -> {
                 log.info("hentKandidatsammendrag fra openserch fant ikke kandidat")
                 null
             }
+
             else -> {
                 log.error("hentKandidatsammendrag fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
@@ -91,7 +95,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    private fun hentKandidat(aktørid: String) : Pair<Response, Result<String, FuelError>> {
+    private fun hentKandidat(aktørid: String): Pair<Response, Result<String, FuelError>> {
         val url = envs["OPENSEARCH_URL"] +
                 "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
@@ -103,31 +107,30 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         return Pair(response, result)
     }
 
-
-
-
-    fun hentKandidater(aktørIder: Map<String,OpensearchData.Kandidatsammendrag>) {
+    //TODO: Skriv om til et opensearch kall for å hente alle cver/kandidater samtidig
+    fun hentKandidater(aktørIder: List<String>): Map<String, OpensearchData.Kandidatsammendrag?> =
         aktørIder.map {
-
-        }
-    }
+            val kandidat = hentKandidatsammendrag(it)
+            it to kandidat
+        }.toMap()
 }
 
 class OpensearchData {
 
-    data class Kandidatsammendrag (
+    data class Kandidatsammendrag(
         val fornavn: String,
         val etternavn: String,
         @JsonAlias("kompetanseObj")
         @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
         val kompetanse: List<String>,
         @JsonAlias("yrkeserfaring")
-        @JsonDeserialize( using = TilStringlisteDeserializer.ArbeidserfaringDeserializer::class)
+        @JsonDeserialize(using = TilStringlisteDeserializer.ArbeidserfaringDeserializer::class)
         val arbeidserfaring: List<String>,
         @JsonAlias("yrkeJobbonskerObj")
-        @JsonDeserialize( using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
+        @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
         val ønsketYrke: List<String>
     )
+
     data class Kandidat(
         @JsonAlias("aktorId")
         val aktørId: String,
@@ -148,7 +151,7 @@ class OpensearchData {
         @JsonAlias("yrkeserfaring")
         val arbeidserfaring: List<Arbeidserfaring>,
         @JsonAlias("yrkeJobbonskerObj")
-        @JsonDeserialize( using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
+        @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
         val ønsketYrke: List<String>,
         @JsonAlias("beskrivelse")
         val sammendrag: String,
@@ -200,7 +203,7 @@ private abstract class TilStringlisteDeserializer(val felt: String) : StdDeseria
     class KompetanseDeserializer : TilStringlisteDeserializer("kompKodeNavn")
     class ØnsketYrkeDeserializer : TilStringlisteDeserializer("styrkBeskrivelse")
 
-    class ArbeidserfaringDeserializer: TilStringlisteDeserializer("stillingstittel")
+    class ArbeidserfaringDeserializer : TilStringlisteDeserializer("stillingstittel")
 
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).map { it[felt].textValue() }

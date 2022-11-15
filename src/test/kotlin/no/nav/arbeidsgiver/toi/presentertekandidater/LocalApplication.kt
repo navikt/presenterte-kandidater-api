@@ -34,9 +34,11 @@ val issuerProperties = mapOf(
 fun startLocalApplication(javalin: Javalin,
                           rapid: TestRapid = TestRapid(),
                           presenterteKandidaterService:  PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
-                          repository: Repository = opprettTestRepositoryMedLokalPostgres()
+                          repository: Repository = opprettTestRepositoryMedLokalPostgres(),
+                          openSearchKlient: OpenSearchKlient = OpenSearchKlient(emptyMap())
+
                           ) {
-    startApp(javalin, rapid, presenterteKandidaterService, repository) { true }
+    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient) { true }
 }
 
 fun opprettTestRepositoryMedLokalPostgres(): Repository {

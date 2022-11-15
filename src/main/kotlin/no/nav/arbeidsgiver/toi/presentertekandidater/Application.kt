@@ -16,12 +16,14 @@ import java.util.TimeZone
 
 fun main() {
     val env = System.getenv()
-    val issuerProperties = hentIssuerProperties(System.getenv())
+    val issuerProperties = hentIssuerProperties(env)
     val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
 
     val datasource = Databasekonfigurasjon(env).lagDatasource()
     val repository = Repository(datasource)
     repository.kjørFlywayMigreringer()
+
+    val openSearchKlient = OpenSearchKlient(env)
 
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
 
@@ -30,7 +32,7 @@ fun main() {
         rapidIsAlive = kafkaRapid::isRunning
     })
 
-    startApp(javalin, rapidsConnection, presenterteKandidaterService, repository, rapidIsAlive)
+    startApp(javalin, rapidsConnection, presenterteKandidaterService, repository, openSearchKlient, rapidIsAlive)
 }
 
 fun startApp(
@@ -38,10 +40,11 @@ fun startApp(
     rapidsConnection: RapidsConnection,
     presenterteKandidaterService: PresenterteKandidaterService,
     repository: Repository,
+    openSearchKlient: OpenSearchKlient,
     rapidIsAlive: () -> Boolean,
 ) {
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    startKandidatlisteController(javalin, repository)
+    startKandidatlisteController(javalin, repository, openSearchKlient)
 
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, presenterteKandidaterService)

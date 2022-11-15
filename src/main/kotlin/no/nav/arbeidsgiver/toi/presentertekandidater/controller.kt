@@ -6,12 +6,12 @@ import io.javalin.http.Context
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.util.*
 
-fun startKandidatlisteController(javalin: Javalin, repository: Repository) {
+fun startKandidatlisteController(javalin: Javalin, repository: Repository, opensearchKlient: OpenSearchKlient) {
     javalin.routes {
         get("/kandidater", hentKandidater(/*repository::hentKandidater*/), Rolle.ARBEIDSGIVER)
         get(
             "/kandidatliste/{stillingId}",
-            hentKandidatlisteMedKandidater(repository),
+            hentKandidatlisteMedKandidater(repository, opensearchKlient),
             Rolle.ARBEIDSGIVER
         )
         get("/kandidatlister/{virksomhetsnummer}", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
@@ -40,7 +40,7 @@ private val hentKandidatlisteMedKandidater: (repository: Repository, opensearchK
             val liste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
             val aktørider = liste?.kandidater?.map { it.aktørId }
             if(aktørider != null) {
-                opensearchKlient.hentKandidater()
+                opensearchKlient.hentKandidater(aktørider)
             }
             if (liste == null) {
                 context.status(404)
