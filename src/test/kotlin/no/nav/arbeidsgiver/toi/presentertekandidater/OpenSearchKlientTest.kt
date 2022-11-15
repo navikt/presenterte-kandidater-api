@@ -94,8 +94,24 @@ class OpenSearchKlientTest {
                 skriftlig = "FOERSTESPRAAK"
             )
         )
+    }
 
-        // Resten som trengs i CV-visning
+    @Test
+    fun `Skal mappe respons fra OpenSearch korrekt når vi henter kandidatsammendrag`() {
+        val aktørId = "12345"
+        val fornavn = "Fin"
+        val etternavn = "Fugl"
+        val esRepons = esKandidatJson(aktørId = aktørId, fornavn = fornavn, etternavn = etternavn)
+        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
+
+        val kandidatsammendrag = openSearchKlient.hentKandidater(listOf(aktørId)).get(aktørId)
+
+        assertNotNull(kandidatsammendrag)
+        assertThat(kandidatsammendrag?.fornavn).isEqualTo(fornavn)
+        assertThat(kandidatsammendrag?.etternavn).isEqualTo(etternavn)
+        assertThat(kandidatsammendrag?.kompetanse).containsExactlyInAnyOrder("Sykepleievitenskap", "Markedsanalyse")
+        assertThat(kandidatsammendrag?.arbeidserfaring).containsExactlyInAnyOrder("Butikkmedarbeider klesbutikk","Butikkmedarbeider klesbutikk")
+        assertThat(kandidatsammendrag?.ønsketYrke).containsExactlyInAnyOrder("Kokkelærling", "Skipskokk")
     }
 
     @Test
@@ -105,6 +121,15 @@ class OpenSearchKlientTest {
 
         val kandidat = openSearchKlient.hentKandiat(aktørId)
         assertThat(kandidat).isNull()
+    }
+
+    @Test
+    fun `hentKandidatsammendrag  skal returnere null når kandidat ikke finnes`() {
+        val aktørId = "12345"
+        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = ingenTreffKandidatOpensearchJson)
+
+        val kandidat = openSearchKlient.hentKandidater(listOf(aktørId))
+        assertThat(kandidat.get(aktørId)).isNull()
     }
 
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
