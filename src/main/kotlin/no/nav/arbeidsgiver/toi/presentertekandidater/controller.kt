@@ -30,13 +30,18 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
     }
 }
 
-private val hentKandidatlisteMedKandidater: (repository: Repository) -> (Context) -> Unit = { repository ->
+private val hentKandidatlisteMedKandidater: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
+    { repository, opensearchKlient ->
     { context ->
         val stillingId = context.pathParam("stillingId")
         if (stillingId.isNullOrBlank()) {
             context.status(400)
         } else {
             val liste = repository.hentKandidatlisteMedKandidater(UUID.fromString(stillingId))
+            val aktørider = liste?.kandidater?.map { it.aktørId }
+            if(aktørider != null) {
+                opensearchKlient.hentKandidater()
+            }
             if (liste == null) {
                 context.status(404)
             } else {

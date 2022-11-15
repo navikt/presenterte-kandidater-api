@@ -60,9 +60,29 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
             null
         }
     }
+
+    fun hentKandidater(aktørIder: List<String>) {
+        aktørIder.map {
+
+        }
+    }
 }
 
 class OpensearchData {
+
+    data class Kandidatsammendrag (
+        val fornavn: String,
+        val etternavn: String,
+        @JsonAlias("kompetanseObj")
+        @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
+        val kompetanse: List<String>,
+        @JsonAlias("yrkeserfaring")
+        @JsonDeserialize( using = TilStringlisteDeserializer.ArbeidserfaringDeserializer::class)
+        val arbeidserfaring: List<String>,
+        @JsonAlias("yrkeJobbonskerObj")
+        @JsonDeserialize( using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
+        val ønsketYrke: List<String>
+    )
     data class Kandidat(
         @JsonAlias("aktorId")
         val aktørId: String,
@@ -134,6 +154,8 @@ private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
 private abstract class TilStringlisteDeserializer(val felt: String) : StdDeserializer<List<String>>(List::class.java) {
     class KompetanseDeserializer : TilStringlisteDeserializer("kompKodeNavn")
     class ØnsketYrkeDeserializer : TilStringlisteDeserializer("styrkBeskrivelse")
+
+    class ArbeidserfaringDeserializer: TilStringlisteDeserializer("stillingstittel")
 
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).map { it[felt].textValue() }
