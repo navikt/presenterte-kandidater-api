@@ -88,6 +88,7 @@ class OpensearchData {
         @JsonAlias("beskrivelse")
         val sammendrag: String,
         val utdanning: List<Utdanning>,
+        @JsonAlias("sprak")
         val språk: List<Språk>
     )
 
@@ -112,12 +113,14 @@ class OpensearchData {
     )
 
     data class Språk(
+        @JsonAlias("sprakKodeTekst")
         val navn: String,
+        @JsonAlias("ferdighetMuntlig")
         val muntlig: String,
+        @JsonAlias("ferdighetSkriftlig")
         val skriftlig: String
     )
 }
-
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
