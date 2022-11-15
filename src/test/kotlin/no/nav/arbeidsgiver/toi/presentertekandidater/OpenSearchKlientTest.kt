@@ -65,6 +65,7 @@ class OpenSearchKlientTest {
             )
         )
         assertThat(kandidat.ønsketYrke).containsExactlyInAnyOrder("Kokkelærling", "Skipskokk")
+        assertThat(kandidat.sammendrag).isEqualTo("Dette er et sammendrag.")
 
         // Resten som trengs i CV-visning
     }
@@ -121,7 +122,7 @@ class OpenSearchKlientTest {
                       "statsborgerskap": "",
                       "kandidatnr": "PAM019w4pxbus",
                       "arenaKandidatnr": "PAM019w4pxbus",
-                      "beskrivelse": "",
+                      "beskrivelse": "Dette er et sammendrag.",
                       "samtykkeStatus": "G",
                       "samtykkeDato": "2022-09-26T11:02:19.387+00:00",
                       "adresselinje1": "Skipperveien 16",

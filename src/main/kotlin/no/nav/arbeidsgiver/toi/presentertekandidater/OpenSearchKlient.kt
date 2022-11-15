@@ -30,17 +30,21 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
             .basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
             .responseString()
 
-        return if (response.statusCode == 200) {
-            log.info("Hentkandidat fra openserch ok")
-            val body = result.get()
-            mapHentÉnKandidat(body)
+        return when (response.statusCode) {
+            200 -> {
+                log.info("Hentkandidat fra openserch ok")
+                val body = result.get()
+                mapHentÉnKandidat(body)
 
-        } else if (response.statusCode == 404) {
-            log.info("Hentkandidat fra openserch fant ikke kandidat")
-            null
-        } else {
-            log.error("Hentkandidat fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
-            throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
+            }
+            404 -> {
+                log.info("Hentkandidat fra openserch fant ikke kandidat")
+                null
+            }
+            else -> {
+                log.error("Hentkandidat fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
+                throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
+            }
         }
     }
 
@@ -80,8 +84,9 @@ class OpensearchData {
         val arbeidserfaring: List<Arbeidserfaring>,
         @JsonAlias("yrkeJobbonskerObj")
         @JsonDeserialize( using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
-        val ønsketYrke: List<String>
-        // val sammendrag: List<String> TODO: Hvor ligger dette?
+        val ønsketYrke: List<String>,
+        @JsonAlias("beskrivelse")
+        val sammendrag: String,
         //val utdanning: List<Utdanning>
         //val språk: List<Språk>
     )
