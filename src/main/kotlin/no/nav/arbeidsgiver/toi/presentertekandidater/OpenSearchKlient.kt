@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.result.Result
 import java.time.Period
 import java.time.ZonedDateTime
 
@@ -21,14 +24,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun hentKandiat(aktørid: String): OpensearchData.Kandidat? {
-        val url = envs["OPENSEARCH_URL"] +
-                "/veilederkandidat_current/_search?q=aktorId:$aktørid"
-
-        val (_, response, result) = Fuel
-            .get(url)
-            .authentication()
-            .basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
-            .responseString()
+        val (response, result) = hentKandidat(aktørid)
 
         return when (response.statusCode) {
             200 -> {
@@ -61,7 +57,56 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    fun hentKandidater(aktørIder: List<String>) {
+    private fun mapHentKandidatsammendrag(body: String) : OpensearchData.Kandidatsammendrag? {
+        val responsJsonNode = objectMapper.readTree(body)
+        val hits = responsJsonNode["hits"]["hits"]
+        val harTreff = hits.toList().isNotEmpty()
+
+        return if (harTreff) {
+            val kandidatJson = objectMapper.writeValueAsString(hits.first()["_source"])
+            return objectMapper.readValue(kandidatJson, OpensearchData.Kandidatsammendrag::class.java)
+        } else {
+            null
+        }
+    }
+
+    fun hentKandidatsammendrag(aktørid: String) : OpensearchData.Kandidatsammendrag? {
+        val (response, result) = hentKandidat(aktørid)
+
+        return when (response.statusCode) {
+            200 -> {
+                log.info("hentKandidatsammendrag fra openserch ok")
+                val body = result.get()
+                mapHentKandidatsammendrag(body)
+
+            }
+            404 -> {
+                log.info("hentKandidatsammendrag fra openserch fant ikke kandidat")
+                null
+            }
+            else -> {
+                log.error("hentKandidatsammendrag fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
+                throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
+            }
+        }
+    }
+
+    private fun hentKandidat(aktørid: String) : Pair<Response, Result<String, FuelError>> {
+        val url = envs["OPENSEARCH_URL"] +
+                "/veilederkandidat_current/_search?q=aktorId:$aktørid"
+
+        val (_, response, result) = Fuel
+            .get(url)
+            .authentication()
+            .basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
+            .responseString()
+        return Pair(response, result)
+    }
+
+
+
+
+    fun hentKandidater(aktørIder: Map<String,OpensearchData.Kandidatsammendrag>) {
         aktørIder.map {
 
         }
