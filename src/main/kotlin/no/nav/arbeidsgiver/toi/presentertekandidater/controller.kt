@@ -14,9 +14,10 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
             hentKandidatlisteMedKandidater(repository, opensearchKlient),
             Rolle.ARBEIDSGIVER
         )
-        get("/kandidatlister/{virksomhetsnummer}", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
+        get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
     }
 }
+
 
 private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = { repository ->
     { context ->
