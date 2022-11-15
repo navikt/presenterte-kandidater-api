@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonAlias
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -133,6 +134,7 @@ class OpensearchData {
 
     data class Cv(
         @JsonAlias("aktorId")
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         val aktørId: String,
         val fornavn: String,
         val etternavn: String,

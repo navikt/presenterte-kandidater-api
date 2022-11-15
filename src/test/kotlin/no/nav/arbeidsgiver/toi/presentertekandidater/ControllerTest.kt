@@ -104,8 +104,7 @@ class ControllerTest {
                       "kandidater": [
                         {
                           "kandidat": {
-                            "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df",
-                            "aktørId": "1234"
+                            "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df"
                           },
                           "cv": {
                             "fornavn": "Per",
