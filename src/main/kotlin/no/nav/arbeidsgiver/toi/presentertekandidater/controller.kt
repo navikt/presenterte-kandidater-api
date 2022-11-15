@@ -14,8 +14,22 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
             Rolle.ARBEIDSGIVER
         )
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
+        get("/kandidatliste/{stillingsUid}/kandidat/{uuid}", hentKandidat(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
     }
 }
+
+//TODO husk å sjekke om arbeidsgiver har arbeidssøker på en av sine kandidatlister
+private val hentKandidat: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
+    { repository, opensearchKlient ->
+        { context ->
+                val kandidatuuid = context.pathParamMap().get("uuid")
+                val stillingsUid = context.pathParamMap().get("stillingsUid")
+                val kandidat = repository.hentKandidatMedUUID(UUID.fromString(kandidatuuid))
+                val cv = opensearchKlient.hentCv(kandidat?.aktørId!!)
+                context.json(cv!!)
+        }
+    }
+
 
 
 private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = { repository ->

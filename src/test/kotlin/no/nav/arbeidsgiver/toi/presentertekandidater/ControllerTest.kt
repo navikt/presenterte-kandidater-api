@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
+import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -58,6 +59,28 @@ class ControllerTest {
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)
+    }
+
+    @Test
+    fun `GET mot kandidat-endepunkt gir kandidat cv og 200 ok`() {
+        val stillinguuid = UUID.randomUUID()
+        val kandidatuuid = UUID.randomUUID()
+
+        repository.lagre(kandidatliste(uuid = stillinguuid))
+        val kandidatliste = repository.hentKandidatliste(stillinguuid)
+
+        repository.lagre(kandidat(uuid = kandidatuuid, kandidatlisteid = kandidatliste?.id!!))
+        val kandidat = repository.hentKandidatMedUUID(kandidatuuid)
+
+        val esRepons = Testdata.esKandidatJson(aktørId = kandidat?.aktørId!!, fornavn = "Per", etternavn = "Sjuspring")
+        stubHentingAvEnKandidat(aktørId = kandidat?.aktørId!!, esRepons)
+
+        val (_, response) = Fuel
+            .get("http://localhost:9000/kandidatliste/${stillinguuid.toString()}/kandidat/${kandidatuuid.toString()}")
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        Assertions.assertThat(response.statusCode).isEqualTo(200)
     }
 
     @Test
@@ -167,14 +190,20 @@ class ControllerTest {
             """.filter { !it.isWhitespace() })
     }
 
-    private fun kandidatliste() = Kandidatliste(
-        stillingId = UUID.randomUUID(),
+    private fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
+        stillingId = uuid,
         tittel = "Tittel",
         status = Kandidatliste.Status.ÅPEN,
         virksomhetsnummer = "123456789",
         uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
         sistEndret = ZonedDateTime.parse("2022-11-15T14:46:39.051+01:00"),
         opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
+    )
+
+    private fun kandidat(uuid: UUID = UUID.randomUUID(), kandidatlisteid: BigInteger) = Kandidat(
+        uuid = uuid,
+        aktørId = "123",
+        kandidatlisteId = kandidatlisteid
     )
 
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
