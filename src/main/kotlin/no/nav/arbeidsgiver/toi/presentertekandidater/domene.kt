@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.math.BigInteger
 import java.sql.ResultSet
 import java.time.ZoneId
@@ -53,6 +54,7 @@ data class Kandidat(
     @JsonIgnore
     val id: BigInteger? = null,
     val uuid: UUID,
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val aktørId: String,
     @JsonIgnore
     val kandidatlisteId: BigInteger
