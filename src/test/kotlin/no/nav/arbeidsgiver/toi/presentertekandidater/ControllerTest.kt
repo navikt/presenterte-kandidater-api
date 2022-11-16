@@ -62,28 +62,6 @@ class ControllerTest {
     }
 
     @Test
-    fun `GET mot kandidat-endepunkt gir kandidat cv og 200 ok`() {
-        val stillinguuid = UUID.randomUUID()
-        val kandidatuuid = UUID.randomUUID()
-
-        repository.lagre(kandidatliste(uuid = stillinguuid))
-        val kandidatliste = repository.hentKandidatliste(stillinguuid)
-
-        repository.lagre(kandidat(uuid = kandidatuuid, kandidatlisteid = kandidatliste?.id!!))
-        val kandidat = repository.hentKandidatMedUUID(kandidatuuid)
-
-        val esRepons = Testdata.esKandidatJson(aktørId = kandidat?.aktørId!!, fornavn = "Per", etternavn = "Sjuspring")
-        stubHentingAvEnKandidat(aktørId = kandidat?.aktørId!!, esRepons)
-
-        val (_, response) = Fuel
-            .get("http://localhost:9000/kandidatliste/${stillinguuid.toString()}/kandidat/${kandidatuuid.toString()}")
-            .authentication().bearer(hentToken(mockOAuth2Server))
-            .response()
-
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
-    }
-
-    @Test
     fun `GET mot kandidaterliste med kandidater gir status 200`() {
         val aktørId = "1234"
 
