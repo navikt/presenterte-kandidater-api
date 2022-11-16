@@ -26,9 +26,14 @@ private val hentKandidat: (repository: Repository, opensearchKlient: OpenSearchK
                 val stillingsUid = context.pathParamMap().get("stillingsUid")
                 val kandidat = repository.hentKandidatMedUUID(UUID.fromString(kandidatuuid))
                 val cv = opensearchKlient.hentCv(kandidat?.aktørId!!)
-                context.json(cv!!)
+                context.json(KandidatDto(kandidat, cv))
         }
     }
+
+data class KandidatDto (
+    val kandidat: Kandidat?,
+    val cv: OpensearchData.Cv?
+)
 
 
 
