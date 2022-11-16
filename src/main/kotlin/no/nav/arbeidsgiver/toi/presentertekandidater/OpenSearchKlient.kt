@@ -142,9 +142,9 @@ class OpensearchData {
         @JsonAlias("poststed")
         val bosted: String,
         @JsonAlias("mobiltelefon")
-        val mobiltelefonnummer: String,
+        val mobiltelefonnummer: String?,
         @JsonAlias("epostadresse")
-        val epost: String,
+        val epost: String?,
         @JsonAlias("fodselsdato")
         @JsonDeserialize(using = AlderDeserializer::class)
         val alder: Int,
