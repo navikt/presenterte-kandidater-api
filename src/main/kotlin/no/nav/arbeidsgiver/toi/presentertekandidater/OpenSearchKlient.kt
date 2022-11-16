@@ -24,38 +24,16 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun hentCv(aktørid: String): Cv? {
-        val (response, result) = hentCvFraOpenSearch(aktørid)
-
-        return when (response.statusCode) {
-            200 -> {
-                log.info("hentCv fra openserch ok")
-                val body = result.get()
-                mapHentÉnCv(body)
-
-            }
-
-            404 -> {
-                log.info("hentCv fra openserch fant ikke cv")
-                null
-            }
-
-            else -> {
-                log.error("hentCv fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
-                throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
-            }
-        }
-    }
-
     private fun mapHentCver(aktørider: List<String>, body: String): Map<String, Cv?> {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
-        val harTreff = hits.toList().isNotEmpty()
 
         val cver = hits
-            .map { it["_source"]}
-            .map{ val cvJson = objectMapper.writeValueAsString(it)
-                objectMapper.readValue(cvJson, Cv::class.java) }
+            .map { it["_source"] }
+            .map {
+                val cvJson = objectMapper.writeValueAsString(it)
+                objectMapper.readValue(cvJson, Cv::class.java)
+            }
             .associateBy { it.aktørId }
 
         return aktørider.associateWith { cver[it] }
@@ -75,10 +53,31 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         return Pair(response, result)
     }
 
-
-    //TODO: Skriv om til et opensearch kall for å hente alle cver/kandidater samtidig
     fun hentCver(aktørIder: List<String>): Map<String, Cv?> {
-        val body = """
+        val body = lagBodyForHentingAvCver(aktørIder)
+        val (respons, resultat) = openSearchGet(body)
+
+        return when (respons.statusCode) {
+            200 -> {
+                log.info("hentCv fra openserch ok")
+                val svarFraOpenSearch = resultat.get()
+                mapHentCver(aktørIder, svarFraOpenSearch)
+            }
+
+            404 -> {
+                log.info("hentCv fra openserch fant ikke cv")
+                emptyMap()
+            }
+
+            else -> {
+                log.error("hentCv fra openserch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
+            }
+        }
+
+    }
+
+    fun lagBodyForHentingAvCver(aktørIder: List<String>) = """
         {
             "query": {
                 "terms": {
@@ -106,20 +105,8 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
             ]
         }
         """
-        val (respons, resultat) = openSearchGet(body)
 
-        return
-
-    }
-
-      /*
-        aktørIder.map {
-            val cv = hentCv(it)
-            it to cv
-        }.toMap()
 }
-
-       */
 
 data class Cv(
     @JsonAlias("aktorId")
@@ -200,5 +187,6 @@ private abstract class TilStringlisteDeserializer(val felt: String) : StdDeseria
         return ctxt.readValue(parser, JsonNode::class.java).map { it[felt].textValue() }
     }
 }
+
 
 

@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -28,15 +29,17 @@ class OpenSearchKlientTest {
     }
 
     @Test
-    fun `Skal mappe respons fra OpenSearch korrekt når vi henter én kandidat`() {
-        val aktørId = "12345"
-        val fornavn = "Fin"
-        val etternavn = "Fugl"
-        val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = fornavn, etternavn = etternavn)
-        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
+    fun `Skal mappe respons fra OpenSearch korrekt når vi henter kandidater`() {
+        val aktørIder = listOf("12345", "67890")
+        val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
+        val openSearchResponseBody = flereKandidaterFraES(aktørIder[0], aktørIder[1])
+        stubHentingAvKandidater(requestBody = openSearchRequestBody, responsBody = openSearchResponseBody)
 
-        val kandidat = openSearchKlient.hentCv(aktørId)
+        val kandidater = openSearchKlient.hentCver(aktørIder)
 
+        assertThat(kandidater).hasSize(2)
+
+        /*
         assertNotNull(kandidat)
         assertThat(kandidat.aktørId).isEqualTo(aktørId)
         assertThat(kandidat.fornavn).isEqualTo(fornavn)
@@ -94,23 +97,26 @@ class OpenSearchKlientTest {
                 skriftlig = "FOERSTESPRAAK"
             )
         )
+         */
     }
 
     @Test
     fun `hentKandiat skal returnere null når kandidat ikke finnes`() {
-        val aktørId = "12345"
-        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = Testdata.ingenTreffKandidatOpensearchJson)
+        val aktørIder = listOf("12345", "67890")
+        val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
+        val openSearchResponseBody = Testdata.ingenTreffKandidatOpensearchJson
+        stubHentingAvKandidater(requestBody = openSearchRequestBody, responsBody = openSearchResponseBody)
 
-        val kandidat = openSearchKlient.hentCv(aktørId)
-        assertThat(kandidat).isNull()
+        val kandidater = openSearchKlient.hentCver(aktørIder)
+
+        assertThat(kandidater).hasSize(0)
     }
 
 
-    fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
-        wiremockServer.stubFor(get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
+    fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
+        wiremockServer.stubFor(get("/veilederkandidat_current/_search/")
             .withBasicAuth("gunnar", "xyz")
+            .withRequestBody(containing(requestBody))
             .willReturn(ok(responsBody)))
     }
-
-
  }

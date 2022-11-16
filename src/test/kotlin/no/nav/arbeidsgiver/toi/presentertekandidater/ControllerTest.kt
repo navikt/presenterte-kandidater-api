@@ -5,11 +5,8 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.BeforeAll
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -63,6 +60,8 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidaterliste med kandidater gir status 200`() {
+        fail { "Må reimplementeres etter endring av OpenSearchKlient "}
+        /*
         val aktørId = "1234"
 
         val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = "Per", etternavn = "Person")
@@ -175,6 +174,8 @@ class ControllerTest {
                 }
             """.trim())
             )
+
+         */
     }
 
     @Test
