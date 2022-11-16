@@ -19,9 +19,9 @@ class OpenSearchKlientTest {
     fun setUp() {
         wiremockServer.start()
         val miljøvariabler = mapOf(
-            "OPENSEARCH_URL" to "http://localhost:${wiremockServer.port()}",
-            "OPENSEARCH_USERNAME" to "gunnar",
-            "OPENSEARCH_PASSWORD" to "xyz"
+            "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
+            "OPEN_SEARCH_USERNAME" to "gunnar",
+            "OPEN_SEARCH_PASSWORD" to "xyz"
         )
         openSearchKlient = OpenSearchKlient(miljøvariabler)
 

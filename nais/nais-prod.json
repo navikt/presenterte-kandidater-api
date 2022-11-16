@@ -8,5 +8,4 @@
     "kafka_consumer_group_id": "presenterte-kandidagter-api-rapidconsumer-1",
     "gcp_db_tier": "db-custom-1-3840",
     "gcp_disk_autoresize": "true",
-    "opensearch_url": "https://opensearch-toi-kandidat-nav-prod.aivencloud.com:26482",
 }

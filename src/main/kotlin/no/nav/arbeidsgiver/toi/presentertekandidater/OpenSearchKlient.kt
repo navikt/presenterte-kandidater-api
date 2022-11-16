@@ -97,13 +97,13 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     }
 
     private fun hentCvFraOpenSearch(aktørid: String): Pair<Response, Result<String, FuelError>> {
-        val url = envs["OPENSEARCH_URL"] +
+        val url = envs["OPEN_SEARCH_URI"] +
                 "/veilederkandidat_current/_search?q=aktorId:$aktørid"
 
         val (_, response, result) = Fuel
             .get(url)
             .authentication()
-            .basic(envs["OPENSEARCH_USERNAME"]!!, envs["OPENSEARCH_PASSWORD"]!!)
+            .basic(envs["OPEN_SEARCH_USERNAME"]!!, envs["OPEN_SEARCH_PASSWORD"]!!)
             .responseString()
         return Pair(response, result)
     }

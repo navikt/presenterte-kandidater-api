@@ -27,9 +27,9 @@ class ControllerTest {
         mockOAuth2Server.start(port = 18301)
         wiremockServer.start()
         val miljøvariabler = mapOf(
-            "OPENSEARCH_URL" to "http://localhost:${wiremockServer.port()}",
-            "OPENSEARCH_USERNAME" to "gunnar",
-            "OPENSEARCH_PASSWORD" to "xyz"
+            "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
+            "OPEN_SEARCH_USERNAME" to "gunnar",
+            "OPEN_SEARCH_PASSWORD" to "xyz"
         )
         val openSearchKlient = OpenSearchKlient(miljøvariabler)
         startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
