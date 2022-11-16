@@ -10,42 +10,12 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
     javalin.routes {
         get(
             "/kandidatliste/{stillingId}",
-            hentKandidatlistesammendrag(repository, opensearchKlient),
+            hentKandidatliste(repository, opensearchKlient),
             Rolle.ARBEIDSGIVER
         )
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
-        get("/kandidatliste/{stillingsUid}/kandidat/{uuid}", hentKandidat(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
     }
 }
-
-//TODO husk å sjekke om arbeidsgiver har arbeidssøker på en av sine kandidatlister
-private val hentKandidat: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
-    { repository, opensearchKlient ->
-        { context ->
-                val kandidatuuid = context.pathParamMap().get("uuid")
-                val stillingsUid = context.pathParamMap().get("stillingsUid")
-                val kandidat = repository.hentKandidatMedUUID(UUID.fromString(kandidatuuid))
-                val cv = opensearchKlient.hentCv(kandidat?.aktørId!!)
-                context.json(KandidatDto(kandidat, cv))
-        }
-    }
-
-data class KandidatDto (
-    val kandidat: Kandidat,
-    val cv: OpensearchData.Cv?
-)
-
-data class KandidatlisteDto (
-    val kandidatliste: Kandidatliste,
-    val kandidater: List<KandidatDto>
-)
-typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
-
-data class Kandidatlistesammendrag(
-    val kandidatliste: Kandidatliste,
-    val kandidater: List<Kandidatsammendrag>
-)
-
 
 private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = { repository ->
     { context ->
@@ -53,13 +23,13 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
         if (virksomhetsnummer.isNullOrBlank()) {
             context.status(400)
         } else {
-            val lister = repository.hentKandidatlisterMedAntall(virksomhetsnummer)
+            val lister: KandidatlisterDto = repository.hentKandidatlisterMedAntall(virksomhetsnummer)
             context.json(lister).status(200)
         }
     }
 }
 
-private val hentKandidatlistesammendrag: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
+private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, opensearchKlient ->
         { context ->
             val stillingId = context.pathParam("stillingId")
@@ -80,3 +50,13 @@ private val hentKandidatlistesammendrag: (repository: Repository, opensearchKlie
         }
     }
 
+data class KandidatDto (
+    val kandidat: Kandidat,
+    val cv: OpensearchData.Cv?
+)
+
+data class KandidatlisteDto (
+    val kandidatliste: Kandidatliste,
+    val kandidater: List<KandidatDto>
+)
+typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
