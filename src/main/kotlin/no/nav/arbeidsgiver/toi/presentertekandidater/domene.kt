@@ -39,15 +39,9 @@ data class Kandidatliste(
     }
 }
 
-
 data class KandidatlisteMedAntallKandidater(
     val kandidatliste: Kandidatliste,
     val antallKandidater: Int
-)
-
-data class Kandidatlistesammendrag(
-    val kandidatliste: Kandidatliste,
-    val kandidater: List<Kandidatsammendrag>
 )
 
 data class Kandidat(

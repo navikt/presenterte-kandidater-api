@@ -31,10 +31,20 @@ private val hentKandidat: (repository: Repository, opensearchKlient: OpenSearchK
     }
 
 data class KandidatDto (
-    val kandidat: Kandidat?,
+    val kandidat: Kandidat,
     val cv: OpensearchData.Cv?
 )
 
+data class KandidatlisteDto (
+    val kandidatliste: Kandidatliste,
+    val kandidater: List<KandidatDto>
+)
+typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
+
+data class Kandidatlistesammendrag(
+    val kandidatliste: Kandidatliste,
+    val kandidater: List<Kandidatsammendrag>
+)
 
 
 private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = { repository ->
@@ -62,12 +72,9 @@ private val hentKandidatlistesammendrag: (repository: Repository, opensearchKlie
                 } else {
                     val kandidater = repository.hentKandidater(kandidatliste.id!!)
                     val aktørider = kandidater.map { it.aktørId }
-                    val cver = opensearchKlient.hentSammendragForCver(aktørider)
-                    val sammendragForKandidater =
-                        kandidater.map { Kandidatsammendrag(kandidat = it, cv = cver[it.aktørId]) }
-                    val kandidatlistesammendrag =
-                        Kandidatlistesammendrag(kandidatliste = kandidatliste, kandidater = sammendragForKandidater)
-                    context.json(kandidatlistesammendrag).status(200)
+                    val CVer = opensearchKlient.hentCver(aktørider)
+                    val kandidatDtoer = kandidater.map { KandidatDto(it, CVer[it.aktørId])}
+                    context.json(KandidatlisteDto(kandidatliste, kandidatDtoer)).status(200)
                 }
             }
         }

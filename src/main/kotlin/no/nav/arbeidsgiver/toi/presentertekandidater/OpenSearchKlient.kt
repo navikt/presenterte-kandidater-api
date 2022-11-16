@@ -108,10 +108,11 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         return Pair(response, result)
     }
 
+
     //TODO: Skriv om til et opensearch kall for å hente alle cver/kandidater samtidig
-    fun hentSammendragForCver(aktørIder: List<String>): Map<String, OpensearchData.CvSammendrag?> =
+    fun hentCver(aktørIder: List<String>): Map<String, OpensearchData.Cv?> =
         aktørIder.map {
-            val cv = hentCvSammendrag(it)
+            val cv = hentCv(it)
             it to cv
         }.toMap()
 }

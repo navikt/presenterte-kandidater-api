@@ -113,41 +113,88 @@ class ControllerTest {
             .isBefore(ZonedDateTime.now()).isAfter(ZonedDateTime.now().minusMinutes(1))
         Assertions.assertThat(jsonbody)
             .isEqualToIgnoringWhitespace(("""
-                    {
-                      "kandidatliste": {
-                        "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
-                        "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
-                        "tittel": "Tittel",
-                        "status": "ÅPEN",
-                        "slettet": false,
-                        "virksomhetsnummer": "123456789",
-                        "sistEndret": "2022-11-15T14:46:39.051+01:00",
-                        "opprettet": "${opprettetDato}"
-                      },
-                      "kandidater": [
-                        {
-                          "kandidat": {
-                            "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df"
-                          },
-                          "cv": {
-                            "fornavn": "Per",
-                            "etternavn": "Person",
-                            "kompetanse": [
-                              "Sykepleievitenskap",
-                              "Markedsanalyse"
-                            ],
-                            "arbeidserfaring": [
-                              "Butikkmedarbeider klesbutikk",
-                              "Butikkmedarbeider klesbutikk"
-                            ],
-                            "ønsketYrke": [
-                              "Kokkelærling",
-                              "Skipskokk"
-                            ]
-                          }
-                        }
-                      ]
-                    }
+{
+  "kandidatliste": {
+    "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
+    "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
+    "tittel": "Tittel",
+    "status": "ÅPEN",
+    "slettet": false,
+    "virksomhetsnummer": "123456789",
+    "sistEndret": "2022-11-15T14:46:39.051+01:00",
+    "opprettet": "${opprettetDato}"
+  },
+  "kandidater": [
+    {
+      "kandidat": {
+        "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df"
+      },
+      "cv": {
+        "fornavn": "Per",
+        "etternavn": "Person",
+        "bosted": "Svolvær",
+        "mobiltelefonnummer": "99887766",
+        "epost": "hei@hei.no",
+        "alder": 40,
+        "kompetanse": [
+          "Sykepleievitenskap",
+          "Markedsanalyse"
+        ],
+        "arbeidserfaring": [
+          {
+            "fraDato": "2018-07-01T00:00:00+02:00",
+            "tilDato": "2022-05-01T00:00:00+02:00",
+            "arbeidsgiver": "Stormote AS",
+            "sted": "Oslo",
+            "stillingstittel": "Butikkmedarbeider klesbutikk",
+            "beskrivelse": "Jobb i butikk som drev med både klær og tekstil. Som grossist og til privatkunder."
+          },
+          {
+            "fraDato": "2015-05-01T00:00:00+02:00",
+            "tilDato": "2018-03-01T00:00:00+01:00",
+            "arbeidsgiver": "H&M Storo",
+            "sted": "Oslo",
+            "stillingstittel": "Butikkmedarbeider klesbutikk",
+            "beskrivelse": "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg."
+          }
+        ],
+        "ønsketYrke": [
+          "Kokkelærling",
+          "Skipskokk"
+        ],
+        "sammendrag": "Dette er et sammendrag.",
+        "utdanning": [
+          {
+            "utdanningsretning": "Master markedsføring",
+            "beskrivelse": "Markedsføring",
+            "utdannelsessted": "NHH",
+            "fra": "2019-08-01T00:00:00+02:00",
+            "til": "2021-06-01T00:00:00+02:00"
+          },
+          {
+            "utdanningsretning": "Bachelor i Sykepleie",
+            "beskrivelse": "Sykepleie",
+            "utdannelsessted": "Lovisenberg høyskole",
+            "fra": "1997-06-01T00:00:00+02:00",
+            "til": "2000-06-01T00:00:00+02:00"
+          }
+        ],
+        "språk": [
+          {
+            "navn": "Engelsk",
+            "muntlig": "VELDIG_GODT",
+            "skriftlig": "GODT"
+          },
+          {
+            "navn": "Norsk",
+            "muntlig": "FOERSTESPRAAK",
+            "skriftlig": "FOERSTESPRAAK"
+          }
+        ]
+      }
+    }
+  ]
+}
             """.trim())
             )
     }

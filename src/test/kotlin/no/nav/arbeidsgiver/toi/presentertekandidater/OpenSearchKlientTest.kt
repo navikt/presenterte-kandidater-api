@@ -97,24 +97,6 @@ class OpenSearchKlientTest {
     }
 
     @Test
-    fun `Skal mappe respons fra OpenSearch korrekt når vi henter kandidatsammendrag`() {
-        val aktørId = "12345"
-        val fornavn = "Fin"
-        val etternavn = "Fugl"
-        val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = fornavn, etternavn = etternavn)
-        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
-
-        val kandidatsammendrag = openSearchKlient.hentSammendragForCver(listOf(aktørId)).get(aktørId)
-
-        assertNotNull(kandidatsammendrag)
-        assertThat(kandidatsammendrag?.fornavn).isEqualTo(fornavn)
-        assertThat(kandidatsammendrag?.etternavn).isEqualTo(etternavn)
-        assertThat(kandidatsammendrag?.kompetanse).containsExactlyInAnyOrder("Sykepleievitenskap", "Markedsanalyse")
-        assertThat(kandidatsammendrag?.arbeidserfaring).containsExactlyInAnyOrder("Butikkmedarbeider klesbutikk","Butikkmedarbeider klesbutikk")
-        assertThat(kandidatsammendrag?.ønsketYrke).containsExactlyInAnyOrder("Kokkelærling", "Skipskokk")
-    }
-
-    @Test
     fun `hentKandiat skal returnere null når kandidat ikke finnes`() {
         val aktørId = "12345"
         stubHentingAvEnKandidat(aktørId = aktørId, responsBody = Testdata.ingenTreffKandidatOpensearchJson)
@@ -123,14 +105,6 @@ class OpenSearchKlientTest {
         assertThat(kandidat).isNull()
     }
 
-    @Test
-    fun `hentKandidatsammendrag  skal returnere null når kandidat ikke finnes`() {
-        val aktørId = "12345"
-        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = Testdata.ingenTreffKandidatOpensearchJson)
-
-        val kandidat = openSearchKlient.hentSammendragForCver(listOf(aktørId))
-        assertThat(kandidat.get(aktørId)).isNull()
-    }
 
     fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
         wiremockServer.stubFor(get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
