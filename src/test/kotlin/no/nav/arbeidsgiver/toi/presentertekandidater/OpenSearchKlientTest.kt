@@ -30,91 +30,77 @@ class OpenSearchKlientTest {
 
     @Test
     fun `Skal mappe respons fra OpenSearch korrekt når vi henter kandidater`() {
-        val aktørIder = listOf("12345", "67890")
+        val aktørId1 = "12345"
+        val aktørId2 = "67890"
+        val aktørIder = listOf(aktørId1, aktørId2)
         val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
         val openSearchResponseBody = flereKandidaterFraES(aktørIder[0], aktørIder[1])
         stubHentingAvKandidater(requestBody = openSearchRequestBody, responsBody = openSearchResponseBody)
 
-        val kandidater = openSearchKlient.hentCver(aktørIder)
+        val kandidaterMedCv: Map<String, Cv?> = openSearchKlient.hentCver(aktørIder)
 
-        assertThat(kandidater).hasSize(2)
-
-        /*
-        assertNotNull(kandidat)
-        assertThat(kandidat.aktørId).isEqualTo(aktørId)
-        assertThat(kandidat.fornavn).isEqualTo(fornavn)
-        assertThat(kandidat.etternavn).isEqualTo(etternavn)
-        assertThat(kandidat.bosted).isEqualTo("Svolvær")
-        assertThat(kandidat.epost).isEqualTo("hei@hei.no")
-        assertThat(kandidat.mobiltelefonnummer).isEqualTo("99887766")
-        assertThat(kandidat.alder).isEqualTo(40)
-        assertThat(kandidat.kompetanse).containsExactlyInAnyOrder("Sykepleievitenskap", "Markedsanalyse")
-        assertThat(kandidat.arbeidserfaring).containsExactlyInAnyOrder(
-            OpensearchData.Arbeidserfaring(
-                fraDato = ZonedDateTime.parse("2018-06-30T22:00:00.000+00:00[UTC]"),
-                tilDato = ZonedDateTime.parse("2022-04-30T22:00:00.000+00:00[UTC]"),
-                arbeidsgiver = "Stormote AS",
-                sted = "Oslo",
-                stillingstittel = "Butikkmedarbeider klesbutikk",
-                beskrivelse = "Jobb i butikk som drev med både klær og tekstil. Som grossist og til privatkunder."
-                ),
-            OpensearchData.Arbeidserfaring(
-                fraDato = ZonedDateTime.parse("2015-04-30T22:00:00.000+00:00[UTC]"),
-                tilDato = ZonedDateTime.parse("2018-02-28T23:00:00.000+00:00[UTC]"),
-                arbeidsgiver = "H&M Storo",
-                sted = "Oslo",
-                stillingstittel = "Butikkmedarbeider klesbutikk",
-                beskrivelse = "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg."
-            )
-        )
-        assertThat(kandidat.ønsketYrke).containsExactlyInAnyOrder("Kokkelærling", "Skipskokk")
-        assertThat(kandidat.sammendrag).isEqualTo("Dette er et sammendrag.")
-        assertThat(kandidat.utdanning).containsExactlyInAnyOrder(
-            OpensearchData.Utdanning(
-                fra = ZonedDateTime.parse("2019-07-31T22:00:00.000+00:00[UTC]"),
-                til = ZonedDateTime.parse("2021-05-31T22:00:00.000+00:00[UTC]"),
-                utdanningsretning = "Master markedsføring",
-                utdannelsessted = "NHH",
-                beskrivelse = "Markedsføring",
-            ),
-            OpensearchData.Utdanning(
-                fra = ZonedDateTime.parse("1997-05-31T22:00:00.000+00:00[UTC]"),
-                til = ZonedDateTime.parse("2000-05-31T22:00:00.000+00:00[UTC]"),
-                utdanningsretning = "Bachelor i Sykepleie",
-                utdannelsessted = "Lovisenberg høyskole",
-                beskrivelse = "Sykepleie",
-            )
-        )
-        assertThat(kandidat.språk).containsExactlyInAnyOrder(
-            OpensearchData.Språk(
-                navn = "Engelsk",
-                muntlig = "VELDIG_GODT",
-                skriftlig = "GODT"
-            ),
-            OpensearchData.Språk(
-                navn = "Norsk",
-                muntlig = "FOERSTESPRAAK",
-                skriftlig = "FOERSTESPRAAK"
-            )
-        )
-         */
+        assertThat(kandidaterMedCv).hasSize(2)
+        assertThat(kandidaterMedCv.values).hasSize(2)
+        val cv1 = kandidaterMedCv[aktørId1]
+        val cv2 = kandidaterMedCv[aktørId2]
+        assertThat(cv1?.aktørId).isEqualTo(aktørId1)
+        assertThat(cv2?.aktørId).isEqualTo(aktørId2)
+        assertThat(cv2?.ønsketYrke).hasSize(1)
+        assertThat(cv2?.ønsketYrke?.get(0)).isEqualTo("Kokkelærling")
+        assertThat(cv1?.kompetanse).hasSize(22)
+        assertThat(cv1?.kompetanse).containsAll(listOf("Fallskjermsertifikat",
+            "Trenerarbeid",
+            "Taekwondo",
+            "Fritidsdykking",
+            "Java (Programmeringsspråk)",
+            "Kotlin (Programming Language)",
+            "Scala",
+            "Spring framework",
+            "Java/JEE",
+            "Relasjonsdatabase",
+            "Git versjonskontrollsystem",
+            "Apache Subversion (SVN)",
+            "Jenkins (Software)",
+            "Apache Maven",
+            "Oracle Relational Database",
+            "IntelliJ IDEA",
+            "GitHub",
+            "Agile-utvikling",
+            "Agile Scrum",
+            "Test-driven development (TDD)",
+            "Domain Driven Design",
+            "Kodegjennomgang"))
+        assertThat(cv1?.arbeidserfaring).hasSize(3)
+        assertThat(cv1?.arbeidserfaring?.get(0)?.arbeidsgiver).isEqualTo("Knowit Objectnet")
+        assertThat(cv1?.utdanning).hasSize(3)
+        assertThat(cv1?.utdanning?.get(0)?.utdannelsessted).isEqualTo("Universitetet i Oslo")
+        assertThat(cv1?.språk).hasSize(5)
+        assertThat(cv1?.språk?.get(0)?.navn).isEqualTo("Tysk")
+        assertThat(cv1?.språk?.get(0)?.muntlig).isEqualTo("NYBEGYNNER")
+        assertThat(cv1?.sammendrag).contains("Er fanatisk opptatt av religion, lever som en munk og synes at alle burde vite om vår Herre og Gud sin herlige nåde og fryd, priset være Herren, halleluja.")
+        assertThat(cv1?.alder).isEqualTo(47)
+        assertThat(cv1?.fornavn).isEqualTo("Ugjennomsiktig")
+        assertThat(cv1?.etternavn).isEqualTo("Dal")
+        assertThat(cv1?.bosted).isEqualTo("Vega")
+        assertThat(cv1?.mobiltelefonnummer).isEqualTo(null)
     }
 
     @Test
-    fun `hentKandiat skal returnere null når kandidat ikke finnes`() {
+    fun `hentKandiat skal returnere nullverdi for Cv når kandidater ikke finnes`() {
         val aktørIder = listOf("12345", "67890")
         val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
         val openSearchResponseBody = Testdata.ingenTreffKandidatOpensearchJson
         stubHentingAvKandidater(requestBody = openSearchRequestBody, responsBody = openSearchResponseBody)
 
-        val kandidater = openSearchKlient.hentCver(aktørIder)
+        val kandidaterMedCv: Map<String, Cv?> = openSearchKlient.hentCver(aktørIder)
 
-        assertThat(kandidater).hasSize(0)
+        assertThat(kandidaterMedCv).hasSize(2)
+        assertThat(kandidaterMedCv.values).containsOnlyNulls()
     }
 
 
     fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
-        wiremockServer.stubFor(get("/veilederkandidat_current/_search/")
+        wiremockServer.stubFor(post("/veilederkandidat_current/_search")
             .withBasicAuth("gunnar", "xyz")
             .withRequestBody(containing(requestBody))
             .willReturn(ok(responsBody)))

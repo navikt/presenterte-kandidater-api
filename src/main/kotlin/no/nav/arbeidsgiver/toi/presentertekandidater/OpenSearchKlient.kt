@@ -45,7 +45,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
                 "/veilederkandidat_current/_search"
 
         val (_, response, result) = Fuel
-            .get(url)
+            .post(url)
             .body(body)
             .authentication()
             .basic(envs["OPEN_SEARCH_USERNAME"]!!, envs["OPEN_SEARCH_PASSWORD"]!!)
@@ -59,18 +59,13 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
 
         return when (respons.statusCode) {
             200 -> {
-                log.info("hentCv fra openserch ok")
+                log.info("hentCv fra opensearch ok")
                 val svarFraOpenSearch = resultat.get()
                 mapHentCver(aktørIder, svarFraOpenSearch)
             }
 
-            404 -> {
-                log.info("hentCv fra openserch fant ikke cv")
-                emptyMap()
-            }
-
             else -> {
-                log.error("hentCv fra openserch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                log.error("hentCv fra opensearch feilet: ${respons.statusCode} ${respons.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
             }
         }

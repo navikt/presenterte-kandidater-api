@@ -18,6 +18,7 @@ class ControllerTest {
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8888)
+    lateinit var openSearchKlient : OpenSearchKlient
 
     @BeforeAll
     fun init() {
@@ -28,7 +29,7 @@ class ControllerTest {
             "OPEN_SEARCH_USERNAME" to "gunnar",
             "OPEN_SEARCH_PASSWORD" to "xyz"
         )
-        val openSearchKlient = OpenSearchKlient(miljøvariabler)
+        openSearchKlient = OpenSearchKlient(miljøvariabler)
         startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
 
     }
@@ -60,21 +61,28 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidaterliste med kandidater gir status 200`() {
-        fail { "Må reimplementeres etter endring av OpenSearchKlient "}
-        /*
-        val aktørId = "1234"
+        val aktørId1 = "1234"
+        val uuidForAktør1 = UUID.fromString("28e2c1f6-dea5-46d1-90cd-bfbd994e06df")
+        val aktørId2 = "666"
+        val uuidForAktør2 = UUID.fromString("60e2c1f6-dea5-50d1-93cd-bfbd224e08df")
 
-        val esRepons = Testdata.esKandidatJson(aktørId = aktørId, fornavn = "Per", etternavn = "Person")
-        stubHentingAvEnKandidat(aktørId = aktørId, responsBody = esRepons)
+        val esRepons = Testdata.flereKandidaterFraES(aktørId1 = aktørId1, aktørid2 = aktørId2)
+        stubHentingAvKandidater(requestBody = openSearchKlient.lagBodyForHentingAvCver(listOf(aktørId1, aktørId2)), responsBody = esRepons)
 
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
         repository.lagre(
             Kandidat(
-                aktørId = aktørId,
+                aktørId = aktørId1,
                 kandidatlisteId = kandidatliste?.id!!,
-                uuid = UUID.fromString("28e2c1f6-dea5-46d1-90cd-bfbd994e06df")
+                uuid = uuidForAktør1
+            )
+        )
+        repository.lagre(
+            Kandidat(aktørId = aktørId2,
+                kandidatlisteId = kandidatliste?.id!!,
+                uuid = uuidForAktør2
             )
         )
         val (_, response) = Fuel
@@ -84,98 +92,17 @@ class ControllerTest {
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
         val jsonbody = response.body().asString("application/json;charset=utf-8")
-        val kandidatlisteFromJson = defaultObjectMapper.readTree(jsonbody)
-        val opprettetDato = kandidatlisteFromJson["kandidatliste"]["opprettet"].asText()
-        Assertions.assertThat(ZonedDateTime.parse(opprettetDato))
-            .isBefore(ZonedDateTime.now()).isAfter(ZonedDateTime.now().minusMinutes(1))
-        Assertions.assertThat(jsonbody)
-            .isEqualToIgnoringWhitespace(("""
-                {
-                  "kandidatliste": {
-                    "uuid": "7ea380f8-a0af-433f-8cbc-51c5788a7d29",
-                    "stillingId": "4bd2c240-92d2-4166-ac54-ba3d21bfbc07",
-                    "tittel": "Tittel",
-                    "status": "ÅPEN",
-                    "slettet": false,
-                    "virksomhetsnummer": "123456789",
-                    "sistEndret": "2022-11-15T14:46:39.051+01:00",
-                    "opprettet": "${opprettetDato}"
-                  },
-                  "kandidater": [
-                    {
-                      "kandidat": {
-                        "uuid": "28e2c1f6-dea5-46d1-90cd-bfbd994e06df"
-                      },
-                      "cv": {
-                        "fornavn": "Per",
-                        "etternavn": "Person",
-                        "bosted": "Svolvær",
-                        "mobiltelefonnummer": "99887766",
-                        "epost": "hei@hei.no",
-                        "alder": 40,
-                        "kompetanse": [
-                          "Sykepleievitenskap",
-                          "Markedsanalyse"
-                        ],
-                        "arbeidserfaring": [
-                          {
-                            "fraDato": "2018-07-01T00:00:00+02:00",
-                            "tilDato": "2022-05-01T00:00:00+02:00",
-                            "arbeidsgiver": "Stormote AS",
-                            "sted": "Oslo",
-                            "stillingstittel": "Butikkmedarbeider klesbutikk",
-                            "beskrivelse": "Jobb i butikk som drev med både klær og tekstil. Som grossist og til privatkunder."
-                          },
-                          {
-                            "fraDato": "2015-05-01T00:00:00+02:00",
-                            "tilDato": "2018-03-01T00:00:00+01:00",
-                            "arbeidsgiver": "H&M Storo",
-                            "sted": "Oslo",
-                            "stillingstittel": "Butikkmedarbeider klesbutikk",
-                            "beskrivelse": "Ordinær ansatt i klesbutikk. Hadde behov for å trappe ned etter en stressende stilling som daglig leder hos Carlings. Generelt butikkarbeid, salg."
-                          }
-                        ],
-                        "ønsketYrke": [
-                          "Kokkelærling",
-                          "Skipskokk"
-                        ],
-                        "sammendrag": "Dette er et sammendrag.",
-                        "utdanning": [
-                          {
-                            "utdanningsretning": "Master markedsføring",
-                            "beskrivelse": "Markedsføring",
-                            "utdannelsessted": "NHH",
-                            "fra": "2019-08-01T00:00:00+02:00",
-                            "til": "2021-06-01T00:00:00+02:00"
-                          },
-                          {
-                            "utdanningsretning": "Bachelor i Sykepleie",
-                            "beskrivelse": "Sykepleie",
-                            "utdannelsessted": "Lovisenberg høyskole",
-                            "fra": "1997-06-01T00:00:00+02:00",
-                            "til": "2000-06-01T00:00:00+02:00"
-                          }
-                        ],
-                        "språk": [
-                          {
-                            "navn": "Engelsk",
-                            "muntlig": "VELDIG_GODT",
-                            "skriftlig": "GODT"
-                          },
-                          {
-                            "navn": "Norsk",
-                            "muntlig": "FOERSTESPRAAK",
-                            "skriftlig": "FOERSTESPRAAK"
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-            """.trim())
-            )
-
-         */
+        val kandidatlisteJson = defaultObjectMapper.readTree(jsonbody)
+        Assertions.assertThat(kandidatlisteJson["kandidatliste"]).isNotEmpty
+        Assertions.assertThat(kandidatlisteJson["kandidater"]).hasSize(2)
+        Assertions.assertThat(kandidatlisteJson["kandidater"][0]["kandidat"]).isNotEmpty
+        Assertions.assertThat(kandidatlisteJson["kandidater"][1]["kandidat"]).isNotEmpty
+        Assertions.assertThat(kandidatlisteJson["kandidater"][0]["kandidat"]["uuid"].asText()).isEqualTo(uuidForAktør1.toString())
+        Assertions.assertThat(kandidatlisteJson["kandidater"][1]["kandidat"]["uuid"].asText()).isEqualTo(uuidForAktør2.toString())
+        Assertions.assertThat(kandidatlisteJson["kandidater"][0]["cv"]).isNotEmpty
+        Assertions.assertThat(kandidatlisteJson["kandidater"][0]["cv"]["aktørId"]).isNull()
+        Assertions.assertThat(kandidatlisteJson["kandidater"][1]["cv"]["aktørId"]).isNull()
+        Assertions.assertThat(kandidatlisteJson["kandidater"][0]["cv"]["sammendrag"].asText()).contains("Er fanatisk opptatt av religion")
     }
 
     @Test
@@ -233,10 +160,11 @@ class ControllerTest {
         kandidatlisteId = kandidatlisteid
     )
 
-    fun stubHentingAvEnKandidat(aktørId: String, responsBody: String) {
+    fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(
-            WireMock.get("/veilederkandidat_current/_search?q=aktorId:$aktørId")
+            WireMock.post("/veilederkandidat_current/_search")
             .withBasicAuth("gunnar", "xyz")
+            .withRequestBody(WireMock.containing(requestBody))
             .willReturn(WireMock.ok(responsBody)))
     }
 }
