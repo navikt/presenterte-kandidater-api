@@ -24,7 +24,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
     val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun hentCv(aktørid: String): OpensearchData.Cv? {
+    fun hentCv(aktørid: String): Cv? {
         val (response, result) = hentCvFraOpenSearch(aktørid)
 
         return when (response.statusCode) {
@@ -47,61 +47,28 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
         }
     }
 
-    private fun mapHentÉnCv(body: String): OpensearchData.Cv? {
+    private fun mapHentCver(aktørider: List<String>, body: String): Map<String, Cv?> {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
         val harTreff = hits.toList().isNotEmpty()
 
-        return if (harTreff) {
-            val cvJson = objectMapper.writeValueAsString(hits.first()["_source"])
-            return objectMapper.readValue(cvJson, OpensearchData.Cv::class.java)
-        } else {
-            null
-        }
+        val cver = hits
+            .map { it["_source"]}
+            .map{ val cvJson = objectMapper.writeValueAsString(it)
+                objectMapper.readValue(cvJson, Cv::class.java) }
+            .associateBy { it.aktørId }
+
+        return aktørider.associateWith { cver[it] }
+
     }
 
-    private fun mapHentKandidatsammendrag(body: String): OpensearchData.CvSammendrag? {
-        val responsJsonNode = objectMapper.readTree(body)
-        val hits = responsJsonNode["hits"]["hits"]
-        val harTreff = hits.toList().isNotEmpty()
-
-        return if (harTreff) {
-            val cvJson = objectMapper.writeValueAsString(hits.first()["_source"])
-            return objectMapper.readValue(cvJson, OpensearchData.CvSammendrag::class.java)
-        } else {
-            null
-        }
-    }
-
-    fun hentCvSammendrag(aktørid: String): OpensearchData.CvSammendrag? {
-        val (response, result) = hentCvFraOpenSearch(aktørid)
-
-        return when (response.statusCode) {
-            200 -> {
-                log.info("hentCvSammendrag fra openserch ok")
-                val body = result.get()
-                mapHentKandidatsammendrag(body)
-
-            }
-
-            404 -> {
-                log.info("hentCvSammendrag fra openserch fant ikke cv")
-                null
-            }
-
-            else -> {
-                log.error("hentCvSammendrag fra openserch feilet: ${response.statusCode} ${response.responseMessage}")
-                throw RuntimeException("Kall mot elsaticsearch feilet for aktørid $aktørid")
-            }
-        }
-    }
-
-    private fun hentCvFraOpenSearch(aktørid: String): Pair<Response, Result<String, FuelError>> {
+    private fun openSearchGet(body: String): Pair<Response, Result<String, FuelError>> {
         val url = envs["OPEN_SEARCH_URI"] +
-                "/veilederkandidat_current/_search?q=aktorId:$aktørid"
+                "/veilederkandidat_current/_search"
 
         val (_, response, result) = Fuel
             .get(url)
+            .body(body)
             .authentication()
             .basic(envs["OPEN_SEARCH_USERNAME"]!!, envs["OPEN_SEARCH_PASSWORD"]!!)
             .responseString()
@@ -110,88 +77,109 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
 
 
     //TODO: Skriv om til et opensearch kall for å hente alle cver/kandidater samtidig
-    fun hentCver(aktørIder: List<String>): Map<String, OpensearchData.Cv?> =
+    fun hentCver(aktørIder: List<String>): Map<String, Cv?> {
+        val body = """
+        {
+            "query": {
+                "terms": {
+                    "aktorId": [
+                        ${aktørIder.joinToString(",") { "\"${it}\"" }}
+                    ]
+                }
+            },
+            "_source": [
+                "aktorId",
+                "poststed",
+                "mobiltelefon",
+                "epostadresse",
+                "fornavn",
+                "etternavn",
+                "fodselsdato",
+                "alder",
+                "kompetanseObj",
+                "yrkeserfaring",
+                "yrkeJobbonskerObj",
+                "ønsketYrke",
+                "beskrivelse",
+                "utdanning",
+                "sprak"
+            ]
+        }
+        """
+        val (respons, resultat) = openSearchGet(body)
+
+        return
+
+    }
+
+      /*
         aktørIder.map {
             val cv = hentCv(it)
             it to cv
         }.toMap()
 }
 
-class OpensearchData {
+       */
 
-    data class CvSammendrag(
-        val fornavn: String,
-        val etternavn: String,
-        @JsonAlias("kompetanseObj")
-        @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
-        val kompetanse: List<String>,
-        @JsonAlias("yrkeserfaring")
-        @JsonDeserialize(using = TilStringlisteDeserializer.ArbeidserfaringDeserializer::class)
-        val arbeidserfaring: List<String>,
-        @JsonAlias("yrkeJobbonskerObj")
-        @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
-        val ønsketYrke: List<String>
-    )
+data class Cv(
+    @JsonAlias("aktorId")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    val aktørId: String,
+    val fornavn: String,
+    val etternavn: String,
+    @JsonAlias("poststed")
+    val bosted: String,
+    @JsonAlias("mobiltelefon")
+    val mobiltelefonnummer: String?,
+    @JsonAlias("epostadresse")
+    val epost: String?,
+    @JsonAlias("fodselsdato")
+    @JsonDeserialize(using = AlderDeserializer::class)
+    val alder: Int,
+    @JsonAlias("kompetanseObj")
+    @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
+    val kompetanse: List<String>,
+    @JsonAlias("yrkeserfaring")
+    val arbeidserfaring: List<Arbeidserfaring>,
+    @JsonAlias("yrkeJobbonskerObj")
+    @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
+    val ønsketYrke: List<String>,
+    @JsonAlias("beskrivelse")
+    val sammendrag: String,
+    val utdanning: List<Utdanning>,
+    @JsonAlias("sprak")
+    val språk: List<Språk>
+)
 
-    data class Cv(
-        @JsonAlias("aktorId")
-        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-        val aktørId: String,
-        val fornavn: String,
-        val etternavn: String,
-        @JsonAlias("poststed")
-        val bosted: String,
-        @JsonAlias("mobiltelefon")
-        val mobiltelefonnummer: String?,
-        @JsonAlias("epostadresse")
-        val epost: String?,
-        @JsonAlias("fodselsdato")
-        @JsonDeserialize(using = AlderDeserializer::class)
-        val alder: Int,
-        @JsonAlias("kompetanseObj")
-        @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
-        val kompetanse: List<String>,
-        @JsonAlias("yrkeserfaring")
-        val arbeidserfaring: List<Arbeidserfaring>,
-        @JsonAlias("yrkeJobbonskerObj")
-        @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
-        val ønsketYrke: List<String>,
-        @JsonAlias("beskrivelse")
-        val sammendrag: String,
-        val utdanning: List<Utdanning>,
-        @JsonAlias("sprak")
-        val språk: List<Språk>
-    )
+data class Arbeidserfaring(
+    val fraDato: ZonedDateTime,
+    val tilDato: ZonedDateTime,
+    val arbeidsgiver: String,
+    val sted: String,
+    val stillingstittel: String,
+    val beskrivelse: String,
+)
 
-    data class Arbeidserfaring(
-        val fraDato: ZonedDateTime,
-        val tilDato: ZonedDateTime,
-        val arbeidsgiver: String,
-        val sted: String,
-        val stillingstittel: String,
-        val beskrivelse: String,
-    )
+data class Utdanning(
+    @JsonAlias("alternativGrad")
+    val utdanningsretning: String,
+    val beskrivelse: String,
+    val utdannelsessted: String,
+    @JsonAlias("fraDato")
+    val fra: ZonedDateTime,
+    @JsonAlias("tilDato")
+    val til: ZonedDateTime
+)
 
-    data class Utdanning(
-        @JsonAlias("alternativGrad")
-        val utdanningsretning: String,
-        val beskrivelse: String,
-        val utdannelsessted: String,
-        @JsonAlias("fraDato")
-        val fra: ZonedDateTime,
-        @JsonAlias("tilDato")
-        val til: ZonedDateTime
-    )
+data class Språk(
+    @JsonAlias("sprakKodeTekst")
+    val navn: String,
+    @JsonAlias("ferdighetMuntlig")
+    val muntlig: String,
+    @JsonAlias("ferdighetSkriftlig")
+    val skriftlig: String
+)
 
-    data class Språk(
-        @JsonAlias("sprakKodeTekst")
-        val navn: String,
-        @JsonAlias("ferdighetMuntlig")
-        val muntlig: String,
-        @JsonAlias("ferdighetSkriftlig")
-        val skriftlig: String
-    )
-}
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {

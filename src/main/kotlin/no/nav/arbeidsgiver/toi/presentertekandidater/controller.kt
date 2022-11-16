@@ -52,7 +52,7 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
 
 data class KandidatDto (
     val kandidat: Kandidat,
-    val cv: OpensearchData.Cv?
+    val cv: Cv?
 )
 
 data class KandidatlisteDto (

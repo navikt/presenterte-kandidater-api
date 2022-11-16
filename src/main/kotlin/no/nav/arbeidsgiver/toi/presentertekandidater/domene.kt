@@ -71,9 +71,3 @@ data class Kandidat(
         FÅTT_JOBBEN,
     }
 }
-
-data class Kandidatsammendrag (
-    // TODO: Bruk en egen KandidatDto til frontend, uten aktørId og Id.
-    val kandidat: Kandidat,
-    val cv: OpensearchData.CvSammendrag?,
-)
