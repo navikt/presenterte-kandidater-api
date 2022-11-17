@@ -12,6 +12,7 @@ import org.junit.jupiter.api.*
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -50,7 +51,7 @@ class ControllerTest {
             .authentication().bearer(hentUgyldigToken(mockOAuth2Server))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(403)
     }
 
     @Test
@@ -59,18 +60,21 @@ class ControllerTest {
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123")
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(403)
     }
 
     @Test
     fun `GET mot kandidatliste med kandidater gir status 200`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
+
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID())
-        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID())
+        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID())
+
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
+
         val esRespons = Testdata.flereKandidaterFraES(aktørId1 = kandidat1.aktørId, aktørid2 = kandidat2.aktørId)
         stubHentingAvKandidater(requestBody = openSearchKlient.lagBodyForHentingAvCver(
                 listOf(
@@ -89,6 +93,7 @@ class ControllerTest {
         val jsonbody = response.body().asString("application/json;charset=utf-8")
         val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
+        val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
         assertNull(kandidatlisteJson["id"])
         assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
@@ -100,21 +105,11 @@ class ControllerTest {
         assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
         assertThat(kandidatlisteJson["virksomhetsnummer"].textValue()).isEqualTo(kandidatliste.virksomhetsnummer)
 
-//        val førsteKandidatFraRespons = kandidatlisteMedKandidaterFraRespons.kandidater.first()
-//        val andreKandidatFraRespons = kandidatlisteMedKandidaterFraRespons.kandidater[1]
-//        assertKandidat(førsteKandidatFraRespons.kandidat, kandidat1)
-//        assertKandidat(andreKandidatFraRespons.kandidat1, kandidat2)
-
-        val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
         assertThat(kandidaterJson).hasSize(2)
-        assertThat(kandidaterJson[0]["kandidat"]).isNotEmpty
-        assertThat(kandidaterJson[1]["kandidat"]).isNotEmpty
-        assertThat(UUID.fromString(kandidaterJson[0]["kandidat"]["uuid"].textValue())).isEqualTo(kandidat1.uuid)
-        assertThat(UUID.fromString(kandidaterJson[1]["kandidat"]["uuid"].textValue())).isEqualTo(kandidat2.uuid)
-        assertThat(kandidaterJson[0]["cv"]).isNotEmpty
-        assertThat(kandidaterJson[0]["cv"]["aktørId"]).isNull()
-        assertThat(kandidaterJson[1]["cv"]["aktørId"]).isNull()
-        assertThat(kandidaterJson[0]["cv"]["sammendrag"].asText()).contains("Er fanatisk opptatt av religion")
+        assertKandidat(kandidaterJson[0], kandidat1)
+        assertKandidat(kandidaterJson[1], kandidat2)
+        assertNotNull(kandidaterJson[0]["cv"]);
+        assertNotNull(kandidaterJson[1]["cv"]);
     }
 
     @Test
@@ -132,8 +127,8 @@ class ControllerTest {
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
-        Assertions.assertThat(response.body().asString("application/json;charset=utf-8"))
+        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.body().asString("application/json;charset=utf-8"))
             .contains(("""
                 [
                   {
@@ -158,9 +153,9 @@ class ControllerTest {
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
-    }
-
-    private fun assertCv(faktiskCv: Cv, reellCv: Cv) {
+        assertThat(fraRespons["kandidat"]).isNotEmpty
+        assertNull(fraRespons["kandidat"]["id"])
+        assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
     }
 
     private fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
@@ -173,13 +168,7 @@ class ControllerTest {
         opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
     )
 
-    private fun kandidat(uuid: UUID = UUID.randomUUID(), kandidatlisteid: BigInteger) = Kandidat(
-        uuid = uuid,
-        aktørId = "123",
-        kandidatlisteId = kandidatlisteid
-    )
-
-    fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
+    private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(
             WireMock.post("/veilederkandidat_current/_search")
                 .withBasicAuth("gunnar", "xyz")
