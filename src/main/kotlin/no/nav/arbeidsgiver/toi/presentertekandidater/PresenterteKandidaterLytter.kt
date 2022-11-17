@@ -24,10 +24,9 @@ class PresenterteKandidaterLytter(rapidsConnection: RapidsConnection, private va
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelsePacket = packet["kandidathendelse"]
-        val eventtype = kandidathendelsePacket["type"]
         val stillingstittel = packet["stilling"]["stillingstittel"].asText()
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
-        log.info("Mottok event $eventtype for aktørid ${kandidathendelse.aktørId}")
+        log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
         presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
     }
 }
