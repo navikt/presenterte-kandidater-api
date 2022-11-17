@@ -19,7 +19,7 @@ import com.github.kittinunf.result.Result
 import java.time.Period
 import java.time.ZonedDateTime
 
-class OpenSearchKlient(private val envs: Map<String, String>) {
+class OpenSearchKlient(envs: Map<String, String>) {
     private var url = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current/_search"
     private var username = envs.variable("OPEN_SEARCH_USERNAME")
     private var password = envs.variable("OPEN_SEARCH_PASSWORD")
