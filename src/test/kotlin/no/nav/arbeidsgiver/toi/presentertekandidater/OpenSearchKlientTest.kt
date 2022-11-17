@@ -7,12 +7,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.time.ZonedDateTime
-import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenSearchKlientTest {
-
     private val wiremockServer = WireMockServer(9999)
     private lateinit var openSearchKlient: OpenSearchKlient
 
@@ -24,23 +21,27 @@ class OpenSearchKlientTest {
             "OPEN_SEARCH_USERNAME" to "gunnar",
             "OPEN_SEARCH_PASSWORD" to "xyz"
         )
-        openSearchKlient = OpenSearchKlient(miljøvariabler)
 
+        openSearchKlient = OpenSearchKlient(miljøvariabler)
     }
 
     @Test
-    fun `Skal mappe respons fra OpenSearch korrekt når vi henter kandidater`() {
+    fun `Responsen mappes korrekt når vi henter CV-er`() {
         val aktørId1 = "12345"
         val aktørId2 = "67890"
         val aktørIder = listOf(aktørId1, aktørId2)
+
         val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
         val openSearchResponseBody = flereKandidaterFraES(aktørIder[0], aktørIder[1])
-        stubHentingAvKandidater(requestBody = openSearchRequestBody, responsBody = openSearchResponseBody)
+
+        stubHentingAvKandidater(
+            requestBody = openSearchRequestBody,
+            responsBody = openSearchResponseBody)
 
         val kandidaterMedCv: Map<String, Cv?> = openSearchKlient.hentCver(aktørIder)
-
         assertThat(kandidaterMedCv).hasSize(2)
         assertThat(kandidaterMedCv.values).hasSize(2)
+
         val cv1 = kandidaterMedCv[aktørId1]
         val cv2 = kandidaterMedCv[aktørId2]
         assertThat(cv1?.aktørId).isEqualTo(aktørId1)
@@ -86,11 +87,15 @@ class OpenSearchKlientTest {
     }
 
     @Test
-    fun `hentKandiat skal returnere nullverdi for Cv når kandidater ikke finnes`() {
+    fun `hentCver returnerer nullverdi for kandidater som ikke finnes i OpenSearch`() {
         val aktørIder = listOf("12345", "67890")
         val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
         val openSearchResponseBody = Testdata.ingenTreffKandidatOpensearchJson
-        stubHentingAvKandidater(requestBody = openSearchRequestBody, responsBody = openSearchResponseBody)
+
+        stubHentingAvKandidater(
+            requestBody = openSearchRequestBody,
+            responsBody = openSearchResponseBody
+        )
 
         val kandidaterMedCv: Map<String, Cv?> = openSearchKlient.hentCver(aktørIder)
 
@@ -99,7 +104,7 @@ class OpenSearchKlientTest {
     }
 
 
-    fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
+    private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(post("/veilederkandidat_current/_search")
             .withBasicAuth("gunnar", "xyz")
             .withRequestBody(containing(requestBody))

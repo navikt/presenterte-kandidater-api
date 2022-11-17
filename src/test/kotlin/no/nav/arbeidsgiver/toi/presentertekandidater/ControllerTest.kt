@@ -5,11 +5,9 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import org.assertj.core.api.Assertions
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
@@ -17,25 +15,24 @@ import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
-
     private val mockOAuth2Server = MockOAuth2Server()
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8888)
+
     lateinit var openSearchKlient: OpenSearchKlient
 
     @BeforeAll
     fun init() {
         mockOAuth2Server.start(port = 18301)
         wiremockServer.start()
-        val miljøvariabler = mapOf(
+        openSearchKlient = OpenSearchKlient(mapOf(
             "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
             "OPEN_SEARCH_USERNAME" to "gunnar",
             "OPEN_SEARCH_PASSWORD" to "xyz"
-        )
-        openSearchKlient = OpenSearchKlient(miljøvariabler)
-        startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
+        ))
 
+        startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
     }
 
     @AfterAll
@@ -45,9 +42,20 @@ class ControllerTest {
     }
 
     @Test
-    fun `GET mot kandidatlister-endepunkt gir httpstatus 403 uten et gyldig token`() {
+    fun `GET mot kandidatlister-endepunkt svarer 403 Forbidden hvis forespørselen ikke inneholder et token`() {
+        val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = Fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123")
+            .get(endepunkt)
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
+    }
+
+    @Test
+    fun `GET mot kandidatlister-endepunkt svarer 403 Forbidden hvis forespørselens token er ugyldig`() {
+        val endepunkt = "http://localhost:9000/kandidatlister"
+        val (_, response) = Fuel
+            .get(endepunkt)
             .authentication().bearer(hentUgyldigToken(mockOAuth2Server))
             .response()
 
@@ -55,17 +63,61 @@ class ControllerTest {
     }
 
     @Test
-    fun `GET mot kandidater-endepunkt gir httpstatus 403 uten token`() {
+    fun `GET mot kandidatlister-endepunkt uten virksomhetsnummer svarer 400 Bad Request`() {
+        val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = Fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123")
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
-        assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(400)
     }
 
     @Test
-    fun `GET mot kandidatliste med kandidater gir status 200`() {
+    fun `GET mot kandidatlister-endepunkt returnerer 200 OK med alle kandidatlister tilknyttet oppgitt virksomhetsnummer`() {
+        val stillingId = UUID.randomUUID()
+        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=123456788"
+        val virksomhetsnummer = "123456788"
+
+        repository.lagre(
+            kandidatliste().copy(
+                virksomhetsnummer = virksomhetsnummer,
+                stillingId = stillingId
+            )
+        )
+
+        val (_, response) = Fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        val fraDatabase = repository.hentKandidatliste(stillingId)
+        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.body().asString("application/json;charset=utf-8"))
+            .contains("""
+                [
+                    {
+                        "kandidatliste": {
+                            "uuid":"7ea380f8-a0af-433f-8cbc-51c5788a7d29",
+                            "stillingId": "$stillingId",
+                            "tittel": "Tittel",
+                            "status": "ÅPEN",
+                            "slettet": false,
+                            "virksomhetsnummer": "$virksomhetsnummer",
+                            "sistEndret": "${ZonedDateTime.from(fraDatabase?.sistEndret).toOffsetDateTime()}",
+                            "opprettet": "${ZonedDateTime.from(fraDatabase?.opprettet).toOffsetDateTime()}"
+                        },
+                        "antallKandidater": 0
+                    }
+                ]
+            """.removeWhitespace())
+    }
+
+    @Test
+    fun `GET mot kandidatliste-endepunkt returnerer en kandidatliste og kandidater med CV`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
+        val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
+
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
@@ -76,7 +128,8 @@ class ControllerTest {
         repository.lagre(kandidat2)
 
         val esRespons = Testdata.flereKandidaterFraES(aktørId1 = kandidat1.aktørId, aktørid2 = kandidat2.aktørId)
-        stubHentingAvKandidater(requestBody = openSearchKlient.lagBodyForHentingAvCver(
+        stubHentingAvKandidater(
+            requestBody = openSearchKlient.lagBodyForHentingAvCver(
                 listOf(
                     kandidat1.aktørId,
                     kandidat2.aktørId
@@ -85,11 +138,12 @@ class ControllerTest {
         )
 
         val (_, response) = Fuel
-            .get("http://localhost:9000/kandidatliste/$stillingId")
+            .get(endepunkt)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
+
         val jsonbody = response.body().asString("application/json;charset=utf-8")
         val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
@@ -110,46 +164,6 @@ class ControllerTest {
         assertKandidat(kandidaterJson[1], kandidat2)
         assertNotNull(kandidaterJson[0]["cv"]);
         assertNotNull(kandidaterJson[1]["cv"]);
-    }
-
-    @Test
-    fun `GET mot kandidaterliste gir status 200`() {
-        val uuid = UUID.randomUUID()
-
-        repository.lagre(
-            kandidatliste().copy(
-                virksomhetsnummer = "123456788",
-                stillingId = uuid
-            )
-        )
-        val (_, response) = Fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=123456788")
-            .authentication().bearer(hentToken(mockOAuth2Server))
-            .response()
-
-        assertThat(response.statusCode).isEqualTo(200)
-        assertThat(response.body().asString("application/json;charset=utf-8"))
-            .contains(("""
-                [
-                  {
-                    "kandidatliste": {
-                      "uuid":"7ea380f8-a0af-433f-8cbc-51c5788a7d29",
-                      "stillingId": "$uuid",
-                      "tittel": "Tittel",
-                      "status": "ÅPEN",
-                      "slettet": false,
-                      "virksomhetsnummer": "123456788",
-                      "sistEndret":"
-                     """.filter { !it.isWhitespace() })
-            )
-
-            .contains("""  
-                      "
-                    },
-                    "antallKandidater": 0
-                  }
-                ]
-            """.filter { !it.isWhitespace() })
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
@@ -176,4 +190,6 @@ class ControllerTest {
                 .willReturn(WireMock.ok(responsBody))
         )
     }
+
+    private fun String.removeWhitespace() = this.filter { !it.isWhitespace() }
 }

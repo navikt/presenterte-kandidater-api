@@ -1,8 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.kittinunf.fuel.Fuel
-import io.javalin.Javalin
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LivenessTest {
-
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
 
     @BeforeAll
@@ -25,7 +22,7 @@ class LivenessTest {
     }
 
     @Test
-    fun `Applikasjonen skal svare 200 OK på isalive-endepunkt`() {
+    fun `Applikasjonen svarer 200 OK på isalive-endepunkt`() {
         val (_, response) = Fuel.get("http://localhost:9000/isalive").response()
 
         assertThat(response.statusCode).isEqualTo(200)

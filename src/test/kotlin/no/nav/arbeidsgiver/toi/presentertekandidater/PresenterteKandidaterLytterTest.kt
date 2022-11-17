@@ -8,7 +8,6 @@ import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
-
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
     private val testRapid = TestRapid()
     private val repository = opprettTestRepositoryMedLokalPostgres()
@@ -32,8 +31,10 @@ class PresenterteKandidaterLytterTest {
     fun `Skal lagre kandidatliste og kandidat når vi får melding om kandidathendelse`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val kandidathendelseMelding = kandidathendelseMelding(aktørId = aktørId, stillingsId = stillingsId)
-        testRapid.sendTestMessage(kandidathendelseMelding)
+        val melding = meldingOmKandidathendelse(aktørId = aktørId, stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val kandidatliste =
             repository.hentKandidatliste(stillingsId)
@@ -59,27 +60,29 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret men med endrete opplysninger skal den oppdateres`() {
+    fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret, men med endrede opplysninger, skal den oppdateres`() {
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
 
         val førsteAktørId = "2040897398605"
         val førsteStillingstittel = "Klovn søkes"
-        val førsteKandidathendelsesmelding = kandidathendelseMelding(førsteAktørId, førsteStillingstittel, stillingsId)
+        val førsteKandidathendelsesmelding = meldingOmKandidathendelse(førsteAktørId, førsteStillingstittel, stillingsId)
+
         testRapid.sendTestMessage(førsteKandidathendelsesmelding)
         val kandidatliste = repository.hentKandidatliste(stillingsId)
         assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
 
         val andreAktørId = "2040897398605"
         val andreStillingstittel = "Hoffnarr søkes"
-        val andreKandidathendelsesmelding = kandidathendelseMelding(andreAktørId, andreStillingstittel, stillingsId)
+        val andreKandidathendelsesmelding = meldingOmKandidathendelse(andreAktørId, andreStillingstittel, stillingsId)
+
         testRapid.sendTestMessage(andreKandidathendelsesmelding)
         val oppdatertKandidatliste =
             repository.hentKandidatliste(stillingsId)
         assertThat(oppdatertKandidatliste!!.tittel).isEqualTo(andreStillingstittel)
     }
 
-    private fun kandidathendelseMelding(
+    private fun meldingOmKandidathendelse(
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",
         stillingsId: UUID

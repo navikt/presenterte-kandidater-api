@@ -13,7 +13,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 
 private val repository = opprettTestRepositoryMedLokalPostgres()
 
-
 fun main() {
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
     startLocalApplication(
@@ -31,16 +30,18 @@ val issuerProperties = mapOf(
     ),
 )
 
+private val envs = mapOf(
+    "OPEN_SEARCH_URI" to "uri",
+    "OPEN_SEARCH_USERNAME" to "username",
+    "OPEN_SEARCH_PASSWORD" to "password"
+)
+
 fun startLocalApplication(
     javalin: Javalin,
     rapid: TestRapid = TestRapid(),
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
-    openSearchKlient: OpenSearchKlient = OpenSearchKlient(mapOf(
-        "OPEN_SEARCH_URI" to "uri",
-        "OPEN_SEARCH_USERNAME" to "username",
-        "OPEN_SEARCH_PASSWORD" to "password"
-    ))
+    openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs)
 ) {
     startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient) { true }
 }
@@ -56,6 +57,7 @@ fun opprettTestRepositoryMedLokalPostgres(): Repository {
 
     val repository = Repository(lagDatasource(postgres))
     repository.kjørFlywayMigreringer()
+
     return repository
 }
 

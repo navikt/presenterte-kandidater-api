@@ -11,8 +11,7 @@ import java.util.UUID
 import kotlin.test.assertNotNull
 
 internal class RepositoryTest {
-    
-    val repository = opprettTestRepositoryMedLokalPostgres()
+    private val repository = opprettTestRepositoryMedLokalPostgres()
 
     @Test
     fun `Persistering og henting av kandidatliste går OK`() {
@@ -76,6 +75,7 @@ internal class RepositoryTest {
     fun `Henting av kandidatlister med antall hvor listen IKKE har kandidater`() {
         val kandidatliste = lagKandidatliste()
         repository.lagre(kandidatliste)
+
         val kandidatlister = repository.hentKandidatlisterMedAntall(kandidatliste.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
         assertThat(kandidatlister[0].antallKandidater).isEqualTo(0)
@@ -85,6 +85,7 @@ internal class RepositoryTest {
     fun `Henting av kandidatliste med kandidater`() {
         val kandidatliste = lagKandidatliste()
         repository.lagre(kandidatliste)
+
         val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
         val kandidatUUID = UUID.randomUUID()
         repository.lagre(
@@ -97,6 +98,7 @@ internal class RepositoryTest {
 
         val listeMedKandidater = repository.hentKandidatliste(kandidatliste.stillingId)
         val kandidater = repository.hentKandidater(listeMedKandidater?.id!!)
+
         assertThat(listeMedKandidater).isNotNull
         assertThat(kandidater?.size).isEqualTo(1)
         assertThat(kandidater!![0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
@@ -107,6 +109,7 @@ internal class RepositoryTest {
     fun `Henting av kandidatliste med tom liste kandidater`() {
         val kandidatliste = lagKandidatliste()
         repository.lagre(kandidatliste)
+
         val listeMedKandidater = repository.hentKandidatliste(kandidatliste.stillingId)
         val kandidater = repository.hentKandidater(listeMedKandidater?.id!!)
         assertThat(listeMedKandidater).isNotNull
@@ -143,7 +146,6 @@ internal class RepositoryTest {
         assertThatThrownBy{
             repository.lagre(kandidatliste2)
         }.isInstanceOf(PSQLException::class.java)
-
     }
 
     @Test
@@ -153,6 +155,7 @@ internal class RepositoryTest {
         val kandidatliste2 = lagKandidatliste()
         repository.lagre(kandidatliste1)
         repository.lagre(kandidatliste2)
+
         val lagretKandidatliste1 = repository.hentKandidatliste(kandidatliste1.stillingId)
         val lagretKandidatliste2 = repository.hentKandidatliste(kandidatliste2.stillingId)
         val kandidatPåListe1 = lagKandidat(lagretKandidatliste1?.id!!, aktørID)
@@ -165,6 +168,7 @@ internal class RepositoryTest {
         val kandidater1 = repository.hentKandidater(kandidatliste1MedKandidater?.id!!)
         val kandidatliste2MedKandidater = repository.hentKandidatliste(kandidatliste2.stillingId)
         val kandidater2 = repository.hentKandidater(kandidatliste2MedKandidater?.id!!)
+
         assertThat(kandidater1).hasSize(1)
         assertThat(kandidater2).hasSize(1)
         assertThat(kandidater1.first().aktørId).isEqualTo(aktørID)
@@ -176,8 +180,8 @@ internal class RepositoryTest {
         val kandidatliste = lagKandidatliste()
 
         repository.lagre(kandidatliste)
-
         val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
+
         assertNotNull(lagretKandidatliste)
         assertThat(lagretKandidatliste.sistEndret).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
         assertThat(lagretKandidatliste.opprettet).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
