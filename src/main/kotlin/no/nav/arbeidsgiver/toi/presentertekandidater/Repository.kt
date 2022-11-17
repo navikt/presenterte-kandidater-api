@@ -72,7 +72,11 @@ class Repository(private val dataSource: DataSource) {
 
     fun hentKandidatliste(stillingId: UUID): Kandidatliste? {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("select * from kandidatliste where stilling_id = ?").apply {
+            val sql = """
+                select * from kandidatliste where stilling_id = ?
+            """.trimIndent()
+
+            val resultSet = it.prepareStatement(sql).apply {
                 this.setObject(1, stillingId)
             }.executeQuery()
 
@@ -135,8 +139,8 @@ class Repository(private val dataSource: DataSource) {
                 this.setObject(1, kandidatlisteId)
             }.executeQuery()
 
-            return  generateSequence {
-                if(resultSet.next()) {
+            return generateSequence {
+                if (resultSet.next()) {
                     Kandidat.fraDatabase(resultSet)
                 } else null
             }.toList()
@@ -152,10 +156,11 @@ class Repository(private val dataSource: DataSource) {
 
     fun hentKandidat(aktørId: String, kandidatlisteId: BigInteger): Kandidat? {
         dataSource.connection.use {
-            val resultSet = it.prepareStatement("select * from kandidat where aktør_id = ? and kandidatliste_id = ?").apply {
-                this.setObject(1, aktørId)
-                this.setObject(2, kandidatlisteId)
-            }.executeQuery()
+            val resultSet =
+                it.prepareStatement("select * from kandidat where aktør_id = ? and kandidatliste_id = ?").apply {
+                    this.setObject(1, aktørId)
+                    this.setObject(2, kandidatlisteId)
+                }.executeQuery()
 
             if (!resultSet.next()) {
                 return null
@@ -178,4 +183,3 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 }
-

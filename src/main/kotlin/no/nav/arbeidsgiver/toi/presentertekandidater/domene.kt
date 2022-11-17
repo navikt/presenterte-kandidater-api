@@ -21,7 +21,6 @@ data class Kandidatliste(
     val opprettet: ZonedDateTime
 ) {
     companion object {
-
         fun fraDatabase(rs: ResultSet) = Kandidatliste(
             id = rs.getBigDecimal("id").toBigInteger(),
             uuid = rs.getObject("uuid") as UUID,
@@ -34,14 +33,14 @@ data class Kandidatliste(
             opprettet = rs.getTimestamp("opprettet").toInstant().atZone(ZoneId.of("Europe/Oslo"))
         )
     }
+
     enum class Status {
         ÅPEN, LUKKET
     }
 }
 
 data class KandidatlisteMedAntallKandidater(
-    val kandidatliste: Kandidatliste,
-    val antallKandidater: Int
+    val kandidatliste: Kandidatliste, val antallKandidater: Int
 )
 
 data class Kandidat(
@@ -65,9 +64,6 @@ data class Kandidat(
     }
 
     enum class ArbeidsgiversVurdering {
-        AKTUELL,
-        TIL_VURDERING,
-        IKKE_AKTUELL,
-        FÅTT_JOBBEN,
+        AKTUELL, TIL_VURDERING, IKKE_AKTUELL, FÅTT_JOBBEN,
     }
 }

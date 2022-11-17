@@ -1,6 +1,5 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import java.net.URL
 

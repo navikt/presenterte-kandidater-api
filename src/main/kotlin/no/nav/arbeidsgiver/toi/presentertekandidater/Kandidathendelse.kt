@@ -13,7 +13,7 @@ data class Kandidathendelse(
     val utførtAvNavKontorKode: String? = null,
 )
 
-enum class Type() {
+enum class Type {
     REGISTRER_CV_DELT,
     CV_DELT_VIA_REKRUTTERINGSBISTAND,
     REGISTRER_FÅTT_JOBBEN,

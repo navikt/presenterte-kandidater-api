@@ -8,7 +8,10 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 
-class PresenterteKandidaterLytter(rapidsConnection: RapidsConnection, private val presenterteKandidaterService: PresenterteKandidaterService) : River.PacketListener {
+class PresenterteKandidaterLytter(
+    rapidsConnection: RapidsConnection,
+    private val presenterteKandidaterService: PresenterteKandidaterService
+) : River.PacketListener {
     init {
         River(rapidsConnection).apply {
             validate {
@@ -26,8 +29,8 @@ class PresenterteKandidaterLytter(rapidsConnection: RapidsConnection, private va
         val kandidathendelsePacket = packet["kandidathendelse"]
         val stillingstittel = packet["stilling"]["stillingstittel"].asText()
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
+
         log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
         presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
     }
 }
-

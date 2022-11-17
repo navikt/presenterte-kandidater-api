@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -18,54 +19,52 @@ import com.github.kittinunf.result.Result
 import java.time.Period
 import java.time.ZonedDateTime
 
-
 class OpenSearchKlient(private val envs: Map<String, String>) {
+    private var url = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current/_search"
+    private var username = envs.variable("OPEN_SEARCH_USERNAME")
+    private var password = envs.variable("OPEN_SEARCH_PASSWORD")
 
-    val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+    private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    private fun mapHentCver(aktørider: List<String>, body: String): Map<String, Cv?> {
-        val responsJsonNode = objectMapper.readTree(body)
-        val hits = responsJsonNode["hits"]["hits"]
-
-        val cver = hits
-            .map { it["_source"] }
-            .map {
-                val cvJson = objectMapper.writeValueAsString(it)
-                objectMapper.readValue(cvJson, Cv::class.java)
-            }
-            .associateBy { it.aktørId }
-
-        return aktørider.associateWith { cver[it] }
-
-    }
-
-    private fun openSearchGet(body: String): Pair<Response, Result<String, FuelError>> {
-        val url = envs["OPEN_SEARCH_URI"] +
-                "/veilederkandidat_current/_search"
-
+    private fun post(body: String): Pair<Response, Result<String, FuelError>> {
         val (_, response, result) = Fuel
             .post(url)
             .body(body)
             .authentication()
-            .basic(envs["OPEN_SEARCH_USERNAME"]!!, envs["OPEN_SEARCH_PASSWORD"]!!)
+            .basic(username, password)
             .responseString()
+
         return Pair(response, result)
     }
 
+    private fun mapHentCver(aktørider: List<String>, body: String): Map<String, Cv?> {
+        val responsJsonNode = objectMapper.readTree(body)
+
+        val hits = responsJsonNode["hits"]["hits"]
+        val cver = hits
+            .map { it["_source"] }
+            .map { json ->
+                val cvJson = objectMapper.writeValueAsString(json)
+                objectMapper.readValue(cvJson, Cv::class.java)
+            }.associateBy { it.aktørId }
+
+        return aktørider.associateWith { cver[it] }
+    }
+
     fun hentCver(aktørIder: List<String>): Map<String, Cv?> {
-        val body = lagBodyForHentingAvCver(aktørIder)
-        val (respons, resultat) = openSearchGet(body)
+        val (respons, resultat) = post(lagBodyForHentingAvCver(aktørIder))
 
         return when (respons.statusCode) {
             200 -> {
-                log.info("hentCv fra opensearch ok")
-                val svarFraOpenSearch = resultat.get()
-                mapHentCver(aktørIder, svarFraOpenSearch)
+                log.info("hentCver fra OpenSearch ok")
+
+                val data = resultat.get()
+                mapHentCver(aktørIder, data)
             }
 
             else -> {
-                log.error("hentCv fra opensearch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                log.error("hentCver fra OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
             }
         }
@@ -77,9 +76,9 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
             "query": {
                 "terms": {
                     "aktorId": [
-                        ${aktørIder.joinToString(",") { "\"${it}\"" }}
+                        ${aktørIder.joinToString(",") { "\"$it\"" }}
                     ]
-                }
+                }'
             },
             "_source": [
                 "aktorId",
@@ -104,8 +103,7 @@ class OpenSearchKlient(private val envs: Map<String, String>) {
 }
 
 data class Cv(
-    @JsonAlias("aktorId")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonAlias("aktorId") @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val aktørId: String,
     val fornavn: String,
     val etternavn: String,
@@ -115,16 +113,13 @@ data class Cv(
     val mobiltelefonnummer: String?,
     @JsonAlias("epostadresse")
     val epost: String?,
-    @JsonAlias("fodselsdato")
-    @JsonDeserialize(using = AlderDeserializer::class)
+    @JsonAlias("fodselsdato") @JsonDeserialize(using = AlderDeserializer::class)
     val alder: Int,
-    @JsonAlias("kompetanseObj")
-    @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
+    @JsonAlias("kompetanseObj") @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
     val kompetanse: List<String>,
     @JsonAlias("yrkeserfaring")
     val arbeidserfaring: List<Arbeidserfaring>,
-    @JsonAlias("yrkeJobbonskerObj")
-    @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
+    @JsonAlias("yrkeJobbonskerObj") @JsonDeserialize(using = TilStringlisteDeserializer.ØnsketYrkeDeserializer::class)
     val ønsketYrke: List<String>,
     @JsonAlias("beskrivelse")
     val sammendrag: String,
@@ -166,8 +161,7 @@ data class Språk(
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
         return Period.between(
-            ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(),
-            ZonedDateTime.now().toLocalDate()
+            ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(), ZonedDateTime.now().toLocalDate()
         ).years
     }
 }
@@ -176,12 +170,7 @@ private abstract class TilStringlisteDeserializer(val felt: String) : StdDeseria
     class KompetanseDeserializer : TilStringlisteDeserializer("kompKodeNavn")
     class ØnsketYrkeDeserializer : TilStringlisteDeserializer("styrkBeskrivelse")
 
-    class ArbeidserfaringDeserializer : TilStringlisteDeserializer("stillingstittel")
-
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).map { it[felt].textValue() }
     }
 }
-
-
-

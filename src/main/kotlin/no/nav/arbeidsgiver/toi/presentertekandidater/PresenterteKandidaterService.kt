@@ -43,9 +43,7 @@ class PresenterteKandidaterService(private val repository: Repository) {
 
     private fun mapKandidathendelseToKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {
         return Kandidat(
-            aktørId = hendelse.aktørId,
-            kandidatlisteId = kandidatlisteId,
-            uuid = UUID.randomUUID()
+            aktørId = hendelse.aktørId, kandidatlisteId = kandidatlisteId, uuid = UUID.randomUUID()
         )
     }
 

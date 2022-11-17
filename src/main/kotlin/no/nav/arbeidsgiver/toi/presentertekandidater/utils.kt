@@ -9,4 +9,3 @@ val Any.log: Logger
 fun log(name: String): Logger = LoggerFactory.getLogger(name)
 
 fun Map<String, String>.variable(felt: String) = this[felt] ?: throw Exception("$felt er ikke angitt")
-

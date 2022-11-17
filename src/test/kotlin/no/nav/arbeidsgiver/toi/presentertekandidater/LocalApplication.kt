@@ -31,13 +31,17 @@ val issuerProperties = mapOf(
     ),
 )
 
-fun startLocalApplication(javalin: Javalin,
-                          rapid: TestRapid = TestRapid(),
-                          presenterteKandidaterService:  PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
-                          repository: Repository = opprettTestRepositoryMedLokalPostgres(),
-                          openSearchKlient: OpenSearchKlient = OpenSearchKlient(emptyMap())
-
-                          ) {
+fun startLocalApplication(
+    javalin: Javalin,
+    rapid: TestRapid = TestRapid(),
+    presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
+    repository: Repository = opprettTestRepositoryMedLokalPostgres(),
+    openSearchKlient: OpenSearchKlient = OpenSearchKlient(mapOf(
+        "OPEN_SEARCH_URI" to "uri",
+        "OPEN_SEARCH_USERNAME" to "username",
+        "OPEN_SEARCH_PASSWORD" to "password"
+    ))
+) {
     startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient) { true }
 }
 
@@ -56,12 +60,12 @@ fun opprettTestRepositoryMedLokalPostgres(): Repository {
 }
 
 fun lagDatasource(postgres: PostgreSQLContainer<*>) = HikariConfig().apply {
-        jdbcUrl = postgres.jdbcUrl
-        minimumIdle = 1
-        maximumPoolSize = 2
-        driverClassName = "org.postgresql.Driver"
-        initializationFailTimeout = 5000
-        username = postgres.username
-        password = postgres.password
-        validate()
-    }.let(::HikariDataSource)
+    jdbcUrl = postgres.jdbcUrl
+    minimumIdle = 1
+    maximumPoolSize = 2
+    driverClassName = "org.postgresql.Driver"
+    initializationFailTimeout = 5000
+    username = postgres.username
+    password = postgres.password
+    validate()
+}.let(::HikariDataSource)
