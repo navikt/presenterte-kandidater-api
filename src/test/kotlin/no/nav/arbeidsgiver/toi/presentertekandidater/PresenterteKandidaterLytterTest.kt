@@ -60,6 +60,38 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
+    fun `Konsumering av melding skal være idempotent`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelse(aktørId = aktørId, stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        val kandidater = repository.hentKandidater(kandidatliste?.id!!)
+
+        // Verifiser kandidatliste
+        assertNotNull(kandidatliste)
+        assertThat(kandidatliste.uuid)
+        assertThat(kandidatliste.stillingId).isEqualTo(stillingsId)
+        assertThat(kandidatliste.tittel).isEqualTo("Noen skal få denne jobben!")
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+        assertThat(kandidatliste.slettet).isFalse
+        assertThat(kandidatliste.virksomhetsnummer).isEqualTo("912998827")
+        assertNotNull(kandidatliste.id)
+
+        // Verifiser kandidat
+        assertThat(kandidater).hasSize(1)
+        val kandidat = kandidater.first()
+        assertNotNull(kandidat.id)
+        assertThat(kandidat.aktørId).isEqualTo(aktørId)
+        assertThat(kandidat.kandidatlisteId).isEqualTo(kandidatliste.id)
+        assertNotNull(kandidat.uuid)
+    }
+
+    @Test
     fun `Skal lagre begge kandidater når vi får meldinger om kandidathendelser som gjelder samme kandidatliste`() {
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
