@@ -60,6 +60,35 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
+    fun `Skal lagre begge kandidater når vi får meldinger om kandidathendelser som gjelder samme kandidatliste`() {
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val stillingsId = UUID.randomUUID()
+        val (aktørId1, aktørId2) = listOf("1234", "5678")
+        val førsteMelding = meldingOmKandidathendelse(aktørId = aktørId1, stillingsId = stillingsId)
+        val andreMelding = meldingOmKandidathendelse(aktørId = aktørId2, stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(førsteMelding)
+        testRapid.sendTestMessage(andreMelding)
+
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        val kandidater = repository.hentKandidater(kandidatliste!!.id!!)
+        assertThat(kandidater).hasSize(2)
+        val (kandidat1, kandidat2) = kandidater
+
+        assertNotNull(kandidat1.id)
+        assertThat(kandidat1.aktørId).isEqualTo(aktørId1)
+        assertThat(kandidat1.kandidatlisteId).isEqualTo(kandidatliste.id)
+        assertNotNull(kandidat1.uuid)
+
+        assertNotNull(kandidat2.id)
+        assertThat(kandidat2.aktørId).isEqualTo(aktørId2)
+        assertThat(kandidat2.kandidatlisteId).isEqualTo(kandidatliste.id)
+        assertNotNull(kandidat2.uuid)
+
+        assertThat(kandidat1.uuid).isNotEqualTo(kandidat2.uuid)
+    }
+
+    @Test
     fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret, men med endrede opplysninger, skal den oppdateres`() {
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
