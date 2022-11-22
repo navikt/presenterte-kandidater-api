@@ -15,6 +15,7 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
 import java.time.Period
 import java.time.ZonedDateTime
@@ -30,7 +31,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
     private fun post(body: String): Pair<Response, Result<String, FuelError>> {
         val (_, response, result) = Fuel
             .post(url)
-            .body(body)
+            .jsonBody(body)
             .authentication()
             .basic(username, password)
             .responseString()
