@@ -24,8 +24,10 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
     { context ->
         val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
         val jsonBody = objectMapper.readTree(context.body())
-        val kandidat = repository.hentKandidatMedUUID(kandidatUuid)
-        repository.oppdaterArbeidsgiversVurdering(kandidatUuid, Kandidat.ArbeidsgiversVurdering.valueOf(jsonBody["vurdering"].asText()))
+        when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, Kandidat.ArbeidsgiversVurdering.valueOf(jsonBody["vurdering"].asText()))) {
+            true -> context.status(200)
+            false -> context.status(400)
+        }
     }
 }
 

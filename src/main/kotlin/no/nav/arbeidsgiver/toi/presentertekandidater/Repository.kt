@@ -167,13 +167,13 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun oppdaterArbeidsgiversVurdering(kandidatUuid: UUID, vurdering: Kandidat.ArbeidsgiversVurdering) {
-        dataSource.connection.use {
+    fun oppdaterArbeidsgiversVurdering(kandidatUuid: UUID, vurdering: Kandidat.ArbeidsgiversVurdering) : Boolean {
+        return dataSource.connection.use {
             it.prepareStatement("update kandidat set arbeidsgivers_vurdering = ?, sist_endret = ? where uuid = ?").apply {
                 this.setString(1, vurdering.name)
                 this.setTimestamp(2, Timestamp(ZonedDateTime.now().toInstant().toEpochMilli()))
                 this.setObject(3, kandidatUuid)
-            }.executeUpdate()
+            }.executeUpdate() == 1
         }
     }
 }

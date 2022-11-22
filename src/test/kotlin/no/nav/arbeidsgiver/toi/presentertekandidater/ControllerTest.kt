@@ -195,6 +195,23 @@ class ControllerTest {
         assertThat(kandidatFraDatabasen!!.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
     }
 
+    @Test
+    fun `PUT mot vurdering-endepunkt gir 400 hvis kandidat ikke eksisterer`() {
+        val body = """
+            {
+              "vurdering": "FÅTT_JOBBEN"
+            }
+        """.trimIndent()
+
+        val (_, response) = Fuel
+            .put("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering")
+            .body(body)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(400)
+    }
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
