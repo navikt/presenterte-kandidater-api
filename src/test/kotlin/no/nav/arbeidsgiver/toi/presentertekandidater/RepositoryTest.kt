@@ -95,16 +95,15 @@ internal class RepositoryTest {
         repository.lagre(kandidatliste)
 
         val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
-        val kandidatUUID = UUID.randomUUID()
-        repository.lagre(
-            Kandidat(
-                aktørId = "test",
-                kandidatlisteId = lagretKandidatliste?.id!!,
-                uuid = kandidatUUID,
-                arbeidsgiversVurdering = TIL_VURDERING,
-                sistEndret = ZonedDateTime.now()
-            )
+        val kandidat = Kandidat(
+            aktørId = "test",
+            kandidatlisteId = lagretKandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = ZonedDateTime.now()
         )
+
+        repository.lagre(kandidat)
 
         val listeMedKandidater = repository.hentKandidatliste(kandidatliste.stillingId)
         val kandidater = repository.hentKandidater(listeMedKandidater?.id!!)
@@ -112,8 +111,9 @@ internal class RepositoryTest {
         assertThat(listeMedKandidater).isNotNull
         assertThat(kandidater.size).isEqualTo(1)
         assertThat(kandidater[0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
-        assertThat(kandidater[0].uuid).isEqualTo(kandidatUUID)
-        assertThat(kandidater[0].arbeidsgiversVurdering).isEqualTo(TIL_VURDERING)
+        assertThat(kandidater[0].uuid).isEqualTo(kandidat.uuid)
+        assertThat(kandidater[0].arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
+        assertThat(kandidater[0].sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
     }
 
     @Test

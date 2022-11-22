@@ -13,6 +13,7 @@ import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
+import no.nav.helse.rapids_rivers.asLocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
@@ -118,12 +119,13 @@ class ControllerTest {
     fun `GET mot kandidatliste-endepunkt returnerer en kandidatliste og kandidater med CV`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
+        val nå = ZonedDateTime.now()
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = java.time.ZonedDateTime.now())
-        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = java.time.ZonedDateTime.now())
+        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = nå)
+        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = nå)
 
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
@@ -172,6 +174,7 @@ class ControllerTest {
         assertNull(fraRespons["kandidat"]["id"])
         assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
         assertThat(fraRespons["kandidat"]["arbeidsgiversVurdering"].textValue().equals(fraDatabasen.arbeidsgiversVurdering.name))
+        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
     }
 
     private fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
