@@ -1,12 +1,15 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.put
+import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
+import java.io.File
 import java.util.*
 
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
@@ -16,11 +19,50 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatliste/{stillingId}", hentKandidatliste(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
+        post("/intenal/konverterdata", konverterFraArbeidsmarker(repository), Rolle.UNPROTECTED)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
+        post("/intenal/konverterdata", konverterFraArbeidsmarker(repository), Rolle.UNPROTECTED)
         ctx.status(400)
     }
 }
+
+private val konverterFraArbeidsmarker: (repository: Repository) -> (Context) -> Unit = { repository ->
+    { context ->
+        log("konvertering").info("Starter konvertering fra arbeidsmarked")
+
+        val kandidatlisterArbeidsmarked: List<KandidatlisterArbeidsmarked> =
+            objectMapper.readValue(
+                File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
+                object : TypeReference<List<KandidatlisterArbeidsmarked>>() {})
+
+        val kandidaterArbeidsmarked: List<KandidaterArbeidsmarked> =
+            objectMapper.readValue(
+                File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
+                object : TypeReference<List<KandidaterArbeidsmarked>>() {})
+
+        log("konvertering").info("lister: $kandidatlisterArbeidsmarked")
+        log("konvertering").info("kandiater: $kandidaterArbeidsmarked")
+
+        // TODO implementer mapping
+        // TODO implementer lagre til db
+    }
+}
+
+data class KandidaterArbeidsmarked(
+    val db_id: Int,
+    val kandidatnr: String,
+    val lagt_til_tidspunkt: String,
+    val agkandliste_db_id: String
+)
+
+data class KandidatlisterArbeidsmarked(
+    val db_id: Int,
+    val opprettet_tidspunkt: String,
+    val organisasjon_referanse: String,
+    val stilling_id: String,
+    val tittel: String
+)
 
 private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context) -> Unit = { repository ->
     { context ->

@@ -265,6 +265,17 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(400)
     }
 
+    @Test
+    fun `Konvertering av data lagres riktig i databasen`() {
+        val (_, response) = Fuel
+            .post("http://localhost:9000/intenal/konverterdata")
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+
+        // TODO: asserts mot databasen
+    }
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
