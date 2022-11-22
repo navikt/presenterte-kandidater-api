@@ -175,7 +175,7 @@ class Repository(private val dataSource: DataSource) {
                 this.setObject(3, kandidatUuid)
             }.executeUpdate().let{
                 val bleOppdatert = it == 1
-                log.info("${kandidatUuid} ble oppdatert med ${vurdering} ${bleOppdatert}")
+                log.info("${kandidatUuid} ble oppdatert med ${vurdering} : ${bleOppdatert}")
                 bleOppdatert
             }
         }
