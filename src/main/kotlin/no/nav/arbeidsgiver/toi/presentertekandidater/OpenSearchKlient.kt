@@ -79,7 +79,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
                     "aktorId": [
                         ${aktørIder.joinToString(",") { "\"$it\"" }}
                     ]
-                }'
+                }
             },
             "_source": [
                 "aktorId",
