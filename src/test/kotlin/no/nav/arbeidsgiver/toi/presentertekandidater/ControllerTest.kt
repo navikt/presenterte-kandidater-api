@@ -169,6 +169,31 @@ class ControllerTest {
         assertNotNull(kandidaterJson[1]["cv"]);
     }
 
+    @Test
+    fun `PUT mot vurdering-endepunkt oppdaterer arbeidsgivers vurdering og returnerer 200 OK`() {
+        val stillingId = UUID.randomUUID()
+        repository.lagre(kandidatliste().copy(stillingId = stillingId))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        repository.lagre(kandidat)
+
+        val body = """
+            {
+              "vurdering": "FÅTT_JOBBEN"
+            }
+        """.trimIndent()
+
+        val (_, response) = Fuel
+            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
+            .body(body)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
+        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.FÅTT_JOBBEN)
+    }
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
