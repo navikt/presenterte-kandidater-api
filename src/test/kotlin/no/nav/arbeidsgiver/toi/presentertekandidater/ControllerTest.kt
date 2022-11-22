@@ -179,7 +179,7 @@ class ControllerTest {
 
         val body = """
             {
-              "vurdering": "FÅTT_JOBBEN"
+              "arbeidsgiversVurdering": "FÅTT_JOBBEN"
             }
         """.trimIndent()
 
@@ -199,7 +199,7 @@ class ControllerTest {
     fun `PUT mot vurdering-endepunkt gir 400 hvis kandidat ikke eksisterer`() {
         val body = """
             {
-              "vurdering": "FÅTT_JOBBEN"
+              "arbeidsgiversVurdering": "FÅTT_JOBBEN"
             }
         """.trimIndent()
 
