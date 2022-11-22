@@ -18,8 +18,9 @@ class Repository(private val dataSource: DataSource) {
                     status,
                     slettet,
                     virksomhetsnummer,
-                    sist_endret
-                ) values (?, ?, ?, ?, ?, ?, ?)
+                    sist_endret,
+                    opprettet
+                ) values (?, ?, ?, ?, ?, ?, ?, ?)
             """.trimIndent()
 
             it.prepareStatement(sql).apply {
@@ -30,6 +31,7 @@ class Repository(private val dataSource: DataSource) {
                 this.setBoolean(5, kandidatliste.slettet)
                 this.setString(6, kandidatliste.virksomhetsnummer)
                 this.setTimestamp(7, Timestamp(kandidatliste.sistEndret.toInstant().toEpochMilli()))
+                this.setTimestamp(8, Timestamp(kandidatliste.opprettet.toInstant().toEpochMilli()))
             }.execute()
         }
     }

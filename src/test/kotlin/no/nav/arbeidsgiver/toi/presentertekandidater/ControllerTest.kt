@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -14,6 +15,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
 import no.nav.helse.rapids_rivers.asLocalDateTime
+import org.assertj.core.api.Assertions.within
+import org.assertj.core.data.TemporalOffset
+import org.assertj.core.data.TemporalUnitOffset
+import java.time.Duration
+import java.time.temporal.ChronoUnit
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
@@ -80,39 +87,33 @@ class ControllerTest {
         val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=123456788"
         val virksomhetsnummer = "123456788"
-
-        repository.lagre(
-            kandidatliste().copy(
-                virksomhetsnummer = virksomhetsnummer,
-                stillingId = stillingId
-            )
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummer,
+            stillingId = stillingId
         )
+        repository.lagre(kandidatliste)
 
         val (_, response) = Fuel
             .get(endepunkt)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
-        val fraDatabase = repository.hentKandidatliste(stillingId)
         assertThat(response.statusCode).isEqualTo(200)
-        assertThat(response.body().asString("application/json;charset=utf-8"))
-            .contains("""
-                [
-                    {
-                        "kandidatliste": {
-                            "uuid":"7ea380f8-a0af-433f-8cbc-51c5788a7d29",
-                            "stillingId": "$stillingId",
-                            "tittel": "Tittel",
-                            "status": "ÅPEN",
-                            "slettet": false,
-                            "virksomhetsnummer": "$virksomhetsnummer",
-                            "sistEndret": "${ZonedDateTime.from(fraDatabase?.sistEndret).toOffsetDateTime()}",
-                            "opprettet": "${ZonedDateTime.from(fraDatabase?.opprettet).toOffsetDateTime()}"
-                        },
-                        "antallKandidater": 0
-                    }
-                ]
-            """.removeWhitespace())
+
+        val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+        val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
+        val antallKandidater = kandidatlisteMedKandidaterJson[0]["antallKandidater"]
+        assertThat(antallKandidater.asInt()).isZero()
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue()).isEqualTo(virksomhetsnummer)
+        assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
+        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo("Tittel")
+        assertNull(kandidatlisteJson["id"])
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue())).isCloseTo(kandidatliste.sistEndret, within(3,ChronoUnit.SECONDS))
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue())).isCloseTo(kandidatliste.opprettet, within(3, ChronoUnit.SECONDS))
+
     }
 
     @Test
