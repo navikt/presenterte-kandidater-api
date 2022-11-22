@@ -131,7 +131,7 @@ data class Cv(
 
 data class Arbeidserfaring(
     val fraDato: ZonedDateTime,
-    val tilDato: ZonedDateTime,
+    val tilDato: ZonedDateTime?,
     val arbeidsgiver: String,
     val sted: String,
     val stillingstittel: String,
@@ -146,7 +146,7 @@ data class Utdanning(
     @JsonAlias("fraDato")
     val fra: ZonedDateTime,
     @JsonAlias("tilDato")
-    val til: ZonedDateTime
+    val til: ZonedDateTime?
 )
 
 data class Språk(
