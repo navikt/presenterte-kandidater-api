@@ -58,14 +58,18 @@ class Repository(private val dataSource: DataSource) {
                 insert into kandidat(
                     aktør_id,
                     kandidatliste_id,
-                    uuid
-                ) values (?, ?, ?)
+                    uuid,
+                    arbeidsgivers_vurdering,
+                    sist_endret
+                ) values (?, ?, ?, ?, ?)
             """.trimIndent()
 
             it.prepareStatement(sql).apply {
                 this.setObject(1, kandidat.aktørId)
                 this.setObject(2, kandidat.kandidatlisteId)
                 this.setObject(3, kandidat.uuid)
+                this.setString(4, kandidat.arbeidsgiversVurdering.name)
+                this.setTimestamp(5, Timestamp(kandidat.sistEndret.toInstant().toEpochMilli()))
             }.execute()
         }
     }

@@ -39,7 +39,7 @@ internal class RepositoryTest {
             kandidatlisteId = lagretKandidatliste!!.id!!,
             uuid = uuid,
             arbeidsgiversVurdering = TIL_VURDERING,
-            sistEndret = java.time.ZonedDateTime.now()
+            sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
 
@@ -47,7 +47,7 @@ internal class RepositoryTest {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
             assertThat(this?.uuid).isEqualTo(uuid)
-            assertThat(this?.arbeidsgiversVurdering).isEqualTo(TIL_VURDERING.name)
+            assertThat(this?.arbeidsgiversVurdering).isEqualTo(TIL_VURDERING)
         }
     }
 
@@ -102,7 +102,7 @@ internal class RepositoryTest {
                 kandidatlisteId = lagretKandidatliste?.id!!,
                 uuid = kandidatUUID,
                 arbeidsgiversVurdering = TIL_VURDERING,
-                sistEndret = java.time.ZonedDateTime.now()
+                sistEndret = ZonedDateTime.now()
             )
         )
 
@@ -110,10 +110,10 @@ internal class RepositoryTest {
         val kandidater = repository.hentKandidater(listeMedKandidater?.id!!)
 
         assertThat(listeMedKandidater).isNotNull
-        assertThat(kandidater?.size).isEqualTo(1)
-        assertThat(kandidater!![0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
+        assertThat(kandidater.size).isEqualTo(1)
+        assertThat(kandidater[0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
         assertThat(kandidater[0].uuid).isEqualTo(kandidatUUID)
-        assertThat(kandidater[0].arbeidsgiversVurdering).isEqualTo(TIL_VURDERING.name)
+        assertThat(kandidater[0].arbeidsgiversVurdering).isEqualTo(TIL_VURDERING)
     }
 
     @Test
