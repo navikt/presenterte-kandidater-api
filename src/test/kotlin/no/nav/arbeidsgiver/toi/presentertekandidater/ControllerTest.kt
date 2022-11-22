@@ -122,8 +122,8 @@ class ControllerTest {
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING)
-        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING)
+        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = java.time.ZonedDateTime.now())
+        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = java.time.ZonedDateTime.now())
 
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)

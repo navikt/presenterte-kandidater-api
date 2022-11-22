@@ -51,7 +51,8 @@ data class Kandidat(
     val aktørId: String,
     @JsonIgnore
     val kandidatlisteId: BigInteger,
-    val arbeidsgiversVurdering: ArbeidsgiversVurdering
+    val arbeidsgiversVurdering: ArbeidsgiversVurdering,
+    val sistEndret: ZonedDateTime
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {
@@ -60,7 +61,8 @@ data class Kandidat(
                 uuid = rs.getObject("uuid") as UUID,
                 aktørId = rs.getString("aktør_id"),
                 kandidatlisteId = rs.getBigDecimal("kandidatliste_id").toBigInteger(),
-                arbeidsgiversVurdering = ArbeidsgiversVurdering.valueOf(rs.getString("arbeidsgivers_vurdering"))
+                arbeidsgiversVurdering = ArbeidsgiversVurdering.valueOf(rs.getString("arbeidsgivers_vurdering")),
+                sistEndret = rs.getTimestamp("sist_endret").toInstant().atZone(ZoneId.of("Europe/Oslo"))
             )
         }
     }

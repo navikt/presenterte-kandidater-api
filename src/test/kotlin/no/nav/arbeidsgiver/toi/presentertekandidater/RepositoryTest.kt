@@ -38,7 +38,8 @@ internal class RepositoryTest {
             aktørId = "1234567891012",
             kandidatlisteId = lagretKandidatliste!!.id!!,
             uuid = uuid,
-            arbeidsgiversVurdering = TIL_VURDERING
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = java.time.ZonedDateTime.now()
         )
         repository.lagre(kandidat)
 
@@ -60,13 +61,15 @@ internal class RepositoryTest {
                 aktørId = "1234567891012",
                 kandidatlisteId = lagretKandidatliste?.id!!,
                 uuid = UUID.randomUUID(),
-                arbeidsgiversVurdering = TIL_VURDERING
+                arbeidsgiversVurdering = TIL_VURDERING,
+                sistEndret = java.time.ZonedDateTime.now()
             ),
             Kandidat(
                 aktørId = "2234567891012",
                 kandidatlisteId = lagretKandidatliste.id!!,
                 uuid = UUID.randomUUID(),
-                arbeidsgiversVurdering = TIL_VURDERING
+                arbeidsgiversVurdering = TIL_VURDERING,
+                sistEndret = java.time.ZonedDateTime.now()
             )
         )
         kandidater.forEach { repository.lagre(it)}
@@ -98,7 +101,8 @@ internal class RepositoryTest {
                 aktørId = "test",
                 kandidatlisteId = lagretKandidatliste?.id!!,
                 uuid = kandidatUUID,
-                arbeidsgiversVurdering = TIL_VURDERING
+                arbeidsgiversVurdering = TIL_VURDERING,
+                sistEndret = java.time.ZonedDateTime.now()
             )
         )
 
@@ -208,6 +212,7 @@ internal class RepositoryTest {
         uuid = UUID.randomUUID(),
         aktørId = aktørId,
         kandidatlisteId = kandidatlisteId,
-        arbeidsgiversVurdering = TIL_VURDERING
+        arbeidsgiversVurdering = TIL_VURDERING,
+        sistEndret = ZonedDateTime.now()
     )
 }
