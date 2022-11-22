@@ -37,13 +37,14 @@ class PresenterteKandidaterService(private val repository: Repository) {
     }
 
     private fun lagreKandidat(kandidathendelse: Kandidathendelse, kandidatlisteId: BigInteger) {
-        val kandidat = mapKandidathendelseToKandidat(kandidathendelse, kandidatlisteId)
+        val kandidat = mapKandidathendelseTilNyKandidat(kandidathendelse, kandidatlisteId)
         repository.lagre(kandidat)
     }
 
-    private fun mapKandidathendelseToKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {
+    private fun mapKandidathendelseTilNyKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {
         return Kandidat(
-            aktørId = hendelse.aktørId, kandidatlisteId = kandidatlisteId, uuid = UUID.randomUUID()
+            aktørId = hendelse.aktørId, kandidatlisteId = kandidatlisteId, uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
         )
     }
 

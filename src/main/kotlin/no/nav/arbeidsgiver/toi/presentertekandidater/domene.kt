@@ -50,7 +50,8 @@ data class Kandidat(
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val aktørId: String,
     @JsonIgnore
-    val kandidatlisteId: BigInteger
+    val kandidatlisteId: BigInteger,
+    val arbeidsgiversVurdering: ArbeidsgiversVurdering
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {
@@ -59,6 +60,7 @@ data class Kandidat(
                 uuid = rs.getObject("uuid") as UUID,
                 aktørId = rs.getString("aktør_id"),
                 kandidatlisteId = rs.getBigDecimal("kandidatliste_id").toBigInteger(),
+                arbeidsgiversVurdering = ArbeidsgiversVurdering.valueOf(rs.getString("arbeidsgivers_vurdering"))
             )
         }
     }

@@ -9,6 +9,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
+import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
 
 internal class RepositoryTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
@@ -36,7 +37,8 @@ internal class RepositoryTest {
         val kandidat = Kandidat(
             aktørId = "1234567891012",
             kandidatlisteId = lagretKandidatliste!!.id!!,
-            uuid = uuid
+            uuid = uuid,
+            arbeidsgiversVurdering = TIL_VURDERING
         )
         repository.lagre(kandidat)
 
@@ -44,6 +46,7 @@ internal class RepositoryTest {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
             assertThat(this?.uuid).isEqualTo(uuid)
+            assertThat(this?.arbeidsgiversVurdering).isEqualTo(TIL_VURDERING.name)
         }
     }
 
@@ -56,12 +59,14 @@ internal class RepositoryTest {
             Kandidat(
                 aktørId = "1234567891012",
                 kandidatlisteId = lagretKandidatliste?.id!!,
-                uuid = UUID.randomUUID()
+                uuid = UUID.randomUUID(),
+                arbeidsgiversVurdering = TIL_VURDERING
             ),
             Kandidat(
                 aktørId = "2234567891012",
                 kandidatlisteId = lagretKandidatliste.id!!,
-                uuid = UUID.randomUUID()
+                uuid = UUID.randomUUID(),
+                arbeidsgiversVurdering = TIL_VURDERING
             )
         )
         kandidater.forEach { repository.lagre(it)}
@@ -92,7 +97,8 @@ internal class RepositoryTest {
             Kandidat(
                 aktørId = "test",
                 kandidatlisteId = lagretKandidatliste?.id!!,
-                uuid = kandidatUUID
+                uuid = kandidatUUID,
+                arbeidsgiversVurdering = TIL_VURDERING
             )
         )
 
@@ -103,6 +109,7 @@ internal class RepositoryTest {
         assertThat(kandidater?.size).isEqualTo(1)
         assertThat(kandidater!![0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
         assertThat(kandidater[0].uuid).isEqualTo(kandidatUUID)
+        assertThat(kandidater[0].arbeidsgiversVurdering).isEqualTo(TIL_VURDERING.name)
     }
 
     @Test
@@ -200,6 +207,7 @@ internal class RepositoryTest {
     private fun lagKandidat(kandidatlisteId: BigInteger, aktørId: String) = Kandidat(
         uuid = UUID.randomUUID(),
         aktørId = aktørId,
-        kandidatlisteId = kandidatlisteId
+        kandidatlisteId = kandidatlisteId,
+        arbeidsgiversVurdering = TIL_VURDERING
     )
 }

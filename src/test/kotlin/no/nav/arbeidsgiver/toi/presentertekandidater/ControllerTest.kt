@@ -12,6 +12,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
@@ -121,8 +122,8 @@ class ControllerTest {
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID())
-        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID())
+        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING)
+        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING)
 
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
@@ -170,6 +171,7 @@ class ControllerTest {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
         assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
+        assertThat(fraRespons["kandidat"]["arbeidsgiversVurdering"].textValue().equals(fraDatabasen.arbeidsgiversVurdering.name))
     }
 
     private fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
