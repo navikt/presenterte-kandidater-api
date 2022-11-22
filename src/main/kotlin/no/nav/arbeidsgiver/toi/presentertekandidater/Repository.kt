@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import org.flywaydb.core.Flyway
 import java.math.BigInteger
 import java.sql.Timestamp
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -92,27 +93,6 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentAlt(): List<KandidatlisteMedAntallKandidater> {
-        dataSource.connection.use {
-            val resultSet = it.prepareStatement(
-                """
-                |select kl.*,count(k.*) as antall
-                |from kandidatliste kl 
-                |left join kandidat k on k.kandidatliste_id = kl.id 
-                |group by kl.id, kl.stilling_id, kl.tittel, kl.status, kl.slettet, kl.virksomhetsnummer
-                |""".trimMargin()
-            ).executeQuery()
-
-            return generateSequence {
-                if (resultSet.next()) {
-                    val kandidatliste = Kandidatliste.fraDatabase(resultSet)
-                    val antall = resultSet.getInt("antall")
-                    KandidatlisteMedAntallKandidater(kandidatliste = kandidatliste, antallKandidater = antall)
-                } else null
-            }.toList()
-        }
-    }
-
     fun hentKandidatlisterMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
@@ -184,6 +164,16 @@ class Repository(private val dataSource: DataSource) {
                 return null
             }
             return Kandidat.fraDatabase(resultSet)
+        }
+    }
+
+    fun oppdaterArbeidsgiversVurdering(kandidatUuid: UUID, vurdering: Kandidat.ArbeidsgiversVurdering) {
+        dataSource.connection.use {
+            it.prepareStatement("update kandidat set arbeidsgivers_vurdering = ?, sist_endret = ? where uuid = ?").apply {
+                this.setString(1, vurdering.name)
+                this.setTimestamp(2, Timestamp(ZonedDateTime.now().toInstant().toEpochMilli()))
+                this.setObject(3, kandidatUuid)
+            }.executeUpdate()
         }
     }
 }

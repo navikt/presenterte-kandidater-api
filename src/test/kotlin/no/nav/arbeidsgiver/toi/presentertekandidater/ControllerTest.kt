@@ -174,7 +174,7 @@ class ControllerTest {
         val stillingId = UUID.randomUUID()
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now().minusDays(1))
         repository.lagre(kandidat)
 
         val body = """
@@ -192,6 +192,7 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(200)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.FÅTT_JOBBEN)
+        assertThat(kandidatFraDatabasen!!.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
