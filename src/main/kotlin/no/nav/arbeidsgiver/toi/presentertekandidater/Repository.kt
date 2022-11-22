@@ -173,7 +173,11 @@ class Repository(private val dataSource: DataSource) {
                 this.setString(1, vurdering.name)
                 this.setTimestamp(2, Timestamp(ZonedDateTime.now().toInstant().toEpochMilli()))
                 this.setObject(3, kandidatUuid)
-            }.executeUpdate() == 1
+            }.executeUpdate().let{
+                val bleOppdatert = it == 1
+                log.info("${kandidatUuid} ble oppdatert med ${vurdering} ${bleOppdatert}")
+                bleOppdatert
+            }
         }
     }
 }
