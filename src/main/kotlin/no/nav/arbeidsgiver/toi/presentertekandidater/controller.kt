@@ -7,7 +7,6 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.http.Context
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
-import no.nav.helse.rapids_rivers.isMissingOrNull
 import java.util.*
 
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
@@ -17,6 +16,9 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatliste/{stillingId}", hentKandidatliste(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
+    }.exception(IllegalArgumentException::class.java) { e, ctx ->
+        log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
+        ctx.status(400)
     }
 }
 

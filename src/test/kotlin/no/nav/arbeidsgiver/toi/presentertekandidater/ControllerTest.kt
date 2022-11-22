@@ -196,6 +196,58 @@ class ControllerTest {
     }
 
     @Test
+    fun `PUT mot vurdering-endepunkt med nullverdi skal returnere 400`() {
+        val stillingId = UUID.randomUUID()
+        repository.lagre(kandidatliste().copy(stillingId = stillingId))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now().minusDays(1))
+        repository.lagre(kandidat)
+
+        val body = """
+            {
+              "arbeidsgiversVurdering": null
+            }
+        """.trimIndent()
+
+        val (_, response) = Fuel
+            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
+            .body(body)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(400)
+        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
+        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
+        assertThat(kandidatFraDatabasen!!.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
+    }
+
+    @Test
+    fun `PUT mot vurdering-endepunkt med ukjent verdi skal returnere 400`() {
+        val stillingId = UUID.randomUUID()
+        repository.lagre(kandidatliste().copy(stillingId = stillingId))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now().minusDays(1))
+        repository.lagre(kandidat)
+
+        val body = """
+            {
+              "arbeidsgiversVurdering": "NY"
+            }
+        """.trimIndent()
+
+        val (_, response) = Fuel
+            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
+            .body(body)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(400)
+        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
+        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
+        assertThat(kandidatFraDatabasen!!.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
+    }
+
+    @Test
     fun `PUT mot vurdering-endepunkt gir 400 hvis kandidat ikke eksisterer`() {
         val body = """
             {
