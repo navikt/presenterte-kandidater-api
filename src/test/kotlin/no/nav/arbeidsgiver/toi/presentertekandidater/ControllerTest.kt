@@ -196,7 +196,6 @@ class ControllerTest {
     }
 
     @Test
-    @Disabled
     fun `PUT mot vurdering-endepunkt med nullverdi skal returnere 400`() {
         val stillingId = UUID.randomUUID()
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
@@ -223,7 +222,6 @@ class ControllerTest {
     }
 
     @Test
-    @Disabled
     fun `PUT mot vurdering-endepunkt med ukjent verdi skal returnere 400`() {
         val stillingId = UUID.randomUUID()
         repository.lagre(kandidatliste().copy(stillingId = stillingId))

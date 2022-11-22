@@ -19,10 +19,9 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatliste/{stillingId}", hentKandidatliste(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
-        post("/intenal/konverterdata", konverterFraArbeidsmarker(repository), Rolle.UNPROTECTED)
+        post("/internal/konverterdata", konverterFraArbeidsmarker(repository), Rolle.UNPROTECTED)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
-        post("/intenal/konverterdata", konverterFraArbeidsmarker(repository), Rolle.UNPROTECTED)
         ctx.status(400)
     }
 }
