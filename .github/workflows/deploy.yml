@@ -28,13 +28,14 @@ jobs:
   deploy-to-dev:
     name: Deploy til dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/kul-feature'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/byggeksp'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: '17.x'
+          distribution: 'temurin'
       - uses: actions/cache@v2
         with:
           path: |
