@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.*
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.postgresql.util.PSQLException
@@ -9,7 +10,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
-import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
 
 internal class RepositoryTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
@@ -197,7 +197,50 @@ internal class RepositoryTest {
         assertThat(lagretKandidatliste.sistEndret).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
         assertThat(lagretKandidatliste.opprettet).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
     }
-    
+
+    @Test
+    fun `Oppdatering av arbeidsgivers vurdering skal oppdatere kandidat på riktig liste`() {
+        val kandidatliste1 = lagKandidatliste()
+        val kandidatliste2 = lagKandidatliste()
+        repository.lagre(kandidatliste1)
+        repository.lagre(kandidatliste2)
+        val lagretKandidatliste1 = repository.hentKandidatliste(kandidatliste1.stillingId)
+        val lagretKandidatliste2 = repository.hentKandidatliste(kandidatliste2.stillingId)
+
+        val aktørId = "123"
+        val kandidatenPåListe1 = lagKandidat(lagretKandidatliste1?.id!!, aktørId).copy(arbeidsgiversVurdering = AKTUELL)
+        val kandidatenPåListe2 = lagKandidat(lagretKandidatliste2?.id!!, aktørId).copy(arbeidsgiversVurdering = AKTUELL)
+        repository.lagre(kandidatenPåListe1)
+        repository.lagre(kandidatenPåListe2)
+
+        repository.oppdaterArbeidsgiversVurdering(kandidatenPåListe1.uuid, FÅTT_JOBBEN)
+
+        val oppdatertKandidatPåListe1 = repository.hentKandidatMedUUID(kandidatenPåListe1.uuid)
+        val uendretKandidatPåListe2 = repository.hentKandidatMedUUID(kandidatenPåListe2.uuid)
+        assertThat(oppdatertKandidatPåListe1!!.arbeidsgiversVurdering).isEqualTo(FÅTT_JOBBEN)
+        assertThat(uendretKandidatPåListe2!!.arbeidsgiversVurdering).isEqualTo(AKTUELL)
+    }
+
+    @Test
+    fun `Oppdatering av arbeidsgivers vurdering skal ikke oppdatere andre kandidater på lista`() {
+        val kandidatliste = lagKandidatliste()
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
+
+        val (aktørId1, aktørId2) = listOf("123", "321")
+        val førsteKandidat = lagKandidat(lagretKandidatliste?.id!!, aktørId1).copy(arbeidsgiversVurdering = AKTUELL)
+        val andreKandidat = lagKandidat(lagretKandidatliste.id!!, aktørId2).copy(arbeidsgiversVurdering = AKTUELL)
+        repository.lagre(førsteKandidat)
+        repository.lagre(andreKandidat)
+
+        repository.oppdaterArbeidsgiversVurdering(førsteKandidat.uuid, FÅTT_JOBBEN)
+
+        val oppdatertFørsteKandidat = repository.hentKandidatMedUUID(førsteKandidat.uuid)
+        val uendretAndreKandidat = repository.hentKandidatMedUUID(andreKandidat.uuid)
+        assertThat(oppdatertFørsteKandidat!!.arbeidsgiversVurdering).isEqualTo(FÅTT_JOBBEN)
+        assertThat(uendretAndreKandidat!!.arbeidsgiversVurdering).isEqualTo(AKTUELL)
+    }
+
     private fun lagKandidatliste() = Kandidatliste(
         stillingId = UUID.randomUUID(),
         tittel = "Tittel",
