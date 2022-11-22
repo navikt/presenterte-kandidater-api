@@ -68,7 +68,10 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
     { context ->
         val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
         val jsonBody = objectMapper.readTree(context.body())
-        when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, Kandidat.ArbeidsgiversVurdering.valueOf(jsonBody["arbeidsgiversVurdering"].asText()))) {
+        val arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.valueOf(jsonBody["arbeidsgiversVurdering"].asText())
+        log("controller").info("Mottatt endring på arbeidsgivers vurdering. Endrer til: $arbeidsgiversVurdering" +
+                " for kandidat $kandidatUuid")
+        when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
             true -> context.status(200)
             false -> context.status(400)
         }
