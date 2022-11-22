@@ -267,7 +267,7 @@ class ControllerTest {
     @Test
     fun `Konvertering av data lagres riktig i databasen`() {
         val (_, response) = Fuel
-            .post("http://localhost:9000/intenal/konverterdata")
+            .post("http://localhost:9000/internal/konverterdata")
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
