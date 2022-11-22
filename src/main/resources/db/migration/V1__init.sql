@@ -16,16 +16,9 @@ create table kandidat (
     aktør_id varchar(13) not null,
     kandidatliste_id bigint not null,
     opprettet timestamp with time zone not null default current_timestamp,
+    arbeidsgivers_vurdering text not null,
+    sist_endret timestamp with time zone not null,
     constraint fk_kandidatliste_id foreign key (kandidatliste_id) references kandidatliste(id)
-);
-
-create table arbeidsgivers_vurdering (
-    id bigserial primary key,
-    kandidat_id bigserial not null,
-    vurdering text not null,
-    endret_av text not null,
-    sist_endret timestamp with time zone not null default current_timestamp,
-    constraint fk_kandidat_id foreign key (kandidat_id) references kandidat(id)
 );
 
 create index kandidatliste_stilling_id_idx on kandidatliste(stilling_id);
@@ -33,4 +26,3 @@ create index kandidatliste_uuid_id_idx on kandidatliste(uuid);
 create index kandidat_uuid_id_idx on kandidat(uuid);
 create index kandidatliste_virksomhetsnummer_idx on kandidatliste(virksomhetsnummer);
 create index kandidat_kandidatliste_id_idx on kandidat(kandidatliste_id);
-create index arbeidsgivers_vurdering_kandidat_id_idx on arbeidsgivers_vurdering(kandidat_id);
