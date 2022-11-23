@@ -78,7 +78,8 @@ private val konverterFraArbeidsmarker: (repository: Repository) -> (Context) -> 
             if (listeId != null) {
 
                 val arbeidsmarkedKandidaterForListe = kandidaterArbeidsmarked
-                    .filter { it.agkandliste_db_id == liste.db_id }
+                    .filter { it.stilling_id == liste.stilling_id }
+                    .distinctBy { it.kandidatnr }
                     .map {
                         Kandidat(
                             id = null,
@@ -101,10 +102,9 @@ private val konverterFraArbeidsmarker: (repository: Repository) -> (Context) -> 
 }
 
 data class KandidaterArbeidsmarked(
-    val db_id: Int,
     val kandidatnr: String,
     val lagt_til_tidspunkt: String,
-    val agkandliste_db_id: Int
+    val stilling_id: String
 )
 
 data class KandidatlisterArbeidsmarked(

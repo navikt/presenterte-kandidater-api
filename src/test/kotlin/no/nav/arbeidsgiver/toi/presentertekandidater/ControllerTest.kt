@@ -265,7 +265,7 @@ class ControllerTest {
 
         val orgNr = "893119302"
         val lister = repository.hentKandidatlisterMedAntall(orgNr)
-        assertThat(lister).hasSize(2)
+        assertThat(lister).hasSize(1)
         val førsteListe = lister[0]
         assertThat(førsteListe.antallKandidater).isEqualTo(4)
         assertThat(førsteListe.kandidatliste.virksomhetsnummer).isEqualTo(orgNr)
