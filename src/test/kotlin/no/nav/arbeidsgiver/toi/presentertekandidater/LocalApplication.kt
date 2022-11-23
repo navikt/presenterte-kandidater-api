@@ -39,7 +39,10 @@ private val envs = mapOf(
     "NAIS_APPLICATION_NAME" to "min-app",
     "ALTINN_PROXY_URL" to "http://localhost/proxy-url",
     "ALTINN_PROXY_AUDIENCE" to "din:app",
-    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost/tokenx"
+    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost/tokenx",
+    "TOKEN_X_PRIVATE_JWK" to "eyJwk",
+    "TOKEN_X_CLIENT_ID" to "clientId",
+    "TOKEN_X_ISSUER" to "tokenXissuer",
 )
 
 fun startLocalApplication(
