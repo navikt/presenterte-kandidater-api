@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
+import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -186,7 +187,7 @@ class ControllerTest {
 
         val (_, response) = Fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
-            .body(body)
+            .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
@@ -212,7 +213,7 @@ class ControllerTest {
 
         val (_, response) = Fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
-            .body(body)
+            .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
@@ -238,7 +239,7 @@ class ControllerTest {
 
         val (_, response) = Fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
-            .body(body)
+            .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
@@ -258,7 +259,7 @@ class ControllerTest {
 
         val (_, response) = Fuel
             .put("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering")
-            .body(body)
+            .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
