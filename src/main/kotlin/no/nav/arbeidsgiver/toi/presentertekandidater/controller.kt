@@ -65,10 +65,8 @@ data class KandidatlisterArbeidsmarked(
 
 private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context) -> Unit = { repository ->
     { context ->
-        log("controller").info("Mottar kall for å oppdatere arbeidsgivers vurdering.")
         val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
         val jsonBody = objectMapper.readTree(context.body())
-        log("controller").info("Mottatt ny vurdering $jsonBody[\"arbeidsgiversVurdering\"].asText()")
         val arbeidsgiversVurdering =
             Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
         when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {

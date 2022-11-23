@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -29,6 +30,7 @@ class ControllerTest {
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8888)
+    private val fuel = FuelManager()
 
     lateinit var openSearchKlient: OpenSearchKlient
 
@@ -54,7 +56,7 @@ class ControllerTest {
     @Test
     fun `GET mot kandidatlister-endepunkt svarer 403 Forbidden hvis forespørselen ikke inneholder et token`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .get(endepunkt)
             .response()
 
@@ -64,7 +66,7 @@ class ControllerTest {
     @Test
     fun `GET mot kandidatlister-endepunkt svarer 403 Forbidden hvis forespørselens token er ugyldig`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .get(endepunkt)
             .authentication().bearer(hentUgyldigToken(mockOAuth2Server))
             .response()
@@ -75,7 +77,7 @@ class ControllerTest {
     @Test
     fun `GET mot kandidatlister-endepunkt uten virksomhetsnummer svarer 400 Bad Request`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .get(endepunkt)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
@@ -94,7 +96,7 @@ class ControllerTest {
         )
         repository.lagre(kandidatliste)
 
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .get(endepunkt)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
@@ -142,7 +144,7 @@ class ControllerTest {
             ), responsBody = esRespons
         )
 
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .get(endepunkt)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
@@ -185,7 +187,7 @@ class ControllerTest {
             }
         """.trimIndent()
 
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
             .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
@@ -211,7 +213,7 @@ class ControllerTest {
             }
         """.trimIndent()
 
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
             .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
@@ -231,7 +233,7 @@ class ControllerTest {
             }
         """.trimIndent()
 
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .put("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering")
             .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
@@ -248,7 +250,7 @@ class ControllerTest {
             }
         """.trimIndent()
 
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .put("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering")
             .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
@@ -259,7 +261,7 @@ class ControllerTest {
 
     @Test
     fun `Konvertering av data lagres riktig i databasen`() {
-        val (_, response) = Fuel
+        val (_, response) = fuel
             .post("http://localhost:9000/internal/konverterdata")
             .response()
 
