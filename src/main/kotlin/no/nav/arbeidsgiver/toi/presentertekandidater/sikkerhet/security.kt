@@ -5,12 +5,12 @@ import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.security.token.support.core.configuration.IssuerProperties
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
-import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
+
+private val log = log("security.kt")
 
 enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED
@@ -34,12 +34,15 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
     }
 
 private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle, IssuerProperties>): Boolean {
-    val claims = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)
-    val fnr = claims.get("sub")?.toString() ?: error("Finner ikke claim fra 'sub' i tokenet")
+    val subClaim = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)?.get("sub")
 
-    context.setFødselsnummer(fnr)
-
-    return claims != null
+    return if (subClaim == null) {
+        false
+    } else {
+        log.info("MIDLERTIDIG: sub-claim fra token: $subClaim")
+        context.setFødselsnummer(subClaim.toString())
+        true
+    }
 }
 
 private fun hentTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
