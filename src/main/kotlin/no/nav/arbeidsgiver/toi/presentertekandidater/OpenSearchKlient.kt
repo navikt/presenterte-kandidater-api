@@ -21,9 +21,9 @@ import java.time.Period
 import java.time.ZonedDateTime
 
 class OpenSearchKlient(envs: Map<String, String>) {
-    private var url = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current/_search"
-    private var username = envs.variable("OPEN_SEARCH_USERNAME")
-    private var password = envs.variable("OPEN_SEARCH_PASSWORD")
+    private val url = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current/_search"
+    private val username = envs.variable("OPEN_SEARCH_USERNAME")
+    private val password = envs.variable("OPEN_SEARCH_PASSWORD")
 
     private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

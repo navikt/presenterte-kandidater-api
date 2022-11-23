@@ -42,6 +42,8 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:3.3.1")
     implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
 
+    implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
+
     testImplementation(kotlin("test"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.0")
     testImplementation("org.assertj:assertj-core:3.23.1")

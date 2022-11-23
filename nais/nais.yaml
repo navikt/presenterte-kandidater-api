@@ -61,3 +61,7 @@ spec:
       value: {{ kafka_consumer_group_id }}
     - name: KAFKA_RESET_POLICY
       value: "latest"
+    - name: ALTINN_PROXY_URL
+      value: {{ altinn_proxy_url }}
+    - name: ALTINN_PROXY_AUDIENCE
+      value: {{ altinn_proxy_audience }}
