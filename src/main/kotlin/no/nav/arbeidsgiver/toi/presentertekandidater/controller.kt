@@ -23,6 +23,10 @@ fun startKandidatlisteController(javalin: Javalin, repository: Repository, opens
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
+    }.exception(Exception::class.java) {e, ctx ->
+        log("controller").error("Det feilet med exception", e)
+    }.before{
+        log("controller").info("kom inn i before")
     }
 }
 
