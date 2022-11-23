@@ -16,13 +16,8 @@ import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
-import no.nav.helse.rapids_rivers.asLocalDateTime
 import org.assertj.core.api.Assertions.within
-import org.assertj.core.data.TemporalOffset
-import org.assertj.core.data.TemporalUnitOffset
-import java.time.Duration
 import java.time.temporal.ChronoUnit
-import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
@@ -268,7 +263,18 @@ class ControllerTest {
 
         assertThat(response.statusCode).isEqualTo(200)
 
-        // TODO: asserts mot databasen
+        val orgNr = "893119302"
+        val lister = repository.hentKandidatlisterMedAntall(orgNr)
+        assertThat(lister).hasSize(2)
+        val førsteListe = lister[0]
+        assertThat(førsteListe.antallKandidater).isEqualTo(4)
+        assertThat(førsteListe.kandidatliste.virksomhetsnummer).isEqualTo(orgNr)
+        assertThat(førsteListe.kandidatliste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
+
+        val kandiater = repository.hentKandidater(førsteListe.kandidatliste.id!!)
+        val førsteKandidat = kandiater[0]
+        assertThat(førsteKandidat.kandidatlisteId).isEqualTo(førsteListe.kandidatliste.id!!)
+
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {

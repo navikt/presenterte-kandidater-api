@@ -12,6 +12,11 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.io.File
 import java.util.UUID
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
@@ -45,8 +50,53 @@ private val konverterFraArbeidsmarker: (repository: Repository) -> (Context) -> 
         log("konvertering").info("lister: $kandidatlisterArbeidsmarked")
         log("konvertering").info("kandiater: $kandidaterArbeidsmarked")
 
-        // TODO implementer mapping
-        // TODO implementer lagre til db
+
+        kandidatlisterArbeidsmarked.forEach { liste ->
+            val stillingId = UUID.fromString(liste.stilling_id)
+
+            val opprettetTidspunkt = LocalDateTime.parse(
+                liste.opprettet_tidspunkt,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            ).atZone(ZoneId.of("Europe/Oslo"))
+
+            val kandidatliste = Kandidatliste(
+                id = null,
+                uuid = UUID.randomUUID(),
+                stillingId = stillingId,
+                tittel = liste.tittel,
+                status = Kandidatliste.Status.ÅPEN,
+                slettet = false,
+                virksomhetsnummer = liste.organisasjon_referanse,
+                sistEndret = ZonedDateTime.now(),
+                opprettet = opprettetTidspunkt
+            )
+            log("konvertering").info("lister for lagring: $kandidatliste")
+            repository.lagre(kandidatliste)
+            val listeFraDb = repository.hentKandidatliste(stillingId)
+            val listeId = listeFraDb?.id
+
+            if (listeId != null) {
+
+                val arbeidsmarkedKandidaterForListe = kandidaterArbeidsmarked
+                    .filter { it.agkandliste_db_id == liste.db_id }
+                    .map {
+                        Kandidat(
+                            id = null,
+                            uuid = UUID.randomUUID(),
+                            aktørId = it.kandidatnr,  // TODO: Hent fra opensearch fra kandidatnummer
+                            kandidatlisteId = listeId,
+                            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL,    // TODO mappes fra json
+                            sistEndret = ZonedDateTime.now()
+                        )
+                    }
+
+                arbeidsmarkedKandidaterForListe.forEach {
+                    repository.lagre(it)
+                }
+            }
+        }
+
+        context.status(200)
     }
 }
 
@@ -54,7 +104,7 @@ data class KandidaterArbeidsmarked(
     val db_id: Int,
     val kandidatnr: String,
     val lagt_til_tidspunkt: String,
-    val agkandliste_db_id: String
+    val agkandliste_db_id: Int
 )
 
 data class KandidatlisterArbeidsmarked(
