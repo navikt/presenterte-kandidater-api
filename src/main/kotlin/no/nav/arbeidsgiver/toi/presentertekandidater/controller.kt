@@ -8,14 +8,16 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.io.File
 import java.util.UUID
 
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
-fun startKandidatlisteController(javalin: Javalin, repository: Repository, opensearchKlient: OpenSearchKlient) {
+fun startController(javalin: Javalin, repository: Repository, opensearchKlient: OpenSearchKlient, altinnKlient: AltinnKlient) {
     javalin.routes {
+        get("/organisasjoner", hentOrganisasjoner(altinnKlient), Rolle.ARBEIDSGIVER)
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatliste/{stillingId}", hentKandidatliste(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
@@ -84,7 +86,7 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
             context.status(400)
         } else {
             val lister: KandidatlisterDto = repository.hentKandidatlisterMedAntall(virksomhetsnummer)
-            context.json(lister).status(200)
+            context.json(lister)
         }
     }
 }
@@ -106,11 +108,17 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
                     val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
                     val kandidatDtoer = kandidater.map { KandidatDto(it, cver[it.aktørId]) }
 
-                    context.json(KandidatlisteDto(kandidatliste, kandidatDtoer)).status(200)
+                    context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
                 }
             }
         }
     }
+
+private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Unit =
+    { altinnKlient -> { context ->
+        context.json(altinnKlient.hentOrganisasjoner(context.hentFødselsnummer()))
+    }
+}
 
 data class KandidatDto(
     val kandidat: Kandidat, val cv: Cv?

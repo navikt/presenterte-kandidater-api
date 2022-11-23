@@ -8,8 +8,10 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.Subject
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 
 
-class AltinnKlient(envs: Map<String, String>) {
-
+class AltinnKlient(
+    envs: Map<String, String>,
+    private val hentExchangeToken: (fnr: String, scope: String) -> String
+) {
     private val consumerId = envs.variable("NAIS_APPLICATION_NAME")
     private val altinnProxyUrl = envs.variable("ALTINN_PROXY_URL")
     private val scope = envs.variable("ALTINN_PROXY_AUDIENCE")
@@ -17,7 +19,7 @@ class AltinnKlient(envs: Map<String, String>) {
     val config = AltinnrettigheterProxyKlientConfig(ProxyConfig(consumerId, altinnProxyUrl))
     val klient = AltinnrettigheterProxyKlient(config)
 
-    fun hentOrganisasjoner(fnr: String, hentExchangeToken: (fnr: String, scope: String) -> String) =
+    fun hentOrganisasjoner(fnr: String) =
         klient.hentOrganisasjoner(
             SelvbetjeningToken(hentExchangeToken(fnr, scope)),
             Subject(fnr),

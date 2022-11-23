@@ -9,6 +9,7 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.net.URL
 import io.mockk.mockk
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 
 private val repository = opprettTestRepositoryMedLokalPostgres()
@@ -33,7 +34,10 @@ val issuerProperties = mapOf(
 private val envs = mapOf(
     "OPEN_SEARCH_URI" to "uri",
     "OPEN_SEARCH_USERNAME" to "username",
-    "OPEN_SEARCH_PASSWORD" to "password"
+    "OPEN_SEARCH_PASSWORD" to "password",
+    "NAIS_APPLICATION_NAME" to "min-app",
+    "ALTINN_PROXY_URL" to "http://localhost/proxy-url",
+    "ALTINN_PROXY_AUDIENCE" to "din:app",
 )
 
 fun startLocalApplication(
@@ -41,9 +45,10 @@ fun startLocalApplication(
     rapid: TestRapid = TestRapid(),
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
-    openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs)
+    openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
+    altinnKlient: AltinnKlient = AltinnKlient(envs) { _, _ -> "et-token" }
 ) {
-    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient) { true }
+    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient) { true }
 }
 
 fun opprettTestRepositoryMedLokalPostgres(): Repository {

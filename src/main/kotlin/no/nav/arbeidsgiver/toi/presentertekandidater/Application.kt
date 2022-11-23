@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.helse.rapids_rivers.RapidApplication
 import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.hentIssuerProperties
@@ -31,12 +32,22 @@ fun main() {
     val openSearchKlient = OpenSearchKlient(env)
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
 
+    val altinnKlient = AltinnKlient(env) { _, _ -> "et-token" }
+
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
         rapidIsAlive = kafkaRapid::isRunning
     })
 
-    startApp(javalin, rapidsConnection, presenterteKandidaterService, repository, openSearchKlient, rapidIsAlive)
+    startApp(
+        javalin,
+        rapidsConnection,
+        presenterteKandidaterService,
+        repository,
+        openSearchKlient,
+        altinnKlient,
+        rapidIsAlive
+    )
 }
 
 fun startApp(
@@ -45,10 +56,11 @@ fun startApp(
     presenterteKandidaterService: PresenterteKandidaterService,
     repository: Repository,
     openSearchKlient: OpenSearchKlient,
+    altinnKlient: AltinnKlient,
     rapidIsAlive: () -> Boolean,
 ) {
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    startKandidatlisteController(javalin, repository, openSearchKlient)
+    startController(javalin, repository, openSearchKlient, altinnKlient)
 
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, presenterteKandidaterService)

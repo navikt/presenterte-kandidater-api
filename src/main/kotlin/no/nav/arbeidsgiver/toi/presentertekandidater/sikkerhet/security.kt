@@ -5,6 +5,7 @@ import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
+import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
@@ -20,9 +21,7 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
 
         val erAutentisert = when {
             roller.contains(Rolle.UNPROTECTED) -> true
-            roller.contains(Rolle.ARBEIDSGIVER) -> autentiserArbeidsgiver(
-                hentTokenClaims(ctx, issuerProperties, Rolle.ARBEIDSGIVER)
-            )
+            roller.contains(Rolle.ARBEIDSGIVER) -> autentiserArbeidsgiver(ctx, issuerProperties)
 
             else -> false
         }
@@ -34,11 +33,14 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
         }
     }
 
-fun interface Autentiseringsmetode {
-    operator fun invoke(claims: JwtTokenClaims?): Boolean
-}
+private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle, IssuerProperties>): Boolean {
+    val claims = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)
+    val fnr = claims.get("sub")?.toString() ?: error("Finner ikke claim fra 'sub' i tokenet")
 
-val autentiserArbeidsgiver = Autentiseringsmetode { it != null }
+    context.setFødselsnummer(fnr)
+
+    return claims != null
+}
 
 private fun hentTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
     hentTokenValidationHandler(issuerProperties, rolle).getValidatedTokens(ctx.httpRequest).anyValidClaims.orElseGet { null }
