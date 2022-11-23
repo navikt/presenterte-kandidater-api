@@ -13,63 +13,69 @@ import java.util.*
 val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, openSearchKlient ->
         { context ->
-            log("konvertering").info("Starter konvertering fra arbeidsmarked")
 
-            val kandidatlisterArbeidsmarked: List<KandidatlisterArbeidsmarked> =
-                defaultObjectMapper.readValue(
-                    File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
-                    object : TypeReference<List<KandidatlisterArbeidsmarked>>() {})
+            try {
+                log("konvertering").info("Starter konvertering fra arbeidsmarked")
 
-            val kandidaterArbeidsmarked: List<KandidaterArbeidsmarked> =
-                defaultObjectMapper.readValue(
-                    File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
-                    object : TypeReference<List<KandidaterArbeidsmarked>>() {})
+                val kandidatlisterArbeidsmarked: List<KandidatlisterArbeidsmarked> =
+                    defaultObjectMapper.readValue(
+                        File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
+                        object : TypeReference<List<KandidatlisterArbeidsmarked>>() {})
 
-            kandidatlisterArbeidsmarked.forEach { liste ->
-                val stillingId = UUID.fromString(liste.stilling_id)
+                val kandidaterArbeidsmarked: List<KandidaterArbeidsmarked> =
+                    defaultObjectMapper.readValue(
+                        File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
+                        object : TypeReference<List<KandidaterArbeidsmarked>>() {})
 
-                val opprettetTidspunkt = LocalDateTime.parse(
-                    liste.opprettet_tidspunkt,
-                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                ).atZone(ZoneId.of("Europe/Oslo"))
+                kandidatlisterArbeidsmarked.forEach { liste ->
+                    val stillingId = UUID.fromString(liste.stilling_id)
 
-                val kandidatliste = Kandidatliste(
-                    id = null,
-                    uuid = UUID.randomUUID(),
-                    stillingId = stillingId,
-                    tittel = liste.tittel,
-                    status = Kandidatliste.Status.ÅPEN,
-                    slettet = false,
-                    virksomhetsnummer = liste.organisasjon_referanse,
-                    sistEndret = ZonedDateTime.now(),
-                    opprettet = opprettetTidspunkt
-                )
-                repository.lagre(kandidatliste)
-                val listeFraDb = repository.hentKandidatliste(stillingId)
-                val listeId = listeFraDb?.id
+                    val opprettetTidspunkt = LocalDateTime.parse(
+                        liste.opprettet_tidspunkt,
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    ).atZone(ZoneId.of("Europe/Oslo"))
 
-                if (listeId != null) {
+                    val kandidatliste = Kandidatliste(
+                        id = null,
+                        uuid = UUID.randomUUID(),
+                        stillingId = stillingId,
+                        tittel = liste.tittel,
+                        status = Kandidatliste.Status.ÅPEN,
+                        slettet = false,
+                        virksomhetsnummer = liste.organisasjon_referanse,
+                        sistEndret = ZonedDateTime.now(),
+                        opprettet = opprettetTidspunkt
+                    )
+                    repository.lagre(kandidatliste)
+                    val listeFraDb = repository.hentKandidatliste(stillingId)
+                    val listeId = listeFraDb?.id
 
-                    val arbeidsmarkedKandidaterForListe = kandidaterArbeidsmarked
-                        .filter { it.stilling_id == liste.stilling_id }
-                        .distinctBy { it.kandidatnr }
-                        .map {
-                            val aktørId = openSearchKlient.hentAktørid(it.kandidatnr)
+                    if (listeId != null) {
 
-                            Kandidat(
-                                id = null,
-                                uuid = UUID.randomUUID(),
-                                aktørId = aktørId ?: "",  // TODO: Hent fra opensearch fra kandidatnummer
-                                kandidatlisteId = listeId,
-                                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL,    // TODO mappes fra json
-                                sistEndret = ZonedDateTime.now()
-                            )
+                        val arbeidsmarkedKandidaterForListe = kandidaterArbeidsmarked
+                            .filter { it.stilling_id == liste.stilling_id }
+                            .distinctBy { it.kandidatnr }
+                            .map {
+                                val aktørId = openSearchKlient.hentAktørid(it.kandidatnr)
+
+                                Kandidat(
+                                    id = null,
+                                    uuid = UUID.randomUUID(),
+                                    aktørId = aktørId ?: "",  // TODO: Hent fra opensearch fra kandidatnummer
+                                    kandidatlisteId = listeId,
+                                    arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL,    // TODO mappes fra json
+                                    sistEndret = ZonedDateTime.now()
+                                )
+                            }
+
+                        arbeidsmarkedKandidaterForListe.forEach {
+                            repository.lagre(it)
                         }
-
-                    arbeidsmarkedKandidaterForListe.forEach {
-                        repository.lagre(it)
                     }
                 }
+            } catch (e: Exception) {
+                log("konvertering").error("feil i konvertering", e)
+                throw e
             }
 
             context.status(200)

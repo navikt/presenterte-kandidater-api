@@ -48,6 +48,7 @@ class ControllerTest {
     fun cleanUp() {
         mockOAuth2Server.shutdown()
         javalin.stop()
+        wiremockServer.shutdown()
     }
 
     @Test
@@ -288,51 +289,6 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(400)
     }
 
-    @Test
-    fun `Konvertering av data lagres riktig i databasen`() {
-        stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101")
-        stubHentingAvAktørId(kandidatnr ="PAM013tc53ryp", aktørId = "10001000102")
-        stubHentingAvAktørId(kandidatnr ="PAM01897xkdyc", aktørId = "10001000103")
-        stubHentingAvAktørId(kandidatnr ="PAM0v81m8kg0", aktørId = "10001000104")
-
-        val (_, response) = fuel
-            .post("http://localhost:9000/internal/konverterdata")
-            .response()
-
-        assertThat(response.statusCode).isEqualTo(200)
-
-        val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
-        assertThat(liste.virksomhetsnummer).isEqualTo("893119302")
-        assertThat(liste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
-
-        val kandiater = repository.hentKandidater(liste.id!!)
-        assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
-        assertThat(kandiater[0].aktørId).isEqualTo("10001000101")
-        assertThat(kandiater[1].aktørId).isEqualTo("10001000102")
-        assertThat(kandiater[2].aktørId).isEqualTo("10001000103")
-        assertThat(kandiater[3].aktørId).isEqualTo("10001000104")
-
-    }
-
-    @Test
-    fun `Konvertering av data når kandidtnr ikke finnes i OpenSearch git tom aktørID`() {
-
-        val (_, response) = fuel
-            .post("http://localhost:9000/internal/konverterdata")
-            .response()
-
-        assertThat(response.statusCode).isEqualTo(200)
-
-        val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
-        assertThat(liste.virksomhetsnummer).isEqualTo("893119302")
-        assertThat(liste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
-
-        val kandiater = repository.hentKandidater(liste.id!!)
-        assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
-        assertThat(kandiater[0].aktørId).isEqualTo("")
-
-    }
-
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
@@ -354,16 +310,6 @@ class ControllerTest {
         opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
     )
 
-    private fun stubHentingAvAktørId(kandidatnr: String, aktørId: String) {
-
-        wiremockServer.stubFor(
-            WireMock.post("/veilederkandidat_current/_search")
-                .withBasicAuth("gunnar", "xyz")
-                .withRequestBody(WireMock.containing(kandidatnr))
-                .willReturn(WireMock.ok(Testdata.aktørIdFraOpenSearch(aktørId)))
-        )
-    }
-
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(
             WireMock.post("/veilederkandidat_current/_search")
@@ -373,5 +319,4 @@ class ControllerTest {
         )
     }
 
-    private fun String.removeWhitespace() = this.filter { !it.isWhitespace() }
 }
