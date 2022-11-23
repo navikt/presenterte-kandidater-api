@@ -20,86 +20,94 @@ import java.util.*
 
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
-fun startController(javalin: Javalin, repository: Repository, opensearchKlient: OpenSearchKlient, altinnKlient: AltinnKlient) {
+fun startController(
+    javalin: Javalin,
+    repository: Repository,
+    openSearchKlient: OpenSearchKlient,
+    altinnKlient: AltinnKlient
+) {
     javalin.routes {
         get("/organisasjoner", hentOrganisasjoner(altinnKlient), Rolle.ARBEIDSGIVER)
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
-        get("/kandidatliste/{stillingId}", hentKandidatliste(repository, opensearchKlient), Rolle.ARBEIDSGIVER)
+        get("/kandidatliste/{stillingId}", hentKandidatliste(repository, openSearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
-        post("/internal/konverterdata", konverterFraArbeidsmarker(repository), Rolle.UNPROTECTED)
+        post("/internal/konverterdata", konverterFraArbeidsmarker(repository, openSearchKlient), Rolle.UNPROTECTED)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
     }
 }
 
-private val konverterFraArbeidsmarker: (repository: Repository) -> (Context) -> Unit = { repository ->
-    { context ->
-        log("konvertering").info("Starter konvertering fra arbeidsmarked")
+private val konverterFraArbeidsmarker: (repository: Repository, openSearchKlient: OpenSearchKlient) -> (Context) -> Unit =
+    { repository, openSearchKlient ->
+        { context ->
+            log("konvertering").info("Starter konvertering fra arbeidsmarked")
 
-        val kandidatlisterArbeidsmarked: List<KandidatlisterArbeidsmarked> =
-            objectMapper.readValue(
-                File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
-                object : TypeReference<List<KandidatlisterArbeidsmarked>>() {})
+            val kandidatlisterArbeidsmarked: List<KandidatlisterArbeidsmarked> =
+                objectMapper.readValue(
+                    File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
+                    object : TypeReference<List<KandidatlisterArbeidsmarked>>() {})
 
-        val kandidaterArbeidsmarked: List<KandidaterArbeidsmarked> =
-            objectMapper.readValue(
-                File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
-                object : TypeReference<List<KandidaterArbeidsmarked>>() {})
+            val kandidaterArbeidsmarked: List<KandidaterArbeidsmarked> =
+                objectMapper.readValue(
+                    File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
+                    object : TypeReference<List<KandidaterArbeidsmarked>>() {})
 
-        log("konvertering").info("lister: $kandidatlisterArbeidsmarked")
-        log("konvertering").info("kandiater: $kandidaterArbeidsmarked")
+            log("konvertering").info("lister: $kandidatlisterArbeidsmarked")
+            log("konvertering").info("kandiater: $kandidaterArbeidsmarked")
 
 
-        kandidatlisterArbeidsmarked.forEach { liste ->
-            val stillingId = UUID.fromString(liste.stilling_id)
+            kandidatlisterArbeidsmarked.forEach { liste ->
+                val stillingId = UUID.fromString(liste.stilling_id)
 
-            val opprettetTidspunkt = LocalDateTime.parse(
-                liste.opprettet_tidspunkt,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            ).atZone(ZoneId.of("Europe/Oslo"))
+                val opprettetTidspunkt = LocalDateTime.parse(
+                    liste.opprettet_tidspunkt,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                ).atZone(ZoneId.of("Europe/Oslo"))
 
-            val kandidatliste = Kandidatliste(
-                id = null,
-                uuid = UUID.randomUUID(),
-                stillingId = stillingId,
-                tittel = liste.tittel,
-                status = Kandidatliste.Status.ÅPEN,
-                slettet = false,
-                virksomhetsnummer = liste.organisasjon_referanse,
-                sistEndret = ZonedDateTime.now(),
-                opprettet = opprettetTidspunkt
-            )
-            log("konvertering").info("lister for lagring: $kandidatliste")
-            repository.lagre(kandidatliste)
-            val listeFraDb = repository.hentKandidatliste(stillingId)
-            val listeId = listeFraDb?.id
+                val kandidatliste = Kandidatliste(
+                    id = null,
+                    uuid = UUID.randomUUID(),
+                    stillingId = stillingId,
+                    tittel = liste.tittel,
+                    status = Kandidatliste.Status.ÅPEN,
+                    slettet = false,
+                    virksomhetsnummer = liste.organisasjon_referanse,
+                    sistEndret = ZonedDateTime.now(),
+                    opprettet = opprettetTidspunkt
+                )
+                log("konvertering").info("lister for lagring: $kandidatliste")
+                repository.lagre(kandidatliste)
+                val listeFraDb = repository.hentKandidatliste(stillingId)
+                val listeId = listeFraDb?.id
 
-            if (listeId != null) {
+                if (listeId != null) {
 
-                val arbeidsmarkedKandidaterForListe = kandidaterArbeidsmarked
-                    .filter { it.stilling_id == liste.stilling_id }
-                    .distinctBy { it.kandidatnr }
-                    .map {
-                        Kandidat(
-                            id = null,
-                            uuid = UUID.randomUUID(),
-                            aktørId = it.kandidatnr,  // TODO: Hent fra opensearch fra kandidatnummer
-                            kandidatlisteId = listeId,
-                            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL,    // TODO mappes fra json
-                            sistEndret = ZonedDateTime.now()
-                        )
+                    val arbeidsmarkedKandidaterForListe = kandidaterArbeidsmarked
+                        .filter { it.stilling_id == liste.stilling_id }
+                        .distinctBy { it.kandidatnr }
+                        .map {
+                           val aktørId = openSearchKlient.hentAktørid(it.kandidatnr)
+
+                            Kandidat(
+                                id = null,
+                                uuid = UUID.randomUUID(),
+                                aktørId = aktørId?:"",  // TODO: Hent fra opensearch fra kandidatnummer
+                                kandidatlisteId = listeId,
+                                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL,    // TODO mappes fra json
+                                sistEndret = ZonedDateTime.now()
+                            )
+                        }
+
+                    arbeidsmarkedKandidaterForListe.forEach {
+                        repository.lagre(it)
                     }
-
-                arbeidsmarkedKandidaterForListe.forEach {
-                    repository.lagre(it)
                 }
             }
-        }
 
-        context.status(200)
+            context.status(200)
+        }
     }
-}
 
 data class KandidaterArbeidsmarked(
     val kandidatnr: String,
@@ -165,10 +173,11 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
     }
 
 private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Unit =
-    { altinnKlient -> { context ->
-        context.json(altinnKlient.hentOrganisasjoner(context.hentFødselsnummer()))
+    { altinnKlient ->
+        { context ->
+            context.json(altinnKlient.hentOrganisasjoner(context.hentFødselsnummer()))
+        }
     }
-}
 
 data class KandidatDto(
     val kandidat: Kandidat, val cv: Cv?

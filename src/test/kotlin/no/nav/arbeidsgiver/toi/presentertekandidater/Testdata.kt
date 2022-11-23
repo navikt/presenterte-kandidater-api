@@ -526,4 +526,37 @@ object Testdata {
             	}
             }
         """.trimIndent()
-}
+
+    fun aktørIdFraOpenSearch(aktørId: String) = """
+        {
+        	"took": 1,
+        	"timed_out": false,
+        	"_shards": {
+        		"total": 3,
+        		"successful": 3,
+        		"skipped": 0,
+        		"failed": 0
+        	},
+        	"hits": {
+        		"total": {
+        			"value": 1,
+        			"relation": "eq"
+        		},
+        		"max_score": 10.977694,
+        		"hits": [
+        			{
+        				"_index": "veilederkandidat_os4",
+        				"_type": "_doc",
+        				"_id": "AF611502",
+        				"_score": 10.977694,
+        				"fields": {
+        					"aktorId": [
+        						"$aktørId"
+        					]
+        				}
+        			}
+        		]
+        	}
+        }
+    """.trimIndent()
+    }

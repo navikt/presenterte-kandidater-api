@@ -72,6 +72,49 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
     }
 
+    fun hentAktørid(kandidatnr: String): String? {
+        val (respons, resultat) = post(lagBodyForHentingAvAktørId(kandidatnr))
+
+        return when (respons.statusCode) {
+            200 -> {
+                log.info("hentAktørId fra OpenSearch ok")
+
+                val data = resultat.get()
+                val responsJsonNode = objectMapper.readTree(data)
+
+                val hits = responsJsonNode["hits"]["hits"]
+
+                hits
+                        .map { it["fields"]["aktorId"] }
+                    .first().first().asText()
+            }
+            404 -> {
+                null
+            }
+
+            else -> {
+                log.error("hentkandidatNr for $kandidatnr mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                throw RuntimeException("Kall mot openSearch feilet for kandidatNr $kandidatnr")
+            }
+        }
+    }
+
+    fun lagBodyForHentingAvAktørId(kandidatnr: String) = """
+            {
+                "query": {
+                    "term": {
+                        "kandidatnr": {
+                            "value": "$kandidatnr"
+                        }
+                    }
+                },
+                 "fields": [
+                     "aktorId"
+                 ],
+              "_source": false
+            }
+    """.trimIndent()
+
     fun lagBodyForHentingAvCver(aktørIder: List<String>) = """
         {
             "query": {
@@ -165,6 +208,7 @@ private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
 
 private abstract class TilStringlisteDeserializer(val felt: String) : StdDeserializer<List<String>>(List::class.java) {
     class KompetanseDeserializer : TilStringlisteDeserializer("kompKodeNavn")
+
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).map { it[felt].textValue() }
     }

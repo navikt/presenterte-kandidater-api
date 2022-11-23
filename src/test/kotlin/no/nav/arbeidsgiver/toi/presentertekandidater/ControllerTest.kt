@@ -33,11 +33,13 @@ class ControllerTest {
     fun init() {
         mockOAuth2Server.start(port = 18301)
         wiremockServer.start()
-        openSearchKlient = OpenSearchKlient(mapOf(
-            "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
-            "OPEN_SEARCH_USERNAME" to "gunnar",
-            "OPEN_SEARCH_PASSWORD" to "xyz"
-        ))
+        openSearchKlient = OpenSearchKlient(
+            mapOf(
+                "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
+                "OPEN_SEARCH_USERNAME" to "gunnar",
+                "OPEN_SEARCH_PASSWORD" to "xyz"
+            )
+        )
 
         startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
     }
@@ -98,7 +100,8 @@ class ControllerTest {
 
         assertThat(response.statusCode).isEqualTo(200)
 
-        val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+        val kandidatlisteMedKandidaterJson =
+            defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
         val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
         val antallKandidater = kandidatlisteMedKandidaterJson[0]["antallKandidater"]
         assertThat(antallKandidater.asInt()).isZero()
@@ -109,8 +112,14 @@ class ControllerTest {
         assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
         assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo("Tittel")
         assertNull(kandidatlisteJson["id"])
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue())).isCloseTo(kandidatliste.sistEndret, within(3,ChronoUnit.SECONDS))
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue())).isCloseTo(kandidatliste.opprettet, within(3, ChronoUnit.SECONDS))
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue())).isCloseTo(
+            kandidatliste.sistEndret,
+            within(3, ChronoUnit.SECONDS)
+        )
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue())).isCloseTo(
+            kandidatliste.opprettet,
+            within(3, ChronoUnit.SECONDS)
+        )
 
     }
 
@@ -123,8 +132,20 @@ class ControllerTest {
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat1 = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = nå)
-        val kandidat2 = Kandidat(aktørId = "666", kandidatlisteId = kandidatliste.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = nå)
+        val kandidat1 = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = nå
+        )
+        val kandidat2 = Kandidat(
+            aktørId = "666",
+            kandidatlisteId = kandidatliste.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = nå
+        )
 
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
@@ -173,7 +194,13 @@ class ControllerTest {
         val stillingId = UUID.randomUUID()
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now().minusDays(1))
+        val kandidat = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = ZonedDateTime.now().minusDays(1)
+        )
         repository.lagre(kandidat)
 
         val body = """
@@ -199,7 +226,13 @@ class ControllerTest {
         val stillingId = UUID.randomUUID()
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
         val kandidatliste = repository.hentKandidatliste(stillingId)
-        val kandidat = Kandidat(aktørId = "1234", kandidatlisteId = kandidatliste?.id!!, uuid = UUID.randomUUID(), arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now().minusDays(1))
+        val kandidat = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = ZonedDateTime.now().minusDays(1)
+        )
         repository.lagre(kandidat)
 
         val body = """
@@ -257,23 +290,27 @@ class ControllerTest {
 
     @Test
     fun `Konvertering av data lagres riktig i databasen`() {
+        stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101")
+        stubHentingAvAktørId(kandidatnr ="PAM013tc53ryp", aktørId = "10001000102")
+        stubHentingAvAktørId(kandidatnr ="PAM01897xkdyc", aktørId = "10001000103")
+        stubHentingAvAktørId(kandidatnr ="PAM0v81m8kg0", aktørId = "10001000104")
+
         val (_, response) = fuel
             .post("http://localhost:9000/internal/konverterdata")
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
 
-        val orgNr = "893119302"
-        val lister = repository.hentKandidatlisterMedAntall(orgNr)
-        assertThat(lister).hasSize(1)
-        val førsteListe = lister[0]
-        assertThat(førsteListe.antallKandidater).isEqualTo(4)
-        assertThat(førsteListe.kandidatliste.virksomhetsnummer).isEqualTo(orgNr)
-        assertThat(førsteListe.kandidatliste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
+        val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
+        assertThat(liste.virksomhetsnummer).isEqualTo("893119302")
+        assertThat(liste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
 
-        val kandiater = repository.hentKandidater(førsteListe.kandidatliste.id!!)
-        val førsteKandidat = kandiater[0]
-        assertThat(førsteKandidat.kandidatlisteId).isEqualTo(førsteListe.kandidatliste.id!!)
+        val kandiater = repository.hentKandidater(liste.id!!)
+        assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
+        assertThat(kandiater[0].aktørId).isEqualTo("10001000101")
+        assertThat(kandiater[1].aktørId).isEqualTo("10001000102")
+        assertThat(kandiater[2].aktørId).isEqualTo("10001000103")
+        assertThat(kandiater[3].aktørId).isEqualTo("10001000104")
 
     }
 
@@ -281,7 +318,10 @@ class ControllerTest {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
         assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
-        assertThat(fraRespons["kandidat"]["arbeidsgiversVurdering"].textValue().equals(fraDatabasen.arbeidsgiversVurdering.name))
+        assertThat(
+            fraRespons["kandidat"]["arbeidsgiversVurdering"].textValue()
+                .equals(fraDatabasen.arbeidsgiversVurdering.name)
+        )
         assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
     }
 
@@ -294,6 +334,16 @@ class ControllerTest {
         sistEndret = ZonedDateTime.parse("2022-11-15T14:46:39.051+01:00"),
         opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
     )
+
+    private fun stubHentingAvAktørId(kandidatnr: String, aktørId: String) {
+
+        wiremockServer.stubFor(
+            WireMock.post("/veilederkandidat_current/_search")
+                .withBasicAuth("gunnar", "xyz")
+                .withRequestBody(WireMock.containing(kandidatnr))
+                .willReturn(WireMock.ok(Testdata.aktørIdFraOpenSearch(aktørId)))
+        )
+    }
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(
