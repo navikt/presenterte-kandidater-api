@@ -5,9 +5,12 @@ import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
+
+private val log = log("security.kt")
 
 enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED
@@ -36,6 +39,7 @@ private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle
     return if (subClaim == null) {
         false
     } else {
+        log.info("MIDLERTIDIG: sub-claim fra token: $subClaim")
         context.setFødselsnummer(subClaim.toString())
         true
     }
