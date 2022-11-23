@@ -72,7 +72,7 @@ data class Kandidat(
 
         companion object {
             fun fraString(vurdering: String): ArbeidsgiversVurdering {
-                require(vurdering in ArbeidsgiversVurdering.values().map { it.name })
+                require(vurdering in ArbeidsgiversVurdering.values().map { it.name }) { log.info("Forsøkte å mappe $vurdering uten hell")}
                 return ArbeidsgiversVurdering.valueOf(vurdering)
             }
         }
