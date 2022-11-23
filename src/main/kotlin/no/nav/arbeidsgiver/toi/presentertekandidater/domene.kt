@@ -68,6 +68,13 @@ data class Kandidat(
     }
 
     enum class ArbeidsgiversVurdering {
-        AKTUELL, TIL_VURDERING, IKKE_AKTUELL, FÅTT_JOBBEN,
+        AKTUELL, TIL_VURDERING, IKKE_AKTUELL, FÅTT_JOBBEN;
+
+        companion object {
+            fun fraString(vurdering: String): ArbeidsgiversVurdering {
+                require(vurdering in ArbeidsgiversVurdering.values().map { it.name })
+                return ArbeidsgiversVurdering.valueOf(vurdering)
+            }
+        }
     }
 }
