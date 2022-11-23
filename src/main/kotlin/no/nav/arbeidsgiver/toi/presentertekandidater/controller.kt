@@ -10,7 +10,7 @@ import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.io.File
-import java.util.*
+import java.util.UUID
 
 private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
@@ -67,8 +67,8 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
     { context ->
         val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
         val jsonBody = objectMapper.readTree(context.body())
-        val arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
-
+        val arbeidsgiversVurdering =
+            Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
         when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
             true -> context.status(200)
             false -> context.status(400)
