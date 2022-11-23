@@ -11,6 +11,7 @@ import java.net.URL
 import io.mockk.mockk
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 
 private val repository = opprettTestRepositoryMedLokalPostgres()
 
@@ -38,6 +39,7 @@ private val envs = mapOf(
     "NAIS_APPLICATION_NAME" to "min-app",
     "ALTINN_PROXY_URL" to "http://localhost/proxy-url",
     "ALTINN_PROXY_AUDIENCE" to "din:app",
+    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost/tokenx"
 )
 
 fun startLocalApplication(
@@ -46,7 +48,7 @@ fun startLocalApplication(
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
-    altinnKlient: AltinnKlient = AltinnKlient(envs) { _, _ -> "et-token" }
+    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs)::veksleInnToken)
 ) {
     startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient) { true }
 }

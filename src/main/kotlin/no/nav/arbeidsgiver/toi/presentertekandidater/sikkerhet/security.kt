@@ -39,7 +39,6 @@ private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle
     return if (subClaim == null) {
         false
     } else {
-        log.info("MIDLERTIDIG: sub-claim fra token: $subClaim")
         context.setFødselsnummer(subClaim.toString())
         true
     }

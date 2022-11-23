@@ -11,6 +11,7 @@ import io.javalin.plugin.json.JavalinJackson
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.hentIssuerProperties
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
 import no.nav.helse.rapids_rivers.RapidsConnection
@@ -32,7 +33,8 @@ fun main() {
     val openSearchKlient = OpenSearchKlient(env)
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
 
-    val altinnKlient = AltinnKlient(env) { _, _ -> "et-token" }
+    val tokendingsKlient = TokendingsKlient(env)
+    val altinnKlient = AltinnKlient(env, tokendingsKlient::veksleInnToken)
 
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->

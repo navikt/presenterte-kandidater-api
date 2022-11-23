@@ -10,7 +10,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 
 class AltinnKlient(
     envs: Map<String, String>,
-    private val hentExchangeToken: (fnr: String, scope: String) -> String
+    private val hentExchangeToken: (fnr: String) -> String
 ) {
     private val consumerId = envs.variable("NAIS_APPLICATION_NAME")
     private val altinnProxyUrl = envs.variable("ALTINN_PROXY_URL")
@@ -21,7 +21,7 @@ class AltinnKlient(
 
     fun hentOrganisasjoner(fnr: String) =
         klient.hentOrganisasjoner(
-            SelvbetjeningToken(hentExchangeToken(fnr, scope)),
+            SelvbetjeningToken(hentExchangeToken(fnr)),
             Subject(fnr),
             true
         )
