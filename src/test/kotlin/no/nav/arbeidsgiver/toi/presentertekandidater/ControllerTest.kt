@@ -238,7 +238,8 @@ class ControllerTest {
             .jsonBody(body)
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
-
+        log.info("Responsmessage " + response.responseMessage)
+        log.info("Responsebody" + response.body().toString())
         assertThat(response.statusCode).isEqualTo(400)
     }
 
