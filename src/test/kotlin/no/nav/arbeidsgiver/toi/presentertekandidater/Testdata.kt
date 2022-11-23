@@ -49,37 +49,6 @@ object Testdata {
             				"_score": 1.0,
             				"_source": {
             					"aktorId": "$aktørId1",
-            					"yrkeJobbonskerObj": [
-            						{
-            							"styrkBeskrivelse": "Programmerer",
-            							"sokeTitler": [
-            								"Programmerer",
-            								"Software Ingeniør",
-            								"Programmerer",
-            								"Programmerer (data)",
-            								"Software-utvikler",
-            								"Software Developer",
-            								"Programvareutvikler"
-            							],
-            							"primaertJobbonske": false,
-            							"styrkKode": null
-            						},
-            						{
-            							"styrkBeskrivelse": "Backend-utvikler",
-            							"sokeTitler": [
-            								"Backend-utvikler",
-            								"Backend Developer",
-            								"Backend-utvikler",
-            								"Utvikler (Frontend- og backend)",
-            								"Webutvikler",
-            								"Software-utvikler",
-            								"Software Developer",
-            								"Programvareutvikler"
-            							],
-            							"primaertJobbonske": false,
-            							"styrkKode": null
-            						}
-            					],
             					"utdanning": [
             						{
             							"yrkestatus": "INGEN",
@@ -540,20 +509,6 @@ object Testdata {
             				"_score": 1.0,
             				"_source": {
             					"aktorId": "$aktørid2",
-            					"yrkeJobbonskerObj": [
-            						{
-            							"styrkBeskrivelse": "Kokkelærling",
-            							"sokeTitler": [
-            								"Kokkelærling",
-            								"Kokkelærling",
-            								"Kokk",
-            								"Kafekokk",
-            								"Lærlingplass"
-            							],
-            							"primaertJobbonske": false,
-            							"styrkKode": null
-            						}
-            					],
             					"utdanning": [],
             					"kompetanseObj": [],
             					"fornavn": "Elastisk",

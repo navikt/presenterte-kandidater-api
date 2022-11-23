@@ -46,8 +46,6 @@ class OpenSearchKlientTest {
         val cv2 = kandidaterMedCv[aktørId2]
         assertThat(cv1?.aktørId).isEqualTo(aktørId1)
         assertThat(cv2?.aktørId).isEqualTo(aktørId2)
-        assertThat(cv2?.ønsketYrke).hasSize(1)
-        assertThat(cv2?.ønsketYrke?.get(0)).isEqualTo("Kokkelærling")
         assertThat(cv1?.kompetanse).hasSize(22)
         assertThat(cv1?.kompetanse).containsAll(listOf("Fallskjermsertifikat",
             "Trenerarbeid",
