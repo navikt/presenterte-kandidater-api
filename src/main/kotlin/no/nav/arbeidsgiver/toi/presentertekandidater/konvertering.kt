@@ -25,10 +25,6 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                     File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
                     object : TypeReference<List<KandidaterArbeidsmarked>>() {})
 
-            log("konvertering").info("lister: $kandidatlisterArbeidsmarked")
-            log("konvertering").info("kandiater: $kandidaterArbeidsmarked")
-
-
             kandidatlisterArbeidsmarked.forEach { liste ->
                 val stillingId = UUID.fromString(liste.stilling_id)
 
@@ -48,7 +44,6 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                     sistEndret = ZonedDateTime.now(),
                     opprettet = opprettetTidspunkt
                 )
-                log("konvertering").info("lister for lagring: $kandidatliste")
                 repository.lagre(kandidatliste)
                 val listeFraDb = repository.hentKandidatliste(stillingId)
                 val listeId = listeFraDb?.id

@@ -314,6 +314,25 @@ class ControllerTest {
 
     }
 
+    @Test
+    fun `Konvertering av data når kandidtnr ikke finnes i OpenSearch git tom aktørID`() {
+
+        val (_, response) = fuel
+            .post("http://localhost:9000/internal/konverterdata")
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+
+        val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
+        assertThat(liste.virksomhetsnummer).isEqualTo("893119302")
+        assertThat(liste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
+
+        val kandiater = repository.hentKandidater(liste.id!!)
+        assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
+        assertThat(kandiater[0].aktørId).isEqualTo("")
+
+    }
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
