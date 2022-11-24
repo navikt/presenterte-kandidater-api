@@ -39,7 +39,7 @@ class TokendingsKlient(envs: Map<String, String>) {
 
         when (result) {
             is Result.Failure -> {
-                throw RuntimeException("Kunne ikke veksle inn token hos TokenX")
+                throw RuntimeException("Kunne ikke veksle inn token hos TokenX:", result.getException())
             }
             is Result.Success -> {
                 return result.get().accessToken
