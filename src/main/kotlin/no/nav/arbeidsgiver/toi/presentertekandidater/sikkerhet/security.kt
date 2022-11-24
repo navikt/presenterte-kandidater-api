@@ -35,12 +35,12 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
     }
 
 private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle, IssuerProperties>): Boolean {
-    val subClaim = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)?.get("sub")
+    val fødselsnummerClaim = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)?.get("pid")
 
-    return if (subClaim == null) {
+    return if (fødselsnummerClaim == null) {
         false
     } else {
-        context.setFødselsnummer(subClaim.toString())
+        context.setFødselsnummer(fødselsnummerClaim.toString())
         context.setAccessToken(hentAccessTokenFraHeader(context))
         true
     }
