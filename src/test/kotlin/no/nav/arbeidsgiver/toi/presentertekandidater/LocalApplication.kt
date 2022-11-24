@@ -36,7 +36,7 @@ private val envs = mapOf(
     "OPEN_SEARCH_URI" to "uri",
     "OPEN_SEARCH_USERNAME" to "username",
     "OPEN_SEARCH_PASSWORD" to "password",
-    "NAIS_APPLICATION_NAME" to "min-app",
+    "NAIS_APP_NAME" to "min-app",
     "ALTINN_PROXY_URL" to "http://localhost/proxy-url",
     "ALTINN_PROXY_AUDIENCE" to "din:app",
     "TOKEN_X_WELL_KNOWN_URL" to "http://localhost/tokenx",
@@ -51,7 +51,7 @@ fun startLocalApplication(
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
-    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs)::veksleInnToken)
+    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
 ) {
     startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient) { true }
 }

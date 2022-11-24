@@ -34,7 +34,7 @@ fun main() {
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
 
     val tokendingsKlient = TokendingsKlient(env)
-    val altinnKlient = AltinnKlient(env, tokendingsKlient::veksleInnToken)
+    val altinnKlient = AltinnKlient(env, tokendingsKlient)
 
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->

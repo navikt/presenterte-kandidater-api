@@ -18,13 +18,13 @@ import java.util.*
 
 class TokendingsKlient(envs: Map<String, String>) {
     private val cache = hashMapOf<String, ExchangeToken>()
+
     private val url = envs.variable("TOKEN_X_WELL_KNOWN_URL")
-    private val scope = envs.variable("ALTINN_PROXY_AUDIENCE")
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
 
-    fun veksleInnToken(token: String): String {
+    fun veksleInnToken(accessToken: String, scope: String): String {
         // TODO: Cache
         val formData = listOf(
             "grant_type" to "urn:ietf:params:oauth:grant-type:token-exchange",
@@ -32,7 +32,7 @@ class TokendingsKlient(envs: Map<String, String>) {
             "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
             "subject_token_type" to "urn:ietf:params:oauth:token-type:jwt",
             "audience" to scope,
-            "subject_token" to token,
+            "subject_token" to accessToken,
         )
 
         val (_, _, result) = Fuel.post(url, formData).responseObject<ExchangeToken>()

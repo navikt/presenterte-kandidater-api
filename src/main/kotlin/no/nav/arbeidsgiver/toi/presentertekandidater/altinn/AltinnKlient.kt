@@ -5,14 +5,15 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.AltinnrettigheterProxy
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.ProxyConfig
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.SelvbetjeningToken
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.Subject
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 
 
 class AltinnKlient(
     envs: Map<String, String>,
-    private val hentExchangeToken: (accessToken: String) -> String
+    private val tokendingsKlient: TokendingsKlient
 ) {
-    private val consumerId = envs.variable("NAIS_APPLICATION_NAME")
+    private val consumerId = envs.variable("NAIS_APP_NAME")
     private val altinnProxyUrl = envs.variable("ALTINN_PROXY_URL")
     private val scope = envs.variable("ALTINN_PROXY_AUDIENCE")
 
@@ -21,7 +22,7 @@ class AltinnKlient(
 
     fun hentOrganisasjoner(fnr: String, accessToken: String) =
         klient.hentOrganisasjoner(
-            SelvbetjeningToken(hentExchangeToken(accessToken)),
+            SelvbetjeningToken(tokendingsKlient.veksleInnToken(accessToken, scope)),
             Subject(fnr),
             true
         )
