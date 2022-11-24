@@ -1,5 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.security.mock.oauth2.http.objectMapper
+
 
 object Testdata {
     val ingenTreffKandidatOpensearchJson =
@@ -559,4 +562,33 @@ object Testdata {
         	}
         }
     """.trimIndent()
-    }
+
+    val privateJwk = """
+        {
+            "p": "0yHD84CPjXBHwqYGomNN5OcU5zYIJDxLnaEYWvvj2cm6h4QT6HdCoZ-sJuvAGPCEsiPKkYG1YhNfotgs36wNJBMtVOKC4YtADXC-qzBArXOC99Jvm98SFkJbOsYFcpoebBGaH9X87WjDrakPjUdJ6OV13T6Ox-3CUZpvhGpow1E",
+            "kty": "RSA",
+            "q": "tlx8tQbKQ9niR6Jg20pkHy_CpWeHKlgW48D1YvFvJCIxrMZB8-z7ZfxWtbUWqFYIHNLQrFk6UMad1GRlU5i_SjSw7VCeIFLu4WCP-l5QNprEyLEaGDBEJRSOyIDqK5mJA9U1SGKdbSMYXOu97oAwyPRy-cM9DyY7hgz2e3w8uBU",
+            "d": "SuzvrQ2FLNaZrOPDs3Dmn-B9I0Pm2SRw2lYO3Dkwt83ByQj2MH3I8X4Jydw68xCPjEU9KuOebJswU7MOhnOiYkvTHaJdNGM5TJQbpAXVpFNZLB7CYQXlf9pwf8xI6rLoU3GtciZeMd3SCPCO_ErBv5krcfSWacwlN7P13zSMHC0OozxXjp_GLK5MCMpLsktg8fpX4MAQ33VIH_r9ywX-AvN8nGy2U9eUtec8hyM11kVqVzwsV2cf3StriAv8SxE84D8ckAErVYTPO46fjzb4NGZ7wcPXkkF1XqWrXh8eyCEpVq_J2zW9WXvshdsdmQCMVfYi2Af0YPp9lK4PQlS0QQ",
+            "e": "AQAB",
+            "use": "sig",
+            "qi": "oKsFd6scN8uku0e42CLCnFSuofg_hGp2tGehqOO91NHvaS65Jphf2-xf0Iw8dVeCFEbj9G4qbrDl9GJYlH3mm4fyM24WQLyyB-ECvGrcmei1mG596hydcfkWJwYPc_Hdp29x6lTK4VmvgkS2-JyTcVXYws7NGv7cP3qOijC1KJE",
+            "dp": "bEovRR-1gWgLhmy9jmC8vSFA-W4fMuayKgFMiq4TqcrsH0HBLESvKlLJa5UTjDcg-HWfGo6ax9kD_nQ-X-LRQqWLZLRhSOmxSrN_ODKhmdVbYVzP3fTGRCB4xmZ2uNcPr4I_uQB6oBJR-ypxTZc483ltwLKrbSQnvM8nT5V8cmE",
+            "alg": "RS256",
+            "dq": "NLw6M_9qroRrs1t5tvCkU4B0QXDW3Z_rvqEmVR6MjV52DwimOevmJ2_5g0KC8tsuLWepgK2s9374VVtTEgGyD7t9DqOplp9lBTfvau-rMp8_GOpeKXCLxE1VnRXqogEcZkdZyTz7WXw0p2pk2nunn_VQ6nlTRvY_cFx_SuZ6iKE",
+            "n": "lmZISzBLWsXxDRUKvmY3KNYxKTZky8wLsGvWph6KRoqH9_4MoqcqR9zFz7MiKFiHh6mypFZa6PfQQWOPAfgmX4k8aRSm4KW1bkdWwuwq5DIhmi0zBP8yTELGyUizBGW8ohKvJn1pSFlK0ROQCZxrgKdxwgJu__cVvejpr5YUKDE7dks37pp4_v0X7UNrHZ44KffoaRZpbmV_VKuIK2BAUYmrz0YZPew4qJRw1V8R9IUM-Y8Do_eGqX7zBJUuuK05J3IXQW_FxbByuq1RzmFGoKk3cJlLOhIFLMToz-nwuuEKZCIsQNk2Gm0he6dhQw_hOPgo3DqCyX5SN69sCfY9pQ"
+        }
+    """.trimIndent()
+
+    fun lagAltinnOrganisasjon(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnReportee =
+        AltinnReportee(
+            name = navn,
+            type = "dummy",
+            parentOrganizationNumber = "dummy",
+            organizationNumber = orgNummer,
+            organizationForm = "dummy",
+            status = "dummy",
+            socialSecurityNumber = ""
+        )
+
+
+}

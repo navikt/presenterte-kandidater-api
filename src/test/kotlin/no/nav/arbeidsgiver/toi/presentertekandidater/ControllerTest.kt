@@ -1,13 +1,13 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -16,6 +16,9 @@ import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata
+import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions.within
 import java.time.temporal.ChronoUnit
 
@@ -289,6 +292,28 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(400)
     }
 
+    @Disabled // TODO: Gjør ferdig test
+    @Test
+    fun `GET mot organisasjoner-endepunkt gir 200 og liste over organisasjoner bruker representerer`() {
+        val accessToken = hentToken(mockOAuth2Server)
+        stubVekslingAvTokenX(accessToken)
+        val altinnOrganisasjoner = Testdata.lagAltinnOrganisasjon("et navn", "et orgnummer")
+        stubHentingAvOrganisasjoner("token", listOf(altinnOrganisasjoner))
+
+        val (_, respons, result) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons.statusCode).isEqualTo(200)
+        val organisasjoner = result.get()
+        assertThat(organisasjoner).hasSize(2)
+    }
+    // Skal funke
+    // Skal cache
+    // Skal returnere bedrifter
+    // Skal ikke returnere bedrifter
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
@@ -319,4 +344,45 @@ class ControllerTest {
         )
     }
 
+    private fun stubHentingAvOrganisasjoner(exchangeToken: String, organisasjoner: List<AltinnReportee>) {
+        val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
+        wiremockServer.stubFor(
+            WireMock.get("/altinn-proxy-url")
+                .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))
+                .willReturn(WireMock.ok(organisasjonerJson))
+        )
+    }
+
+    private fun stubVekslingAvTokenX(accessToken: String) {
+        val tokenDingsKlient = TokendingsKlient(envs)
+        val clientAssertion = tokenDingsKlient.getClientAssertion(
+            TokendingsKlient.TokenXProperties(
+                clientId = envs.variable("TOKEN_X_CLIENT_ID"),
+                issuer = envs.variable("TOKEN_X_ISSUER"),
+                privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK"),
+                tokenEndpoint = envs.variable("TOKEN_X_TOKEN_ENDPOINT")
+        ))
+
+        val formData = listOf(
+            "grant_type" to "urn:ietf:params:oauth:grant-type:token-exchange",
+            "client_assertion" to clientAssertion,
+            "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            "subject_token_type" to "urn:ietf:params:oauth:token-type:jwt",
+            "audience" to envs.variable("ALTINN_PROXY_AUDIENCE"),
+            "subject_token" to accessToken,
+        )
+
+        val responseBody = """
+            {
+                "access_token": "123",
+                "expires_in": 123
+            }
+        """.trimIndent()
+
+        wiremockServer.stubFor(
+            WireMock.post("/token-x-token-endpoint")
+                .withRequestBody(WireMock.containing(formData.toString()))
+                .willReturn(WireMock.ok(responseBody))
+        )
+    }
 }
