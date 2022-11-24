@@ -18,7 +18,7 @@ import java.util.*
 class TokendingsKlient(envs: Map<String, String>) {
     private val cache = hashMapOf<String, ExchangeToken>()
 
-    private val url = envs.variable("TOKEN_X_TOKEN_ENDPOINT")
+    private val url = envs.variable("TOKEN_X_WELL_KNOWN_URL")
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
