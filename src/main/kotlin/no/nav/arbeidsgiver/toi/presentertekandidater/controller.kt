@@ -79,7 +79,7 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
 private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Unit =
     { altinnKlient ->
         { context ->
-            context.json(altinnKlient.hentOrganisasjoner(context.hentFødselsnummer()))
+            context.json(altinnKlient.hentOrganisasjoner(context.hentFødselsnummer(), context.hentAccessToken()))
         }
     }
 
@@ -92,3 +92,8 @@ data class KandidatlisteDto(
 )
 
 typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
+
+fun Context.hentFødselsnummer(): String = attribute("fnr") ?: error("Context har ikke fødselsnummer")
+fun Context.setFødselsnummer(fnr: String) = attribute("fnr", fnr)
+fun Context.hentAccessToken(): String = attribute("accessToken") ?: error("Context har ikke accessToken")
+fun Context.setAccessToken(accessToken: String) = attribute("accessToken", accessToken)

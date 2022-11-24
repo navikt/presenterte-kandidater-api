@@ -47,7 +47,6 @@ class TokendingsKlient(envs: Map<String, String>) {
         }
     }
 
-
     fun getClientAssertion(properties: TokenXProperties): String? {
         val claimsSet: JWTClaimsSet = JWTClaimsSet.Builder()
             .subject(properties.clientId)

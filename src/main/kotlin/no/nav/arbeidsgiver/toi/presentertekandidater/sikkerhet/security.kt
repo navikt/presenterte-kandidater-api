@@ -6,6 +6,7 @@ import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.arbeidsgiver.toi.presentertekandidater.setAccessToken
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
@@ -40,12 +41,16 @@ private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle
         false
     } else {
         context.setFødselsnummer(subClaim.toString())
+        context.setAccessToken(hentAccessTokenFraHeader(context))
         true
     }
 }
 
 private fun hentTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
-    hentTokenValidationHandler(issuerProperties, rolle).getValidatedTokens(ctx.httpRequest).anyValidClaims.orElseGet { null }
+    hentTokenValidationHandler(
+        issuerProperties,
+        rolle
+    ).getValidatedTokens(ctx.httpRequest).anyValidClaims.orElseGet { null }
 
 private val Context.httpRequest: HttpRequest
     get() = object : HttpRequest {
@@ -57,3 +62,10 @@ private val Context.httpRequest: HttpRequest
             }
         }.toTypedArray()
     }
+
+private fun hentAccessTokenFraHeader(context: Context): String {
+    val accessTokenMedBearerPrefix = context.httpRequest.getHeader("Authorization")?.toString()
+        ?: throw IllegalStateException("Prøvde å hente ut access token men Authorization header finnes ikke")
+
+    return accessTokenMedBearerPrefix.replace("Bearer ", "")
+}
