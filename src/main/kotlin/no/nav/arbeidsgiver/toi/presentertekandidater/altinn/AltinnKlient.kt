@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.AltinnrettigheterProxy
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.ProxyConfig
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.SelvbetjeningToken
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.Subject
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 
@@ -25,5 +26,9 @@ class AltinnKlient(
             SelvbetjeningToken(tokendingsKlient.veksleInnToken(accessToken, scope)),
             Subject(fnr),
             true
-        )
+        ).also {
+            if (it.isEmpty()) {
+                log.info("Innlogget person representerer ingen organisasjoner")
+            }
+        }
 }
