@@ -29,6 +29,8 @@ class AltinnKlient(
         ).also {
             if (it.isEmpty()) {
                 log.info("Innlogget person representerer ingen organisasjoner")
+            } else {
+                log.info("Innlogget person representerer ${it.size} organisasjoner")
             }
         }
 }

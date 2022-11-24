@@ -12,6 +12,7 @@ import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 import java.util.*
 
@@ -42,6 +43,7 @@ class TokendingsKlient(envs: Map<String, String>) {
                 throw RuntimeException("Kunne ikke veksle inn token hos TokenX:", result.getException())
             }
             is Result.Success -> {
+                log.info("Vekslet inn token hos TokenX")
                 return result.get().accessToken
             }
         }
