@@ -43,8 +43,10 @@ spec:
     inbound:
       rules:
         - application: presenterte-kandidater
-          namespace: toi
-          cluster: {{ gcp-cluster }}
+    outbound:
+      rules:
+        - application: altinn-rettigheter-proxy
+          namespace: arbeidsgiver
   kafka:
     pool: {{ kafka-pool }}
   gcp:
