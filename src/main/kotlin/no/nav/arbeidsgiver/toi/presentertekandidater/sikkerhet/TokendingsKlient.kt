@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import com.fasterxml.jackson.annotation.JsonAlias
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.kittinunf.result.Result
@@ -18,7 +19,8 @@ import java.util.*
 class TokendingsKlient(envs: Map<String, String>) {
     private val cache = hashMapOf<String, ExchangeToken>()
 
-    private val url = envs.variable("TOKEN_X_WELL_KNOWN_URL")
+    private val discoveryUrl = envs.variable("TOKEN_X_WELL_KNOWN_URL")
+    private val tokenDingsExchangeUrl = hentTokendingsExchangeUrl()
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
@@ -27,14 +29,14 @@ class TokendingsKlient(envs: Map<String, String>) {
         // TODO: Cache
         val formData = listOf(
             "grant_type" to "urn:ietf:params:oauth:grant-type:token-exchange",
-            "client_assertion" to getClientAssertion(TokenXProperties(clientId, issuer, privateJwk, url)),
+            "client_assertion" to getClientAssertion(TokenXProperties(clientId, issuer, privateJwk, tokenDingsExchangeUrl)),
             "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
             "subject_token_type" to "urn:ietf:params:oauth:token-type:jwt",
             "audience" to scope,
             "subject_token" to accessToken,
         )
 
-        val (_, _, result) = Fuel.post(url, formData).responseObject<ExchangeToken>()
+        val (_, _, result) = Fuel.post(tokenDingsExchangeUrl, formData).responseObject<ExchangeToken>()
 
         when (result) {
             is Result.Failure -> {
@@ -46,7 +48,16 @@ class TokendingsKlient(envs: Map<String, String>) {
         }
     }
 
-    fun getClientAssertion(properties: TokenXProperties): String? {
+    private fun hentTokendingsExchangeUrl(): String {
+        val (_, response, result) = Fuel.get(discoveryUrl).responseString()
+        if (response.statusCode != 200) {
+            throw RuntimeException("Kunne ikke hente authorizationUrl for Tokendings")
+        }
+        val responseJson = jacksonObjectMapper().readTree(result.get())
+        return responseJson["token_endpoint"].textValue()
+    }
+
+    private fun getClientAssertion(properties: TokenXProperties): String? {
         val claimsSet: JWTClaimsSet = JWTClaimsSet.Builder()
             .subject(properties.clientId)
             .issuer(properties.clientId)
