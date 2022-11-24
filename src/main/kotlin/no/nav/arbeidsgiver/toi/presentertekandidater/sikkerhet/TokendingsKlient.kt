@@ -12,14 +12,13 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
-import no.nav.security.token.support.client.core.oauth2.TokenExchangeClient
 import java.util.*
 
 
 class TokendingsKlient(envs: Map<String, String>) {
     private val cache = hashMapOf<String, ExchangeToken>()
 
-    private val url = envs.variable("TOKEN_X_WELL_KNOWN_URL")
+    private val url = envs.variable("TOKEN_X_TOKEN_ENDPOINT")
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
