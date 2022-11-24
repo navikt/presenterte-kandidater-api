@@ -19,8 +19,7 @@ import java.util.*
 class TokendingsKlient(envs: Map<String, String>) {
     private val cache = hashMapOf<String, ExchangeToken>()
 
-    private val discoveryUrl = envs.variable("TOKEN_X_WELL_KNOWN_URL")
-    private val tokenDingsExchangeUrl = hentTokendingsExchangeUrl()
+    private val tokenDingsExchangeUrl = envs.variable("TOKEN_X_TOKEN_ENDPOINT")
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
@@ -46,15 +45,6 @@ class TokendingsKlient(envs: Map<String, String>) {
                 return result.get().accessToken
             }
         }
-    }
-
-    private fun hentTokendingsExchangeUrl(): String {
-        val (_, response, result) = Fuel.get(discoveryUrl).responseString()
-        if (response.statusCode != 200) {
-            throw RuntimeException("Kunne ikke hente authorizationUrl for Tokendings")
-        }
-        val responseJson = jacksonObjectMapper().readTree(result.get())
-        return responseJson["token_endpoint"].textValue()
     }
 
     private fun getClientAssertion(properties: TokenXProperties): String? {
@@ -86,7 +76,7 @@ class TokendingsKlient(envs: Map<String, String>) {
         val clientId: String,
         val issuer: String,
         val privateJwk: String,
-        val tokenEndpoint: String //usikker på om det er TOKEN_X_WELL_KNOWN_URL i envvariables som er riktig her
+        val tokenEndpoint: String
     ) {
         fun parseJwk() = RSAKey.parse(privateJwk)
         fun getJwsSigner() = RSASSASigner(parseJwk())
