@@ -18,15 +18,12 @@ import java.util.*
 
 
 class TokendingsKlient(envs: Map<String, String>) {
-    private val cache = hashMapOf<String, ExchangeToken>()
-
     private val tokenDingsExchangeUrl = envs.variable("TOKEN_X_TOKEN_ENDPOINT")
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
 
     fun veksleInnToken(accessToken: String, scope: String): String {
-        // TODO: Cache
         val formData = listOf(
             "grant_type" to "urn:ietf:params:oauth:grant-type:token-exchange",
             "client_assertion" to getClientAssertion(TokenXProperties(clientId, issuer, privateJwk, tokenDingsExchangeUrl)),

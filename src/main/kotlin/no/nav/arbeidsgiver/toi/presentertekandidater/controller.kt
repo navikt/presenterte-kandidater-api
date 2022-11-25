@@ -79,7 +79,11 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
 private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Unit =
     { altinnKlient ->
         { context ->
-            context.json(altinnKlient.hentOrganisasjoner(context.hentFødselsnummer(), context.hentAccessToken()))
+            context.json(
+                altinnKlient.hentOrganisasjoner(
+                    context.hentFødselsnummer(),
+                    context.hentAccessToken())
+            )
         }
     }
 

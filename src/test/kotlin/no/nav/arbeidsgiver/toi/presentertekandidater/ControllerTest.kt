@@ -6,10 +6,7 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.matching.ContentPattern
-import com.github.tomakehurst.wiremock.matching.MatchResult
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
@@ -30,6 +27,8 @@ class ControllerTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(wiremockPort)
     private val fuel = FuelManager()
+    private val altinnProxyWiremockUrl = "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
+    private val tokenXWiremockUrl = "/token-x-token-endpoint"
 
     lateinit var openSearchKlient: OpenSearchKlient
 
@@ -336,6 +335,43 @@ class ControllerTest {
         assertThat(organisasjonerFraRespons).hasSize(0)
     }
 
+    @Test
+    fun `GET mot organisasjoner-endepunkt bruker cache`() {
+        // Given
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+        val fødselsnummerInnloggetBruker = "22114445678"
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+
+        // When
+        val (_, respons1, result1) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons1.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons1 = result1.get()
+        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
+
+        val (_, respons2, result2) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons2.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons2 = result2.get()
+        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
+
+        // Then
+        verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
+        verify(1, postRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+    }
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
@@ -369,7 +405,7 @@ class ControllerTest {
     private fun stubHentingAvOrganisasjoner(exchangeToken: String, organisasjoner: List<AltinnReportee>) {
         val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
         wiremockServer.stubFor(
-            get("/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27")
+            get(altinnProxyWiremockUrl)
                 .withHeader("Authorization", containing("Bearer $exchangeToken"))
                 .willReturn(ok(organisasjonerJson)
                     .withHeader("Content-Type", "application/json"))
@@ -385,7 +421,7 @@ class ControllerTest {
         """.trimIndent()
 
         wiremockServer.stubFor(
-            post("/token-x-token-endpoint")
+            post(tokenXWiremockUrl)
                 .willReturn(ok(responseBody))
         )
     }
