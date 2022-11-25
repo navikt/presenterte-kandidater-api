@@ -9,8 +9,7 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.Subject
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
-import javax.cache.Caching
-import javax.cache.configuration.MutableConfiguration
+import java.time.ZonedDateTime
 
 
 class AltinnKlient(
@@ -22,23 +21,21 @@ class AltinnKlient(
     private val scope = envs.variable("ALTINN_PROXY_AUDIENCE")
     val config = AltinnrettigheterProxyKlientConfig(ProxyConfig(consumerId, altinnProxyUrl))
     val klient = AltinnrettigheterProxyKlient(config)
-    val cacheManager = Caching.getCachingProvider().cacheManager
-    val cache = io.github.resilience4j.cache.Cache.of(
-        cacheManager.createCache("altinn", MutableConfiguration<String, List<AltinnReportee>>())
-    )
+    val cache = hashMapOf<String, CachetOrganisasjoner>()
+    val levetidMinutter = 15L
 
     fun hentOrganisasjoner(fnr: String, accessToken: String): List<AltinnReportee> {
-        return io.github.resilience4j.cache.Cache.decorateSupplier(cache) {
-            hentOrganisasjonerFraAltinn(
-                fnr,
-                accessToken
-            )
-        }.apply(fnr)
+        val fraCache = cache[fnr]
+
+        return if (fraCache != null && fraCache.harUtløpt()) {
+            fraCache.organisasjoner
+        } else {
+            hentOrganisasjonerFraAltinn(fnr, accessToken)
+        }
     }
 
 
     private fun hentOrganisasjonerFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
-
         return klient.hentOrganisasjoner(
             SelvbetjeningToken(tokendingsKlient.veksleInnToken(accessToken, scope)),
             Subject(fnr),
@@ -48,7 +45,22 @@ class AltinnKlient(
                 log.info("Innlogget person representerer ingen organisasjoner")
             } else {
                 log.info("Innlogget person representerer ${it.size} organisasjoner")
+                leggICache(fnr, it)
             }
         }
     }
+
+    private fun leggICache(fnr: String, organisasjoner: List<AltinnReportee>) {
+        cache[fnr] = CachetOrganisasjoner(
+            organisasjoner = organisasjoner,
+            utløper = ZonedDateTime.now().plusMinutes(levetidMinutter)
+        )
+    }
+
+    private fun CachetOrganisasjoner.harUtløpt() = ZonedDateTime.now().isBefore(utløper.plusMinutes(levetidMinutter))
+
+    data class CachetOrganisasjoner(
+        val organisasjoner: List<AltinnReportee>,
+        val utløper: ZonedDateTime
+    )
 }
