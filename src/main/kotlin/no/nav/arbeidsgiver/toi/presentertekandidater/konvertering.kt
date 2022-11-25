@@ -18,15 +18,15 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
             try {
                 log("konvertering").info("Starter konvertering fra arbeidsmarked")
 
-                val kandidatlisterArbeidsmarked: List<KandidatlisterArbeidsmarked> =
+                val kandidatlisterArbeidsmarked: List<Arbeidsmarked.Kandidatlister> =
                     defaultObjectMapper.readValue(
                         File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
-                        object : TypeReference<List<KandidatlisterArbeidsmarked>>() {})
+                        object : TypeReference<List<Arbeidsmarked.Kandidatlister>>() {})
 
-                val kandidaterArbeidsmarked: List<KandidaterArbeidsmarked> =
+                val kandidaterArbeidsmarked: List<Arbeidsmarked.Kandidater> =
                     defaultObjectMapper.readValue(
                         File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
-                        object : TypeReference<List<KandidaterArbeidsmarked>>() {})
+                        object : TypeReference<List<Arbeidsmarked.Kandidater>>() {})
 
                 kandidatlisterArbeidsmarked.forEach { liste ->
                     val stillingId = UUID.fromString(liste.stilling_id)
@@ -93,18 +93,20 @@ fun konverterVurdering(utfall: String, status: String): ArbeidsgiversVurdering {
     }
 }
 
-data class KandidaterArbeidsmarked(
-    val kandidatnr: String,
-    val lagt_til_tidspunkt: String,
-    val stilling_id: String,
-    val status: String,
-    val utfall: String
-)
+class Arbeidsmarked {
+    data class Kandidater(
+        val kandidatnr: String,
+        val lagt_til_tidspunkt: String,
+        val stilling_id: String,
+        val status: String,
+        val utfall: String
+    )
 
-data class KandidatlisterArbeidsmarked(
-    val db_id: Int,
-    val opprettet_tidspunkt: String,
-    val organisasjon_referanse: String,
-    val stilling_id: String,
-    val tittel: String
-)
+    data class Kandidatlister(
+        val db_id: Int,
+        val opprettet_tidspunkt: String,
+        val organisasjon_referanse: String,
+        val stilling_id: String,
+        val tittel: String
+    )
+}
