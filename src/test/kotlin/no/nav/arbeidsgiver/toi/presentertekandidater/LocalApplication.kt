@@ -32,15 +32,17 @@ val issuerProperties = mapOf(
     ),
 )
 
+val wiremockPort = 8888
+
 val envs = mapOf(
     "OPEN_SEARCH_URI" to "uri",
     "OPEN_SEARCH_USERNAME" to "username",
     "OPEN_SEARCH_PASSWORD" to "password",
     "NAIS_APP_NAME" to "min-app",
-    "ALTINN_PROXY_URL" to "http://localhost/altinn-proxy-url",
+    "ALTINN_PROXY_URL" to "http://localhost:$wiremockPort/altinn-proxy-url",
     "ALTINN_PROXY_AUDIENCE" to "din:app",
-    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost/token-x-well-known-url",
-    "TOKEN_X_TOKEN_ENDPOINT" to "http://localhost/token-x-token-endpoint",
+    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost:$wiremockPort/token-x-well-known-url",
+    "TOKEN_X_TOKEN_ENDPOINT" to "http://localhost:$wiremockPort/token-x-token-endpoint",
     "TOKEN_X_PRIVATE_JWK" to Testdata.privateJwk,
     "TOKEN_X_CLIENT_ID" to "clientId",
     "TOKEN_X_ISSUER" to "tokenXissuer",
