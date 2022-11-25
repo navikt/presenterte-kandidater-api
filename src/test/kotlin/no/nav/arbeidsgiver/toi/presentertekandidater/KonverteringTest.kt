@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -32,10 +33,12 @@ class KonverteringTest {
 
         startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
 
-        stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101")
-        stubHentingAvAktørId(kandidatnr ="PAM013tc53ryp", aktørId = "10001000102")
-        stubHentingAvAktørId(kandidatnr ="PAM01897xkdyc", aktørId = "10001000103")
-        stubHentingAvAktørId(kandidatnr ="PAM0v81m8kg0", aktørId = "10001000104")
+        stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101") // ag-status: NY
+        stubHentingAvAktørId(kandidatnr ="PAM013tc53ryp", aktørId = "10001000102") // ag-status: PAABEGYNT
+        stubHentingAvAktørId(kandidatnr ="PAM01897xkdyc", aktørId = "10001000103") // ag-status: AKTUELL
+        stubHentingAvAktørId(kandidatnr ="PAM0v81m8kg0", aktørId = "10001000104") // ag-status: IKKE_AKTUELL
+
+        stubHentingAvAktørId(kandidatnr ="PAM010nudgb5v", aktørId = "10001000105") // ag-utfall: FATT_JOBBEN
 
         val (_, response) = fuel
             .post("http://localhost:9000/internal/konverterdata")
@@ -61,9 +64,13 @@ class KonverteringTest {
         val kandiater = repository.hentKandidater(liste.id!!)
         assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
         assertThat(kandiater[0].aktørId).isEqualTo("10001000101")
+        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.TIL_VURDERING) // NY -> TIL_VURDERING
         assertThat(kandiater[1].aktørId).isEqualTo("10001000102")
+        assertThat(kandiater[1].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.TIL_VURDERING) // PAABEGYNT -> TIL_VURDERING
         assertThat(kandiater[2].aktørId).isEqualTo("10001000103")
+        assertThat(kandiater[2].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.AKTUELL) // AKTUELL -> AKTUELL
         assertThat(kandiater[3].aktørId).isEqualTo("10001000104")
+        assertThat(kandiater[3].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.IKKE_AKTUELL) // IKKE_AKTUELL -> IKKE_AKTUELL
 
     }
 
@@ -76,7 +83,21 @@ class KonverteringTest {
 
         val kandiater = repository.hentKandidater(liste.id!!)
         assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
-        assertThat(kandiater[0].aktørId).isEqualTo("")
+        assertThat(kandiater[0].aktørId).isEqualTo("10001000105")
+        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.FÅTT_JOBBEN) // FATT_JOBBEN -> FÅTT JOBBEN
+
+
+    }
+
+    @Test
+    fun `Person med utfall FÅTT_JOBBEN fra ag-kandidat får arbeidsgiver FÅTT_JOBBEN`() {
+        val liste = repository.hentKandidatliste(UUID.fromString("3f381730-bf29-4345-b636-9961fcb42951"))!!
+        assertThat(liste.virksomhetsnummer).isEqualTo("926698826")
+        assertThat(liste.stillingId).isEqualTo(UUID.fromString("3f381730-bf29-4345-b636-9961fcb42951"))
+
+        val kandiater = repository.hentKandidater(liste.id!!)
+        assertThat(kandiater[0].aktørId).isEqualTo("10001000105")
+        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.FÅTT_JOBBEN) // utfall:FATT_JOBBEN -> FÅTT_JOBBEN
 
     }
 

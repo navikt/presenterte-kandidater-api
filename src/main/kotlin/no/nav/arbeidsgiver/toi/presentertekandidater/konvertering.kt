@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.core.type.TypeReference
 import io.javalin.http.Context
+import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -63,7 +64,7 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                                     uuid = UUID.randomUUID(),
                                     aktørId = aktørId ?: "",  // TODO: Hent fra opensearch fra kandidatnummer
                                     kandidatlisteId = listeId,
-                                    arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL,    // TODO mappes fra json
+                                    arbeidsgiversVurdering = konverterVurdering(utfall = it.utfall, status = it.status),    // TODO mappes fra json
                                     sistEndret = ZonedDateTime.now()
                                 )
                             }
@@ -82,10 +83,22 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
         }
     }
 
+fun konverterVurdering(utfall: String, status: String): ArbeidsgiversVurdering {
+    if(utfall == "FATT_JOBBEN") return ArbeidsgiversVurdering.FÅTT_JOBBEN
+    return when(status) {
+        "NY","PAABEGYNT" -> ArbeidsgiversVurdering.TIL_VURDERING
+        "AKTUELL" -> ArbeidsgiversVurdering.AKTUELL
+        "IKKE_AKTUELL" -> ArbeidsgiversVurdering.IKKE_AKTUELL
+        else -> ArbeidsgiversVurdering.TIL_VURDERING
+    }
+}
+
 data class KandidaterArbeidsmarked(
     val kandidatnr: String,
     val lagt_til_tidspunkt: String,
-    val stilling_id: String
+    val stilling_id: String,
+    val status: String,
+    val utfall: String
 )
 
 data class KandidatlisterArbeidsmarked(
