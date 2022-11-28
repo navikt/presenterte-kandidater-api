@@ -17,6 +17,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
 import no.nav.security.mock.oauth2.http.objectMapper
+import org.apache.http.impl.conn.Wire
 import org.assertj.core.api.Assertions.within
 import java.time.temporal.ChronoUnit
 
@@ -368,8 +369,8 @@ class ControllerTest {
         assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
         // Then
-        verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
-        verify(1, postRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+        wiremockServer.verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
+        wiremockServer.verify(1, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
