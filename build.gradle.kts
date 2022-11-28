@@ -41,10 +41,6 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
-    implementation("org.ehcache:ehcache:3.10.8")
-    implementation("io.github.resilience4j:resilience4j-cache:2.0.0")
-    implementation("io.github.resilience4j:resilience4j-all:2.0.0")
-
     implementation("org.apache.kafka:kafka-clients:3.3.1")
     implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
 
