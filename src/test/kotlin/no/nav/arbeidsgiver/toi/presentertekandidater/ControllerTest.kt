@@ -8,18 +8,18 @@ import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.*
-import java.time.ZonedDateTime
-import java.util.UUID
+import java.time.*
+import java.time.temporal.ChronoUnit
+import java.util.*
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
-import no.nav.security.mock.oauth2.http.objectMapper
-import org.apache.http.impl.conn.Wire
-import org.assertj.core.api.Assertions.within
-import java.time.temporal.ChronoUnit
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
@@ -28,7 +28,8 @@ class ControllerTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(wiremockPort)
     private val fuel = FuelManager()
-    private val altinnProxyWiremockUrl = "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
+    private val altinnProxyWiremockUrl =
+        "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
     private val tokenXWiremockUrl = "/token-x-token-endpoint"
 
     lateinit var openSearchKlient: OpenSearchKlient
@@ -338,7 +339,6 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt bruker cache`() {
-        // Given
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
@@ -349,7 +349,6 @@ class ControllerTest {
         val fødselsnummerInnloggetBruker = "22114445678"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
-        // When
         val (_, respons1, result1) = fuel
             .get("http://localhost:9000/organisasjoner")
             .authentication().bearer(accessToken)
@@ -368,9 +367,121 @@ class ControllerTest {
         val organisasjonerFraRespons2 = result2.get()
         assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
-        // Then
         wiremockServer.verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
         wiremockServer.verify(1, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+    }
+
+    @Test
+    fun `GET mot organisasjoner-endepunkt bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
+        stubHentingAvOrganisasjoner(exchangeToken, tomListeAvOrganisasjoner)
+        val fødselsnummerInnloggetBruker = "22114445678"
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+
+        val (_, respons1, result1) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons1.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons1 = result1.get()
+        assertThat(organisasjonerFraRespons1).hasSize(tomListeAvOrganisasjoner.size)
+
+        val (_, respons2, result2) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons2.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons2 = result2.get()
+        assertThat(organisasjonerFraRespons2).hasSize(tomListeAvOrganisasjoner.size)
+
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+    }
+
+    @Test
+    fun `GET mot organisasjoner-endepunkt bruker ikke cache når det hentes organisasjoner for annen bruker`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+        val fødselsnummerInnloggetBruker = "22114445678"
+        val fødselsnummerInnloggetBruker2 = "22126612345"
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
+
+        val (_, respons1, result1) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons1.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons1 = result1.get()
+        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
+
+        // Setter klokka fram i tid
+        val constantClock: Clock =
+            Clock.fixed(ZonedDateTime.now().plusMinutes(15).plusNanos(1).toInstant(), ZoneId.systemDefault())
+
+        val (_, respons2, result2) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken2)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons2.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons2 = result2.get()
+        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
+
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+
+        // Setter klokka tilbake
+        Clock.offset(constantClock, Duration.ZERO);
+    }
+
+    @Test
+    fun `GET mot organisasjoner-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
+        // Given
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+        val fødselsnummerInnloggetBruker = "22114445678"
+        val fødselsnummerInnloggetBruker2 = "22126612345"
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
+
+        // When
+        val (_, respons1, result1) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons1.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons1 = result1.get()
+        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
+
+        val (_, respons2, result2) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken2)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons2.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons2 = result2.get()
+        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
+
+        // Then
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
@@ -408,8 +519,10 @@ class ControllerTest {
         wiremockServer.stubFor(
             get(altinnProxyWiremockUrl)
                 .withHeader("Authorization", containing("Bearer $exchangeToken"))
-                .willReturn(ok(organisasjonerJson)
-                    .withHeader("Content-Type", "application/json"))
+                .willReturn(
+                    ok(organisasjonerJson)
+                        .withHeader("Content-Type", "application/json")
+                )
         )
     }
 
