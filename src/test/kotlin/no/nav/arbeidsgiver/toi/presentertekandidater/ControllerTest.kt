@@ -49,6 +49,11 @@ class ControllerTest {
         startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
     }
 
+    @AfterEach
+    fun afterEach() {
+        wiremockServer.resetAll()
+    }
+
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
@@ -296,7 +301,7 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt gir 200 og liste over organisasjoner bruker representerer`() {
-        val fødselsnummerInnloggetBruker = "22114445678"
+        val fødselsnummerInnloggetBruker = "unikt764398"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
@@ -320,7 +325,7 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt gir 200 og tom liste hvis bruker ikke har rolle i noen organisasjoner`() {
-        val fødselsnummerInnloggetBruker = "22114445678"
+        val fødselsnummerInnloggetBruker = "unikt914421"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
@@ -346,7 +351,7 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = "22114445678"
+        val fødselsnummerInnloggetBruker = "unikt232425"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
         val (_, respons1, result1) = fuel
@@ -377,7 +382,7 @@ class ControllerTest {
         stubVekslingAvTokenX(exchangeToken)
         val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
         stubHentingAvOrganisasjoner(exchangeToken, tomListeAvOrganisasjoner)
-        val fødselsnummerInnloggetBruker = "22114445678"
+        val fødselsnummerInnloggetBruker = "unikt012345"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
         val (_, respons1, result1) = fuel
@@ -411,8 +416,8 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = "22114445678"
-        val fødselsnummerInnloggetBruker2 = "22126612345"
+        val fødselsnummerInnloggetBruker = "unikt118765"
+        val fødselsnummerInnloggetBruker2 = "unikt993176"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
         val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
 
@@ -447,7 +452,6 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
-        // Given
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
@@ -460,7 +464,6 @@ class ControllerTest {
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
         val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
 
-        // When
         val (_, respons1, result1) = fuel
             .get("http://localhost:9000/organisasjoner")
             .authentication().bearer(accessToken)
@@ -479,7 +482,6 @@ class ControllerTest {
         val organisasjonerFraRespons2 = result2.get()
         assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
-        // Then
         wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
         wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
     }
