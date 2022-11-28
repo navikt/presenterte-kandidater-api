@@ -27,17 +27,18 @@ class AltinnKlient(
     fun hentOrganisasjoner(fnr: String, accessToken: String): List<AltinnReportee> {
         val fraCache = cache[fnr]
 
-        return if (fraCache != null && fraCache.harUtløpt()) {
+        return if (fraCache != null && !fraCache.harUtløpt()) {
             fraCache.organisasjoner
         } else {
             hentOrganisasjonerFraAltinn(fnr, accessToken)
         }
     }
 
-
     private fun hentOrganisasjonerFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
+        val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
+
         return klient.hentOrganisasjoner(
-            SelvbetjeningToken(tokendingsKlient.veksleInnToken(accessToken, scope)),
+            SelvbetjeningToken(exchangeToken),
             Subject(fnr),
             true
         ).also {
@@ -57,7 +58,7 @@ class AltinnKlient(
         )
     }
 
-    private fun CachetOrganisasjoner.harUtløpt() = ZonedDateTime.now().isBefore(utløper.plusMinutes(levetidMinutter))
+    private fun CachetOrganisasjoner.harUtløpt() = ZonedDateTime.now().isAfter(utløper.plusMinutes(levetidMinutter))
 
     data class CachetOrganisasjoner(
         val organisasjoner: List<AltinnReportee>,

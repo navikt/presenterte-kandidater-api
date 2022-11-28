@@ -17,6 +17,7 @@ import org.junit.jupiter.api.*
 import java.time.*
 import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.random.Random
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -325,7 +326,7 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt gir 200 og tom liste hvis bruker ikke har rolle i noen organisasjoner`() {
-        val fødselsnummerInnloggetBruker = "unikt914421"
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
@@ -351,7 +352,7 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = "unikt232425"
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
         val (_, respons1, result1) = fuel
@@ -372,8 +373,8 @@ class ControllerTest {
         val organisasjonerFraRespons2 = result2.get()
         assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
-        wiremockServer.verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
-        wiremockServer.verify(1, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+        wiremockServer.verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(1, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)))
     }
 
     @Test
@@ -382,7 +383,7 @@ class ControllerTest {
         stubVekslingAvTokenX(exchangeToken)
         val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
         stubHentingAvOrganisasjoner(exchangeToken, tomListeAvOrganisasjoner)
-        val fødselsnummerInnloggetBruker = "unikt012345"
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
         val (_, respons1, result1) = fuel
@@ -403,8 +404,8 @@ class ControllerTest {
         val organisasjonerFraRespons2 = result2.get()
         assertThat(organisasjonerFraRespons2).hasSize(tomListeAvOrganisasjoner.size)
 
-        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
-        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)))
     }
 
     @Test
@@ -416,8 +417,44 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = "unikt118765"
-        val fødselsnummerInnloggetBruker2 = "unikt993176"
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
+        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
+
+        val (_, respons1, result1) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons1.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons1 = result1.get()
+        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
+
+        val (_, respons2, result2) = fuel
+            .get("http://localhost:9000/organisasjoner")
+            .authentication().bearer(accessToken2)
+            .responseObject<List<AltinnReportee>>()
+
+        assertThat(respons2.statusCode).isEqualTo(200)
+        val organisasjonerFraRespons2 = result2.get()
+        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
+
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)))
+    }
+
+    @Test
+    fun `GET mot organisasjoner-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
+        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
         val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
 
@@ -443,47 +480,11 @@ class ControllerTest {
         val organisasjonerFraRespons2 = result2.get()
         assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
-        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
-        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)))
 
         // Setter klokka tilbake
-        Clock.offset(constantClock, Duration.ZERO);
-    }
-
-    @Test
-    fun `GET mot organisasjoner-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
-        val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-        )
-        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = "22114445678"
-        val fødselsnummerInnloggetBruker2 = "22126612345"
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
-
-        val (_, respons1, result1) = fuel
-            .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
-
-        assertThat(respons1.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons1 = result1.get()
-        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
-
-        val (_, respons2, result2) = fuel
-            .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(accessToken2)
-            .responseObject<List<AltinnReportee>>()
-
-        assertThat(respons2.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons2 = result2.get()
-        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
-
-        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)));
-        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyWiremockUrl)));
+        Clock.offset(constantClock, Duration.ZERO)
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
@@ -540,5 +541,14 @@ class ControllerTest {
             post(tokenXWiremockUrl)
                 .willReturn(ok(responseBody))
         )
+    }
+
+    private fun tilfeldigFødselsnummer(): String {
+        fun Int.tilStrengMedToTegn() = this.toString().let {  if (it.length == 1) "0$it" else it }
+        val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
+        val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
+        val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
+        val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
+        return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
     }
 }
