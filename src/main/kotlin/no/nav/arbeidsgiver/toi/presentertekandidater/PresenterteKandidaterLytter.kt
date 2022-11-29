@@ -15,7 +15,15 @@ class PresenterteKandidaterLytter(
     init {
         River(rapidsConnection).apply {
             validate {
-                it.demandValue("@event_name", "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand")
+                it.demandAny(
+                    "@event_name", listOf(
+                        "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
+                        "kandidat.annullert",
+                        "kandidat.slettet-fra-arbeidsgivers-kandidatliste",
+                        "kandidat.kandidatliste-lukket-noen-andre-fikk-jobben",
+                        "kandidat.kandidatliste-lukket-ingen-fikk-jobben"
+                    )
+                )
                 it.demandKey("kandidathendelse")
                 it.demandKey("stilling")
             }
@@ -25,12 +33,23 @@ class PresenterteKandidaterLytter(
     private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
+    //TODO lag tester for andre cases enn lagrekandidathendelse
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelsePacket = packet["kandidathendelse"]
         val stillingstittel = packet["stilling"]["stillingstittel"].asText()
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
 
         log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
+
+        when (kandidathendelse.type) {
+            Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
+            Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE -> presenterteKandidaterService.slettKandidatFraKandidatliste(kandidathendelse.aktørId, kandidathendelse.stillingsId)
+            Type.ANNULLERT -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
+            Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
+            Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
+        }
+
         presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
     }
+
 }

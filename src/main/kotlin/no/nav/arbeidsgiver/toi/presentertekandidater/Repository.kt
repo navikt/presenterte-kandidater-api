@@ -182,4 +182,22 @@ class Repository(private val dataSource: DataSource) {
             }
         }
     }
+
+    //TODO finn ut om vi skal slette kandidatene på listen eller ei
+    fun slettKandidatliste(stillingId: UUID) {
+        return dataSource.connection.use {
+            it.prepareStatement("update kandidatliste set slettet = true where stilling_id = ?").apply {
+                this.setObject(1, stillingId)
+            }.executeUpdate()
+        }
+    }
+
+    fun slettKandidatFraKandidatliste(aktørId: String, kandidatlisteId: BigInteger) {
+        return dataSource.connection.use {
+            it.prepareStatement("delete from kandidat where aktør_id = ? and kandidatliste_id = ?").apply {
+                this.setString(1, aktørId)
+                this.setObject(2, kandidatlisteId)
+            }.executeUpdate()
+        }
+    }
 }

@@ -24,6 +24,17 @@ class PresenterteKandidaterService(private val repository: Repository) {
         }
     }
 
+    fun slettKandidatliste(stillingsId: UUID) {
+        repository.slettKandidatliste(stillingsId)
+    }
+
+    fun slettKandidatFraKandidatliste(aktørId: String, stillingsId: UUID) {
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        if (kandidatliste != null) {
+            repository.slettKandidatFraKandidatliste(aktørId, kandidatliste?.id!!)
+        }
+    }
+
     private fun lagreKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
         val kandidatliste = mapKandidathendelseToKandidatliste(kandidathendelse, stillingstittel)
         repository.lagre(kandidatliste) //returnere objektet for id?
