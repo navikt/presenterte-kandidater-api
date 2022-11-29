@@ -28,10 +28,14 @@ class PresenterteKandidaterService(private val repository: Repository) {
         repository.slettKandidatliste(stillingsId)
     }
 
+    fun lukkKandidatliste(stillingsId: UUID) {
+        repository.lukkKandidatliste(stillingsId)
+    }
+
     fun slettKandidatFraKandidatliste(aktørId: String, stillingsId: UUID) {
         val kandidatliste = repository.hentKandidatliste(stillingsId)
         if (kandidatliste != null) {
-            repository.slettKandidatFraKandidatliste(aktørId, kandidatliste?.id!!)
+            repository.slettKandidatFraKandidatliste(aktørId, kandidatliste.id!!)
         }
     }
 

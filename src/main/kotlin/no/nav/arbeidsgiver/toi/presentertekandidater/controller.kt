@@ -48,7 +48,7 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
         if (virksomhetsnummer.isNullOrBlank()) {
             context.status(400)
         } else {
-            val lister: KandidatlisterDto = repository.hentKandidatlisterMedAntall(virksomhetsnummer)
+            val lister: KandidatlisterDto = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer)
             context.json(lister)
         }
     }
@@ -64,7 +64,7 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
             } else {
                 val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))
 
-                if (kandidatliste == null) {
+                if (kandidatliste == null || kandidatliste.slettet) {
                     context.status(404)
                 } else {
                     val kandidater = repository.hentKandidater(kandidatliste.id!!)

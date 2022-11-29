@@ -132,7 +132,6 @@ class ControllerTest {
             kandidatliste.opprettet,
             within(3, ChronoUnit.SECONDS)
         )
-
     }
 
     @Test
@@ -230,7 +229,7 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(200)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.FÅTT_JOBBEN)
-        assertThat(kandidatFraDatabasen!!.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
+        assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
     }
 
     @Test
@@ -262,7 +261,7 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(400)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
-        assertThat(kandidatFraDatabasen!!.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
+        assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
     }
 
     @Test
@@ -485,6 +484,46 @@ class ControllerTest {
 
         // Setter klokka tilbake
         Clock.offset(constantClock, Duration.ZERO)
+    }
+
+    @Test
+    fun `GET mot kandidatlister-endepunkt returnerer ikke lister som er slettet`() {
+        val stillingId = UUID.randomUUID()
+        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=123456788"
+        val virksomhetsnummer = "123456788"
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummer,
+            stillingId = stillingId,
+            slettet = true
+
+        )
+        repository.lagre(kandidatliste)
+
+        val (_, response) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+
+        val kandidatlisteMedKandidaterJson =
+            defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+        assertThat(kandidatlisteMedKandidaterJson).isEmpty()
+    }
+
+     @Test
+    fun `GET mot kandidatliste-endepunkt returnerer ikke en kandidatliste som er slettet`() {
+        val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc09")
+        val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
+
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, slettet = true))
+
+        val (_, response) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(404)
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {

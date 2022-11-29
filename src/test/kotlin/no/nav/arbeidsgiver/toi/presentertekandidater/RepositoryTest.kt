@@ -74,7 +74,7 @@ internal class RepositoryTest {
         )
         kandidater.forEach { repository.lagre(it)}
 
-        val kandidatlister = repository.hentKandidatlisterMedAntall(kandidatliste.virksomhetsnummer)
+        val kandidatlister = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(kandidatliste.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
         assertThat(kandidatlister[0].antallKandidater).isEqualTo(2)
     }
@@ -84,7 +84,7 @@ internal class RepositoryTest {
         val kandidatliste = lagKandidatliste()
         repository.lagre(kandidatliste)
 
-        val kandidatlister = repository.hentKandidatlisterMedAntall(kandidatliste.virksomhetsnummer)
+        val kandidatlister = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(kandidatliste.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
         assertThat(kandidatlister[0].antallKandidater).isEqualTo(0)
     }
@@ -153,7 +153,7 @@ internal class RepositoryTest {
 
 
         repository.lagre(kandidatliste1)
- 
+
         assertThatThrownBy{
             repository.lagre(kandidatliste2)
         }.isInstanceOf(PSQLException::class.java)

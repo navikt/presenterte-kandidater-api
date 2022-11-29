@@ -45,11 +45,15 @@ class PresenterteKandidaterLytter(
                 val stillingstittel = packet["stilling"]["stillingstittel"].asText()
                 presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
             }
+
             Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE ->
                 presenterteKandidaterService.slettKandidatFraKandidatliste(kandidathendelse.aktørId, kandidathendelse.stillingsId)
-            Type.ANNULLERT, Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
+
+            Type.ANNULLERT ->
                 presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
+
+            Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
+                presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
         }
     }
-
 }

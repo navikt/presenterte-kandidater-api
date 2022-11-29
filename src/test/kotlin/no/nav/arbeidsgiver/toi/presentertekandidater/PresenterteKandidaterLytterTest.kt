@@ -144,7 +144,7 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `test at lukket kandidatliste når ingen har fått jobben registreres som slettet fra databasen`() {
+    fun `test at lukket kandidatliste når ingen har fått jobben registreres med status LUKKET`() {
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val førsteAktørId = "1122334455"
@@ -154,17 +154,17 @@ class PresenterteKandidaterLytterTest {
         testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
         var kandidatliste = repository.hentKandidatliste(stillingsId)
         assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
-        assertThat(kandidatliste!!.slettet).isFalse
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
 
         val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteLukketIngenFikkJobben(førsteAktørId, førsteStillingstittel, stillingsId)
         testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
 
         kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.slettet).isTrue
+        assertThat(kandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
     }
 
     @Test
-    fun `test at lukket kandidatliste når noen fikk jobben registreres som slettet fra databasen`() {
+    fun `test at lukket kandidatliste når noen fikk jobben registreres med status LUKKET`() {
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val førsteAktørId = "6655443322"
@@ -174,13 +174,13 @@ class PresenterteKandidaterLytterTest {
         testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
         var kandidatliste = repository.hentKandidatliste(stillingsId)
         assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
-        assertThat(kandidatliste!!.slettet).isFalse
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
 
         val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteLukketNoenFikkJobben(førsteAktørId, førsteStillingstittel, stillingsId)
         testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
 
         kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.slettet).isTrue
+        assertThat(kandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
     }
 
     @Test
@@ -194,7 +194,7 @@ class PresenterteKandidaterLytterTest {
         testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
         var kandidatliste = repository.hentKandidatliste(stillingsId)
         assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
-        assertThat(kandidatliste!!.slettet).isFalse
+        assertThat(kandidatliste.slettet).isFalse
 
         val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteAnnullert(førsteAktørId, førsteStillingstittel, stillingsId)
         testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
@@ -214,13 +214,13 @@ class PresenterteKandidaterLytterTest {
         testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
         var kandidatliste = repository.hentKandidatliste(stillingsId)
         assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
-        var kandidat = repository.hentKandidat(førsteAktørId, kandidatliste?.id!!)
+        var kandidat = repository.hentKandidat(førsteAktørId, kandidatliste.id!!)
         assertThat(kandidat!!.aktørId).isEqualTo(førsteAktørId)
 
         val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatSlettetFraListe(førsteAktørId, førsteStillingstittel, stillingsId)
         testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
 
-        kandidat = repository.hentKandidat(førsteAktørId, kandidatliste?.id!!)
+        kandidat = repository.hentKandidat(førsteAktørId, kandidatliste.id!!)
         assertThat(kandidat).isNull()
     }
 

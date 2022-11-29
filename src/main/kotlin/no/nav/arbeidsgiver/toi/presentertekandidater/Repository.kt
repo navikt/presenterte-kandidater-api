@@ -95,7 +95,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidatlisterMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
+    fun hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -103,6 +103,7 @@ class Repository(private val dataSource: DataSource) {
                 |from kandidatliste kl 
                 |left join kandidat k on k.kandidatliste_id = kl.id 
                 |where  kl.virksomhetsnummer = ?
+                |and kl.slettet = false
                 |group by kl.id, kl.stilling_id, kl.tittel, kl.status, kl.slettet, kl.virksomhetsnummer
                 |""".trimMargin()
             ).apply {
@@ -183,7 +184,6 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    //TODO finn ut om vi skal slette kandidatene på listen eller ei
     fun slettKandidatliste(stillingId: UUID) {
         return dataSource.connection.use {
             it.prepareStatement("update kandidatliste set slettet = true where stilling_id = ?").apply {
@@ -191,6 +191,16 @@ class Repository(private val dataSource: DataSource) {
             }.executeUpdate()
         }
     }
+
+    fun lukkKandidatliste(stillingId: UUID) {
+        return dataSource.connection.use {
+            it.prepareStatement("update kandidatliste set status = ? where stilling_id = ?").apply {
+                this.setObject(1, Kandidatliste.Status.LUKKET.name)
+                this.setObject(2, stillingId)
+            }.executeUpdate()
+        }
+    }
+
 
     fun slettKandidatFraKandidatliste(aktørId: String, kandidatlisteId: BigInteger) {
         return dataSource.connection.use {
