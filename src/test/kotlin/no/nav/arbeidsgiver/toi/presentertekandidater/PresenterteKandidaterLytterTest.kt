@@ -224,6 +224,24 @@ class PresenterteKandidaterLytterTest {
         assertThat(kandidat).isNull()
     }
 
+    @Test
+    fun `Skal sette listen som ÅPEN og slettet=true når vi får melding om kandidathendelse på en liste som allerede eksisterer`() {
+        val aktørId = "2050897398605"
+        val stillingsId = UUID.randomUUID()
+        repository.lagre(Testdata.lagGyldigKandidatliste(stillingsId).copy(status = Kandidatliste.Status.LUKKET, slettet = true))
+
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+
+        // Verifiser kandidatliste
+        assertNotNull(kandidatliste)
+        assertThat(kandidatliste.slettet).isFalse()
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+    }
+
     private fun meldingOmKandidathendelseDeltCv(
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",

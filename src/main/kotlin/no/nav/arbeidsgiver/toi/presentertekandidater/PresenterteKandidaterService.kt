@@ -24,8 +24,8 @@ class PresenterteKandidaterService(private val repository: Repository) {
         }
     }
 
-    fun slettKandidatliste(stillingsId: UUID) {
-        repository.slettKandidatliste(stillingsId)
+    fun markerKandidatlisteSomSlettet(stillingsId: UUID) {
+        repository.markerKandidatlisteSomSlettet(stillingsId)
     }
 
     fun lukkKandidatliste(stillingsId: UUID) {

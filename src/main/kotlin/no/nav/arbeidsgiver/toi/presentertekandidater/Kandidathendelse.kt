@@ -14,7 +14,6 @@ data class Kandidathendelse(
 )
 
 enum class Type(private val eventNamePostfix: String) {
-    //REGISTRER_CV_DELT(),
     CV_DELT_VIA_REKRUTTERINGSBISTAND("kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
     ANNULLERT("kandidat.annullert"),
     SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE("kandidat.slettet-fra-arbeidsgivers-kandidatliste"),

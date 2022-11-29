@@ -184,7 +184,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun slettKandidatliste(stillingId: UUID) {
+    fun markerKandidatlisteSomSlettet(stillingId: UUID) {
         return dataSource.connection.use {
             it.prepareStatement("update kandidatliste set slettet = true where stilling_id = ?").apply {
                 this.setObject(1, stillingId)
@@ -200,7 +200,6 @@ class Repository(private val dataSource: DataSource) {
             }.executeUpdate()
         }
     }
-
 
     fun slettKandidatFraKandidatliste(aktørId: String, kandidatlisteId: BigInteger) {
         return dataSource.connection.use {

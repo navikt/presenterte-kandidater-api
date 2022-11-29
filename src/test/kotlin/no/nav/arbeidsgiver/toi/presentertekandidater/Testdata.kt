@@ -1,7 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
-import no.nav.security.mock.oauth2.http.objectMapper
+import java.time.ZonedDateTime
+import java.util.UUID
 
 
 object Testdata {
@@ -590,5 +591,5 @@ object Testdata {
             socialSecurityNumber = ""
         )
 
-
+    fun lagGyldigKandidatliste(stillingsId: UUID) : Kandidatliste = Kandidatliste(null, UUID.randomUUID(), stillingsId, "", Kandidatliste.Status.ÅPEN,false, "", ZonedDateTime.now(), ZonedDateTime.now())
 }

@@ -33,7 +33,6 @@ class PresenterteKandidaterLytter(
     private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    //TODO lag tester for andre cases enn lagrekandidathendelse
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelsePacket = packet["kandidathendelse"]
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
@@ -50,7 +49,7 @@ class PresenterteKandidaterLytter(
                 presenterteKandidaterService.slettKandidatFraKandidatliste(kandidathendelse.aktørId, kandidathendelse.stillingsId)
 
             Type.ANNULLERT ->
-                presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
+                presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
 
             Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
                 presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
