@@ -48,8 +48,6 @@ class PresenterteKandidaterLytter(
             Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
             Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
         }
-
-        presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
     }
 
 }
