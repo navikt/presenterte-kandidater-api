@@ -38,8 +38,6 @@ class KonverteringTest {
         stubHentingAvAktørId(kandidatnr ="PAM01897xkdyc", aktørId = "10001000103") // ag-status: AKTUELL
         stubHentingAvAktørId(kandidatnr ="PAM0v81m8kg0", aktørId = "10001000104") // ag-status: IKKE_AKTUELL
 
-        stubHentingAvAktørId(kandidatnr ="PAM010nudgb5v", aktørId = "10001000105") // ag-utfall: FATT_JOBBEN
-
         val (_, response) = fuel
             .post("http://localhost:9000/internal/konverterdata")
             .response()
@@ -103,7 +101,7 @@ class KonverteringTest {
 
         val kandiater = repository.hentKandidater(liste.id!!)
         assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
-        assertThat(kandiater[0].aktørId).isEqualTo("10001000105")
+        assertThat(kandiater[0].aktørId).isEqualTo("")
         assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.TIL_VURDERING)
 
 
