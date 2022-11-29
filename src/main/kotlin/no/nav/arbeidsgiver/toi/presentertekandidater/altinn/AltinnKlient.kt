@@ -25,9 +25,11 @@ class AltinnKlient(
     val levetidMinutter = 15L
 
     fun hentOrganisasjoner(fnr: String, accessToken: String): List<AltinnReportee> {
+        log.info("Skal hente organisasjoner for innlogget person")
         val fraCache = cache[fnr]
 
         return if (fraCache != null && !fraCache.harUtløpt()) {
+            log.info("Har cache med organisasjoner for innlogget person")
             fraCache.organisasjoner
         } else {
             hentOrganisasjonerFraAltinn(fnr, accessToken)
