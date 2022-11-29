@@ -13,14 +13,14 @@ data class Kandidathendelse(
     val utførtAvNavKontorKode: String? = null,
 )
 
-enum class Type {
-    REGISTRER_CV_DELT,
-    CV_DELT_VIA_REKRUTTERINGSBISTAND,
-    REGISTRER_FÅTT_JOBBEN,
-    FJERN_REGISTRERING_AV_CV_DELT,
-    FJERN_REGISTRERING_FÅTT_JOBBEN,
-    ANNULLERT,
-    SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE,
-    KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN,
-    KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN
+enum class Type(private val eventNamePostfix: String) {
+    //REGISTRER_CV_DELT,
+    CV_DELT_VIA_REKRUTTERINGSBISTAND("kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"),
+    //REGISTRER_FÅTT_JOBBEN,
+    //FJERN_REGISTRERING_AV_CV_DELT,
+    //FJERN_REGISTRERING_FÅTT_JOBBEN,
+    ANNULLERT("kandidat.annullert"),
+    SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE("kandidat.slettet-fra-arbeidsgivers-kandidatliste"),
+    KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN("kandidat.kandidatliste-lukket-noen-andre-fikk-jobben"),
+    KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN("kandidat.kandidatliste-lukket-ingen-fikk-jobben")
 }
