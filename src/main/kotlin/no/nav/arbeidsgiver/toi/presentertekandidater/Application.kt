@@ -48,7 +48,8 @@ fun main() {
         repository,
         openSearchKlient,
         altinnKlient,
-        rapidIsAlive
+        KonverteringFilstier(env),
+        rapidIsAlive,
     )
 }
 
@@ -59,10 +60,11 @@ fun startApp(
     repository: Repository,
     openSearchKlient: OpenSearchKlient,
     altinnKlient: AltinnKlient,
+    konverteringFilstier: KonverteringFilstier,
     rapidIsAlive: () -> Boolean,
 ) {
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    startController(javalin, repository, openSearchKlient, altinnKlient)
+    startController(javalin, repository, openSearchKlient, altinnKlient, konverteringFilstier)
 
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, presenterteKandidaterService)

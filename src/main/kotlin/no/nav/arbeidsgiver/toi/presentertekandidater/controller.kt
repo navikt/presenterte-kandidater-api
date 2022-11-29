@@ -13,14 +13,15 @@ fun startController(
     javalin: Javalin,
     repository: Repository,
     openSearchKlient: OpenSearchKlient,
-    altinnKlient: AltinnKlient
+    altinnKlient: AltinnKlient,
+    konverteringFilstier: KonverteringFilstier
 ) {
     javalin.routes {
         get("/organisasjoner", hentOrganisasjoner(altinnKlient), Rolle.ARBEIDSGIVER)
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatliste/{stillingId}", hentKandidatliste(repository, openSearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
-        post("/internal/konverterdata", konverterFraArbeidsmarked(repository, openSearchKlient), Rolle.UNPROTECTED)
+        post("/internal/konverterdata", konverterFraArbeidsmarked(repository, openSearchKlient, konverteringFilstier), Rolle.UNPROTECTED)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)

@@ -46,6 +46,7 @@ val envs = mapOf(
     "TOKEN_X_PRIVATE_JWK" to Testdata.privateJwk,
     "TOKEN_X_CLIENT_ID" to "clientId",
     "TOKEN_X_ISSUER" to "tokenXissuer",
+    "NAIS_CLUSTER_NAME" to "local"
 )
 
 fun startLocalApplication(
@@ -54,9 +55,10 @@ fun startLocalApplication(
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
-    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
+    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs)),
+    konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
-    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient) { true }
+    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient, konverteringsfilstier) { true }
 }
 
 fun opprettTestRepositoryMedLokalPostgres(): Repository {
