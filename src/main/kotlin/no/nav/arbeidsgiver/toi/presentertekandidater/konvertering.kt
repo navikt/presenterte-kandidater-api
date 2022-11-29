@@ -65,8 +65,10 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                                     aktørId = aktørId ?: "",
                                     kandidatlisteId = listeId,
                                     arbeidsgiversVurdering = konverterVurdering(status = it.kandidatstatus),
-                                    sistEndret = ZonedDateTime.now()
-                                )
+                                    sistEndret = LocalDateTime.parse(
+                                        it.endret_tidspunkt,
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                                    ).atZone(ZoneId.of("Europe/Oslo")))
                             }
 
                         arbeidsmarkedKandidaterForListe.forEach {
@@ -84,8 +86,8 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
     }
 
 fun konverterVurdering(status: String): ArbeidsgiversVurdering {
-    return when(status) {
-        "NY","PAABEGYNT" -> ArbeidsgiversVurdering.TIL_VURDERING
+    return when (status) {
+        "NY", "PAABEGYNT" -> ArbeidsgiversVurdering.TIL_VURDERING
         "AKTUELL" -> ArbeidsgiversVurdering.AKTUELL
         "IKKE_AKTUELL" -> ArbeidsgiversVurdering.IKKE_AKTUELL
         else -> ArbeidsgiversVurdering.TIL_VURDERING
@@ -96,6 +98,7 @@ class Arbeidsmarked {
     data class Kandidater(
         val kandidatnr: String,
         val lagt_til_tidspunkt: String,
+        val endret_tidspunkt: String,
         val stilling_id: String,
         val kandidatstatus: String,
     )
@@ -105,6 +108,6 @@ class Arbeidsmarked {
         val opprettet_tidspunkt: String,
         val organisasjon_referanse: String,
         val stilling_id: String,
-        val tittel: String
+        val tittel: String,
     )
 }

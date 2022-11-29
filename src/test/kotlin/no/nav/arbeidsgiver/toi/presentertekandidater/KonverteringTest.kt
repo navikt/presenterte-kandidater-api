@@ -55,11 +55,21 @@ class KonverteringTest {
     }
 
     @Test
-    fun `Konvertering av data lagres riktig i databasen med aktørid om person finnes i OpenSearch`() {
+    fun `Konvertering av kandidatliste lagres riktig`() {
 
         val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
-        assertThat(liste.virksomhetsnummer).isEqualTo("893119302")
         assertThat(liste.stillingId).isEqualTo(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))
+        assertThat(liste.tittel).isEqualTo("Brenner du for gaming?")
+        assertThat(liste.virksomhetsnummer).isEqualTo("893119302")
+        assertThat(liste.opprettet.toString()).isEqualTo("2022-06-27T12:50:38+02:00[Europe/Oslo]")
+        assertThat(liste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+        assertThat(liste.slettet).isFalse
+    }
+
+    @Test
+    fun `Konvertering av data lagres med status riktig i databasen på aktørid om person finnes i OpenSearch`() {
+
+        val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
 
         val kandiater = repository.hentKandidater(liste.id!!)
         assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
@@ -71,8 +81,18 @@ class KonverteringTest {
         assertThat(kandiater[2].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.AKTUELL) // AKTUELL -> AKTUELL
         assertThat(kandiater[3].aktørId).isEqualTo("10001000104")
         assertThat(kandiater[3].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.IKKE_AKTUELL) // IKKE_AKTUELL -> IKKE_AKTUELL
-
     }
+
+    @Test
+    fun `Konvertering av kandidat skal gi riktig sist endret tidspunkt`() {
+        val liste = repository.hentKandidatliste(UUID.fromString("24435f0c-bb6b-4a69-b5b9-e53b69a5a994"))!!
+        val kandiater = repository.hentKandidater(liste.id!!)
+        assertThat(kandiater[0].aktørId).isEqualTo("10001000101")
+
+        assertThat(kandiater[0].sistEndret.toString()).isEqualTo("2022-08-16T02:35:43+02:00[Europe/Oslo]")
+    }
+
+
 
     @Test
     fun `Konvertering av data lagres riktig i databasen med aktørid om person IKKE finnes i OpenSearch`() {
