@@ -46,6 +46,7 @@ val envs = mapOf(
     "TOKEN_X_PRIVATE_JWK" to Testdata.privateJwk,
     "TOKEN_X_CLIENT_ID" to "clientId",
     "TOKEN_X_ISSUER" to "tokenXissuer",
+    "NAIS_CLUSTER_NAME" to "local"
 )
 
 fun startLocalApplication(
