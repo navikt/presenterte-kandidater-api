@@ -1,3 +1,380 @@
-,"items":
 [
-{"kandidatnr":"PAM010nudgb5v","lagt_til_tidspunkt":"2022-09-29 09:20:13","stilling_id":"3f381730-bf29-4345-b636-9961fcb42951","kandidatstatus":"NY"},{"kandidatnr":"PAM010nudgb5v","lagt_til_tidspunkt":"2022-11-09 12:58:31","stilling_id":"3fc028fc-be38-411d-808a-b487bc8a7060","kandidatstatus":"NY"},{"kandidatnr":"PAM010poh86f1","lagt_til_tidspunkt":"2022-09-15 09:15:24","stilling_id":"24ef94ee-bf2e-4b06-bc0a-c304f28bef9a","kandidatstatus":"NY"},{"kandidatnr":"PAM010poh86f1","lagt_til_tidspunkt":"2022-09-26 12:14:26","stilling_id":"7d44eba7-7a77-4440-a4a1-47a1a54ecd6d","kandidatstatus":"NY"},{"kandidatnr":"PAM011824s14q","lagt_til_tidspunkt":"2022-11-24 12:07:40","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM011lwm8vs4","lagt_til_tidspunkt":"2022-11-09 01:49:29","stilling_id":"3d76f791-6bca-4d52-9101-768becc977b0","kandidatstatus":"NY"},{"kandidatnr":"PAM011lwm8vs4","lagt_til_tidspunkt":"2022-11-09 12:44:22","stilling_id":"3fc028fc-be38-411d-808a-b487bc8a7060","kandidatstatus":"NY"},{"kandidatnr":"PAM011lwm8vs4","lagt_til_tidspunkt":"2022-11-02 01:05:53","stilling_id":"d0893ef4-39d4-4438-8e07-4f06cc11c7bf","kandidatstatus":"NY"},{"kandidatnr":"PAM011lwm8vs4","lagt_til_tidspunkt":"2022-11-09 10:05:20","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM012ne2lymu","lagt_til_tidspunkt":"2022-11-22 12:39:03","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM012ne2lymu","lagt_til_tidspunkt":"2022-08-12 09:14:33","stilling_id":"7d44eba7-7a77-4440-a4a1-47a1a54ecd6d","kandidatstatus":"NY"},{"kandidatnr":"PAM0133wq2mdl","lagt_til_tidspunkt":"2022-08-16 02:35:43","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM0133wq2mdl","lagt_til_tidspunkt":"2022-11-09 01:49:29","stilling_id":"3d76f791-6bca-4d52-9101-768becc977b0","kandidatstatus":"NY"},{"kandidatnr":"PAM013c7q7dc5","lagt_til_tidspunkt":"2022-10-18 10:28:32","stilling_id":"a5248958-dd5a-4349-8cd3-ad233b2f587a","kandidatstatus":"NY"},{"kandidatnr":"PAM013c7q7dc5","lagt_til_tidspunkt":"2022-11-03 11:55:42","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM013e4pi9fm","lagt_til_tidspunkt":"2022-08-15 12:10:42","stilling_id":"a3c925af-ebf4-40d1-aeee-efc9259107a4","kandidatstatus":"NY"},{"kandidatnr":"PAM013tc53ryp","lagt_til_tidspunkt":"2022-08-02 08:08:36","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM013tc53ryp","lagt_til_tidspunkt":"2022-08-22 09:05:16","stilling_id":"d8da17f1-c401-49a3-a9a8-0ce8e0b59d6b","kandidatstatus":"NY"},{"kandidatnr":"PAM013tc53ryp","lagt_til_tidspunkt":"2022-09-14 10:15:01","stilling_id":"f64fc205-dd37-468b-bc28-d7e67e01b5e6","kandidatstatus":"NY"},{"kandidatnr":"PAM0142laqj0r","lagt_til_tidspunkt":"2022-11-25 12:08:10","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM0142laqj0r","lagt_til_tidspunkt":"2022-10-18 10:29:26","stilling_id":"a5248958-dd5a-4349-8cd3-ad233b2f587a","kandidatstatus":"NY"},{"kandidatnr":"PAM0142laqj0r","lagt_til_tidspunkt":"2022-10-12 03:05:30","stilling_id":"a91401d9-4425-46df-b4ee-bcab08dfd6ed","kandidatstatus":"NY"},{"kandidatnr":"PAM0142laqj0r","lagt_til_tidspunkt":"2022-10-17 03:00:30","stilling_id":"d0893ef4-39d4-4438-8e07-4f06cc11c7bf","kandidatstatus":"NY"},{"kandidatnr":"PAM0142laqj0r","lagt_til_tidspunkt":"2022-10-19 07:39:30","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM014jvu57qi","lagt_til_tidspunkt":"2022-11-09 01:49:29","stilling_id":"3d76f791-6bca-4d52-9101-768becc977b0","kandidatstatus":"NY"},{"kandidatnr":"PAM014jvu57qi","lagt_til_tidspunkt":"2022-11-24 09:49:20","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM014lhcwy96","lagt_til_tidspunkt":"2022-11-18 10:25:35","stilling_id":"03cb6d5e-3a31-4015-be23-79fb18e2dd64","kandidatstatus":"NY"},{"kandidatnr":"PAM014lhcwy96","lagt_til_tidspunkt":"2022-11-16 02:16:17","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM015isoo0yr","lagt_til_tidspunkt":"2022-09-23 09:25:41","stilling_id":"67a76a42-811b-472b-ba20-a40e758df9d8","kandidatstatus":"NY"},{"kandidatnr":"PAM015isoo0yr","lagt_til_tidspunkt":"2022-08-19 12:25:24","stilling_id":"a3c925af-ebf4-40d1-aeee-efc9259107a4","kandidatstatus":"NY"},{"kandidatnr":"PAM015isoo0yr","lagt_til_tidspunkt":"2022-10-20 08:41:17","stilling_id":"c8df756c-0919-4400-8dab-d74a623bec03","kandidatstatus":"NY"},{"kandidatnr":"PAM015ujwgssv","lagt_til_tidspunkt":"2022-09-22 01:42:56","stilling_id":"3f381730-bf29-4345-b636-9961fcb42951","kandidatstatus":"NY"},{"kandidatnr":"PAM015ujwgssv","lagt_til_tidspunkt":"2022-08-11 03:28:55","stilling_id":"7d44eba7-7a77-4440-a4a1-47a1a54ecd6d","kandidatstatus":"NY"},{"kandidatnr":"PAM017l0yhd38","lagt_til_tidspunkt":"2022-10-26 10:08:05","stilling_id":"c7701c4a-7955-437a-b635-5515255c9efb","kandidatstatus":"NY"},{"kandidatnr":"PAM017l0yhd38","lagt_til_tidspunkt":"2022-10-19 07:39:30","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM01897xkdyc","lagt_til_tidspunkt":"2022-06-27 12:16:50","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM01897xkdyc","lagt_til_tidspunkt":"2022-06-27 12:17:09","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM01897xkdyc","lagt_til_tidspunkt":"2022-06-27 12:36:40","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM01897xkdyc","lagt_til_tidspunkt":"2022-06-27 12:42:16","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM01897xkdyc","lagt_til_tidspunkt":"2022-06-27 12:50:38","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM01897xkdyc","lagt_til_tidspunkt":"2022-08-10 12:14:03","stilling_id":"fb7afe3a-3cac-4471-b6e5-6e9d7a7d5533","kandidatstatus":"NY"},{"kandidatnr":"PAM018lbtf5c1","lagt_til_tidspunkt":"2022-11-24 12:07:40","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM019ggtqmck","lagt_til_tidspunkt":"2022-11-09 01:49:29","stilling_id":"3d76f791-6bca-4d52-9101-768becc977b0","kandidatstatus":"NY"},{"kandidatnr":"PAM019ons42yg","lagt_til_tidspunkt":"2022-11-22 12:41:26","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM019ons42yg","lagt_til_tidspunkt":"2022-08-09 02:29:00","stilling_id":"7d44eba7-7a77-4440-a4a1-47a1a54ecd6d","kandidatstatus":"NY"},{"kandidatnr":"PAM019w4pxbus","lagt_til_tidspunkt":"2022-11-09 01:03:01","stilling_id":"dddafa3e-0107-481c-a380-421189b9bde5","kandidatstatus":"NY"},{"kandidatnr":"PAM019w4pxbus","lagt_til_tidspunkt":"2022-11-11 08:25:02","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM01ater63hc","lagt_til_tidspunkt":"2022-10-12 10:40:05","stilling_id":"a91401d9-4425-46df-b4ee-bcab08dfd6ed","kandidatstatus":"AKTUELL"},{"kandidatnr":"PAM01bbcr0xhd","lagt_til_tidspunkt":"2022-09-15 09:15:24","stilling_id":"24ef94ee-bf2e-4b06-bc0a-c304f28bef9a","kandidatstatus":"NY"},{"kandidatnr":"PAM01bbcr0xhd","lagt_til_tidspunkt":"2022-10-17 12:36:06","stilling_id":"67a76a42-811b-472b-ba20-a40e758df9d8","kandidatstatus":"NY"},{"kandidatnr":"PAM01bbcr0xhd","lagt_til_tidspunkt":"2022-11-22 01:06:18","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM0v81m8kg0","lagt_til_tidspunkt":"2022-06-27 12:51:57","stilling_id":"24435f0c-bb6b-4a69-b5b9-e53b69a5a994","kandidatstatus":"NY"},{"kandidatnr":"PAM0vp81khpu","lagt_til_tidspunkt":"2022-11-09 12:44:22","stilling_id":"3fc028fc-be38-411d-808a-b487bc8a7060","kandidatstatus":"NY"},{"kandidatnr":"PAM0vp81khpu","lagt_til_tidspunkt":"2022-10-27 02:18:32","stilling_id":"a6ee624d-c969-428d-a9c8-c8ea6633caf4","kandidatstatus":"NY"},{"kandidatnr":"PAM0vp81khpu","lagt_til_tidspunkt":"2022-11-09 10:37:45","stilling_id":"fa85076a-504a-4396-a55f-2f414e1d5a16","kandidatstatus":"NY"},{"kandidatnr":"PAM0wwcobcnn","lagt_til_tidspunkt":"2022-08-16 04:46:00","stilling_id":"299ea9b9-e172-4a0a-8abd-53b9f366d48d","kandidatstatus":"NY"},{"kandidatnr":"PAM0wwcobcnn","lagt_til_tidspunkt":"2022-09-23 01:29:51","stilling_id":"67a76a42-811b-472b-ba20-a40e758df9d8","kandidatstatus":"NY"},{"kandidatnr":"PAM0wwcobcnn","lagt_til_tidspunkt":"2022-08-18 10:33:03","stilling_id":"a3c925af-ebf4-40d1-aeee-efc9259107a4","kandidatstatus":"NY"},{"kandidatnr":"PAM0wwcobcnn","lagt_til_tidspunkt":"2022-08-22 07:24:15","stilling_id":"dacf1c62-44a3-4efb-a7f6-16b978a4df31","kandidatstatus":"NY"},{"kandidatnr":"PAM0x5puwatd","lagt_til_tidspunkt":"2022-11-09 01:14:23","stilling_id":"dddafa3e-0107-481c-a380-421189b9bde5","kandidatstatus":"NY"},{"kandidatnr":"PAM0xbp55sy2","lagt_til_tidspunkt":"2022-08-16 04:42:06","stilling_id":"299ea9b9-e172-4a0a-8abd-53b9f366d48d","kandidatstatus":"NY"},{"kandidatnr":"PAM0xbp55sy2","lagt_til_tidspunkt":"2022-11-22 12:41:26","stilling_id":"675d3d41-1ff2-4752-9d48-f9c356f25314","kandidatstatus":"NY"},{"kandidatnr":"PAM0xbp55sy2","lagt_til_tidspunkt":"2022-08-09 02:24:48","stilling_id":"7d44eba7-7a77-4440-a4a1-47a1a54ecd6d","kandidatstatus":"NY"}]}
+  {
+    "kandidatnr": "PAM010nudgb5v",
+    "lagt_til_tidspunkt": "2022-09-29 09:20:13",
+    "stilling_id": "3f381730-bf29-4345-b636-9961fcb42951",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM010nudgb5v",
+    "lagt_til_tidspunkt": "2022-11-09 12:58:31",
+    "stilling_id": "3fc028fc-be38-411d-808a-b487bc8a7060",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM010poh86f1",
+    "lagt_til_tidspunkt": "2022-09-15 09:15:24",
+    "stilling_id": "24ef94ee-bf2e-4b06-bc0a-c304f28bef9a",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM010poh86f1",
+    "lagt_til_tidspunkt": "2022-09-26 12:14:26",
+    "stilling_id": "7d44eba7-7a77-4440-a4a1-47a1a54ecd6d",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM011824s14q",
+    "lagt_til_tidspunkt": "2022-11-24 12:07:40",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM011lwm8vs4",
+    "lagt_til_tidspunkt": "2022-11-09 01:49:29",
+    "stilling_id": "3d76f791-6bca-4d52-9101-768becc977b0",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM011lwm8vs4",
+    "lagt_til_tidspunkt": "2022-11-09 12:44:22",
+    "stilling_id": "3fc028fc-be38-411d-808a-b487bc8a7060",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM011lwm8vs4",
+    "lagt_til_tidspunkt": "2022-11-02 01:05:53",
+    "stilling_id": "d0893ef4-39d4-4438-8e07-4f06cc11c7bf",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM011lwm8vs4",
+    "lagt_til_tidspunkt": "2022-11-09 10:05:20",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM012ne2lymu",
+    "lagt_til_tidspunkt": "2022-11-22 12:39:03",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM012ne2lymu",
+    "lagt_til_tidspunkt": "2022-08-12 09:14:33",
+    "stilling_id": "7d44eba7-7a77-4440-a4a1-47a1a54ecd6d",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0133wq2mdl",
+    "lagt_til_tidspunkt": "2022-08-16 02:35:43",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0133wq2mdl",
+    "lagt_til_tidspunkt": "2022-11-09 01:49:29",
+    "stilling_id": "3d76f791-6bca-4d52-9101-768becc977b0",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM013c7q7dc5",
+    "lagt_til_tidspunkt": "2022-10-18 10:28:32",
+    "stilling_id": "a5248958-dd5a-4349-8cd3-ad233b2f587a",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM013c7q7dc5",
+    "lagt_til_tidspunkt": "2022-11-03 11:55:42",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM013e4pi9fm",
+    "lagt_til_tidspunkt": "2022-08-15 12:10:42",
+    "stilling_id": "a3c925af-ebf4-40d1-aeee-efc9259107a4",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM013tc53ryp",
+    "lagt_til_tidspunkt": "2022-08-02 08:08:36",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "PAABEGYNT"
+  },
+  {
+    "kandidatnr": "PAM013tc53ryp",
+    "lagt_til_tidspunkt": "2022-08-22 09:05:16",
+    "stilling_id": "d8da17f1-c401-49a3-a9a8-0ce8e0b59d6b",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM013tc53ryp",
+    "lagt_til_tidspunkt": "2022-09-14 10:15:01",
+    "stilling_id": "f64fc205-dd37-468b-bc28-d7e67e01b5e6",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0142laqj0r",
+    "lagt_til_tidspunkt": "2022-11-25 12:08:10",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0142laqj0r",
+    "lagt_til_tidspunkt": "2022-10-18 10:29:26",
+    "stilling_id": "a5248958-dd5a-4349-8cd3-ad233b2f587a",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0142laqj0r",
+    "lagt_til_tidspunkt": "2022-10-12 03:05:30",
+    "stilling_id": "a91401d9-4425-46df-b4ee-bcab08dfd6ed",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0142laqj0r",
+    "lagt_til_tidspunkt": "2022-10-17 03:00:30",
+    "stilling_id": "d0893ef4-39d4-4438-8e07-4f06cc11c7bf",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0142laqj0r",
+    "lagt_til_tidspunkt": "2022-10-19 07:39:30",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM014jvu57qi",
+    "lagt_til_tidspunkt": "2022-11-09 01:49:29",
+    "stilling_id": "3d76f791-6bca-4d52-9101-768becc977b0",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM014jvu57qi",
+    "lagt_til_tidspunkt": "2022-11-24 09:49:20",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM014lhcwy96",
+    "lagt_til_tidspunkt": "2022-11-18 10:25:35",
+    "stilling_id": "03cb6d5e-3a31-4015-be23-79fb18e2dd64",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM014lhcwy96",
+    "lagt_til_tidspunkt": "2022-11-16 02:16:17",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM015isoo0yr",
+    "lagt_til_tidspunkt": "2022-09-23 09:25:41",
+    "stilling_id": "67a76a42-811b-472b-ba20-a40e758df9d8",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM015isoo0yr",
+    "lagt_til_tidspunkt": "2022-08-19 12:25:24",
+    "stilling_id": "a3c925af-ebf4-40d1-aeee-efc9259107a4",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM015isoo0yr",
+    "lagt_til_tidspunkt": "2022-10-20 08:41:17",
+    "stilling_id": "c8df756c-0919-4400-8dab-d74a623bec03",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM015ujwgssv",
+    "lagt_til_tidspunkt": "2022-09-22 01:42:56",
+    "stilling_id": "3f381730-bf29-4345-b636-9961fcb42951",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM015ujwgssv",
+    "lagt_til_tidspunkt": "2022-08-11 03:28:55",
+    "stilling_id": "7d44eba7-7a77-4440-a4a1-47a1a54ecd6d",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM017l0yhd38",
+    "lagt_til_tidspunkt": "2022-10-26 10:08:05",
+    "stilling_id": "c7701c4a-7955-437a-b635-5515255c9efb",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM017l0yhd38",
+    "lagt_til_tidspunkt": "2022-10-19 07:39:30",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01897xkdyc",
+    "lagt_til_tidspunkt": "2022-06-27 12:16:50",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "AKTUELL"
+  },
+  {
+    "kandidatnr": "PAM01897xkdyc",
+    "lagt_til_tidspunkt": "2022-06-27 12:17:09",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01897xkdyc",
+    "lagt_til_tidspunkt": "2022-06-27 12:36:40",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01897xkdyc",
+    "lagt_til_tidspunkt": "2022-06-27 12:42:16",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01897xkdyc",
+    "lagt_til_tidspunkt": "2022-06-27 12:50:38",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01897xkdyc",
+    "lagt_til_tidspunkt": "2022-08-10 12:14:03",
+    "stilling_id": "fb7afe3a-3cac-4471-b6e5-6e9d7a7d5533",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM018lbtf5c1",
+    "lagt_til_tidspunkt": "2022-11-24 12:07:40",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM019ggtqmck",
+    "lagt_til_tidspunkt": "2022-11-09 01:49:29",
+    "stilling_id": "3d76f791-6bca-4d52-9101-768becc977b0",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM019ons42yg",
+    "lagt_til_tidspunkt": "2022-11-22 12:41:26",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM019ons42yg",
+    "lagt_til_tidspunkt": "2022-08-09 02:29:00",
+    "stilling_id": "7d44eba7-7a77-4440-a4a1-47a1a54ecd6d",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM019w4pxbus",
+    "lagt_til_tidspunkt": "2022-11-09 01:03:01",
+    "stilling_id": "dddafa3e-0107-481c-a380-421189b9bde5",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM019w4pxbus",
+    "lagt_til_tidspunkt": "2022-11-11 08:25:02",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01ater63hc",
+    "lagt_til_tidspunkt": "2022-10-12 10:40:05",
+    "stilling_id": "a91401d9-4425-46df-b4ee-bcab08dfd6ed",
+    "kandidatstatus": "AKTUELL"
+  },
+  {
+    "kandidatnr": "PAM01bbcr0xhd",
+    "lagt_til_tidspunkt": "2022-09-15 09:15:24",
+    "stilling_id": "24ef94ee-bf2e-4b06-bc0a-c304f28bef9a",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01bbcr0xhd",
+    "lagt_til_tidspunkt": "2022-10-17 12:36:06",
+    "stilling_id": "67a76a42-811b-472b-ba20-a40e758df9d8",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM01bbcr0xhd",
+    "lagt_til_tidspunkt": "2022-11-22 01:06:18",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0v81m8kg0",
+    "lagt_til_tidspunkt": "2022-06-27 12:51:57",
+    "stilling_id": "24435f0c-bb6b-4a69-b5b9-e53b69a5a994",
+    "kandidatstatus": "IKKE_AKTUELL"
+  },
+  {
+    "kandidatnr": "PAM0vp81khpu",
+    "lagt_til_tidspunkt": "2022-11-09 12:44:22",
+    "stilling_id": "3fc028fc-be38-411d-808a-b487bc8a7060",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0vp81khpu",
+    "lagt_til_tidspunkt": "2022-10-27 02:18:32",
+    "stilling_id": "a6ee624d-c969-428d-a9c8-c8ea6633caf4",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0vp81khpu",
+    "lagt_til_tidspunkt": "2022-11-09 10:37:45",
+    "stilling_id": "fa85076a-504a-4396-a55f-2f414e1d5a16",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0wwcobcnn",
+    "lagt_til_tidspunkt": "2022-08-16 04:46:00",
+    "stilling_id": "299ea9b9-e172-4a0a-8abd-53b9f366d48d",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0wwcobcnn",
+    "lagt_til_tidspunkt": "2022-09-23 01:29:51",
+    "stilling_id": "67a76a42-811b-472b-ba20-a40e758df9d8",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0wwcobcnn",
+    "lagt_til_tidspunkt": "2022-08-18 10:33:03",
+    "stilling_id": "a3c925af-ebf4-40d1-aeee-efc9259107a4",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0wwcobcnn",
+    "lagt_til_tidspunkt": "2022-08-22 07:24:15",
+    "stilling_id": "dacf1c62-44a3-4efb-a7f6-16b978a4df31",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0x5puwatd",
+    "lagt_til_tidspunkt": "2022-11-09 01:14:23",
+    "stilling_id": "dddafa3e-0107-481c-a380-421189b9bde5",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0xbp55sy2",
+    "lagt_til_tidspunkt": "2022-08-16 04:42:06",
+    "stilling_id": "299ea9b9-e172-4a0a-8abd-53b9f366d48d",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0xbp55sy2",
+    "lagt_til_tidspunkt": "2022-11-22 12:41:26",
+    "stilling_id": "675d3d41-1ff2-4752-9d48-f9c356f25314",
+    "kandidatstatus": "NY"
+  },
+  {
+    "kandidatnr": "PAM0xbp55sy2",
+    "lagt_til_tidspunkt": "2022-08-09 02:24:48",
+    "stilling_id": "7d44eba7-7a77-4440-a4a1-47a1a54ecd6d",
+    "kandidatstatus": "NY"
+  }
+]}

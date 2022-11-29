@@ -62,9 +62,9 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                                 Kandidat(
                                     id = null,
                                     uuid = UUID.randomUUID(),
-                                    aktørId = aktørId ?: "",  // TODO: Hent fra opensearch fra kandidatnummer
+                                    aktørId = aktørId ?: "",
                                     kandidatlisteId = listeId,
-                                    arbeidsgiversVurdering = konverterVurdering(utfall = it.utfall, status = it.status),    // TODO mappes fra json
+                                    arbeidsgiversVurdering = konverterVurdering(status = it.kandidatstatus),
                                     sistEndret = ZonedDateTime.now()
                                 )
                             }
@@ -83,8 +83,7 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
         }
     }
 
-fun konverterVurdering(utfall: String, status: String): ArbeidsgiversVurdering {
-    if(utfall == "FATT_JOBBEN") return ArbeidsgiversVurdering.FÅTT_JOBBEN
+fun konverterVurdering(status: String): ArbeidsgiversVurdering {
     return when(status) {
         "NY","PAABEGYNT" -> ArbeidsgiversVurdering.TIL_VURDERING
         "AKTUELL" -> ArbeidsgiversVurdering.AKTUELL
@@ -98,8 +97,7 @@ class Arbeidsmarked {
         val kandidatnr: String,
         val lagt_til_tidspunkt: String,
         val stilling_id: String,
-        val status: String,
-        val utfall: String
+        val kandidatstatus: String,
     )
 
     data class Kandidatlister(

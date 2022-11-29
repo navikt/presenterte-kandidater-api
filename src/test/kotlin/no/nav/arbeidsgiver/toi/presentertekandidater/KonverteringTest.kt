@@ -84,20 +84,8 @@ class KonverteringTest {
         val kandiater = repository.hentKandidater(liste.id!!)
         assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
         assertThat(kandiater[0].aktørId).isEqualTo("10001000105")
-        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.FÅTT_JOBBEN) // FATT_JOBBEN -> FÅTT JOBBEN
+        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.TIL_VURDERING)
 
-
-    }
-
-    @Test
-    fun `Person med utfall FÅTT_JOBBEN fra ag-kandidat får arbeidsgiver FÅTT_JOBBEN`() {
-        val liste = repository.hentKandidatliste(UUID.fromString("3f381730-bf29-4345-b636-9961fcb42951"))!!
-        assertThat(liste.virksomhetsnummer).isEqualTo("926698826")
-        assertThat(liste.stillingId).isEqualTo(UUID.fromString("3f381730-bf29-4345-b636-9961fcb42951"))
-
-        val kandiater = repository.hentKandidater(liste.id!!)
-        assertThat(kandiater[0].aktørId).isEqualTo("10001000105")
-        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.FÅTT_JOBBEN) // utfall:FATT_JOBBEN -> FÅTT_JOBBEN
 
     }
 
