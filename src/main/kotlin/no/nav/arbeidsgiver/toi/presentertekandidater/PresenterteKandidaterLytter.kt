@@ -36,17 +36,19 @@ class PresenterteKandidaterLytter(
     //TODO lag tester for andre cases enn lagrekandidathendelse
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val kandidathendelsePacket = packet["kandidathendelse"]
-        val stillingstittel = packet["stilling"]["stillingstittel"].asText()
         val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
 
         log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
 
         when (kandidathendelse.type) {
-            Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
-            Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE -> presenterteKandidaterService.slettKandidatFraKandidatliste(kandidathendelse.aktørId, kandidathendelse.stillingsId)
-            Type.ANNULLERT -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
-            Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
-            Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
+            Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
+                val stillingstittel = packet["stilling"]["stillingstittel"].asText()
+                presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
+            }
+            Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE ->
+                presenterteKandidaterService.slettKandidatFraKandidatliste(kandidathendelse.aktørId, kandidathendelse.stillingsId)
+            Type.ANNULLERT, Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
+                presenterteKandidaterService.slettKandidatliste(kandidathendelse.stillingsId)
         }
     }
 

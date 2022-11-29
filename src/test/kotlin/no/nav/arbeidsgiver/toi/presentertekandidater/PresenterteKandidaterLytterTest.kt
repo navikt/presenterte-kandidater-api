@@ -31,7 +31,7 @@ class PresenterteKandidaterLytterTest {
     fun `Skal lagre kandidatliste og kandidat når vi får melding om kandidathendelse`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelse(aktørId = aktørId, stillingsId = stillingsId)
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
 
@@ -63,7 +63,7 @@ class PresenterteKandidaterLytterTest {
     fun `Konsumering av melding skal være idempotent`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelse(aktørId = aktørId, stillingsId = stillingsId)
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
         testRapid.sendTestMessage(melding)
@@ -96,8 +96,8 @@ class PresenterteKandidaterLytterTest {
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val (aktørId1, aktørId2) = listOf("1234", "5678")
-        val førsteMelding = meldingOmKandidathendelse(aktørId = aktørId1, stillingsId = stillingsId)
-        val andreMelding = meldingOmKandidathendelse(aktørId = aktørId2, stillingsId = stillingsId)
+        val førsteMelding = meldingOmKandidathendelseDeltCv(aktørId = aktørId1, stillingsId = stillingsId)
+        val andreMelding = meldingOmKandidathendelseDeltCv(aktørId = aktørId2, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(førsteMelding)
         testRapid.sendTestMessage(andreMelding)
@@ -127,7 +127,7 @@ class PresenterteKandidaterLytterTest {
 
         val førsteAktørId = "2040897398605"
         val førsteStillingstittel = "Klovn søkes"
-        val førsteKandidathendelsesmelding = meldingOmKandidathendelse(førsteAktørId, førsteStillingstittel, stillingsId)
+        val førsteKandidathendelsesmelding = meldingOmKandidathendelseDeltCv(førsteAktørId, førsteStillingstittel, stillingsId)
 
         testRapid.sendTestMessage(førsteKandidathendelsesmelding)
         val kandidatliste = repository.hentKandidatliste(stillingsId)
@@ -135,7 +135,7 @@ class PresenterteKandidaterLytterTest {
 
         val andreAktørId = "2040897398605"
         val andreStillingstittel = "Hoffnarr søkes"
-        val andreKandidathendelsesmelding = meldingOmKandidathendelse(andreAktørId, andreStillingstittel, stillingsId)
+        val andreKandidathendelsesmelding = meldingOmKandidathendelseDeltCv(andreAktørId, andreStillingstittel, stillingsId)
 
         testRapid.sendTestMessage(andreKandidathendelsesmelding)
         val oppdatertKandidatliste =
@@ -143,7 +143,88 @@ class PresenterteKandidaterLytterTest {
         assertThat(oppdatertKandidatliste!!.tittel).isEqualTo(andreStillingstittel)
     }
 
-    private fun meldingOmKandidathendelse(
+    @Test
+    fun `test at lukket kandidatliste når ingen har fått jobben registreres som slettet fra databasen`() {
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val stillingsId = UUID.randomUUID()
+        val førsteAktørId = "1122334455"
+        val førsteStillingstittel = "Stilling hvis kandidatliste ble lukket!"
+        val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(førsteAktørId, førsteStillingstittel, stillingsId)
+
+        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
+        var kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
+        assertThat(kandidatliste!!.slettet).isFalse
+
+        val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteLukketIngenFikkJobben(førsteAktørId, førsteStillingstittel, stillingsId)
+        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
+
+        kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.slettet).isTrue
+    }
+
+    @Test
+    fun `test at lukket kandidatliste når noen fikk jobben registreres som slettet fra databasen`() {
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val stillingsId = UUID.randomUUID()
+        val førsteAktørId = "6655443322"
+        val førsteStillingstittel = "Stilling hvis kandidatliste ble lukket!"
+        val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(førsteAktørId, førsteStillingstittel, stillingsId)
+
+        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
+        var kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
+        assertThat(kandidatliste!!.slettet).isFalse
+
+        val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteLukketNoenFikkJobben(førsteAktørId, førsteStillingstittel, stillingsId)
+        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
+
+        kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.slettet).isTrue
+    }
+
+    @Test
+    fun `test at annullert kandidatliste registreres som slettet fra databasen`() {
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val stillingsId = UUID.randomUUID()
+        val førsteAktørId = "44556677"
+        val førsteStillingstittel = "Stilling hvis kandidatliste ble annullert!"
+        val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(førsteAktørId, førsteStillingstittel, stillingsId)
+
+        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
+        var kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
+        assertThat(kandidatliste!!.slettet).isFalse
+
+        val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteAnnullert(førsteAktørId, førsteStillingstittel, stillingsId)
+        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
+
+        kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.slettet).isTrue
+    }
+
+    @Test
+    fun `test at kandidat slettes fra kandidatliste ved slettekandidathendelse`() {
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        val stillingsId = UUID.randomUUID()
+        val førsteAktørId = "44556677"
+        val førsteStillingstittel = "Stilling hvis kandidat skal slettes fra!"
+        val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(førsteAktørId, førsteStillingstittel, stillingsId)
+
+        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
+        var kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
+        var kandidat = repository.hentKandidat(førsteAktørId, kandidatliste?.id!!)
+        assertThat(kandidat!!.aktørId).isEqualTo(førsteAktørId)
+
+        val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatSlettetFraListe(førsteAktørId, førsteStillingstittel, stillingsId)
+        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
+
+        kandidat = repository.hentKandidat(førsteAktørId, kandidatliste?.id!!)
+        assertThat(kandidat).isNull()
+    }
+
+    private fun meldingOmKandidathendelseDeltCv(
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",
         stillingsId: UUID
@@ -201,4 +282,241 @@ class PresenterteKandidaterLytterTest {
               }
             }
         """.trimIndent()
+
+    private fun meldingOmKandidathendelseKandidatlisteLukketIngenFikkJobben(
+        aktørId: String,
+        stillingstittel: String = "Stilling hvis kandidatliste ble lukket!",
+        stillingsId: UUID
+    ) =
+        """
+            {
+              "@event_name": "kandidat.kandidatliste-lukket-ingen-fikk-jobben",
+              "kandidathendelse": {
+                "type": "KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN",
+                "aktørId": "$aktørId",
+                "organisasjonsnummer": "912998827",
+                "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
+                "tidspunkt": "2022-11-09T10:37:45.108+01:00",
+                "stillingsId": "$stillingsId",
+                "utførtAvNavIdent": "Z994633",
+                "utførtAvNavKontorKode": "0313",
+                "synligKandidat": true,
+                "harHullICv": true,
+                "alder": 27,
+                "tilretteleggingsbehov": []
+              },
+              "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+              "@opprettet": "2022-11-09T10:38:02.181523695",
+              "system_read_count": 0,
+              "system_participating_services": [
+                {
+                  "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                  "time": "2022-11-09T10:38:00.057867691",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                },
+                {
+                  "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+                  "time": "2022-11-09T10:38:02.181523695",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                }
+              ],
+              "stillingsinfo": {
+                "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
+                "stillingsid": "$stillingsId",
+                "eier": null,
+                "notat": null,
+                "stillingskategori": "STILLING"
+              },
+              "stilling": {
+                "stillingstittel": "$stillingstittel"
+              },
+              "@forårsaket_av": {
+                "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                "opprettet": "2022-11-09T10:38:00.057867691",
+                "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
+              }
+            }
+        """.trimIndent()
+
+    private fun meldingOmKandidathendelseKandidatlisteLukketNoenFikkJobben(
+        aktørId: String,
+        stillingstittel: String = "Stilling hvis kandidatliste ble lukket!",
+        stillingsId: UUID
+    ) =
+        """
+            {
+              "@event_name": "kandidat.kandidatliste-lukket-noen-andre-fikk-jobben",
+              "kandidathendelse": {
+                "type": "KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN",
+                "aktørId": "$aktørId",
+                "organisasjonsnummer": "912998827",
+                "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
+                "tidspunkt": "2022-11-09T10:37:45.108+01:00",
+                "stillingsId": "$stillingsId",
+                "utførtAvNavIdent": "Z994633",
+                "utførtAvNavKontorKode": "0313",
+                "synligKandidat": true,
+                "harHullICv": true,
+                "alder": 27,
+                "tilretteleggingsbehov": []
+              },
+              "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+              "@opprettet": "2022-11-09T10:38:02.181523695",
+              "system_read_count": 0,
+              "system_participating_services": [
+                {
+                  "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                  "time": "2022-11-09T10:38:00.057867691",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                },
+                {
+                  "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+                  "time": "2022-11-09T10:38:02.181523695",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                }
+              ],
+              "stillingsinfo": {
+                "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
+                "stillingsid": "$stillingsId",
+                "eier": null,
+                "notat": null,
+                "stillingskategori": "STILLING"
+              },
+              "stilling": {
+                "stillingstittel": "$stillingstittel"
+              },
+              "@forårsaket_av": {
+                "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                "opprettet": "2022-11-09T10:38:00.057867691",
+                "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
+              }
+            }
+        """.trimIndent()
+
+    private fun meldingOmKandidathendelseKandidatlisteAnnullert(
+        aktørId: String,
+        stillingstittel: String = "Stilling hvis kandidatliste ble annullert!",
+        stillingsId: UUID
+    ) =
+        """
+            {
+              "@event_name": "kandidat.annullert",
+              "kandidathendelse": {
+                "type": "ANNULLERT",
+                "aktørId": "$aktørId",
+                "organisasjonsnummer": "912998827",
+                "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
+                "tidspunkt": "2022-11-09T10:37:45.108+01:00",
+                "stillingsId": "$stillingsId",
+                "utførtAvNavIdent": "Z994633",
+                "utførtAvNavKontorKode": "0313",
+                "synligKandidat": true,
+                "harHullICv": true,
+                "alder": 27,
+                "tilretteleggingsbehov": []
+              },
+              "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+              "@opprettet": "2022-11-09T10:38:02.181523695",
+              "system_read_count": 0,
+              "system_participating_services": [
+                {
+                  "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                  "time": "2022-11-09T10:38:00.057867691",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                },
+                {
+                  "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+                  "time": "2022-11-09T10:38:02.181523695",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                }
+              ],
+              "stillingsinfo": {
+                "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
+                "stillingsid": "$stillingsId",
+                "eier": null,
+                "notat": null,
+                "stillingskategori": "STILLING"
+              },
+              "stilling": {
+                "stillingstittel": "$stillingstittel"
+              },
+              "@forårsaket_av": {
+                "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                "opprettet": "2022-11-09T10:38:00.057867691",
+                "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
+              }
+            }
+        """.trimIndent()
+
+    private fun meldingOmKandidathendelseKandidatSlettetFraListe(
+        aktørId: String,
+        stillingstittel: String = "Stilling hvis kandidat skal slettes fra!",
+        stillingsId: UUID
+    ) =
+        """
+            {
+              "@event_name": "kandidat.slettet-fra-arbeidsgivers-kandidatliste",
+              "kandidathendelse": {
+                "type": "SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE",
+                "aktørId": "$aktørId",
+                "organisasjonsnummer": "912998827",
+                "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
+                "tidspunkt": "2022-11-09T10:37:45.108+01:00",
+                "stillingsId": "$stillingsId",
+                "utførtAvNavIdent": "Z994633",
+                "utførtAvNavKontorKode": "0313",
+                "synligKandidat": true,
+                "harHullICv": true,
+                "alder": 27,
+                "tilretteleggingsbehov": []
+              },
+              "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+              "@opprettet": "2022-11-09T10:38:02.181523695",
+              "system_read_count": 0,
+              "system_participating_services": [
+                {
+                  "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                  "time": "2022-11-09T10:38:00.057867691",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                },
+                {
+                  "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+                  "time": "2022-11-09T10:38:02.181523695",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                }
+              ],
+              "stillingsinfo": {
+                "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
+                "stillingsid": "$stillingsId",
+                "eier": null,
+                "notat": null,
+                "stillingskategori": "STILLING"
+              },
+              "stilling": {
+                "stillingstittel": "$stillingstittel"
+              },
+              "@forårsaket_av": {
+                "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                "opprettet": "2022-11-09T10:38:00.057867691",
+                "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
+              }
+            }
+        """.trimIndent()
 }
+
