@@ -11,22 +11,21 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 
-val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSearchKlient) -> (Context) -> Unit =
-    { repository, openSearchKlient ->
+val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSearchKlient, konverteringsfilstier: KonverteringFilstier) -> (Context) -> Unit =
+    { repository, openSearchKlient, konverteringsfilstier ->
         { context ->
-
             try {
                 log("konvertering").info("Starter konvertering fra arbeidsmarked")
 
-                val kandidatlisterArbeidsmarked: List<Arbeidsmarked.Kandidatlister> =
-                    defaultObjectMapper.readValue(
-                        File("./src/test/resources/kandidatlister-test.json").readText(Charsets.UTF_8),
-                        object : TypeReference<List<Arbeidsmarked.Kandidatlister>>() {})
-
                 val kandidaterArbeidsmarked: List<Arbeidsmarked.Kandidater> =
                     defaultObjectMapper.readValue(
-                        File("./src/test/resources/kandidater-test.json").readText(Charsets.UTF_8),
+                        konverteringsfilstier.kandidatfil.readText(Charsets.UTF_8),
                         object : TypeReference<List<Arbeidsmarked.Kandidater>>() {})
+
+                val kandidatlisterArbeidsmarked: List<Arbeidsmarked.Kandidatlister> =
+                    defaultObjectMapper.readValue(
+                        konverteringsfilstier.kandidatlistefil.readText(Charsets.UTF_8),
+                        object : TypeReference<List<Arbeidsmarked.Kandidatlister>>() {})
 
                 kandidatlisterArbeidsmarked.forEach { liste ->
                     val stillingId = UUID.fromString(liste.stilling_id)
@@ -68,7 +67,8 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                                     sistEndret = LocalDateTime.parse(
                                         it.endret_tidspunkt,
                                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                                    ).atZone(ZoneId.of("Europe/Oslo")))
+                                    ).atZone(ZoneId.of("Europe/Oslo"))
+                                )
                             }
 
                         arbeidsmarkedKandidaterForListe.forEach {
@@ -91,6 +91,20 @@ fun konverterVurdering(status: String): ArbeidsgiversVurdering {
         "AKTUELL" -> ArbeidsgiversVurdering.AKTUELL
         "IKKE_AKTUELL" -> ArbeidsgiversVurdering.IKKE_AKTUELL
         else -> ArbeidsgiversVurdering.TIL_VURDERING
+    }
+}
+
+class KonverteringFilstier(envs: Map<String, String>) {
+    val kandidatfil: File
+    val kandidatlistefil: File
+
+    init {
+        val filområde = when (envs["NAIS_CLUSTER_NAME"]) {
+            "prod-gcp", "dev-gcp" -> "./tmp"
+            else -> "./src/test/resources"
+        }
+        kandidatlistefil = File("$filområde/kandidatlister-konvertering.json")
+        kandidatfil = File("$filområde/kandidater-konvertering.json")
     }
 }
 

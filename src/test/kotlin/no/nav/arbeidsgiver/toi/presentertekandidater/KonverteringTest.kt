@@ -16,8 +16,8 @@ class KonverteringTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8889)
     private val fuel = FuelManager()
-
     lateinit var openSearchKlient: OpenSearchKlient
+    lateinit var konverteringFilstier: KonverteringFilstier
 
     @BeforeAll
     fun init() {
@@ -30,8 +30,11 @@ class KonverteringTest {
                 "OPEN_SEARCH_PASSWORD" to "xyz"
             )
         )
+        konverteringFilstier = KonverteringFilstier(
+            mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
+        )
 
-        startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient)
+        startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient, konverteringsfilstier = konverteringFilstier )
 
         stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101") // ag-status: NY
         stubHentingAvAktørId(kandidatnr ="PAM013tc53ryp", aktørId = "10001000102") // ag-status: PAABEGYNT

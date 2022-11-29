@@ -54,9 +54,10 @@ fun startLocalApplication(
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
-    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
+    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs)),
+    konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
-    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient) { true }
+    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient, konverteringsfilstier) { true }
 }
 
 fun opprettTestRepositoryMedLokalPostgres(): Repository {
