@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurde
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.io.File
 import java.util.UUID
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -108,6 +109,24 @@ class KonverteringTest {
         assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.TIL_VURDERING)
 
 
+    }
+
+    @Test
+    fun `Filsti for test dev og prod skal være riktig`() {
+        val testEnv = mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
+        val devEnv = mapOf(Pair("NAIS_CLUSTER_NAME", "dev-gcp"))
+        val prodEnv = mapOf(Pair("NAIS_CLUSTER_NAME", "prod-gcp"))
+
+        val testFilstier = KonverteringFilstier(testEnv)
+        val devFilstier = KonverteringFilstier(devEnv)
+        val prodFilstier = KonverteringFilstier(prodEnv)
+
+        assertThat(testFilstier.kandidatlistefil).isEqualTo(File("./src/test/resources/kandidatlister-konvertering.json"))
+        assertThat(testFilstier.kandidatfil).isEqualTo(File("./src/test/resources/kandidater-konvertering.json"))
+        assertThat(devFilstier.kandidatlistefil).isEqualTo(File("./tmp/kandidatlister-konvertering.json"))
+        assertThat(devFilstier.kandidatfil).isEqualTo(File("./tmp/kandidater-konvertering.json"))
+        assertThat(prodFilstier.kandidatlistefil).isEqualTo(File("./tmp/kandidatlister-konvertering.json"))
+        assertThat(prodFilstier.kandidatfil).isEqualTo(File("./tmp/kandidater-konvertering.json"))
     }
 
     private fun stubHentingAvAktørId(kandidatnr: String, aktørId: String) {
