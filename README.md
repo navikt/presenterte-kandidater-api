@@ -3,6 +3,17 @@
 Mottar API-kall fra presenterte-kandidater som henter kandidater som har lister med kandidater som presenteres for arbeidsgiver. Den tilbyr også diverse statusoppdateringer og sletting.
 Endringer fra kandidatlisten i rekrutteringsbistand hentes inn til database som denne applikasjonen administrerer
 
+## Innlogging som arbeidsgiver i dev
+
+For å logge inn som arbeidsgiver som representerer en gitt virksomhet kan man:
+
+- Søke opp bedriften i Tenor slik: ```organisasjonsnummer:312113341```
+- Trykke på fanen "Relasjoner" og så "Hovedenhet", deretter "Kildedata"
+- I "Kildedata" finner man feltet "rollegrupper" som blant annet inneholder fødselsnummeret til daglig leder
+- Fødselsnummeret til daglig leder kan brukes for å logge inn med "Testid" i ID-porten
+
+NB: Dersom man ved innlogging blir møtt av skjerm for utfylling av kontaktinformasjon, kan det ta noe tid før testmiljøet til Altinn returnerer riktige roller. Det vil derfor midlertidig framstå som om daglig leder ikke har noen roller.
+
 # Utvikling
 
 I testene bruker vi _TestContainers_, som krever at Docker kjører på maskinen. Da kan du enten bruke Docker Desktop eller Colima. Hvis du bruker Colima, må du legge til følgende shell-variabler for at TestContainers skal finne Docker-instansen:
