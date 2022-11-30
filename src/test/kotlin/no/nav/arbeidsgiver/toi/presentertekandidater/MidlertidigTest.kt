@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import com.fasterxml.jackson.annotation.JsonAlias
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -9,25 +9,25 @@ class MidlertidigTest {
 
     @Test
     fun hentUtData() {
-        // virksomhetsnummer, adresse, navn
         val json = defaultObjectMapper.readTree(File("/Users/mads/IdeaProjects/presenterte-kandidater-api/src/test/resources/bedrifterMidl.json").readText(Charsets.UTF_8))
         println("Struktur på et dokument")
         val dokumentListe = json["dokumentListe"]
 
         val virksomheter = dokumentListe.map { lagVirksomhet(it) }
-        println(defaultObjectMapper.writeValueAsString(virksomheter))
+        printBulkInsert(virksomheter)
+    //        println(defaultObjectMapper.writeValueAsString(virksomheter))
     }
 
     private fun lagVirksomhet(node: JsonNode): Virksomhet {
-        val orgnr = node["organisasjonsnummer"].asText()
-        val name = node["navn"].asText()
-
         val forretningsAdresse = node["forretningsadresse"]
         val location = lagLocation(forretningsAdresse)
         val virksomhet = Virksomhet(
             orgnr = node["organisasjonsnummer"].asText(),
             name = node["navn"].asText(),
-            location = location
+            location = location,
+            hovedenhet = node["underenhet"]["hovedenhet"].asText(),
+            organisasjonsform = node["organisasjonsform"]["kode"].asText(),
+            antallAnsatte = node["antallAnsatte"].asInt()
         )
 
         return virksomhet
@@ -36,7 +36,13 @@ class MidlertidigTest {
     data class Virksomhet(
         val orgnr: String?,
         val name: String,
-        val location: Location?
+        val location: Location?,
+        @JsonIgnore
+        val hovedenhet: String,
+        @JsonIgnore
+        val organisasjonsform: String,
+        @JsonIgnore
+        val antallAnsatte: Int
     )
 
     data class Location(
@@ -46,6 +52,16 @@ class MidlertidigTest {
         val municipal: String?,
         val country: String?
     )
+
+    private fun printBulkInsert(virksomheter: List<Virksomhet>) {
+        val insert = "INSERT INTO company (name, orgnr, status, parentorgnr, publicname, deactivated, orgform, employees) VALUES\n"
+        val values = virksomheter.map { "(${lagDatabaserad(it)})" }.joinToString(",\n")
+        print("$insert$values;")
+    }
+
+    private fun lagDatabaserad(virksomhet: Virksomhet) =
+        "'${virksomhet.name}', '${virksomhet.orgnr}', 'ACTIVE', '${virksomhet.hovedenhet}', '${virksomhet.name}', false, '${virksomhet.organisasjonsform}', ${virksomhet.antallAnsatte}"
+
 
     private fun lagLocation(forretningsAdresse: JsonNode): Location {
         val adress = forretningsAdresse["adresse"][0]?.asText() ?: ""
