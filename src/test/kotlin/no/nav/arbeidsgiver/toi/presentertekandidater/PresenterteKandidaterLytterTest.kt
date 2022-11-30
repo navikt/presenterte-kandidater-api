@@ -429,7 +429,22 @@ class PresenterteKandidaterLytterTest {
                 "harHullICv": false,
                 "alder": 61,
                 "tilretteleggingsbehov": []
-              }
+              },
+                "stillingsinfo": {
+                  "stillingsinfoid": "ce1c8c60-dc74-48f5-98d3-851d3a18e5aa",
+                  "stillingsid": "$stillingsId",
+                  "eier": null,
+                  "notat": null,
+                  "stillingskategori": "STILLING"
+                },
+                "stilling": {
+                  "stillingstittel": "Engasjert utvikler søkes"
+                },
+                  "@forårsaket_av": {
+                    "id": "bc84d415-8c21-43bc-b6b3-6d87aa458abc",
+                    "opprettet": "2022-11-29T15:02:02.444969919",
+                    "event_name": "kandidat.annullert"
+                  }
             }
         """.trimIndent()
 

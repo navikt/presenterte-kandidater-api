@@ -25,7 +25,7 @@ class PresenterteKandidaterLytter(
                     )
                 )
                 it.demandKey("kandidathendelse")
-                it.interestedIn("stilling")
+                it.demandKey("stilling")
             }
         }.register(this)
     }
