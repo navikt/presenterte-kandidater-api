@@ -7,8 +7,8 @@ Endringer fra kandidatlisten i rekrutteringsbistand hentes inn til database som 
 
 For å logge inn som arbeidsgiver som representerer en gitt virksomhet kan man:
 
+- Finne organisasjonsnummeret til hovedenheten i JSON-responsen til rekrutteringsbistand-stilling
 - Søke opp bedriften i Tenor slik: ```organisasjonsnummer:312113341```
-- Trykke på fanen "Relasjoner" og så "Hovedenhet", deretter "Kildedata"
 - I "Kildedata" finner man feltet "rollegrupper" som blant annet inneholder fødselsnummeret til daglig leder
 - Fødselsnummeret til daglig leder kan brukes for å logge inn med "Testid" i ID-porten
 
