@@ -34,25 +34,32 @@ class PresenterteKandidaterLytter(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val kandidathendelsePacket = packet["kandidathendelse"]
-        val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
+        try {
+            val kandidathendelsePacket = packet["kandidathendelse"]
+            val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
 
-        log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
+            log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
 
-        when (kandidathendelse.type) {
-            Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
-                val stillingstittel = packet["stilling"]["stillingstittel"].asText()
-                presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
+            when (kandidathendelse.type) {
+                Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
+                    val stillingstittel = packet["stilling"]["stillingstittel"].asText()
+                    presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
+                }
+
+                Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE ->
+                    presenterteKandidaterService.slettKandidatFraKandidatliste(
+                        kandidathendelse.aktørId,
+                        kandidathendelse.stillingsId
+                    )
+
+                Type.ANNULLERT ->
+                    presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
+
+                Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
+                    presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
             }
-
-            Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE ->
-                presenterteKandidaterService.slettKandidatFraKandidatliste(kandidathendelse.aktørId, kandidathendelse.stillingsId)
-
-            Type.ANNULLERT ->
-                presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
-
-            Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
-                presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
+        } catch (e: Exception) {
+            log.error("Feil ved mottak av kandidathendelse.", e)
         }
     }
 }
