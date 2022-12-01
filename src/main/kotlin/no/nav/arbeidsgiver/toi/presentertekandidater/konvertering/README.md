@@ -16,10 +16,10 @@ Når filene ligger på poden, kan vi kjøre
 post mot http://<ingress>/internal/konverterdata
 
 ### Konverteringsjobb i dev
-https://presenterte-kandidater-api.dev.intern.nav.no
+post: https://presenterte-kandidater-api.dev.intern.nav.no/internal/konverterdata
 
 ### Konverteringsjobb i prod
-https://presenterte-kandidater-api.intern.nav.no
+post: https://presenterte-kandidater-api.intern.nav.no/internal/konverterdata
 
 
 
