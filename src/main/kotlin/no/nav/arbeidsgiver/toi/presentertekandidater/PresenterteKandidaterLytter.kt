@@ -59,7 +59,7 @@ class PresenterteKandidaterLytter(
                     presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
             }
         } catch (e: Exception) {
-            log.error("Feil ved mottak av kandidathendelse.", e)
+            log.error("Feil ved mottak av kandidathendelse. Dette må håndteres og man må for eksempel resette offset for å lese meldingen på nytt.", e)
         }
     }
 }
