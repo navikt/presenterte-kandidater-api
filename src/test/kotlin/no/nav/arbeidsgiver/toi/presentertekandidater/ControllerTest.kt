@@ -156,7 +156,6 @@ class ControllerTest {
         val virksomhetsnummerManHarRettighetTil = "987654321"
         val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummerManForsøkerÅHenteKandidatlisterFor"
-        virksomhetsnummerManHarRettighetTil
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummerManForsøkerÅHenteKandidatlisterFor,
             stillingId = stillingId

@@ -15,14 +15,18 @@ fun startController(
     repository: Repository,
     openSearchKlient: OpenSearchKlient,
     altinnKlient: AltinnKlient,
-    konverteringFilstier: KonverteringFilstier
+    konverteringFilstier: KonverteringFilstier,
 ) {
     javalin.routes {
         get("/organisasjoner", hentOrganisasjoner(altinnKlient), Rolle.ARBEIDSGIVER)
         get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
         get("/kandidatliste/{stillingId}", hentKandidatliste(repository, openSearchKlient), Rolle.ARBEIDSGIVER)
         put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
-        post("/internal/konverterdata", konverterFraArbeidsmarked(repository, openSearchKlient, konverteringFilstier), Rolle.UNPROTECTED)
+        post(
+            "/internal/konverterdata",
+            konverterFraArbeidsmarked(repository, openSearchKlient, konverteringFilstier),
+            Rolle.UNPROTECTED
+        )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
@@ -46,11 +50,10 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
     { context ->
         val virksomhetsnummer = context.queryParam("virksomhetsnummer")
 
-        if (virksomhetsnummer.isNullOrBlank()) {
-            context.status(400)
-        } else {
-            val lister: KandidatlisterDto = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer)
-            context.json(lister)
+        when (virksomhetsnummer) {
+            "", null -> context.status(400)
+            !in context.hentOrganisasjoner().map { it.organizationNumber } -> context.status(403)
+            else -> context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
         }
     }
 }
@@ -88,16 +91,18 @@ private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Uni
     }
 
 data class KandidatDto(
-    val kandidat: Kandidat, val cv: Cv?
+    val kandidat: Kandidat, val cv: Cv?,
 )
 
 data class KandidatlisteDto(
-    val kandidatliste: Kandidatliste, val kandidater: List<KandidatDto>
+    val kandidatliste: Kandidatliste, val kandidater: List<KandidatDto>,
 )
 
 typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
 
-fun Context.hentOrganisasjoner(): List<AltinnReportee> = attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
+fun Context.hentOrganisasjoner(): List<AltinnReportee> =
+    attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
+
 fun Context.setOrganisasjoner(altinnReportee: List<AltinnReportee>) = attribute("organisasjoner", altinnReportee)
 
 
