@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.test.assertNotNull
 
+@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
