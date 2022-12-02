@@ -26,6 +26,7 @@ class PresenterteKandidaterLytter(
                 )
                 it.demandKey("kandidathendelse")
                 it.demandKey("stilling")
+                    it.interestedIn("finnesJoIkke")
             }
         }.register(this)
     }
@@ -34,7 +35,8 @@ class PresenterteKandidaterLytter(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        try {
+//        try {
+            val finnesIkkePacket = packet["finnesJoIkke"]
             val kandidathendelsePacket = packet["kandidathendelse"]
             val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
 
@@ -58,8 +60,8 @@ class PresenterteKandidaterLytter(
                 Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN ->
                     presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
             }
-        } catch (e: Exception) {
-            log.error("Feil ved mottak av kandidathendelse.", e)
-        }
+//        } catch (e: Exception) {
+//            log.error("Feil ved mottak av kandidathendelse.", e)
+//        }
     }
 }
