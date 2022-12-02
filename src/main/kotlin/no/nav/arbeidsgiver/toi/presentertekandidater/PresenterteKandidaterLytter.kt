@@ -36,7 +36,7 @@ class PresenterteKandidaterLytter(
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
 //        try {
-            val finnesIkkePacket = packet["finnesJoIkke"]
+            val finnesIkkePacket = packet["finnesJoIkke"].asText().toInt()
             val kandidathendelsePacket = packet["kandidathendelse"]
             val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
 
