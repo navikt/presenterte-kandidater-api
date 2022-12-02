@@ -257,7 +257,7 @@ class PresenterteKandidaterLytterTest {
 
         PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
         assertThat(logWatcher.list).isNotEmpty
-        assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse.")
+        assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.")
     }
 
     private fun meldingOmKandidathendelseDeltCv(
