@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.test.assertNotNull
 
-@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
     private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
@@ -31,7 +30,7 @@ class PresenterteKandidaterLytterTest {
     private fun setUpLogWatcher() {
         logWatcher = ListAppender<ILoggingEvent>()
         logWatcher.start()
-        var logger = LoggerFactory.getLogger(PresenterteKandidaterLytter::class.java.name) as ch.qos.logback.classic.Logger
+        val logger = LoggerFactory.getLogger(PresenterteKandidaterLytter::class.java.name) as ch.qos.logback.classic.Logger
         logger.addAppender(logWatcher)
     }
 
@@ -249,17 +248,17 @@ class PresenterteKandidaterLytterTest {
         assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
     }
 
-//    @Test
-//    fun `Hvis noe feiler ved mottak av kandidathendelse skal dette catches og logges`() {
-//        val stillingsIdSomVilFeile = "ikke-gyldig-UUID"
-//
-//        val meldingSomVilFeile = meldingSomKanFeileVedUgyldigStillingsId(stillingsId = stillingsIdSomVilFeile)
-//        testRapid.sendTestMessage(meldingSomVilFeile)
-//
-//        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
-//        assertThat(logWatcher.list).isNotEmpty
-//        assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse.")
-//    }
+    @Test
+    fun `Hvis noe feiler ved mottak av kandidathendelse skal dette catches og logges`() {
+        val stillingsIdSomVilFeile = "ikke-gyldig-UUID"
+
+        val meldingSomVilFeile = meldingSomKanFeileVedUgyldigStillingsId(stillingsId = stillingsIdSomVilFeile)
+        testRapid.sendTestMessage(meldingSomVilFeile)
+
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        assertThat(logWatcher.list).isNotEmpty
+        assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse.")
+    }
 
     private fun meldingOmKandidathendelseDeltCv(
         aktørId: String,
