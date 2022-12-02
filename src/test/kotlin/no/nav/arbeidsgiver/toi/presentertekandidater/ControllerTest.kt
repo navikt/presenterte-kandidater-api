@@ -116,8 +116,7 @@ class ControllerTest {
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456788"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
@@ -180,7 +179,7 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidatliste-endepunkt returnerer en kandidatliste og kandidater med CV`() {
-        val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
+        val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
         val nå = ZonedDateTime.now()
         val exchangeToken = "exchangeToken"
@@ -610,8 +609,7 @@ class ControllerTest {
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
