@@ -174,6 +174,8 @@ class ControllerTest {
             .response()
 
         assertThat(response.statusCode).isEqualTo(403)
+        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        assertThat(jsonbody.isEmpty())
     }
 
     @Test
@@ -242,6 +244,48 @@ class ControllerTest {
         assertKandidat(kandidaterJson[1], kandidat2)
         assertNotNull(kandidaterJson[0]["cv"]);
         assertNotNull(kandidaterJson[1]["cv"]);
+    }
+
+    @Test
+    fun `GET mot kandidatliste-endepunkt returnerer 403 når man ikke representerer virksomheten kandidatlista tilhører`() {
+        val virksomhetsnummerManRepresenterer = "987654321"
+        val virksomhetsnummerTilkandidatlista = "123456789"
+        val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
+        val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
+        val nå = ZonedDateTime.now()
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        stubHentingAvOrganisasjoner(exchangeToken, listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManRepresenterer)))
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummerTilkandidatlista))
+
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat1 = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = nå
+        )
+        val kandidat2 = Kandidat(
+            aktørId = "666",
+            kandidatlisteId = kandidatliste.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = nå
+        )
+        repository.lagre(kandidat1)
+        repository.lagre(kandidat2)
+
+
+        val (_, response) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
+
+        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        assertThat(jsonbody.isEmpty())
     }
 
     @Test
