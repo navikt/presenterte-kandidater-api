@@ -36,7 +36,7 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
 
 private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle, IssuerProperties>): Boolean {
     val fødselsnummerClaim = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)?.get("pid")
-
+    // TODO: Sjekk rolle og rettigheter her
     return if (fødselsnummerClaim == null) {
         false
     } else {

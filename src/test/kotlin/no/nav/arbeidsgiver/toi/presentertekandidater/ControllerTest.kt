@@ -30,7 +30,7 @@ class ControllerTest {
     private val wiremockServer = WireMockServer(wiremockPort)
     private val fuel = FuelManager()
     private val altinnProxyWiremockUrl =
-        "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
+        "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&serviceCode=5078&serviceEdition=1&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
     private val tokenXWiremockUrl = "/token-x-token-endpoint"
 
     lateinit var openSearchKlient: OpenSearchKlient
