@@ -9,7 +9,7 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LivenessTest {
-    private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
 
     @BeforeAll
     fun init() {

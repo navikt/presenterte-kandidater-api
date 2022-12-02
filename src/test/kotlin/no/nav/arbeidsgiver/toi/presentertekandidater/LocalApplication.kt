@@ -1,8 +1,13 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.javalin.Javalin
+import io.javalin.plugin.json.JavalinJackson
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.testcontainers.containers.PostgreSQLContainer
@@ -12,6 +17,8 @@ import io.mockk.mockk
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
+import java.util.*
 
 private val repository = opprettTestRepositoryMedLokalPostgres()
 
@@ -20,7 +27,7 @@ fun main() {
     startLocalApplication(
         presenterteKandidaterService = presenterteKandidaterService,
         repository = repository,
-        javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     )
 }
 
@@ -29,7 +36,7 @@ val issuerProperties = mapOf(
         URL("http://localhost:18301/default/.well-known/openid-configuration"),
         listOf("default"),
         "tokenX"
-    ),
+    )
 )
 
 val wiremockPort = 8888
@@ -61,6 +68,22 @@ fun startLocalApplication(
     startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient, konverteringsfilstier) { true }
 }
 
+fun opprettJavalinMedTilgangskontrollForTest(
+    issuerProperties: Map<Rolle, IssuerProperties>,
+    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
+): Javalin = Javalin.create {
+    it.defaultContentType = "application/json"
+    it.accessManager(styrTilgang(issuerProperties, altinnKlient))
+    it.jsonMapper(
+        JavalinJackson(
+            jacksonObjectMapper().registerModule(JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+        )
+    )
+}.start(9000)
+
 fun opprettTestRepositoryMedLokalPostgres(): Repository {
     val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
         .withDatabaseName("dbname")
@@ -86,3 +109,4 @@ fun lagDatasource(postgres: PostgreSQLContainer<*>) = HikariConfig().apply {
     password = postgres.password
     validate()
 }.let(::HikariDataSource)
+

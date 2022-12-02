@@ -4,6 +4,8 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -13,7 +15,8 @@ import java.util.UUID
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KonverteringTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    private val altinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
+    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8889)
     private val fuel = FuelManager()
@@ -35,12 +38,17 @@ class KonverteringTest {
             mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
         )
 
-        startLocalApplication(javalin = javalin, repository = repository, openSearchKlient = openSearchKlient, konverteringsfilstier = konverteringFilstier )
+        startLocalApplication(
+            javalin = javalin,
+            repository = repository,
+            openSearchKlient = openSearchKlient,
+            konverteringsfilstier = konverteringFilstier
+        )
 
         stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101") // ag-status: NY
-        stubHentingAvAktørId(kandidatnr ="PAM013tc53ryp", aktørId = "10001000102") // ag-status: PAABEGYNT
-        stubHentingAvAktørId(kandidatnr ="PAM01897xkdyc", aktørId = "10001000103") // ag-status: AKTUELL
-        stubHentingAvAktørId(kandidatnr ="PAM0v81m8kg0", aktørId = "10001000104") // ag-status: IKKE_AKTUELL
+        stubHentingAvAktørId(kandidatnr = "PAM013tc53ryp", aktørId = "10001000102") // ag-status: PAABEGYNT
+        stubHentingAvAktørId(kandidatnr = "PAM01897xkdyc", aktørId = "10001000103") // ag-status: AKTUELL
+        stubHentingAvAktørId(kandidatnr = "PAM0v81m8kg0", aktørId = "10001000104") // ag-status: IKKE_AKTUELL
 
         val (_, response) = fuel
             .post("http://localhost:9000/internal/konverterdata")
@@ -93,7 +101,6 @@ class KonverteringTest {
 
         assertThat(kandiater[0].sistEndret.toString()).isEqualTo("2022-08-16T02:35:43+02:00[Europe/Oslo]")
     }
-
 
 
     @Test

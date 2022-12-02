@@ -5,9 +5,9 @@ import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
-import no.nav.arbeidsgiver.toi.presentertekandidater.setAccessToken
-import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
+import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 
@@ -17,12 +17,12 @@ enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED
 }
 
-fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
+fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>, altinnKlient: AltinnKlient) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
 
         val erAutentisert = when {
             roller.contains(Rolle.UNPROTECTED) -> true
-            roller.contains(Rolle.ARBEIDSGIVER) -> autentiserArbeidsgiver(ctx, issuerProperties)
+            roller.contains(Rolle.ARBEIDSGIVER) -> autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient)
 
             else -> false
         }
@@ -34,14 +34,22 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
         }
     }
 
-private fun autentiserArbeidsgiver(context: Context, issuerProperties: Map<Rolle, IssuerProperties>): Boolean {
+private fun autentiserArbeidsgiver(
+    context: Context,
+    issuerProperties: Map<Rolle, IssuerProperties>,
+    altinnKlient: AltinnKlient,
+): Boolean {
     val fødselsnummerClaim = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)?.get("pid")
-    // TODO: Sjekk rolle og rettigheter her
+
     return if (fødselsnummerClaim == null) {
         false
     } else {
-        context.setFødselsnummer(fødselsnummerClaim.toString())
-        context.setAccessToken(hentAccessTokenFraHeader(context))
+        val fnr = fødselsnummerClaim.toString()
+        val accessToken = hentAccessTokenFraHeader(context)
+
+        val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekruttering(fnr, accessToken)
+
+        context.setOrganisasjoner(organisasjoner)
         true
     }
 }

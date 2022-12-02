@@ -5,6 +5,7 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.http.Context
+import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.util.*
@@ -81,9 +82,7 @@ private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Uni
     { altinnKlient ->
         { context ->
             context.json(
-                altinnKlient.hentOrganisasjoner(
-                    context.hentFødselsnummer(),
-                    context.hentAccessToken())
+                context.hentOrganisasjoner()
             )
         }
     }
@@ -98,7 +97,7 @@ data class KandidatlisteDto(
 
 typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
 
-fun Context.hentFødselsnummer(): String = attribute("fnr") ?: error("Context har ikke fødselsnummer")
-fun Context.setFødselsnummer(fnr: String) = attribute("fnr", fnr)
-fun Context.hentAccessToken(): String = attribute("accessToken") ?: error("Context har ikke accessToken")
-fun Context.setAccessToken(accessToken: String) = attribute("accessToken", accessToken)
+fun Context.hentOrganisasjoner(): List<AltinnReportee> = attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
+fun Context.setOrganisasjoner(altinnReportee: List<AltinnReportee>) = attribute("organisasjoner", altinnReportee)
+
+

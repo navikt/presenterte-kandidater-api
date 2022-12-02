@@ -24,7 +24,10 @@ val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(Jav
 fun main() {
     val env = System.getenv()
     val issuerProperties = hentIssuerProperties(env)
-    val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    val tokendingsKlient = TokendingsKlient(env)
+    val altinnKlient = AltinnKlient(env, tokendingsKlient)
+
+    val javalin = opprettJavalinMedTilgangskontroll(issuerProperties, altinnKlient)
 
     val datasource = Databasekonfigurasjon(env).lagDatasource()
     val repository = Repository(datasource)
@@ -33,8 +36,6 @@ fun main() {
     val openSearchKlient = OpenSearchKlient(env)
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
 
-    val tokendingsKlient = TokendingsKlient(env)
-    val altinnKlient = AltinnKlient(env, tokendingsKlient)
 
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
@@ -72,10 +73,11 @@ fun startApp(
 }
 
 fun opprettJavalinMedTilgangskontroll(
-    issuerProperties: Map<Rolle, IssuerProperties>
+    issuerProperties: Map<Rolle, IssuerProperties>,
+    altinnKlient: AltinnKlient
 ): Javalin = Javalin.create {
     it.defaultContentType = "application/json"
-    it.accessManager(styrTilgang(issuerProperties))
+    it.accessManager(styrTilgang(issuerProperties, altinnKlient))
     it.jsonMapper(
         JavalinJackson(
             jacksonObjectMapper().registerModule(JavaTimeModule())

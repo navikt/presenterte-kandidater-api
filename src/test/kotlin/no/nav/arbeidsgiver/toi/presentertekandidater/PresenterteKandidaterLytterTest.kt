@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
-    private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val testRapid = TestRapid()
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)

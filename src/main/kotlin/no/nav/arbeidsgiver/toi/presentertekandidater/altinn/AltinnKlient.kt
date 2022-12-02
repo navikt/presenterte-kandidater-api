@@ -24,7 +24,7 @@ class AltinnKlient(
     private val rekrutteringsrettighetAltinnKode = "5078"
     private val rekrutteringsrettighetAltinnServiceEdition = "1"
 
-    fun hentOrganisasjoner(fnr: String, accessToken: String): List<AltinnReportee> {
+    fun hentOrganisasjonerMedRettighetRekruttering(fnr: String, accessToken: String): List<AltinnReportee> {
         log.info("Skal hente organisasjoner for innlogget person")
         val fraCache = cache[fnr]
 
@@ -32,11 +32,11 @@ class AltinnKlient(
             log.info("Har cache med organisasjoner for innlogget person")
             fraCache.organisasjoner
         } else {
-            hentOrganisasjonerFraAltinn(fnr, accessToken)
+            hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr, accessToken)
         }
     }
 
-    private fun hentOrganisasjonerFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
+    private fun hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
         val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
 
         return klient.hentOrganisasjoner(

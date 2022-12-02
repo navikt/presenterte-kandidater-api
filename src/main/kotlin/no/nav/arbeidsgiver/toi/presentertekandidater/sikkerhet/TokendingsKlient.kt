@@ -37,11 +37,7 @@ class TokendingsKlient(envs: Map<String, String>) {
 
         when (result) {
             is Result.Failure -> {
-<<<<<<< Updated upstream
-                throw RuntimeException("Kunne ikke veksle inn token hos TokenX:", result.getException())
-=======
                 throw RuntimeException("Kunne ikke veksle inn token hos TokenX", result.error)
->>>>>>> Stashed changes
             }
             is Result.Success -> {
                 log.info("Vekslet inn token hos TokenX")

@@ -9,6 +9,8 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions.assertThat
@@ -25,7 +27,7 @@ import kotlin.test.assertNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(wiremockPort)
     private val fuel = FuelManager()
