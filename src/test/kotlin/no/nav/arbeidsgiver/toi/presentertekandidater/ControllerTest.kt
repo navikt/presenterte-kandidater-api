@@ -87,6 +87,13 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidatlister-endepunkt uten virksomhetsnummer svarer 400 Bad Request`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
         val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = fuel
             .get(endepunkt)
@@ -106,6 +113,13 @@ class ControllerTest {
             stillingId = stillingId
         )
         repository.lagre(kandidatliste)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456788"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
         val (_, response) = fuel
             .get(endepunkt)
@@ -141,6 +155,8 @@ class ControllerTest {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
         val nå = ZonedDateTime.now()
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId))
 
@@ -215,6 +231,13 @@ class ControllerTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
         val body = """
             {
@@ -247,6 +270,13 @@ class ControllerTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
         val body = """
             {
@@ -286,6 +316,13 @@ class ControllerTest {
 
     @Test
     fun `PUT mot vurdering-endepunkt gir 400 hvis kandidat ikke eksisterer`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "FÅTT_JOBBEN"
@@ -500,6 +537,13 @@ class ControllerTest {
 
         )
         repository.lagre(kandidatliste)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
         val (_, response) = fuel
             .get(endepunkt)
@@ -517,6 +561,13 @@ class ControllerTest {
     fun `GET mot kandidatliste-endepunkt returnerer ikke en kandidatliste som er slettet`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc09")
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
+         val exchangeToken = "exchangeToken"
+         stubVekslingAvTokenX(exchangeToken)
+         val organisasjoner = listOf(
+             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+         )
+         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId, slettet = true))
 
