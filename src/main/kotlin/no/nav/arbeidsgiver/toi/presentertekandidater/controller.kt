@@ -50,9 +50,9 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
     { context ->
         val virksomhetsnummer = context.queryParam("virksomhetsnummer")
 
-        when (virksomhetsnummer) {
-            "", null -> context.status(400)
-            !in context.hentOrganisasjoner().map { it.organizationNumber } -> context.status(403)
+        when {
+            virksomhetsnummer.isNullOrEmpty() -> context.status(400)
+            context.representererIkkeOrganisasjon(virksomhetsnummer) -> context.status(403)
             else -> context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
         }
     }
@@ -68,17 +68,20 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
             } else {
                 val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))
 
-                if (kandidatliste == null || kandidatliste.slettet) {
-                    context.status(404)
-                } else if (kandidatliste.virksomhetsnummer !in context.hentOrganisasjoner().map { it.organizationNumber }) {
-                    context.status(403)
-                } else {
-                    val kandidater = repository.hentKandidater(kandidatliste.id!!)
-                    val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
-                    val kandidatDtoer = kandidater.map { KandidatDto(it, cver[it.aktørId]) }
+                when {
+                    kandidatliste == null -> context.status(404)
+                    context.representererIkkeOrganisasjon(kandidatliste.virksomhetsnummer) -> context.status(403)
+                    kandidatliste.slettet -> context.status(404)
+                    else -> {
+                        val kandidater = repository.hentKandidater(kandidatliste.id!!)
+                        val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
+                        val kandidatDtoer = kandidater.map { KandidatDto(it, cver[it.aktørId]) }
 
-                    context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
+                        context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
+                    }
+
                 }
+
             }
         }
     }
@@ -106,5 +109,8 @@ fun Context.hentOrganisasjoner(): List<AltinnReportee> =
     attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
 
 fun Context.setOrganisasjoner(altinnReportee: List<AltinnReportee>) = attribute("organisasjoner", altinnReportee)
+
+fun Context.representererIkkeOrganisasjon(virksomhetsnummer: String): Boolean =
+    virksomhetsnummer !in this.hentOrganisasjoner().map { it.organizationNumber }
 
 

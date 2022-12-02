@@ -9,8 +9,6 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions.assertThat
@@ -185,7 +183,14 @@ class ControllerTest {
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
 
-        repository.lagre(kandidatliste().copy(stillingId = stillingId))
+        val virksomhetsnummer = "111111111"
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+
+
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat1 = Kandidat(
@@ -627,17 +632,17 @@ class ControllerTest {
 
      @Test
     fun `GET mot kandidatliste-endepunkt returnerer ikke en kandidatliste som er slettet`() {
-        val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc09")
+        val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
          val exchangeToken = "exchangeToken"
          stubVekslingAvTokenX(exchangeToken)
+         val virksomhetsnummer = "123456789"
          val organisasjoner = listOf(
-             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
          )
          stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
 
-        repository.lagre(kandidatliste().copy(stillingId = stillingId, slettet = true))
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, slettet = true, virksomhetsnummer = virksomhetsnummer))
 
         val (_, response) = fuel
             .get(endepunkt)
