@@ -70,6 +70,8 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
 
                 if (kandidatliste == null || kandidatliste.slettet) {
                     context.status(404)
+                } else if (kandidatliste.virksomhetsnummer !in context.hentOrganisasjoner().map { it.organizationNumber }) {
+                    context.status(403)
                 } else {
                     val kandidater = repository.hentKandidater(kandidatliste.id!!)
                     val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
