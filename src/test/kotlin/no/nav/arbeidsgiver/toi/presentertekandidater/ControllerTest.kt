@@ -151,6 +151,33 @@ class ControllerTest {
     }
 
     @Test
+    fun `GET mot kandidatlister-endepunkt returnerer 403 når man forsøker å hente kandidatlister på organisasjoner der man ikke har noen rettigheter`() {
+        val virksomhetsnummerManForsøkerÅHenteKandidatlisterFor = "123456789"
+        val virksomhetsnummerManHarRettighetTil = "987654321"
+        val stillingId = UUID.randomUUID()
+        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummerManForsøkerÅHenteKandidatlisterFor"
+        virksomhetsnummerManHarRettighetTil
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummerManForsøkerÅHenteKandidatlisterFor,
+            stillingId = stillingId
+        )
+        repository.lagre(kandidatliste)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil),
+        )
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+
+        val (_, response) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
+    }
+
+    @Test
     fun `GET mot kandidatliste-endepunkt returnerer en kandidatliste og kandidater med CV`() {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
