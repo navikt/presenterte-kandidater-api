@@ -26,12 +26,11 @@ class PresenterteKandidaterService(private val repository: Repository) {
         }
 
         val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
+            ?: throw RuntimeException("Alvorlig feil - kandidatliste skal ikke kunne være null")
 
-        if (kandidatlisteLagret?.id != null) {
-            val kandidat = repository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id)
-            if (kandidat == null) {
-                lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
-            }
+        val kandidat = repository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id!!)
+        if (kandidat == null) {
+            lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
         }
     }
 
