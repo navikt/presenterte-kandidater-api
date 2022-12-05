@@ -223,7 +223,7 @@ class ControllerTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, "33332222333"))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
@@ -646,7 +646,7 @@ class ControllerTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, "11112222111"))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(404)
