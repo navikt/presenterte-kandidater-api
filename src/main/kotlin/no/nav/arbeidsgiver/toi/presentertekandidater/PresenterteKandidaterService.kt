@@ -6,12 +6,23 @@ import java.util.*
 
 class PresenterteKandidaterService(private val repository: Repository) {
 
-    fun lagreKandidathendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
+    fun lagreCvDeltHendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
         val kandidatliste = repository.hentKandidatliste(kandidathendelse.stillingsId)
+
         if (kandidatliste == null) {
-            lagreKandidatliste(kandidathendelse, stillingstittel)
+            val nyKandidatliste = Kandidatliste.ny(
+                stillingId = kandidathendelse.stillingsId,
+                tittel = stillingstittel,
+                virksomhetsnummer = kandidathendelse.organisasjonsnummer
+            )
+            repository.lagre(nyKandidatliste)
         } else {
-            oppdaterKandidatliste(kandidathendelse, stillingstittel)
+            val oppdatertKandidatliste = kandidatliste.copy(
+                tittel = stillingstittel,
+                status = Kandidatliste.Status.ÅPEN,
+                slettet = false
+            )
+            repository.oppdater(oppdatertKandidatliste)
         }
 
         val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
@@ -39,18 +50,6 @@ class PresenterteKandidaterService(private val repository: Repository) {
         }
     }
 
-    private fun lagreKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
-        val kandidatliste = mapKandidathendelseToKandidatliste(kandidathendelse, stillingstittel)
-        repository.lagre(kandidatliste) //returnere objektet for id?
-        return kandidatliste
-    }
-
-    private fun oppdaterKandidatliste(kandidathendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
-        val kandidatliste = mapKandidathendelseToKandidatliste(kandidathendelse, stillingstittel)
-        repository.oppdater(kandidatliste) //returnere objektet for id?
-        return kandidatliste
-    }
-
     private fun lagreKandidat(kandidathendelse: Kandidathendelse, kandidatlisteId: BigInteger) {
         val kandidat = mapKandidathendelseTilNyKandidat(kandidathendelse, kandidatlisteId)
         repository.lagre(kandidat)
@@ -63,20 +62,6 @@ class PresenterteKandidaterService(private val repository: Repository) {
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
             sistEndret = ZonedDateTime.now()
-        )
-    }
-
-    // TODO: Skal kun brukes når kandidathendelse gjelder første gang applikasjonen får vite om kandidatlista
-    private fun mapKandidathendelseToKandidatliste(hendelse: Kandidathendelse, stillingstittel: String): Kandidatliste {
-        return Kandidatliste(
-            stillingId = hendelse.stillingsId,
-            uuid = UUID.randomUUID(),
-            tittel = stillingstittel,
-            status = Kandidatliste.Status.ÅPEN,
-            slettet = hendelse.type.equals("dummy-SLETTET"),
-            virksomhetsnummer = hendelse.organisasjonsnummer,
-            sistEndret = ZonedDateTime.now(),
-            opprettet = ZonedDateTime.now()
         )
     }
 }

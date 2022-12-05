@@ -32,6 +32,17 @@ data class Kandidatliste(
             sistEndret = rs.getTimestamp("sist_endret").toInstant().atZone(ZoneId.of("Europe/Oslo")),
             opprettet = rs.getTimestamp("opprettet").toInstant().atZone(ZoneId.of("Europe/Oslo"))
         )
+
+        fun ny(stillingId: UUID, tittel: String, virksomhetsnummer: String) = Kandidatliste(
+            uuid = UUID.randomUUID(),
+            stillingId = stillingId,
+            tittel = tittel,
+            status = Status.ÅPEN,
+            slettet = false,
+            virksomhetsnummer = virksomhetsnummer,
+            sistEndret = ZonedDateTime.now(),
+            opprettet = ZonedDateTime.now()
+        )
     }
 
     enum class Status {

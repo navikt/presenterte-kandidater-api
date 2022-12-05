@@ -78,29 +78,50 @@ class PresenterteKandidaterLytterTest {
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
+        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+
+        // Verifiser etter første melding
+        val kandidatlisteEtterFørsteMelding = repository.hentKandidatliste(stillingsId)
+        val kandidaterEtterFørsteMelding = repository.hentKandidater(kandidatlisteEtterFørsteMelding?.id!!)
+
+        assertNotNull(kandidatlisteEtterFørsteMelding)
+        assertNotNull(kandidatlisteEtterFørsteMelding.id)
+        assertNotNull(kandidatlisteEtterFørsteMelding.uuid)
+        assertThat(kandidatlisteEtterFørsteMelding.stillingId).isEqualTo(stillingsId)
+        assertThat(kandidatlisteEtterFørsteMelding.tittel).isEqualTo("Noen skal få denne jobben!")
+        assertThat(kandidatlisteEtterFørsteMelding.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+        assertThat(kandidatlisteEtterFørsteMelding.slettet).isFalse
+        assertThat(kandidatlisteEtterFørsteMelding.virksomhetsnummer).isEqualTo("912998827")
+        assertThat(kandidaterEtterFørsteMelding).hasSize(1)
+
+        val kandidatEtterFørsteMelding = kandidaterEtterFørsteMelding.first()
+        assertNotNull(kandidatEtterFørsteMelding.id)
+        assertThat(kandidatEtterFørsteMelding.aktørId).isEqualTo(aktørId)
+        assertThat(kandidatEtterFørsteMelding.kandidatlisteId).isEqualTo(kandidatlisteEtterFørsteMelding.id)
+        assertNotNull(kandidatEtterFørsteMelding.uuid)
+
+        // Send ny melding
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
-        val kandidatliste = repository.hentKandidatliste(stillingsId)
-        val kandidater = repository.hentKandidater(kandidatliste?.id!!)
+        // Asserts etter andre melding
+        val kandidatlisteEtterAndreMelding = repository.hentKandidatliste(stillingsId)
+        val kandidaterEtterAndreMelding = repository.hentKandidater(kandidatlisteEtterAndreMelding?.id!!)
 
-        // Verifiser kandidatliste
-        assertNotNull(kandidatliste)
-        assertThat(kandidatliste.uuid)
-        assertThat(kandidatliste.stillingId).isEqualTo(stillingsId)
-        assertThat(kandidatliste.tittel).isEqualTo("Noen skal få denne jobben!")
-        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
-        assertThat(kandidatliste.slettet).isFalse
-        assertThat(kandidatliste.virksomhetsnummer).isEqualTo("912998827")
-        assertNotNull(kandidatliste.id)
+        assertNotNull(kandidatlisteEtterAndreMelding)
+        assertThat(kandidatlisteEtterAndreMelding.id).isEqualTo(kandidatlisteEtterAndreMelding.id)
+        assertThat(kandidatlisteEtterAndreMelding.uuid).isEqualTo(kandidatlisteEtterAndreMelding.uuid)
+        assertThat(kandidatlisteEtterAndreMelding.stillingId).isEqualTo(stillingsId)
+        assertThat(kandidatlisteEtterAndreMelding.tittel).isEqualTo("Noen skal få denne jobben!")
+        assertThat(kandidatlisteEtterAndreMelding.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+        assertThat(kandidatlisteEtterAndreMelding.slettet).isFalse
+        assertThat(kandidatlisteEtterAndreMelding.virksomhetsnummer).isEqualTo("912998827")
 
-        // Verifiser kandidat
-        assertThat(kandidater).hasSize(1)
-        val kandidat = kandidater.first()
-        assertNotNull(kandidat.id)
-        assertThat(kandidat.aktørId).isEqualTo(aktørId)
-        assertThat(kandidat.kandidatlisteId).isEqualTo(kandidatliste.id)
-        assertNotNull(kandidat.uuid)
+        assertThat(kandidaterEtterAndreMelding).hasSize(1)
+        val kandidatEtterAndreMelding = kandidaterEtterAndreMelding.first()
+        assertNotNull(kandidatEtterAndreMelding.id)
+        assertThat(kandidatEtterAndreMelding.aktørId).isEqualTo(aktørId)
+        assertThat(kandidatEtterAndreMelding.kandidatlisteId).isEqualTo(kandidatEtterAndreMelding.id)
+        assertNotNull(kandidatEtterAndreMelding.uuid)
     }
 
     @Test

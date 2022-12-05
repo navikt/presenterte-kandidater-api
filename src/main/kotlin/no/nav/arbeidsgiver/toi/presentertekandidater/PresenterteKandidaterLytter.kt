@@ -43,7 +43,7 @@ class PresenterteKandidaterLytter(
             when (kandidathendelse.type) {
                 Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
                     val stillingstittel = packet["stilling"]["stillingstittel"].asText()
-                    presenterteKandidaterService.lagreKandidathendelse(kandidathendelse, stillingstittel)
+                    presenterteKandidaterService.lagreCvDeltHendelse(kandidathendelse, stillingstittel)
                 }
 
                 Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE ->
