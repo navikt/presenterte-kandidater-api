@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import com.fasterxml.jackson.annotation.JsonAlias
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.kittinunf.result.Result

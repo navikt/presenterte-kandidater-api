@@ -85,9 +85,10 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 val hits = responsJsonNode["hits"]["hits"]
 
                 hits
-                        .map { it["fields"]["aktorId"] }
+                    .map { it["fields"]["aktorId"] }
                     .first().first().asText()
             }
+
             404 -> {
                 null
             }

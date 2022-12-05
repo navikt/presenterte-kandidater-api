@@ -20,7 +20,7 @@ class AltinnKlient(
     private val config = AltinnrettigheterProxyKlientConfig(ProxyConfig(consumerId, altinnProxyUrl))
     private val klient = AltinnrettigheterProxyKlient(config)
     private val cache = hashMapOf<String, CachetOrganisasjoner>()
-    private val levetidMinutter = 15L
+    private val cacheLevetidMinutter = 15L
     private val rekrutteringsrettighetAltinnKode = "5078"
     private val rekrutteringsrettighetAltinnServiceEdition = "1"
 
@@ -58,11 +58,11 @@ class AltinnKlient(
     private fun leggICache(fnr: String, organisasjoner: List<AltinnReportee>) {
         cache[fnr] = CachetOrganisasjoner(
             organisasjoner = organisasjoner,
-            utløper = ZonedDateTime.now().plusMinutes(levetidMinutter)
+            utløper = ZonedDateTime.now().plusMinutes(cacheLevetidMinutter)
         )
     }
 
-    private fun CachetOrganisasjoner.harUtløpt() = ZonedDateTime.now().isAfter(utløper.plusMinutes(levetidMinutter))
+    private fun CachetOrganisasjoner.harUtløpt() = ZonedDateTime.now().isAfter(utløper.plusMinutes(cacheLevetidMinutter))
 
     data class CachetOrganisasjoner(
         val organisasjoner: List<AltinnReportee>,
