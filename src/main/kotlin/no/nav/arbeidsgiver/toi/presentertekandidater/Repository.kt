@@ -95,6 +95,26 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentKandidatlisteTilKandidat(kandidatUuid: UUID): Kandidatliste? {
+        dataSource.connection.use {
+            val sql = """
+                select * from kandidatliste
+                join kandidat on kandidatliste.id = kandidat.kandidatliste_id
+                where kandidat.uuid = ?
+            """.trimIndent()
+
+            val resultSet = it.prepareStatement(sql).apply {
+                this.setObject(1, kandidatUuid)
+            }.executeQuery()
+
+            if (!resultSet.next()) {
+                return null
+            }
+
+            return Kandidatliste.fraDatabase(resultSet)
+        }
+    }
+
     fun hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer: String): List<KandidatlisteMedAntallKandidater> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(

@@ -295,7 +295,8 @@ class ControllerTest {
     @Test
     fun `PUT mot vurdering-endepunkt oppdaterer arbeidsgivers vurdering og returnerer 200 OK`() {
         val stillingId = UUID.randomUUID()
-        repository.lagre(kandidatliste().copy(stillingId = stillingId))
+        val virksomhetsnummer = "123456789"
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat = Kandidat(
             aktørId = "1234",
@@ -308,7 +309,7 @@ class ControllerTest {
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
@@ -322,7 +323,7 @@ class ControllerTest {
         val (_, response) = fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
             .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
@@ -361,7 +362,7 @@ class ControllerTest {
         val (_, response) = fuel
             .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
             .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(400)
@@ -410,6 +411,40 @@ class ControllerTest {
             .response()
 
         assertThat(response.statusCode).isEqualTo(400)
+    }
+
+    @Test
+    fun `PUT mot vurdering-endepunkt gir 403 hvis bruker ikke representerer virksomheten`() {
+        val kandidatlistasVirksomhetsnummer = "123456789"
+        val innloggetBrukersVirksomhetsnummer = "987654321"
+        val stillingId = UUID.randomUUID()
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = kandidatlistasVirksomhetsnummer))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = TIL_VURDERING,
+            sistEndret = ZonedDateTime.now().minusDays(1)
+        )
+        repository.lagre(kandidat)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", innloggetBrukersVirksomhetsnummer),)
+        stubHentingAvOrganisasjoner(exchangeToken, organisasjoner)
+        val body = """
+            {
+              "arbeidsgiversVurdering": "FÅTT_JOBBEN"
+            }
+        """.trimIndent()
+
+        val (_, response) = fuel
+            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
+            .jsonBody(body)
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
     }
 
     @Test

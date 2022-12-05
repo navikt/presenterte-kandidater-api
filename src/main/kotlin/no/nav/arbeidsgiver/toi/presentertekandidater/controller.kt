@@ -5,6 +5,7 @@ import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
@@ -39,6 +40,13 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
         val jsonBody = defaultObjectMapper.readTree(context.body())
         val arbeidsgiversVurdering =
             Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
+
+        repository.hentKandidatlisteTilKandidat(kandidatUuid)?.let {
+            if (context.representererIkkeOrganisasjon(it.virksomhetsnummer)) {
+                throw ForbiddenResponse()
+            }
+        }
+
         when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
             true -> context.status(200)
             false -> context.status(400)
