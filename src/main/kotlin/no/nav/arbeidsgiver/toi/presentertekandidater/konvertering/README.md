@@ -15,7 +15,6 @@ under i Oracle SQL Developer (i VDI) og eksportere de som JSON:
   l.db_id in (select distinct db_id from agkandliste ll
     where ll.stilling_id = l.stilling_id and
     ll.stilling_id is not null and ll.organisasjon_referanse is not null and ll.tittel is not null
-    and ll.opprettet_tidspunkt > to_date('2022-05-01', 'yyyy-mm-dd') and
     ll.opprettet_tidspunkt in( select max(lll.opprettet_tidspunkt) from agkandliste lll where lll.stilling_id=ll.stilling_id )
     )
   order by l.opprettet_tidspunkt desc;
