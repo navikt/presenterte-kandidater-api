@@ -4,6 +4,7 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.apibuilder.ApiBuilder.put
+import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
@@ -49,9 +50,7 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
             Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
 
         repository.hentKandidatlisteTilKandidat(kandidatUuid)?.let {
-            if (context.representererIkkeOrganisasjon(it.virksomhetsnummer)) {
-                throw ForbiddenResponse()
-            }
+            context.validerRekruttererRolleIOrganisasjon(it.virksomhetsnummer)
         }
 
         when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
@@ -63,13 +62,9 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
 
 private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = { repository ->
     { context ->
-        val virksomhetsnummer = context.queryParam("virksomhetsnummer")
-
-        when {
-            virksomhetsnummer.isNullOrEmpty() -> context.status(400)
-            context.representererIkkeOrganisasjon(virksomhetsnummer) -> context.status(403)
-            else -> context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
-        }
+        val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
+        context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
+        context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
     }
 }
 
@@ -81,11 +76,13 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
             if (stillingId.isNullOrBlank()) {
                 context.status(400)
             } else {
-                val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))
+                val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))?.let {
+                    context.validerRekruttererRolleIOrganisasjon(it.virksomhetsnummer)
+                    it
+                }
 
                 when {
                     kandidatliste == null -> context.status(404)
-                    context.representererIkkeOrganisasjon(kandidatliste.virksomhetsnummer) -> context.status(403)
                     kandidatliste.slettet -> context.status(404)
                     else -> {
                         val kandidater = repository.hentKandidater(kandidatliste.id!!)
@@ -128,7 +125,13 @@ fun Context.setOrganisasjonerForRekruttering(altinnReportee: List<AltinnReportee
 fun Context.setOrganisasjonerForRekruttering(): List<AltinnReportee> =
     attribute("organisasjonerForRekruttering") ?: error("Context har ikke organisasjoner for rekruttering.")
 
-fun Context.representererIkkeOrganisasjon(virksomhetsnummer: String): Boolean =
-    virksomhetsnummer !in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
+fun Context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer: String) {
+    val representererVirksomhet =
+        virksomhetsnummer in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
+    if (!representererVirksomhet) {
+        log.info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
+        throw ForbiddenResponse("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
+    }
+}
 
 
