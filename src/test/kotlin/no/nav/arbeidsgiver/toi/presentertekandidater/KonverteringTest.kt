@@ -105,17 +105,18 @@ class KonverteringTest {
 
     @Test
     fun `Konvertering av data lagres riktig i databasen med aktørid om person IKKE finnes i OpenSearch`() {
-
         val liste = repository.hentKandidatliste(UUID.fromString("3f381730-bf29-4345-b636-9961fcb42951"))!!
         assertThat(liste.virksomhetsnummer).isEqualTo("926698826")
         assertThat(liste.stillingId).isEqualTo(UUID.fromString("3f381730-bf29-4345-b636-9961fcb42951"))
 
         val kandiater = repository.hentKandidater(liste.id!!)
-        assertThat(kandiater[0].kandidatlisteId).isEqualTo(liste.id!!)
-        assertThat(kandiater[0].aktørId).isEqualTo("")
-        assertThat(kandiater[0].arbeidsgiversVurdering).isEqualTo(ArbeidsgiversVurdering.TIL_VURDERING)
+        assertThat(kandiater).isEmpty()
+    }
 
-
+    @Test
+    fun `Kandidatliste konverteres ikke om det ikke finnes kandidater`() {
+        val liste = repository.hentKandidatliste(UUID.fromString("0a9c1a27-76ae-4b65-802e-92e3c8847220"))
+        assertThat(liste).isNull()
     }
 
     @Test

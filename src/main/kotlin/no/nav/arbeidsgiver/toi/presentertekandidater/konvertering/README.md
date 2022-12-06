@@ -34,8 +34,9 @@ under i Oracle SQL Developer (i VDI) og eksportere de som JSON:
     and k.agkandliste_db_id = ll.db_id
     and ll.stilling_id=l.stilling_id
     and ll.opprettet_tidspunkt > to_date('2022-05-01', 'yyyy-mm-dd'))
-    order by k.kandidatnr, l.stilling_id;
+    order by k.kandidatnr, l.stilling_id;    //TODO: Legg til order by sist endret desc
 ```
+
 
 Hvis men bruker JSON eksport i Oracle SQL Developer så må man fjerne den første linje og den siste }
 Hvis man har perl installert så kan dette gjøres med:
@@ -64,7 +65,9 @@ Når filene ligger på poden, kan vi kjøre
 post mot http://<ingress>/internal/konverterdata
 
 ### Konverteringsjobb i dev
-post: https://presenterte-kandidater-api.dev.intern.nav.no/internal/konverterdata
+(Logg inn på pod isteden)
+post: https://presenterte-kandidater-api.dev.intern.nav.no/internal/konverterdata  
 
-### Konverteringsjobb i prod
+### Konverteringsjobb i prod@
+(Logg inn på pod isteden)
 post: https://presenterte-kandidater-api.intern.nav.no/internal/konverterdata
