@@ -32,9 +32,13 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                 kandidatlisterArbeidsmarked.forEach { liste ->
                     val stillingId = UUID.fromString(liste.stilling_id)
 
-                    val kandidaterForKandidatliste = kandidaterArbeidsmarked
-                        .filter { it.stilling_id == liste.stilling_id }
-                        .distinctBy { it.kandidatnr }
+                    val kandidaterIFilForStilling =
+                        kandidaterArbeidsmarked.filter { it.stilling_id == liste.stilling_id }
+                    val kandidaterForKandidatliste = kandidaterIFilForStilling.distinctBy { it.kandidatnr }
+
+                    if (kandidaterIFilForStilling != kandidaterForKandidatliste) {
+                        log("konvertering").info("Stilling ${stillingId} fjernet ${(kandidaterIFilForStilling - kandidaterForKandidatliste).joinToString { it.kandidatnr }}")
+                    }
 
                     if (kandidaterForKandidatliste.isEmpty()) return@forEach
 

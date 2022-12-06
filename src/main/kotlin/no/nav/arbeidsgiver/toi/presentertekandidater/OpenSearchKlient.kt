@@ -58,8 +58,6 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
         return when (respons.statusCode) {
             200 -> {
-                log.info("hentCver fra OpenSearch ok")
-
                 val data = resultat.get()
                 mapHentCver(aktørIder, data)
             }
