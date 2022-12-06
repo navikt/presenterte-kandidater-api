@@ -23,7 +23,6 @@ import kotlin.test.assertNull
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Disabled("Jobber med det og det feiler")
 class ControllerTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
@@ -32,7 +31,7 @@ class ControllerTest {
     private val fuel = FuelManager()
     private val altinnProxyUrlFiltrertPåRekruttering =
         "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&serviceCode=5078&serviceEdition=1&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
-    private val altinnProxyUrlUtenFiltreringPåRettighet =
+    private val altinnProxyUrlAlle =
         "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
     private val tokenXWiremockUrl = "/token-x-token-endpoint"
 
@@ -400,7 +399,7 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvAlleOrganisasjonerDerBrukerHarEnEllerAnnenRolle(exchangeToken, organisasjoner)
+        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "FÅTT_JOBBEN"
@@ -460,7 +459,7 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvAlleOrganisasjonerDerBrukerHarEnEllerAnnenRolle(exchangeToken, organisasjoner)
+        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
@@ -481,7 +480,7 @@ class ControllerTest {
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = emptyList<AltinnReportee>()
-        stubHentingAvAlleOrganisasjonerDerBrukerHarEnEllerAnnenRolle(exchangeToken, organisasjoner)
+        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
@@ -501,7 +500,7 @@ class ControllerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvAlleOrganisasjonerDerBrukerHarEnEllerAnnenRolle(exchangeToken, organisasjoner)
+        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
         val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
@@ -524,118 +523,126 @@ class ControllerTest {
         assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
         wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyUrlAlle)))
     }
 
-    @Test
-    fun `GET mot organisasjoner-endepunkt bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
+     @Test
+    fun `GET mot kandidatlister endepunkt bruker Altinn cache`() {
         val exchangeToken = "exchangeToken"
         stubVekslingAvTokenX(exchangeToken)
-        val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
-        stubHentingAvAlleOrganisasjonerDerBrukerHarEnEllerAnnenRolle(exchangeToken, tomListeAvOrganisasjoner)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
         val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
 
-        val (_, respons1, result1) = fuel
-            .get("http://localhost:9000/organisasjoner")
+        val (_, respons1, _) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
-
         assertThat(respons1.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons1 = result1.get()
-        assertThat(organisasjonerFraRespons1).hasSize(tomListeAvOrganisasjoner.size)
 
-        val (_, respons2, result2) = fuel
-            .get("http://localhost:9000/organisasjoner")
+        val (_, respons2, _) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+        assertThat(respons2.statusCode).isEqualTo(200)
+
+        wiremockServer.verify(1, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(1, getRequestedFor(urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
+    }
+
+    @Test
+    fun `GET mot kandidatlister-endepunkt bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, tomListeAvOrganisasjoner)
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+
+        fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
 
-        assertThat(respons2.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons2 = result2.get()
-        assertThat(organisasjonerFraRespons2).hasSize(tomListeAvOrganisasjoner.size)
+        fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
 
         wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
     }
 
-//    @Test
-//    fun `GET mot organisasjoner-endepunkt bruker ikke cache når det hentes organisasjoner for annen bruker`() {
-//        val exchangeToken = "exchangeToken"
-//        stubVekslingAvTokenX(exchangeToken)
-//        val organisasjoner = listOf(
-//            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-//            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-//        )
-//        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
-//        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-//        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
-//        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-//        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
-//
-//        val (_, respons1, result1) = fuel
-//            .get("http://localhost:9000/organisasjoner")
-//            .authentication().bearer(accessToken)
-//            .responseObject<List<AltinnReportee>>()
-//
-//        assertThat(respons1.statusCode).isEqualTo(200)
-//        val organisasjonerFraRespons1 = result1.get()
-//        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
-//
-//        val (_, respons2, result2) = fuel
-//            .get("http://localhost:9000/organisasjoner")
-//            .authentication().bearer(accessToken2)
-//            .responseObject<List<AltinnReportee>>()
-//
-//        assertThat(respons2.statusCode).isEqualTo(200)
-//        val organisasjonerFraRespons2 = result2.get()
-//        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
-//
-//        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
-//        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyRekrutteringWiremockUrl)))
-//    }
+    @Test
+    fun `GET mot kandidatlister-endepunkt bruker ikke cache når det hentes organisasjoner for annen bruker`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
+        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
 
-//    @Test
-//    fun `GET mot organisasjoner-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
-//        val exchangeToken = "exchangeToken"
-//        stubVekslingAvTokenX(exchangeToken)
-//        val organisasjoner = listOf(
-//            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-//            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-//        )
-//        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
-//        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-//        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
-//        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-//        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
-//
-//        val (_, respons1, result1) = fuel
-//            .get("http://localhost:9000/organisasjoner")
-//            .authentication().bearer(accessToken)
-//            .responseObject<List<AltinnReportee>>()
-//
-//        assertThat(respons1.statusCode).isEqualTo(200)
-//        val organisasjonerFraRespons1 = result1.get()
-//        assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
-//
-//        // Setter klokka fram i tid
-//        val constantClock: Clock =
-//            Clock.fixed(ZonedDateTime.now().plusMinutes(15).plusNanos(1).toInstant(), ZoneId.systemDefault())
-//
-//        val (_, respons2, result2) = fuel
-//            .get("http://localhost:9000/organisasjoner")
-//            .authentication().bearer(accessToken2)
-//            .responseObject<List<AltinnReportee>>()
-//
-//        assertThat(respons2.statusCode).isEqualTo(200)
-//        val organisasjonerFraRespons2 = result2.get()
-//        assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
-//
-//        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
-//        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyRekrutteringWiremockUrl)))
-//
-//        // Setter klokka tilbake
-//        Clock.offset(constantClock, Duration.ZERO)
-//    }
+        val (_, respons1, _) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+        assertThat(respons1.statusCode).isEqualTo(200)
+
+        val (_, respons2, _) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(accessToken2)
+            .responseObject<List<AltinnReportee>>()
+        assertThat(respons2.statusCode).isEqualTo(200)
+
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
+    }
+
+    @Test
+    fun `GET mot kandidatlister-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+        )
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
+        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
+        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
+
+        val (_, respons1, _) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(accessToken)
+            .responseObject<List<AltinnReportee>>()
+        assertThat(respons1.statusCode).isEqualTo(200)
+
+        // Setter klokka fram i tid
+        val constantClock: Clock =
+            Clock.fixed(ZonedDateTime.now().plusMinutes(15).plusNanos(1).toInstant(), ZoneId.systemDefault())
+
+        val (_, respons2, _) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(accessToken2)
+            .responseObject<List<AltinnReportee>>()
+        assertThat(respons2.statusCode).isEqualTo(200)
+
+        wiremockServer.verify(2, postRequestedFor(urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(2, getRequestedFor(urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
+
+        // Setter klokka tilbake
+        Clock.offset(constantClock, Duration.ZERO)
+    }
 
     @Test
     fun `GET mot kandidatlister-endepunkt returnerer ikke lister som er slettet`() {
@@ -732,10 +739,10 @@ class ControllerTest {
         )
     }
 
-    private fun stubHentingAvAlleOrganisasjonerDerBrukerHarEnEllerAnnenRolle(exchangeToken: String, organisasjoner: List<AltinnReportee>) {
+    private fun stubHentingAvAlleOrganisasjoner(exchangeToken: String, organisasjoner: List<AltinnReportee>) {
         val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
         wiremockServer.stubFor(
-            get(altinnProxyUrlUtenFiltreringPåRettighet)
+            get(altinnProxyUrlAlle)
                 .withHeader("Authorization", containing("Bearer $exchangeToken"))
                 .willReturn(
                     ok(organisasjonerJson)
