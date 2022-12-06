@@ -11,26 +11,24 @@ data class CachedHandler(
     val expires: LocalDateTime,
 )
 
-val cache: HashMap<Rolle, CachedHandler> = HashMap()
+val cache: HashMap<String, CachedHandler> = HashMap()
 
 fun hentTokenValidationHandler(
-    allIssuerProperties: Map<Rolle, IssuerProperties>,
-    rolle: Rolle
+    issuerProperties: IssuerProperties
 ): JwtTokenValidationHandler {
-    val issuerProperties = allIssuerProperties[rolle]!!
-    val cachedHandler = cache[rolle]
+    val cachedHandler = cache["tokendings"]
 
     return if (cachedHandler != null && cachedHandler.expires.isAfter(LocalDateTime.now())) {
         cachedHandler.handler
     } else {
         val expires = LocalDateTime.now().plusHours(1)
-        log("hentTokenValidationHandler").info("Henter og cacher nye public keys for issuer $rolle til $expires")
+        log("hentTokenValidationHandler").info("Henter og cacher nye public keys for issuer tokendings til $expires")
 
         val newHandler = JwtTokenValidationHandler(
             MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
         )
 
-        cache[rolle] = CachedHandler(newHandler, expires);
+        cache["tokendings"] = CachedHandler(newHandler, expires);
         newHandler
     }
 }

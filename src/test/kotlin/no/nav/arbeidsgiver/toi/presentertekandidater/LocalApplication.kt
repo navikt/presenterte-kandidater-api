@@ -31,12 +31,11 @@ fun main() {
     )
 }
 
-val issuerProperties = mapOf(
-    Rolle.ARBEIDSGIVER to IssuerProperties(
-        URL("http://localhost:18301/default/.well-known/openid-configuration"),
-        listOf("default"),
-        "tokenX"
-    )
+val issuerProperties = IssuerProperties(
+    URL("http://localhost:18301/default/.well-known/openid-configuration"),
+    listOf("default"),
+    "tokenX"
+
 )
 
 val wiremockPort = 8888
@@ -62,14 +61,20 @@ fun startLocalApplication(
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
-    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs)),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
-    startApp(javalin, rapid, presenterteKandidaterService, repository, openSearchKlient, altinnKlient, konverteringsfilstier) { true }
+    startApp(
+        javalin,
+        rapid,
+        presenterteKandidaterService,
+        repository,
+        openSearchKlient,
+        konverteringsfilstier
+    ) { true }
 }
 
 fun opprettJavalinMedTilgangskontrollForTest(
-    issuerProperties: Map<Rolle, IssuerProperties>,
+    issuerProperties: IssuerProperties,
     altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
 ): Javalin = Javalin.create {
     it.defaultContentType = "application/json"

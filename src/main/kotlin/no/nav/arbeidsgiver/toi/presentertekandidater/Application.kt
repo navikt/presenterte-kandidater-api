@@ -10,10 +10,7 @@ import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.hentIssuerProperties
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.*
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import java.util.TimeZone
@@ -23,7 +20,7 @@ val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(Jav
 
 fun main() {
     val env = System.getenv()
-    val issuerProperties = hentIssuerProperties(env)
+    val issuerProperties = hentIssuerPropertiesForTokenX(env)
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
 
@@ -48,7 +45,6 @@ fun main() {
         presenterteKandidaterService,
         repository,
         openSearchKlient,
-        altinnKlient,
         KonverteringFilstier(env),
         rapidIsAlive,
     )
@@ -60,12 +56,11 @@ fun startApp(
     presenterteKandidaterService: PresenterteKandidaterService,
     repository: Repository,
     openSearchKlient: OpenSearchKlient,
-    altinnKlient: AltinnKlient,
     konverteringFilstier: KonverteringFilstier,
     rapidIsAlive: () -> Boolean,
 ) {
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    startController(javalin, repository, openSearchKlient, altinnKlient, konverteringFilstier)
+    startController(javalin, repository, openSearchKlient, konverteringFilstier)
 
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, presenterteKandidaterService)
@@ -73,7 +68,7 @@ fun startApp(
 }
 
 fun opprettJavalinMedTilgangskontroll(
-    issuerProperties: Map<Rolle, IssuerProperties>,
+    issuerProperties: IssuerProperties,
     altinnKlient: AltinnKlient
 ): Javalin = Javalin.create {
     it.defaultContentType = "application/json"

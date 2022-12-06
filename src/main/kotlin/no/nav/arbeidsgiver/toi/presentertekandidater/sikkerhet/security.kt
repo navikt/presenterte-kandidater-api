@@ -7,20 +7,24 @@ import io.javalin.http.Handler
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
 import io.javalin.http.UnauthorizedResponse
+import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjonerForRekruttering
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 
 
 enum class Rolle : RouteRole {
-    ARBEIDSGIVER, UNPROTECTED
+    ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
 }
 
-fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>, altinnKlient: AltinnKlient) =
+fun styrTilgang(issuerProperties: IssuerProperties, altinnKlient: AltinnKlient) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
 
         val erAutentisert = when {
+            roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
+                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, forRolleRekruttering = true)
+            roller.contains(Rolle.ARBEIDSGIVER) ->
+                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, forRolleRekruttering = false)
             roller.contains(Rolle.UNPROTECTED) -> true
-            roller.contains(Rolle.ARBEIDSGIVER) -> autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient)
 
             else -> false
         }
@@ -34,10 +38,11 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>, altinnKlient: Al
 
 private fun autentiserArbeidsgiver(
     context: Context,
-    issuerProperties: Map<Rolle, IssuerProperties>,
+    issuerProperties: IssuerProperties,
     altinnKlient: AltinnKlient,
+    forRolleRekruttering: Boolean
 ): Boolean {
-    val fødselsnummerClaim = hentTokenClaims(context, issuerProperties, Rolle.ARBEIDSGIVER)?.get("pid")
+    val fødselsnummerClaim = hentTokenClaims(context, issuerProperties)?.get("pid")
 
     return if (fødselsnummerClaim == null) {
         false
@@ -45,17 +50,21 @@ private fun autentiserArbeidsgiver(
         val fnr = fødselsnummerClaim.toString()
         val accessToken = hentAccessTokenFraHeader(context)
 
-        val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekruttering(fnr, accessToken)
-
-        context.setOrganisasjoner(organisasjoner)
+        if (forRolleRekruttering) {
+            val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekruttering(fnr, accessToken)
+            context.setOrganisasjonerForRekruttering(organisasjoner)
+        } else {
+            val organisasjoner = altinnKlient.hentOrganisasjonerFraAltinn(fnr, accessToken)
+            context.setOrganisasjoner(organisasjoner)
+        }
         true
     }
 }
 
-private fun hentTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
+
+private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
     hentTokenValidationHandler(
-        issuerProperties,
-        rolle
+        issuerProperties
     ).getValidatedTokens(ctx.httpRequest).anyValidClaims.orElseGet { null }
 
 private val Context.httpRequest: HttpRequest

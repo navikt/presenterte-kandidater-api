@@ -50,12 +50,30 @@ class AltinnKlient(
                 log.info("Innlogget person representerer ingen organisasjoner")
             } else {
                 log.info("Innlogget person representerer ${it.size} organisasjoner")
-                leggICache(fnr, it)
+                leggICacheMedRolleRekruttering(fnr, it)
             }
         }
     }
 
-    private fun leggICache(fnr: String, organisasjoner: List<AltinnReportee>) {
+    fun hentOrganisasjonerFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
+        val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
+
+        return klient.hentOrganisasjoner(
+            selvbetjeningToken = SelvbetjeningToken(exchangeToken),
+            subject = Subject(fnr),
+            filtrerPåAktiveOrganisasjoner = true
+        ).also {
+            if (it.isEmpty()) {
+                log.info("Innlogget person representerer ingen organisasjoner")
+            } else {
+                log.info("Innlogget person representerer ${it.size} organisasjoner")
+            }
+        }
+    }
+
+
+
+    private fun leggICacheMedRolleRekruttering(fnr: String, organisasjoner: List<AltinnReportee>) {
         cache[fnr] = CachetOrganisasjoner(
             organisasjoner = organisasjoner,
             utløper = ZonedDateTime.now().plusMinutes(cacheLevetidMinutter)

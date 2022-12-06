@@ -15,14 +15,21 @@ fun startController(
     javalin: Javalin,
     repository: Repository,
     openSearchKlient: OpenSearchKlient,
-    altinnKlient: AltinnKlient,
     konverteringFilstier: KonverteringFilstier,
 ) {
     javalin.routes {
-        get("/organisasjoner", hentOrganisasjoner(altinnKlient), Rolle.ARBEIDSGIVER)
-        get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER)
-        get("/kandidatliste/{stillingId}", hentKandidatliste(repository, openSearchKlient), Rolle.ARBEIDSGIVER)
-        put("/kandidat/{uuid}/vurdering", oppdaterArbeidsgiversVurdering(repository), Rolle.ARBEIDSGIVER)
+        get("/organisasjoner", hentOrganisasjoner, Rolle.ARBEIDSGIVER)
+        get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        get(
+            "/kandidatliste/{stillingId}",
+            hentKandidatliste(repository, openSearchKlient),
+            Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+        )
+        put(
+            "/kandidat/{uuid}/vurdering",
+            oppdaterArbeidsgiversVurdering(repository),
+            Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+        )
         post(
             "/internal/konverterdata",
             konverterFraArbeidsmarked(repository, openSearchKlient, konverteringFilstier),
@@ -94,13 +101,11 @@ private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSe
         }
     }
 
-private val hentOrganisasjoner: (altinnKlient: AltinnKlient) -> (Context) -> Unit =
-    { altinnKlient ->
-        { context ->
-            context.json(
-                context.hentOrganisasjoner()
-            )
-        }
+private val hentOrganisasjoner: (Context) -> Unit =
+    { context ->
+        context.json(
+            context.hentOrganisasjoner()
+        )
     }
 
 data class KandidatDto(
@@ -117,8 +122,13 @@ fun Context.hentOrganisasjoner(): List<AltinnReportee> =
     attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
 
 fun Context.setOrganisasjoner(altinnReportee: List<AltinnReportee>) = attribute("organisasjoner", altinnReportee)
+fun Context.setOrganisasjonerForRekruttering(altinnReportee: List<AltinnReportee>) =
+    attribute("organisasjonerForRekruttering", altinnReportee)
+
+fun Context.setOrganisasjonerForRekruttering(): List<AltinnReportee> =
+    attribute("organisasjonerForRekruttering") ?: error("Context har ikke organisasjoner for rekruttering.")
 
 fun Context.representererIkkeOrganisasjon(virksomhetsnummer: String): Boolean =
-    virksomhetsnummer !in this.hentOrganisasjoner().map { it.organizationNumber }
+    virksomhetsnummer !in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
 
 
