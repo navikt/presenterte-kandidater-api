@@ -114,7 +114,7 @@ class KonverteringFilstier(envs: Map<String, String>) {
 
     init {
         val filområde = when (envs["NAIS_CLUSTER_NAME"]) {
-            "prod-gcp", "dev-gcp" -> "./tmp"
+            "prod-gcp", "dev-gcp" -> "/tmp"
             else -> "./src/test/resources"
         }
         kandidatlistefil = File("$filområde/kandidatlister-konvertering.json")

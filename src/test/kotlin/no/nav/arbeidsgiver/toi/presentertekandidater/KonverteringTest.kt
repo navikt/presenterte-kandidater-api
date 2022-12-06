@@ -131,10 +131,10 @@ class KonverteringTest {
 
         assertThat(testFilstier.kandidatlistefil).isEqualTo(File("./src/test/resources/kandidatlister-konvertering.json"))
         assertThat(testFilstier.kandidatfil).isEqualTo(File("./src/test/resources/kandidater-konvertering.json"))
-        assertThat(devFilstier.kandidatlistefil).isEqualTo(File("./tmp/kandidatlister-konvertering.json"))
-        assertThat(devFilstier.kandidatfil).isEqualTo(File("./tmp/kandidater-konvertering.json"))
-        assertThat(prodFilstier.kandidatlistefil).isEqualTo(File("./tmp/kandidatlister-konvertering.json"))
-        assertThat(prodFilstier.kandidatfil).isEqualTo(File("./tmp/kandidater-konvertering.json"))
+        assertThat(devFilstier.kandidatlistefil).isEqualTo(File("/tmp/kandidatlister-konvertering.json"))
+        assertThat(devFilstier.kandidatfil).isEqualTo(File("/tmp/kandidater-konvertering.json"))
+        assertThat(prodFilstier.kandidatlistefil).isEqualTo(File("/tmp/kandidatlister-konvertering.json"))
+        assertThat(prodFilstier.kandidatfil).isEqualTo(File("/tmp/kandidater-konvertering.json"))
     }
 
     private fun stubHentingAvAktørId(kandidatnr: String, aktørId: String) {
