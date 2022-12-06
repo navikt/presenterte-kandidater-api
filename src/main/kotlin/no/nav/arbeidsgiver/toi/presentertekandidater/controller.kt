@@ -71,27 +71,22 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
 private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, opensearchKlient ->
         { context ->
-            val stillingId = context.pathParam("stillingId")
+            val stillingId: String = context.pathParam("stillingId")
 
-            if (stillingId.isNullOrBlank()) {
-                context.status(400)
-            } else {
-                val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))?.let {
-                    context.validerRekruttererRolleIOrganisasjon(it.virksomhetsnummer)
-                    it
-                }
+            val kandidatliste = repository.hentKandidatliste(UUID.fromString(stillingId))?.let {
+                context.validerRekruttererRolleIOrganisasjon(it.virksomhetsnummer)
+                it
+            }
 
-                when {
-                    kandidatliste == null -> context.status(404)
-                    kandidatliste.slettet -> context.status(404)
-                    else -> {
-                        val kandidater = repository.hentKandidater(kandidatliste.id!!)
-                        val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
-                        val kandidatDtoer = kandidater.map { KandidatDto(it, cver[it.aktørId]) }
+            when {
+                kandidatliste == null -> context.status(404)
+                kandidatliste.slettet -> context.status(404)
+                else -> {
+                    val kandidater = repository.hentKandidater(kandidatliste.id!!)
+                    val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
+                    val kandidatDtoer = kandidater.map { KandidatDto(it, cver[it.aktørId]) }
 
-                        context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
-                    }
-
+                    context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
                 }
 
             }
