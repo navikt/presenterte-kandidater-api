@@ -65,24 +65,24 @@ class ControllerTest {
     }
 
     @Test
-    fun `GET mot kandidatlister-endepunkt svarer 403 Forbidden hvis forespørselen ikke inneholder et token`() {
+    fun `GET mot kandidatlister-endepunkt svarer 401 Unauthorized hvis forespørselen ikke inneholder et token`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = fuel
             .get(endepunkt)
             .response()
 
-        assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(401)
     }
 
     @Test
-    fun `GET mot kandidatlister-endepunkt svarer 403 Forbidden hvis forespørselens token er ugyldig`() {
+    fun `GET mot kandidatlister-endepunkt svarer 401 Unauthorized hvis forespørselens token er ugyldig`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = fuel
             .get(endepunkt)
             .authentication().bearer(hentUgyldigToken(mockOAuth2Server))
             .response()
 
-        assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(401)
     }
 
     @Test

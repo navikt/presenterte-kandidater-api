@@ -3,10 +3,10 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
-import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
+import io.javalin.http.UnauthorizedResponse
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 
@@ -28,7 +28,7 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>, altinnKlient: Al
         if (erAutentisert) {
             handler.handle(ctx)
         } else {
-            throw ForbiddenResponse()
+            throw UnauthorizedResponse()
         }
     }
 
