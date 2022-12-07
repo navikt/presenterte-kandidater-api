@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.test.assertFalse
@@ -51,5 +52,22 @@ class SlettejobbTest {
         slettKandidaterOgKandidatlister(repository)
 
         assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
+    }
+
+    @Test
+    fun `Slettejobb skal ikke slette gamle kandidatlister med kandidater`() {
+        var kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+            sistEndret = ZonedDateTime.now().minusMonths(8)
+        )
+        repository.lagre(kandidatliste)
+        kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
+
+        var nyKandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+        repository.lagre(nyKandidat)
+
+        slettKandidaterOgKandidatlister(repository)
+
+        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
+        assertNotNull(repository.hentKandidatliste(kandidatliste.stillingId))
     }
 }
