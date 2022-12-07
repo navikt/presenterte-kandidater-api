@@ -162,6 +162,26 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentKandidaterSomIkkeErEndretSiden(dato : ZonedDateTime): List<Kandidat> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                |select *
+                |from kandidat k 
+                |where k.sist_endret < ?
+                |""".trimMargin()
+            ).apply {
+                this.setTimestamp(1, Timestamp(dato.toInstant().toEpochMilli()))
+            }.executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    Kandidat.fraDatabase(resultSet)
+                } else null
+            }.toList()
+        }
+    }
+
     fun hentKandidater(kandidatlisteId: BigInteger): List<Kandidat> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement("select * from kandidat where kandidatliste_id = ?").apply {

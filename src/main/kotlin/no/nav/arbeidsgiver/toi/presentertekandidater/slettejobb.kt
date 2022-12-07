@@ -24,12 +24,18 @@ fun slettKandidaterOgKandidatlister(repository: Repository) {
 }
 
 private fun slettKandidater(repository: Repository) {
-    // Slett kandidater som er sistEndret for over 6mnd siden.
+    val kandidater = repository.hentKandidaterSomIkkeErEndretSiden(seksMånederSiden())
+
+    if (kandidater.isEmpty()) return
+    log("slettejobb.kt").info("Skal slette ${kandidater.size} kandidater")
+    kandidater.forEach{ kandidat ->
+        repository.slettKandidatFraKandidatliste(kandidat.aktørId, kandidat.kandidatlisteId)
+        log("slettejobb.kt").info("Slettet kandidat med aktørId ${kandidat.aktørId} for kandidatlisteId ${kandidat.kandidatlisteId} på grunn av periodisk sletteregel.")
+    }
 }
 
 private fun slettKandidatlister(repository: Repository) {
-    val seksMånederSiden = ZonedDateTime.now().minusMonths(6)
-    val kandidatlister = repository.hentTommeKandidatlisterSomIkkeErSlettetOgEldreEnn(seksMånederSiden)
+    val kandidatlister = repository.hentTommeKandidatlisterSomIkkeErSlettetOgEldreEnn(seksMånederSiden())
 
     if (kandidatlister.isEmpty()) return
     log("slettejobb.kt").info("Skal slette ${kandidatlister.size} kandidatlister.")
@@ -38,3 +44,5 @@ private fun slettKandidatlister(repository: Repository) {
         log("slettejobb.kt").info("Slettet kandidatliste for stillingsId ${it.stillingId} på grunn av periodisk sletteregel.")
     }
 }
+
+private fun seksMånederSiden(): ZonedDateTime = ZonedDateTime.now().minusMonths(6)

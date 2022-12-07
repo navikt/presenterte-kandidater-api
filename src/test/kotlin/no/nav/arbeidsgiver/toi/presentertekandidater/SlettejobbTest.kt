@@ -28,7 +28,6 @@ class SlettejobbTest {
     }
 
     @Test
-    @Disabled
     fun `Slettejobb skal slette kandidater som ikke er endret på 6mnd`() {
         var kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now()
@@ -39,10 +38,10 @@ class SlettejobbTest {
         var kandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(6))
         repository.lagre(kandidat)
 
-        assertEquals(repository.hentKandidater(kandidatliste.id!!), 1)
+        assertEquals(repository.hentKandidater(kandidatliste.id!!).size, 1)
 
         slettKandidaterOgKandidatlister(repository)
 
-        assertEquals(repository.hentKandidater(kandidatliste.id!!), 0)
+        assertEquals(repository.hentKandidater(kandidatliste.id!!).size, 0)
     }
 }
