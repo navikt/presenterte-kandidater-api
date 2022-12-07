@@ -271,4 +271,12 @@ class Repository(private val dataSource: DataSource) {
             }.executeUpdate()
         }
     }
+
+    fun slettKandidat(kandidatId: BigInteger) {
+        return dataSource.connection.use {
+            it.prepareStatement("delete from kandidat where id = ?").apply {
+                this.setObject(1, kandidatId)
+            }.executeUpdate()
+        }
+    }
 }

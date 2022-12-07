@@ -13,18 +13,24 @@ class SlettejobbTest {
 
     @Test
     fun `Slettejobb skal slette tomme kandidatlister som ikke er endret på 6mnd`() {
-        var kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+        var kandidatlisteSomSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now().minusMonths(6)
         )
-        repository.lagre(kandidatliste)
+        var kandidatlisteSomIkkeSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID())
+        repository.lagre(kandidatlisteSomSkalSlettes)
+        repository.lagre(kandidatlisteSomIkkeSkalSlettes)
 
-        kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
-        assertFalse(kandidatliste.slettet)
+        kandidatlisteSomSkalSlettes = repository.hentKandidatliste(kandidatlisteSomSkalSlettes.stillingId)!!
+        kandidatlisteSomIkkeSkalSlettes = repository.hentKandidatliste(kandidatlisteSomIkkeSkalSlettes.stillingId)!!
+        assertFalse(kandidatlisteSomSkalSlettes.slettet)
+        assertFalse(kandidatlisteSomIkkeSkalSlettes.slettet)
 
         slettKandidaterOgKandidatlister(repository)
 
-        kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
-        assertTrue(kandidatliste.slettet)
+        kandidatlisteSomSkalSlettes = repository.hentKandidatliste(kandidatlisteSomSkalSlettes.stillingId)!!
+        kandidatlisteSomIkkeSkalSlettes = repository.hentKandidatliste(kandidatlisteSomIkkeSkalSlettes.stillingId)!!
+        assertTrue(kandidatlisteSomSkalSlettes.slettet)
+        assertFalse(kandidatlisteSomIkkeSkalSlettes.slettet)
     }
 
     @Test
@@ -35,13 +41,15 @@ class SlettejobbTest {
         repository.lagre(kandidatliste)
         kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
 
-        var kandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(6))
-        repository.lagre(kandidat)
+        var kandidatSomSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(6))
+        var kandidatSomIkkeSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+        repository.lagre(kandidatSomSkalSlettes)
+        repository.lagre(kandidatSomIkkeSkalSlettes)
 
-        assertEquals(repository.hentKandidater(kandidatliste.id!!).size, 1)
+        assertEquals(2, repository.hentKandidater(kandidatliste.id!!).size)
 
         slettKandidaterOgKandidatlister(repository)
 
-        assertEquals(repository.hentKandidater(kandidatliste.id!!).size, 0)
+        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
     }
 }

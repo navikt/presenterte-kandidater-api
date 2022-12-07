@@ -29,7 +29,7 @@ private fun slettKandidater(repository: Repository) {
     if (kandidater.isEmpty()) return
     log("slettejobb.kt").info("Skal slette ${kandidater.size} kandidater")
     kandidater.forEach{ kandidat ->
-        repository.slettKandidatFraKandidatliste(kandidat.aktørId, kandidat.kandidatlisteId)
+        repository.slettKandidat(kandidat.id!!)
         log("slettejobb.kt").info("Slettet kandidat med aktørId ${kandidat.aktørId} for kandidatlisteId ${kandidat.kandidatlisteId} på grunn av periodisk sletteregel.")
     }
 }
