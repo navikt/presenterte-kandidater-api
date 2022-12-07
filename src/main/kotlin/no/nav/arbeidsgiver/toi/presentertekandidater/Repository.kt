@@ -140,6 +140,28 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
+    fun hentTommeKandidatlisterSomIkkeErSlettetOgEldreEnn(dato : ZonedDateTime): List<Kandidatliste> {
+        dataSource.connection.use {
+            val resultSet = it.prepareStatement(
+                """
+                |select *
+                |from kandidatliste kl 
+                |where kl.slettet = false
+                |and kl.id not exists (select 1 from kandidat where kandidatlisteid=kl.id)
+                |and kl.sist_endret < ?
+                |""".trimMargin()
+            ).apply {
+                this.setTimestamp(1, Timestamp(dato.toInstant().toEpochMilli()))
+            }.executeQuery()
+
+            return generateSequence {
+                if (resultSet.next()) {
+                    Kandidatliste.fraDatabase(resultSet)
+                } else null
+            }.toList()
+        }
+    }
+
     fun hentKandidater(kandidatlisteId: BigInteger): List<Kandidat> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement("select * from kandidat where kandidatliste_id = ?").apply {

@@ -61,6 +61,7 @@ fun startApp(
 ) {
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
     startController(javalin, repository, openSearchKlient, konverteringFilstier)
+    startPeriodiskSlettingAvKandidaterOgKandidatlister(repository)
 
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, presenterteKandidaterService)
