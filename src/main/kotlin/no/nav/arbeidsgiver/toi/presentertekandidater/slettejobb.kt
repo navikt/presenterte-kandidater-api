@@ -11,12 +11,16 @@ private const val tidMellomHverKjøring = antallMillisekunderIMinutt * 60
 fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: Repository) {
     val jobb = object : TimerTask() {
         override fun run() {
-            slettKandidater(repository)
-            slettKandidatlister(repository)
+           slettKandidaterOgKandidatlister(repository)
         }
     }
 
     Timer().scheduleAtFixedRate(jobb, tidTilFørsteKjøring, tidMellomHverKjøring)
+}
+
+fun slettKandidaterOgKandidatlister(repository: Repository) {
+    slettKandidater(repository)
+    slettKandidatlister(repository)
 }
 
 private fun slettKandidater(repository: Repository) {

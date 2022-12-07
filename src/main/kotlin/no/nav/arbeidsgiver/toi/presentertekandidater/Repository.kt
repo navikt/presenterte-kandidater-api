@@ -147,7 +147,7 @@ class Repository(private val dataSource: DataSource) {
                 |select *
                 |from kandidatliste kl 
                 |where kl.slettet = false
-                |and kl.id not exists (select 1 from kandidat where kandidatlisteid=kl.id)
+                |and not exists (select 1 from kandidat where kandidatliste_id = kl.id)
                 |and kl.sist_endret < ?
                 |""".trimMargin()
             ).apply {

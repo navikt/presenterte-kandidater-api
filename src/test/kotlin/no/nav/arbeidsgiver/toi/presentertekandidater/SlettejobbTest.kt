@@ -1,39 +1,28 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import org.junit.jupiter.api.*
-import java.time.Clock
-import java.time.Duration
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SlettejobbTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
 
     @Test
-    @Disabled
-    fun `Slettejobb skal starte et minutt etter oppstart`() {
-        val kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+    fun `Slettejobb skal slette tomme kandidatlister som ikke er endret på 6mnd`() {
+        var kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now().minusMonths(6)
         )
-
         repository.lagre(kandidatliste)
 
-        startLocalApplication(repository = repository)
+        kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
+        assertFalse(kandidatliste.slettet)
 
-        var constantClock: Clock =
-            Clock.fixed(ZonedDateTime.now().plusSeconds(50).toInstant(), ZoneId.systemDefault())
+        slettKandidaterOgKandidatlister(repository)
 
-        assertNotNull(repository.hentKandidatliste(kandidatliste.stillingId))
-
-        constantClock =
-            Clock.fixed(ZonedDateTime.now().plusSeconds(10).toInstant(), ZoneId.systemDefault())
-
-        assertNull(repository.hentKandidatliste(kandidatliste.stillingId))
-
-        Clock.offset(constantClock, Duration.ZERO)
+        kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
+        assertTrue(kandidatliste.slettet)
     }
 }
