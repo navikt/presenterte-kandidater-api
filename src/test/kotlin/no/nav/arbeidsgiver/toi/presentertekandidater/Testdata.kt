@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -592,4 +593,6 @@ object Testdata {
         )
 
     fun lagGyldigKandidatliste(stillingsId: UUID) : Kandidatliste = Kandidatliste(null, UUID.randomUUID(), stillingsId, "", Kandidatliste.Status.ÅPEN,false, "", ZonedDateTime.now(), ZonedDateTime.now())
+
+    fun lagKandidatTilKandidatliste(kandidatlisteId: BigInteger) : Kandidat = Kandidat(null, aktørId = "123", arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, kandidatlisteId = kandidatlisteId, sistEndret = ZonedDateTime.now(), uuid = UUID.randomUUID())
 }
