@@ -56,7 +56,7 @@ val envs = mapOf(
 )
 
 fun startLocalApplication(
-    javalin: Javalin,
+    javalin: Javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties),
     rapid: TestRapid = TestRapid(),
     presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),

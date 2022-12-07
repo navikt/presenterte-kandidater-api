@@ -3,27 +3,25 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import java.util.Timer
 import java.util.TimerTask
 
-private val antallMillisekunderIMinutt = 60000L
-private val tidTilFørsteKjøring = antallMillisekunderIMinutt
-private val tidMellomHverKjøring = antallMillisekunderIMinutt * 60
+private const val antallMillisekunderIMinutt = 60000L
+private const val tidTilFørsteKjøring = antallMillisekunderIMinutt
+private const val tidMellomHverKjøring = antallMillisekunderIMinutt * 60
 
-fun settOppPeriodiskSlettingAvKandidaterOgKandidatlister() {
+fun settOppPeriodiskSlettingAvKandidaterOgKandidatlister(repository: Repository) {
     val jobb = object : TimerTask() {
         override fun run() {
-            slettKandidater()
-            slettKandidatlister()
+            slettKandidater(repository)
+            slettKandidatlister(repository)
         }
     }
 
     Timer().scheduleAtFixedRate(jobb, tidTilFørsteKjøring, tidMellomHverKjøring)
 }
 
-private fun slettKandidatlister() {
-
+private fun slettKandidater(repository: Repository) {
+    // Slett kandidater som er sistEndret for over 6mnd siden.
 }
 
-private fun slettKandidater() {
-
+private fun slettKandidatlister(repository: Repository) {
+    // Slett kandidatlister uten kandidater og som er sistEndret for over 6mnd siden
 }
-
-
