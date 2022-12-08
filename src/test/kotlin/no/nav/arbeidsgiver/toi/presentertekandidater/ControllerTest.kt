@@ -678,6 +678,58 @@ class ControllerTest {
         assertThat(response.statusCode).isEqualTo(404)
     }
 
+    @Disabled
+    @Test
+    fun `DELETE mot kandidat-endepunkt skal slette kandidat og returnere 200 OK`() {
+        val virksomhetsnummer = "987654321"
+        val stillingId = UUID.randomUUID()
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummer,
+            stillingId = stillingId
+        )
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(stillingId)!!
+        val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        repository.lagre(kandidat)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
+
+        val (_, response) = fuel
+            .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+        assertNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
+    }
+
+    @Disabled
+    @Test
+    fun `DELETE mot kandidat-endepunkt skal returnere 403 når man ikke representerer virksomheten`() {
+        val virksomhetsnummerManIkkeHarRettighetTil = "123456789"
+        val virksomhetsnummerManHarRettighetTil = "987654321"
+        val stillingId = UUID.randomUUID()
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummerManIkkeHarRettighetTil,
+            stillingId = stillingId
+        )
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(stillingId)!!
+        val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        repository.lagre(kandidat)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil))
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
+
+        val (_, response) = fuel
+            .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
+        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        assertThat(jsonbody.isEmpty())
+    }
+
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
