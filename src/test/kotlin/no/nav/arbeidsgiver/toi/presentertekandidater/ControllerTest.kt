@@ -106,8 +106,8 @@ class ControllerTest {
     @Test
     fun `GET mot kandidatlister-endepunkt returnerer 200 OK med alle kandidatlister tilknyttet oppgitt virksomhetsnummer`() {
         val stillingId = UUID.randomUUID()
-        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=123456788"
-        val virksomhetsnummer = "123456788"
+        val virksomhetsnummer = "323534343"
+        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummer"
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummer,
             stillingId = stillingId
@@ -122,7 +122,7 @@ class ControllerTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
@@ -166,7 +166,7 @@ class ControllerTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)

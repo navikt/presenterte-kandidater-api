@@ -78,7 +78,7 @@ val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSe
                                 Kandidat(
                                     id = null,
                                     uuid = UUID.randomUUID(),
-                                    aktørId = aktørId ?: "",
+                                    aktørId = aktørId,
                                     kandidatlisteId = listeId,
                                     arbeidsgiversVurdering = konverterVurdering(status = it.kandidatstatus),
                                     sistEndret = LocalDateTime.parse(
