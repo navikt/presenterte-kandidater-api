@@ -150,6 +150,36 @@ class ControllerTest {
     }
 
     @Test
+    fun `GET mot kandidatlister-endepunkt returnerer kandidatlistene sortert på opprettet-dato`() {
+        val virksomhetsnummer = "123456788"
+        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummer"
+        val kandidatlisteOpprettet1UkeSiden = kandidatliste().copy(opprettet = ZonedDateTime.now().minusWeeks(1), virksomhetsnummer = virksomhetsnummer)
+        val kandidatlisteOpprettet1MånedSiden = kandidatliste().copy(opprettet = ZonedDateTime.now().minusMonths(1), virksomhetsnummer = virksomhetsnummer)
+        val kandidatlisteOpprettet1ÅrSiden = kandidatliste().copy(opprettet = ZonedDateTime.now().minusYears(1), virksomhetsnummer = virksomhetsnummer)
+        repository.lagre(kandidatlisteOpprettet1UkeSiden)
+        repository.lagre(kandidatlisteOpprettet1ÅrSiden)
+        repository.lagre(kandidatlisteOpprettet1MånedSiden)
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX("exchangeToken")
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+
+        val (_, response) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(mockOAuth2Server))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+        val kandidatlisterMedKandidaterJson = defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+        val opprettetDatoFørsteListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].textValue())
+        val opprettetDatoAndreListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[1]["kandidatliste"]["opprettet"].textValue())
+        val opprettetDatoTredjeListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[2]["kandidatliste"]["opprettet"].textValue())
+        assertThat(opprettetDatoFørsteListe).isAfter(opprettetDatoAndreListe)
+        assertThat(opprettetDatoAndreListe).isAfter(opprettetDatoTredjeListe)
+    }
+
+
+    @Test
     fun `GET mot kandidatlister-endepunkt returnerer 403 når man forsøker å hente kandidatlister på organisasjoner der man ikke har noen rettigheter`() {
         val virksomhetsnummerManForsøkerÅHenteKandidatlisterFor = "123456789"
         val virksomhetsnummerManHarRettighetTil = "987654321"

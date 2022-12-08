@@ -125,6 +125,7 @@ class Repository(private val dataSource: DataSource) {
                 |where  kl.virksomhetsnummer = ?
                 |and kl.slettet = false
                 |group by kl.id, kl.stilling_id, kl.tittel, kl.status, kl.slettet, kl.virksomhetsnummer
+                |order by kl.opprettet desc
                 |""".trimMargin()
             ).apply {
                 this.setObject(1, virksomhetsnummer)
