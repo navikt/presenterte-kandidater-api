@@ -87,13 +87,11 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidatlister-endepunkt uten virksomhetsnummer svarer 400 Bad Request`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
         val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = fuel
             .get(endepunkt)
@@ -113,12 +111,10 @@ class ControllerTest {
             stillingId = stillingId
         )
         repository.lagre(kandidatliste)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         val (_, response) = fuel
             .get(endepunkt)
@@ -159,10 +155,8 @@ class ControllerTest {
         repository.lagre(kandidatlisteOpprettet1UkeSiden)
         repository.lagre(kandidatlisteOpprettet1ÅrSiden)
         repository.lagre(kandidatlisteOpprettet1MånedSiden)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX("exchangeToken")
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),)
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         val (_, response) = fuel
             .get(endepunkt)
@@ -190,16 +184,14 @@ class ControllerTest {
             stillingId = stillingId
         )
         repository.lagre(kandidatliste)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(403)
@@ -212,14 +204,11 @@ class ControllerTest {
         val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
         val nå = ZonedDateTime.now()
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
-
         val virksomhetsnummer = "111111111"
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
@@ -289,9 +278,7 @@ class ControllerTest {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
         val nå = ZonedDateTime.now()
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManRepresenterer)))
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManRepresenterer)))
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummerTilkandidatlista))
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
@@ -312,10 +299,9 @@ class ControllerTest {
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
 
-
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(403)
@@ -338,13 +324,11 @@ class ControllerTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         val body = """
             {
@@ -377,13 +361,11 @@ class ControllerTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         val body = """
             {
@@ -423,13 +405,11 @@ class ControllerTest {
 
     @Test
     fun `PUT mot vurdering-endepunkt gir 400 hvis kandidat ikke eksisterer`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "FÅTT_JOBBEN"
@@ -460,10 +440,8 @@ class ControllerTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", innloggetBrukersVirksomhetsnummer),)
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "FÅTT_JOBBEN"
@@ -483,13 +461,11 @@ class ControllerTest {
     fun `GET mot organisasjoner-endepunkt gir 200 og liste over alle organisasjoner der bruker har en rolle`() {
         val fødselsnummerInnloggetBruker = "unikt764398"
         val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
+        stubHentingAvAlleOrganisasjoner(organisasjoner)
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
@@ -505,16 +481,12 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt gir 200 og tom liste hvis bruker ikke har rolle i noen organisasjoner`() {
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = emptyList<AltinnReportee>()
-        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
+        stubHentingAvAlleOrganisasjoner(organisasjoner)
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(accessToken)
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .responseObject<List<AltinnReportee>>()
 
         assertThat(respons.statusCode).isEqualTo(200)
@@ -524,15 +496,12 @@ class ControllerTest {
 
     @Test
     fun `GET mot organisasjoner-endepunkt bruker ikke cache`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvAlleOrganisasjoner(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        stubHentingAvAlleOrganisasjoner(organisasjoner)
+        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         val (_, respons1, result1) = fuel
             .get("http://localhost:9000/organisasjoner")
@@ -558,15 +527,12 @@ class ControllerTest {
 
      @Test
     fun `GET mot kandidatlister endepunkt bruker Altinn cache`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
+        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -586,12 +552,9 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidatlister-endepunkt bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, tomListeAvOrganisasjoner)
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(tomListeAvOrganisasjoner)
+        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -609,17 +572,13 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidatlister-endepunkt bruker ikke cache når det hentes organisasjoner for annen bruker`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
+        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken2 = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -639,17 +598,13 @@ class ControllerTest {
 
     @Test
     fun `GET mot kandidatlister-endepunkt bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val fødselsnummerInnloggetBruker2 = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
-        val accessToken2 = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker2)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
+        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken2 = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -686,16 +641,14 @@ class ControllerTest {
 
         )
         repository.lagre(kandidatliste)
-        val exchangeToken = "exchangeToken"
-        stubVekslingAvTokenX(exchangeToken)
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+        stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
@@ -709,13 +662,11 @@ class ControllerTest {
     fun `GET mot kandidatliste-endepunkt returnerer ikke en kandidatliste som er slettet`() {
         val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
-         val exchangeToken = "exchangeToken"
-         stubVekslingAvTokenX(exchangeToken)
          val virksomhetsnummer = "123456789"
          val organisasjoner = listOf(
              Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
          )
-         stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken, organisasjoner)
+         stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner)
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId, slettet = true, virksomhetsnummer = virksomhetsnummer))
 
@@ -757,7 +708,11 @@ class ControllerTest {
         )
     }
 
-    private fun stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(exchangeToken: String, organisasjoner: List<AltinnReportee>) {
+    private fun stubHentingAvOrganisasjonerDerBrukerHarRettighetRekruttering(organisasjoner: List<AltinnReportee>) {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+
+
         val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
         wiremockServer.stubFor(
             get(altinnProxyUrlFiltrertPåRekruttering)
@@ -769,7 +724,10 @@ class ControllerTest {
         )
     }
 
-    private fun stubHentingAvAlleOrganisasjoner(exchangeToken: String, organisasjoner: List<AltinnReportee>) {
+    private fun stubHentingAvAlleOrganisasjoner(organisasjoner: List<AltinnReportee>) {
+        val exchangeToken = "exchangeToken"
+        stubVekslingAvTokenX(exchangeToken)
+
         val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
         wiremockServer.stubFor(
             get(altinnProxyUrlAlle)
