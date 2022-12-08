@@ -140,7 +140,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentTommeKandidatlisterSomIkkeErSlettetOgEldreEnn(dato : ZonedDateTime): List<Kandidatliste> {
+    fun hentTommeKandidatlisterSomIkkeErSlettetOgEldreEnn(dato: ZonedDateTime): List<Kandidatliste> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """
@@ -162,7 +162,7 @@ class Repository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidaterSomIkkeErEndretSiden(dato : ZonedDateTime): List<Kandidat> {
+    fun hentKandidaterSomIkkeErEndretSiden(dato: ZonedDateTime): List<Kandidat> {
         dataSource.connection.use {
             val resultSet = it.prepareStatement(
                 """

@@ -17,7 +17,9 @@ class SlettejobbTest {
         var kandidatlisteSomSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now().minusMonths(6)
         )
-        var kandidatlisteSomIkkeSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID())
+        var kandidatlisteSomIkkeSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+            sistEndret = ZonedDateTime.now().minusMonths(5).minusDays(15)
+        )
         repository.lagre(kandidatlisteSomSkalSlettes)
         repository.lagre(kandidatlisteSomIkkeSkalSlettes)
 
@@ -42,8 +44,8 @@ class SlettejobbTest {
         repository.lagre(kandidatliste)
         kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
 
-        var kandidatSomSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(6))
-        var kandidatSomIkkeSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+        val kandidatSomSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(6))
+        val kandidatSomIkkeSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(5))
         repository.lagre(kandidatSomSkalSlettes)
         repository.lagre(kandidatSomIkkeSkalSlettes)
 
