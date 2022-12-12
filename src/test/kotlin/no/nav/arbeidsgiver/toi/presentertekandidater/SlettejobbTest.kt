@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -14,10 +15,10 @@ class SlettejobbTest {
 
     @Test
     fun `Slettejobb skal slette tomme kandidatlister som ikke er endret på 6mnd`() {
-        var kandidatlisteSomSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+        var kandidatlisteSomSkalSlettes = kandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now().minusMonths(6)
         )
-        var kandidatlisteSomIkkeSkalSlettes = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+        var kandidatlisteSomIkkeSkalSlettes = kandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now().minusMonths(5).minusDays(15)
         )
         repository.lagre(kandidatlisteSomSkalSlettes)
@@ -38,7 +39,7 @@ class SlettejobbTest {
 
     @Test
     fun `Slettejobb skal slette kandidater som ikke er endret på 6mnd`() {
-        var kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+        var kandidatliste = kandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidatliste)
@@ -58,7 +59,7 @@ class SlettejobbTest {
 
     @Test
     fun `Slettejobb skal ikke slette gamle kandidatlister med kandidater`() {
-        var kandidatliste = Testdata.lagGyldigKandidatliste(UUID.randomUUID()).copy(
+        var kandidatliste = kandidatliste(UUID.randomUUID()).copy(
             sistEndret = ZonedDateTime.now().minusMonths(8)
         )
         repository.lagre(kandidatliste)

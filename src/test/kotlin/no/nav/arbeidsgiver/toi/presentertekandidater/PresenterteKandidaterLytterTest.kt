@@ -6,6 +6,7 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -255,7 +256,7 @@ class PresenterteKandidaterLytterTest {
     fun `Skal sette listen som ÅPEN og slettet=true når vi får melding om kandidathendelse på en liste som allerede eksisterer`() {
         val aktørId = "2050897398605"
         val stillingsId = UUID.randomUUID()
-        repository.lagre(Testdata.lagGyldigKandidatliste(stillingsId).copy(status = Kandidatliste.Status.LUKKET, slettet = true))
+        repository.lagre(lagGyldigKandidatliste(stillingsId).copy(status = Kandidatliste.Status.LUKKET, slettet = true))
 
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
         testRapid.sendTestMessage(melding)
@@ -280,6 +281,16 @@ class PresenterteKandidaterLytterTest {
         assertThat(logWatcher.list).isNotEmpty
         assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.")
     }
+
+    private fun lagGyldigKandidatliste(stillingsId: UUID) : Kandidatliste = Kandidatliste(
+        id = null,
+        uuid = UUID.randomUUID(),
+        stillingsId, "Tittel",
+        Kandidatliste.Status.ÅPEN,
+        false,
+        "",
+        ZonedDateTime.now(),
+        ZonedDateTime.now())
 
     private fun meldingOmKandidathendelseDeltCv(
         aktørId: String,

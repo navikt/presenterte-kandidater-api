@@ -15,7 +15,6 @@ import java.util.UUID
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KonverteringTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val altinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
     private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val repository = opprettTestRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8889)

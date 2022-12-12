@@ -4,6 +4,7 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
+import kotlin.random.Random
 
 
 object Testdata {
@@ -592,7 +593,24 @@ object Testdata {
             socialSecurityNumber = ""
         )
 
-    fun lagGyldigKandidatliste(stillingsId: UUID) : Kandidatliste = Kandidatliste(null, UUID.randomUUID(), stillingsId, "", Kandidatliste.Status.ÅPEN,false, "", ZonedDateTime.now(), ZonedDateTime.now())
+    fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
+        stillingId = uuid,
+        tittel = "Tittel",
+        status = Kandidatliste.Status.ÅPEN,
+        virksomhetsnummer = "123456789",
+        uuid = UUID.fromString("7ea380f8-a0af-433f-8cbc-51c5788a7d29"),
+        sistEndret = ZonedDateTime.parse("2022-11-15T14:46:39.051+01:00"),
+        opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
+    )
 
     fun lagKandidatTilKandidatliste(kandidatlisteId: BigInteger) : Kandidat = Kandidat(null, aktørId = "123", arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, kandidatlisteId = kandidatlisteId, sistEndret = ZonedDateTime.now(), uuid = UUID.randomUUID())
+
+    fun tilfeldigFødselsnummer(): String {
+        fun Int.tilStrengMedToTegn() = this.toString().let {  if (it.length == 1) "0$it" else it }
+        val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
+        val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
+        val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
+        val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
+        return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
+    }
 }

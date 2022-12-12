@@ -15,7 +15,6 @@ import org.testcontainers.utility.DockerImageName
 import java.net.URL
 import io.mockk.mockk
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
 import java.util.*
@@ -25,6 +24,7 @@ private val repository = opprettTestRepositoryMedLokalPostgres()
 fun main() {
     val presenterteKandidaterService = PresenterteKandidaterService(repository)
     startLocalApplication(
+        envs = miljøvariabler,
         presenterteKandidaterService = presenterteKandidaterService,
         repository = repository,
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
@@ -38,9 +38,9 @@ val issuerProperties = IssuerProperties(
 
 )
 
-val wiremockPort = 8888
+private val wiremockPort = 8888
 
-val envs = mapOf(
+private val miljøvariabler = mapOf(
     "OPEN_SEARCH_URI" to "uri",
     "OPEN_SEARCH_USERNAME" to "username",
     "OPEN_SEARCH_PASSWORD" to "password",
@@ -55,10 +55,17 @@ val envs = mapOf(
     "NAIS_CLUSTER_NAME" to "local"
 )
 
+fun envs(wiremockPort: Int) = miljøvariabler.toMutableMap().also {
+    it["TOKEN_X_WELL_KNOWN_URL"] = "http://localhost:$wiremockPort/token-x-well-known-url"
+    it["TOKEN_X_TOKEN_ENDPOINT"] = "http://localhost:$wiremockPort/token-x-token-endpoint"
+    it["ALTINN_PROXY_URL"] = "http://localhost:$wiremockPort/altinn-proxy-url"
+}
+
 fun startLocalApplication(
     javalin: Javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties),
+    envs: Map<String, String> = miljøvariabler,
     rapid: TestRapid = TestRapid(),
-    presenterteKandidaterService: PresenterteKandidaterService = mockk<PresenterteKandidaterService>(),
+    presenterteKandidaterService: PresenterteKandidaterService = mockk(),
     repository: Repository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
@@ -75,6 +82,7 @@ fun startLocalApplication(
 
 fun opprettJavalinMedTilgangskontrollForTest(
     issuerProperties: IssuerProperties,
+    envs: Map<String, String> = miljøvariabler,
     altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
 ): Javalin = Javalin.create {
     it.defaultContentType = "application/json"
