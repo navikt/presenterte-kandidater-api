@@ -10,6 +10,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.tilfeldigFødselsnummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
 import java.util.*
@@ -43,11 +44,10 @@ class PutVurderingTest {
         wiremockServer.shutdown()
     }
 
-
     @Test
     fun `Skal oppdatere arbeidsgivers vurdering og returnerer 200 OK`() {
         val stillingId = UUID.randomUUID()
-        val virksomhetsnummer = "123456789"
+        val virksomhetsnummer = "174379426"
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat = Kandidat(
@@ -76,16 +76,17 @@ class PutVurderingTest {
             .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode).isEqualTo(200)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
-        Assertions.assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.FÅTT_JOBBEN)
-        Assertions.assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
+        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.FÅTT_JOBBEN)
+        assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
     }
 
     @Test
     fun `Kall med nullverdi i vurderingsfeltet skal returnere 400`() {
         val stillingId = UUID.randomUUID()
-        repository.lagre(kandidatliste().copy(stillingId = stillingId))
+        val virksomhetsnummer = "23569876"
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat = Kandidat(
             aktørId = "1234",
@@ -96,7 +97,7 @@ class PutVurderingTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
@@ -113,10 +114,10 @@ class PutVurderingTest {
             .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode).isEqualTo(400)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
-        Assertions.assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
-        Assertions.assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
+        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
+        assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
     }
 
     @Test
@@ -134,13 +135,13 @@ class PutVurderingTest {
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode).isEqualTo(400)
     }
 
     @Test
     fun `Gir 400 hvis kandidat ikke eksisterer`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
+            Testdata.lagAltinnOrganisasjon("Et Navn", "221133445"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
@@ -156,12 +157,12 @@ class PutVurderingTest {
             .authentication().bearer(hentToken(mockOAuth2Server))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode).isEqualTo(400)
     }
 
     @Test
     fun `Gir 403 hvis bruker ikke representerer virksomheten`() {
-        val kandidatlistasVirksomhetsnummer = "123456789"
+        val kandidatlistasVirksomhetsnummer = "543219876"
         val innloggetBrukersVirksomhetsnummer = "987654321"
         val stillingId = UUID.randomUUID()
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = kandidatlistasVirksomhetsnummer))
@@ -188,6 +189,6 @@ class PutVurderingTest {
             .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(403)
     }
 }
