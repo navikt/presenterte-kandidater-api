@@ -604,13 +604,4 @@ object Testdata {
     )
 
     fun lagKandidatTilKandidatliste(kandidatlisteId: BigInteger) : Kandidat = Kandidat(null, aktørId = "123", arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, kandidatlisteId = kandidatlisteId, sistEndret = ZonedDateTime.now(), uuid = UUID.randomUUID())
-
-    fun tilfeldigFødselsnummer(): String {
-        fun Int.tilStrengMedToTegn() = this.toString().let {  if (it.length == 1) "0$it" else it }
-        val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
-        val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
-        val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
-        val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
-        return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
-    }
 }

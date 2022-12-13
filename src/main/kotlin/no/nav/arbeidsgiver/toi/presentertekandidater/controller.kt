@@ -7,6 +7,7 @@ import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
+import io.javalin.http.Handler
 import io.javalin.http.NotFoundResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
@@ -27,6 +28,7 @@ fun startController(
             hentKandidatliste(repository, openSearchKlient),
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
+        get("/samtykke", hentSamtykke(repository), Rolle.ARBEIDSGIVER)
         put(
             "/kandidat/{uuid}/vurdering",
             oppdaterArbeidsgiversVurdering(repository),
@@ -57,6 +59,12 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
             true -> context.status(200)
             false -> context.status(400)
         }
+    }
+}
+
+private val hentSamtykke: (repository: Repository) -> (Context) -> Unit = { repository ->
+    { context ->
+        context.status(403)
     }
 }
 

@@ -20,7 +20,7 @@ fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: Repository) {
 }
 
 fun slettKandidaterOgKandidatlister(repository: Repository) {
-    log.info("Starter periodisk slettejobb for kandidater og kandidatlister")
+    log.info("Starter periodisk slettej≈obb for kandidater og kandidatlister")
     slettKandidater(repository)
     slettKandidatlister(repository)
 }

@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
-import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.tilfeldigFødselsnummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*

@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
+import kotlin.random.Random
 
 
 fun hentToken(mockOAuth2Server: MockOAuth2Server, fødselsnummer: String = "01838699827"): String {
@@ -65,5 +66,14 @@ private fun stubVekslingAvTokenX(wiremockServer: WireMockServer, token: String) 
         WireMock.post("/token-x-token-endpoint")
             .willReturn(WireMock.ok(responseBody))
     )
+}
+
+fun tilfeldigFødselsnummer(): String {
+    fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
+    val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
+    val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
+    val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
+    val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
+    return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
 
