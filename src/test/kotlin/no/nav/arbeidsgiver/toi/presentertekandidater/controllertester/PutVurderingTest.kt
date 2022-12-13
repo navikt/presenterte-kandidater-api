@@ -31,6 +31,12 @@ class PutVurderingTest {
         startLocalApplication(javalin = javalin, envs = envs)
     }
 
+    @BeforeEach
+    fun beforeEach() {
+        slettAltIDatabase()
+        wiremockServer.resetAll()
+    }
+
     @AfterEach
     fun afterEach() {
         wiremockServer.resetAll()
@@ -44,7 +50,6 @@ class PutVurderingTest {
     }
 
     @Test
-    @Disabled
     fun `Skal oppdatere arbeidsgivers vurdering og returnerer 200 OK`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "174379426"

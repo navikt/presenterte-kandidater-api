@@ -57,7 +57,6 @@ val dataSource = HikariConfig().apply {
 }.let(::HikariDataSource)
 
 fun kandidatlisteRepositoryMedLokalPostgres() = KandidatlisteRepository(dataSource)
-fun openSearchKlientForTest(envs: Map<String, String>) = OpenSearchKlient(envs)
 
 fun slettAltIDatabase() {
     val connection = dataSource.connection
