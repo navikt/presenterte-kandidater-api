@@ -115,8 +115,9 @@ class PutVurderingTest {
     }
 
     @Test
-    @Disabled("Disablet fordi denne feiler med statuskode -1 av ukjent grunn på GHA, ikke lokalt.")
     fun `Kall med ukjent verdi i vurderingsfeltet skal returnere 400`() {
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", "53987549"))
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "NY"
