@@ -1,12 +1,10 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import com.github.kittinunf.fuel.core.FuelManager
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -16,11 +14,10 @@ import java.util.UUID
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KonverteringTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     lateinit var konverteringFilstier: KonverteringFilstier
-    private lateinit var openSearchKlient: OpenSearchKlient
+    private val wiremockServer = hentWiremock()
 
 
     @BeforeAll
@@ -28,24 +25,11 @@ class KonverteringTest {
         slettAltIDatabase()
         mockOAuth2Server.start(port = 18302)
 
-        openSearchKlient = OpenSearchKlient(
-            mapOf(
-                "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
-                "OPEN_SEARCH_USERNAME" to "gunnar",
-                "OPEN_SEARCH_PASSWORD" to "xyz"
-            )
-        )
-
-
         konverteringFilstier = KonverteringFilstier(
             mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
         )
 
-        startLocalApplication(
-            javalin = javalin,
-            konverteringsfilstier = konverteringFilstier,
-            openSearchKlient = openSearchKlient
-        )
+        startLocalApplication(konverteringsfilstier = konverteringFilstier)
 
         stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101") // ag-status: NY
         stubHentingAvAktørId(kandidatnr = "PAM013tc53ryp", aktørId = "10001000102") // ag-status: PAABEGYNT
@@ -61,9 +45,7 @@ class KonverteringTest {
 
     @AfterAll
     fun cleanUp() {
-        wiremockServer.resetAll()
         mockOAuth2Server.shutdown()
-        javalin.stop()
         slettAltIDatabase()
     }
 

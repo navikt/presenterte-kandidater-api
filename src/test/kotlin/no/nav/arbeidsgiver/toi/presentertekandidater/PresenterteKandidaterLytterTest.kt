@@ -15,7 +15,6 @@ import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
-    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val testRapid = TestRapid()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepositoryMedLokalPostgres())
@@ -23,10 +22,7 @@ class PresenterteKandidaterLytterTest {
 
     @BeforeAll
     fun init() {
-        startLocalApplication(
-            rapid = testRapid,
-            javalin = javalin
-        )
+        startLocalApplication(rapid = testRapid)
         setUpLogWatcher()
     }
 
@@ -40,11 +36,6 @@ class PresenterteKandidaterLytterTest {
     @BeforeEach
     fun beforeEach() {
         slettAltIDatabase()
-    }
-
-    @AfterAll
-    fun explode() {
-        javalin.stop()
     }
 
     @Test

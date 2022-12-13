@@ -9,16 +9,10 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LivenessTest {
-    private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
 
     @BeforeAll
     fun init() {
-        startLocalApplication(javalin)
-    }
-
-    @AfterAll
-    fun cleanUp() {
-        javalin.stop()
+        startLocalApplication()
     }
 
     @Test

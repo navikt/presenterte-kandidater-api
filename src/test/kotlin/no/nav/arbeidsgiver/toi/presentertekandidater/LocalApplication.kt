@@ -19,20 +19,13 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
-import org.apache.http.impl.conn.Wire
 import java.util.*
-import javax.sql.DataSource
 
 fun main() {
-    startLocalApplication(
-        envs = miljøvariabler,
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
-    )
+    startLocalApplication()
 }
 
-
-
-val issuerProperties = IssuerProperties(
+private val issuerProperties = IssuerProperties(
     URL("http://localhost:18301/default/.well-known/openid-configuration"),
     listOf("default"),
     "tokenX"
@@ -51,16 +44,15 @@ val lokalPostgres: PostgreSQLContainer<*>
 
 private const val wiremockPort = 2022
 
-private val ettellerannet = WireMockServer(wiremockPort).also {
+private val wiremock = WireMockServer(wiremockPort).also {
     it.start()
 }
 
-val wiremockServer: WireMockServer
-    get() {
-        ettellerannet.stop()
-        ettellerannet.start()
-        return ettellerannet
-    }
+fun hentWiremock(): WireMockServer {
+    wiremock.stop()
+    wiremock.start()
+    return wiremock
+}
 
 val dataSource = HikariConfig().apply {
     jdbcUrl = lokalPostgres.jdbcUrl
@@ -73,7 +65,9 @@ val dataSource = HikariConfig().apply {
     validate()
 }.let(::HikariDataSource)
 
-fun kandidatlisteRepositoryMedLokalPostgres() = KandidatlisteRepository(dataSource)
+fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository = KandidatlisteRepository(dataSource)
+
+fun openSearchKlient() = OpenSearchKlient(envs)
 
 fun slettAltIDatabase() {
     val connection = dataSource.connection
@@ -85,10 +79,10 @@ fun slettAltIDatabase() {
     }
 }
 
-private val miljøvariabler = mapOf(
-    "OPEN_SEARCH_URI" to "uri",
-    "OPEN_SEARCH_USERNAME" to "username",
-    "OPEN_SEARCH_PASSWORD" to "password",
+private val envs = mapOf(
+    "OPEN_SEARCH_URI" to "http://localhost:${wiremockPort}",
+    "OPEN_SEARCH_USERNAME" to "gunnar",
+    "OPEN_SEARCH_PASSWORD" to "xyz",
     "NAIS_APP_NAME" to "min-app",
     "ALTINN_PROXY_URL" to "http://localhost:$wiremockPort/altinn-proxy-url",
     "ALTINN_PROXY_AUDIENCE" to "din:app",
@@ -100,31 +94,25 @@ private val miljøvariabler = mapOf(
     "NAIS_CLUSTER_NAME" to "local"
 )
 
-fun envs(wiremockPort: Int) = miljøvariabler.toMutableMap().also {
-    it["TOKEN_X_WELL_KNOWN_URL"] = "http://localhost:$wiremockPort/token-x-well-known-url"
-    it["TOKEN_X_TOKEN_ENDPOINT"] = "http://localhost:$wiremockPort/token-x-token-endpoint"
-    it["ALTINN_PROXY_URL"] = "http://localhost:$wiremockPort/altinn-proxy-url"
-}
+private var javalin = opprettJavalinMedTilgangskontrollForTest()
 
 fun startLocalApplication(
-    javalin: Javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties),
-    envs: Map<String, String> = miljøvariabler,
-    openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
     rapid: TestRapid = TestRapid(),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
+    javalin.stop()
+    javalin = opprettJavalinMedTilgangskontrollForTest()
+
     startApp(
         javalin,
         rapid,
         dataSource,
         konverteringsfilstier,
-        openSearchKlient
+        OpenSearchKlient(envs)
     ) { true }
 }
 
 fun opprettJavalinMedTilgangskontrollForTest(
-    issuerProperties: IssuerProperties,
-    envs: Map<String, String> = miljøvariabler,
     altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
 ): Javalin = Javalin.create {
     it.defaultContentType = "application/json"

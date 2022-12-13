@@ -13,6 +13,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenSearchKlientTest {
     private lateinit var openSearchKlient: OpenSearchKlient
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun setUp() {

@@ -19,26 +19,27 @@ class PutVurderingTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, envs = envs)
+        startLocalApplication()
     }
 
     @BeforeEach
     fun beforeEach() {
         slettAltIDatabase()
+    }
+
+    @AfterEach
+    fun afterEach() {
         wiremockServer.resetAll()
     }
 
     @AfterAll
     fun ryddOpp() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
     }
 
     @Test

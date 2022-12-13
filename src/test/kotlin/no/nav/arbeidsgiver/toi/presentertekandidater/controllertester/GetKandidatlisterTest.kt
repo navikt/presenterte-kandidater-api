@@ -28,33 +28,22 @@ class GetKandidatlisterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin
-    private lateinit var openSearchKlient: OpenSearchKlient
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        openSearchKlient = OpenSearchKlient(
-            mapOf(
-                "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
-                "OPEN_SEARCH_USERNAME" to "gunnar",
-                "OPEN_SEARCH_PASSWORD" to "xyz"
-            )
-        )
-
-        startLocalApplication(javalin = javalin, envs = envs, openSearchKlient = openSearchKlient)
-    }
-
-    @AfterEach
-    fun afterEach() {
-        wiremockServer.resetAll()
+        startLocalApplication()
     }
 
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        wiremockServer.resetAll()
     }
 
     @Test
