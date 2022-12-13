@@ -21,18 +21,32 @@ class KonverteringTest {
     private val wiremockServer = WireMockServer(8889)
     private val fuel = FuelManager()
     lateinit var konverteringFilstier: KonverteringFilstier
+    private lateinit var openSearchKlient: OpenSearchKlient
+
 
     @BeforeAll
     fun init() {
+        slettAltIDatabase()
         mockOAuth2Server.start(port = 18302)
         wiremockServer.start()
+
+        openSearchKlient = OpenSearchKlient(
+            mapOf(
+                "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
+                "OPEN_SEARCH_USERNAME" to "gunnar",
+                "OPEN_SEARCH_PASSWORD" to "xyz"
+            )
+        )
+
+
         konverteringFilstier = KonverteringFilstier(
             mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
         )
 
         startLocalApplication(
             javalin = javalin,
-            konverteringsfilstier = konverteringFilstier
+            konverteringsfilstier = konverteringFilstier,
+            openSearchKlient = openSearchKlient
         )
 
         stubHentingAvAktørId(kandidatnr = "PAM0133wq2mdl", aktørId = "10001000101") // ag-status: NY
@@ -52,6 +66,7 @@ class KonverteringTest {
         mockOAuth2Server.shutdown()
         javalin.stop()
         wiremockServer.shutdown()
+        slettAltIDatabase()
     }
 
     @Test
