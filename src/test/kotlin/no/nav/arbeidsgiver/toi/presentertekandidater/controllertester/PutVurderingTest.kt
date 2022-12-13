@@ -58,10 +58,7 @@ class PutVurderingTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-        )
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val body = """
@@ -96,10 +93,7 @@ class PutVurderingTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-        )
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val body = """
@@ -140,10 +134,7 @@ class PutVurderingTest {
 
     @Test
     fun `Gir 400 hvis kandidat ikke eksisterer`() {
-        val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "221133445"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-        )
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", "221133445"))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val body = """
             {

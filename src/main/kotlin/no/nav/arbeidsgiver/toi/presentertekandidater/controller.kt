@@ -7,6 +7,7 @@ import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
+import io.javalin.http.NotFoundResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
@@ -49,9 +50,8 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
         val arbeidsgiversVurdering =
             Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
 
-        repository.hentKandidatlisteTilKandidat(kandidatUuid)?.let {
-            context.validerRekruttererRolleIOrganisasjon(it.virksomhetsnummer)
-        }
+        val kandidatliste = repository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
+        context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)
 
         when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
             true -> context.status(200)
