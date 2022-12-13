@@ -50,7 +50,7 @@ class GetKandidatlisterTest {
         val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentUgyldigToken(mockOAuth2Server))
+            .authentication().bearer(hentUgyldigToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(401)
@@ -66,7 +66,7 @@ class GetKandidatlisterTest {
         val endepunkt = "http://localhost:9000/kandidatlister"
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(400)
@@ -89,7 +89,7 @@ class GetKandidatlisterTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -131,7 +131,7 @@ class GetKandidatlisterTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -161,7 +161,7 @@ class GetKandidatlisterTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)
@@ -176,7 +176,7 @@ class GetKandidatlisterTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken = hentToken()
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -198,7 +198,7 @@ class GetKandidatlisterTest {
     fun `Bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
         val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, tomListeAvOrganisasjoner)
-        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken = hentToken()
 
         fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -221,8 +221,8 @@ class GetKandidatlisterTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
-        val accessToken2 = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken = hentToken()
+        val accessToken2 = hentToken()
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -248,7 +248,7 @@ class GetKandidatlisterTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken = hentToken()
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -292,7 +292,7 @@ class GetKandidatlisterTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)

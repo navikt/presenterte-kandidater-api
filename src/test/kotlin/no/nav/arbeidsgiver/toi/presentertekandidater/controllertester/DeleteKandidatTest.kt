@@ -40,7 +40,7 @@ class DeleteKandidatTest {
 
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -66,7 +66,7 @@ class DeleteKandidatTest {
 
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)

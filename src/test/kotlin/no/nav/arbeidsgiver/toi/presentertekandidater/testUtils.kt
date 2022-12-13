@@ -7,12 +7,22 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
 import kotlin.random.Random
 
+val mockOAuth2Server = MockOAuth2Server().also { it.start(port = 18301) }
 
-fun hentToken(mockOAuth2Server: MockOAuth2Server, fødselsnummer: String = "01838699827"): String {
-    return mockOAuth2Server.issueToken(claims = mapOf("pid" to fødselsnummer)).serialize()
+private fun tilfeldigFødselsnummer(): String {
+    fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
+    val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
+    val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
+    val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
+    val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
+    return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
 
-fun hentUgyldigToken(mockOAuth2Server: MockOAuth2Server): String {
+fun hentToken(): String {
+    return mockOAuth2Server.issueToken(claims = mapOf("pid" to tilfeldigFødselsnummer())).serialize()
+}
+
+fun hentUgyldigToken(): String {
     return mockOAuth2Server.issueToken(issuerId = "feilissuer").serialize()
 }
 
@@ -67,13 +77,3 @@ private fun stubVekslingAvTokenX(wiremockServer: WireMockServer, token: String) 
             .willReturn(WireMock.ok(responseBody))
     )
 }
-
-fun tilfeldigFødselsnummer(): String {
-    fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
-    val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
-    val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
-    val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
-    val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
-    return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
-}
-

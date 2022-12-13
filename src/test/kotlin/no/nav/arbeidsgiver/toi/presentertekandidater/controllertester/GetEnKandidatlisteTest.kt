@@ -73,7 +73,7 @@ class GetEnKandidatlisteTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -141,7 +141,7 @@ class GetEnKandidatlisteTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)
@@ -170,7 +170,7 @@ class GetEnKandidatlisteTest {
 
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(404)

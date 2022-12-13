@@ -27,8 +27,7 @@ class GetOrganisasjonerTest {
 
     @Test
     fun `Returnerer 200 og liste over alle organisasjoner der bruker har en rolle`() {
-        val fødselsnummerInnloggetBruker = "unikt764398"
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken = hentToken()
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
@@ -54,7 +53,7 @@ class GetOrganisasjonerTest {
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
+            .authentication().bearer(hentToken())
             .responseObject<List<AltinnReportee>>()
 
         Assertions.assertThat(respons.statusCode).isEqualTo(200)
@@ -70,7 +69,7 @@ class GetOrganisasjonerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
-        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken = hentToken()
 
         val (_, respons1, result1) = fuel
             .get("http://localhost:9000/organisasjoner")

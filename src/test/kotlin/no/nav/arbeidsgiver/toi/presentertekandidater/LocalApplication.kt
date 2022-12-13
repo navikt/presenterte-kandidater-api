@@ -32,8 +32,6 @@ private val issuerProperties = IssuerProperties(
     "tokenX"
 )
 
-val mockOAuth2Server = MockOAuth2Server().also { it.start(port = 18301) }
-
 val lokalPostgres: PostgreSQLContainer<*>
     get() {
         val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))

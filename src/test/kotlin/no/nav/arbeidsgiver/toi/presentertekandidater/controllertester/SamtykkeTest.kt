@@ -32,8 +32,7 @@ class SamtykkeTest {
 
     @Test
     fun `Skal returnere 403 OK hvis du ikke har samtykket`() {
-        val fødselsnummerInnloggetBruker = tilfeldigFødselsnummer()
-        val accessToken = hentToken(mockOAuth2Server, fødselsnummerInnloggetBruker)
+        val accessToken = hentToken()
 
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),

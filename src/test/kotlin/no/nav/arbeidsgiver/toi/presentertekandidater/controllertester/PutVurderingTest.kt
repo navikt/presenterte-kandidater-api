@@ -43,7 +43,7 @@ class PutVurderingTest {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
-        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
+        val accessToken = hentToken()
         val body = """
             {
               "arbeidsgiversVurdering": "IKKE_AKTUELL"
@@ -86,7 +86,7 @@ class PutVurderingTest {
         """.trimIndent()
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .header("Authorization", "Bearer ${hentToken()}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -108,7 +108,7 @@ class PutVurderingTest {
         """.trimIndent()
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .header("Authorization", "Bearer ${hentToken()}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -127,7 +127,7 @@ class PutVurderingTest {
         """.trimIndent()
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .header("Authorization", "Bearer ${hentToken()}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -159,7 +159,7 @@ class PutVurderingTest {
         """.trimIndent()
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .header("Authorization", "Bearer ${hentToken()}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
