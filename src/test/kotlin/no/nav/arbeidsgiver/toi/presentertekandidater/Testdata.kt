@@ -5,7 +5,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 
 object Testdata {

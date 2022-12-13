@@ -9,16 +9,16 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.security.token.support.core.configuration.IssuerProperties
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
-import java.net.URL
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.security.token.support.core.configuration.IssuerProperties
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
+import java.net.URL
 import java.util.*
 
 fun main() {

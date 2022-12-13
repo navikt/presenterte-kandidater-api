@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.kittinunf.fuel.Fuel
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

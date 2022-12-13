@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Cv

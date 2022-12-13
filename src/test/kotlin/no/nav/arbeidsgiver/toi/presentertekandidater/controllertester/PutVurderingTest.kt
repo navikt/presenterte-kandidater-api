@@ -1,10 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.tomakehurst.wiremock.WireMockServer
-import io.javalin.Javalin
+
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
@@ -109,7 +105,6 @@ class PutVurderingTest {
     }
 
     @Test
-    @Disabled("Fungerer lokalt men feiler på GHA")
     fun `Kall med ukjent verdi i vurderingsfeltet skal returnere 400`() {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", "53987549"))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
