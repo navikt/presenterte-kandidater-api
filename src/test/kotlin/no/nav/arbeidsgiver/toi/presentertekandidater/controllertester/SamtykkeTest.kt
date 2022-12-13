@@ -1,7 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat

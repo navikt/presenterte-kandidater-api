@@ -250,6 +250,7 @@ class GetKandidatlisterTest {
         wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
     }
 
+    @Disabled
     @Test
     fun `Bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
         val organisasjoner = listOf(
