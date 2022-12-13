@@ -4,7 +4,9 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
-import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -38,7 +40,7 @@ class KonverteringTest {
 
         startLocalApplication(
             javalin = javalin,
-            repository = repository,
+            kandidatlisteRepository = repository,
             openSearchKlient = openSearchKlient,
             konverteringsfilstier = konverteringFilstier
         )

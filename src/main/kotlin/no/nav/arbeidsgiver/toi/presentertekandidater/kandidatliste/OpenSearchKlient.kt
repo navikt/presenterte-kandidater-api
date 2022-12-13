@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -17,6 +17,8 @@ import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 import java.time.Period
 import java.time.ZonedDateTime
 

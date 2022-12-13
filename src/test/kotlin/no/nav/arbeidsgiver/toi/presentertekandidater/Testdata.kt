@@ -1,10 +1,11 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.UUID
-import kotlin.random.Random
 
 
 object Testdata {

@@ -2,7 +2,11 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.fasterxml.jackson.core.type.TypeReference
 import io.javalin.http.Context
-import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -11,7 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 
-val konverterFraArbeidsmarked: (repository: Repository, openSearchKlient: OpenSearchKlient, konverteringsfilstier: KonverteringFilstier) -> (Context) -> Unit =
+val konverterFraArbeidsmarked: (kandidatlisteRepository: KandidatlisteRepository, openSearchKlient: OpenSearchKlient, konverteringsfilstier: KonverteringFilstier) -> (Context) -> Unit =
     { repository, openSearchKlient, konverteringsfilstier ->
         { context ->
             try {

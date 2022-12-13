@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.slettKandidaterOgKandidatlister
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

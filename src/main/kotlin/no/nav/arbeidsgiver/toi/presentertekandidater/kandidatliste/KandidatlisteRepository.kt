@@ -1,5 +1,6 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import org.flywaydb.core.Flyway
 import java.math.BigInteger
 import java.sql.Timestamp
@@ -7,7 +8,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import javax.sql.DataSource
 
-class Repository(private val dataSource: DataSource) {
+class KandidatlisteRepository(private val dataSource: DataSource) {
     fun lagre(kandidatliste: Kandidatliste) {
         dataSource.connection.use {
             val sql = """

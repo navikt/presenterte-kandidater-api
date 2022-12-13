@@ -1,13 +1,16 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.*
 
-class PresenterteKandidaterService(private val repository: Repository) {
+class PresenterteKandidaterService(private val kandidatlisteRepository: KandidatlisteRepository) {
 
     fun lagreCvDeltHendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
-        val kandidatliste = repository.hentKandidatliste(kandidathendelse.stillingsId)
+        val kandidatliste = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
 
         if (kandidatliste == null) {
             val nyKandidatliste = Kandidatliste.ny(
@@ -15,43 +18,43 @@ class PresenterteKandidaterService(private val repository: Repository) {
                 tittel = stillingstittel,
                 virksomhetsnummer = kandidathendelse.organisasjonsnummer
             )
-            repository.lagre(nyKandidatliste)
+            kandidatlisteRepository.lagre(nyKandidatliste)
         } else {
             val oppdatertKandidatliste = kandidatliste.copy(
                 tittel = stillingstittel,
                 status = Kandidatliste.Status.ÅPEN,
                 slettet = false
             )
-            repository.oppdater(oppdatertKandidatliste)
+            kandidatlisteRepository.oppdater(oppdatertKandidatliste)
         }
 
-        val kandidatlisteLagret = repository.hentKandidatliste(kandidathendelse.stillingsId)
+        val kandidatlisteLagret = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
             ?: throw RuntimeException("Alvorlig feil - kandidatliste skal ikke kunne være null")
 
-        val kandidat = repository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id!!)
+        val kandidat = kandidatlisteRepository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id!!)
         if (kandidat == null) {
             lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
         }
     }
 
     fun markerKandidatlisteSomSlettet(stillingsId: UUID) {
-        repository.markerKandidatlisteSomSlettet(stillingsId)
+        kandidatlisteRepository.markerKandidatlisteSomSlettet(stillingsId)
     }
 
     fun lukkKandidatliste(stillingsId: UUID) {
-        repository.lukkKandidatliste(stillingsId)
+        kandidatlisteRepository.lukkKandidatliste(stillingsId)
     }
 
     fun slettKandidatFraKandidatliste(aktørId: String, stillingsId: UUID) {
-        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
         if (kandidatliste != null) {
-            repository.slettKandidatFraKandidatliste(aktørId, kandidatliste.id!!)
+            kandidatlisteRepository.slettKandidatFraKandidatliste(aktørId, kandidatliste.id!!)
         }
     }
 
     private fun lagreKandidat(kandidathendelse: Kandidathendelse, kandidatlisteId: BigInteger) {
         val kandidat = mapKandidathendelseTilNyKandidat(kandidathendelse, kandidatlisteId)
-        repository.lagre(kandidat)
+        kandidatlisteRepository.lagre(kandidat)
     }
 
     private fun mapKandidathendelseTilNyKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {

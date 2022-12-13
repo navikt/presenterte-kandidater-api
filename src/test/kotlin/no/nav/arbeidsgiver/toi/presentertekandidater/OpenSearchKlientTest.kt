@@ -3,6 +3,8 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Cv
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test

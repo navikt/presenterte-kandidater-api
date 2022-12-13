@@ -26,7 +26,7 @@ class GetOrganisasjonerTest {
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, repository = repository, envs = envs)
+        startLocalApplication(javalin = javalin, kandidatlisteRepository = repository, envs = envs)
     }
 
     @AfterEach

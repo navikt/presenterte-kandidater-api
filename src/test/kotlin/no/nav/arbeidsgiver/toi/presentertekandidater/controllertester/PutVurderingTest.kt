@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -27,7 +28,7 @@ class PutVurderingTest {
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, repository = repository, envs = envs)
+        startLocalApplication(javalin = javalin, kandidatlisteRepository = repository, envs = envs)
     }
 
     @AfterEach

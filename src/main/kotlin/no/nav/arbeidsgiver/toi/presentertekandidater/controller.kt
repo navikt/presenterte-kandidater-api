@@ -7,36 +7,35 @@ import io.javalin.apibuilder.ApiBuilder.put
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
-import io.javalin.http.Handler
-import io.javalin.http.NotFoundResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.util.*
 
 fun startController(
     javalin: Javalin,
-    repository: Repository,
+    kandidatlisteRepository: KandidatlisteRepository,
     openSearchKlient: OpenSearchKlient,
     konverteringFilstier: KonverteringFilstier,
 ) {
     javalin.routes {
         get("/organisasjoner", hentOrganisasjoner, Rolle.ARBEIDSGIVER)
-        get("/kandidatlister", hentKandidatlister(repository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        get("/kandidatlister", hentKandidatlister(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
         get(
             "/kandidatliste/{stillingId}",
-            hentKandidatliste(repository, openSearchKlient),
+            hentKandidatliste(kandidatlisteRepository, openSearchKlient),
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
-        get("/samtykke", hentSamtykke(repository), Rolle.ARBEIDSGIVER)
+        get("/samtykke", hentSamtykke(kandidatlisteRepository), Rolle.ARBEIDSGIVER)
+        // post("/samtykke", lagreSamtykke())
         put(
             "/kandidat/{uuid}/vurdering",
-            oppdaterArbeidsgiversVurdering(repository),
+            oppdaterArbeidsgiversVurdering(kandidatlisteRepository),
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
         post(
             "/internal/konverterdata",
-            konverterFraArbeidsmarked(repository, openSearchKlient, konverteringFilstier),
+            konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
             Rolle.UNPROTECTED
         )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
@@ -45,7 +44,7 @@ fun startController(
     }
 }
 
-private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context) -> Unit = { repository ->
+private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { repository ->
     { context ->
         val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
         val jsonBody = defaultObjectMapper.readTree(context.body())
@@ -62,13 +61,13 @@ private val oppdaterArbeidsgiversVurdering: (repository: Repository) -> (Context
     }
 }
 
-private val hentSamtykke: (repository: Repository) -> (Context) -> Unit = { repository ->
+private val hentSamtykke: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { repository ->
     { context ->
         context.status(403)
     }
 }
 
-private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = { repository ->
+private val hentKandidatlister: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { repository ->
     { context ->
         val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
         context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
@@ -76,7 +75,7 @@ private val hentKandidatlister: (repository: Repository) -> (Context) -> Unit = 
     }
 }
 
-private val hentKandidatliste: (repository: Repository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
+private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, opensearchKlient ->
         { context ->
             val stillingId: String = context.pathParam("stillingId")

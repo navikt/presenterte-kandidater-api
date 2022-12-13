@@ -2,6 +2,9 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.*

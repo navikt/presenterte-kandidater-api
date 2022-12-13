@@ -1,5 +1,6 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import java.time.ZonedDateTime
 import java.util.Timer
 import java.util.TimerTask
@@ -9,7 +10,7 @@ private const val tidTilFørsteKjøring = antallMillisekunderIMinutt
 private const val tidMellomHverKjøring = antallMillisekunderIMinutt * 60
 private val log = log("slettejobb.kt")
 
-fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: Repository) {
+fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: KandidatlisteRepository) {
     val jobb = object : TimerTask() {
         override fun run() {
            slettKandidaterOgKandidatlister(repository)
@@ -19,13 +20,13 @@ fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: Repository) {
     Timer().scheduleAtFixedRate(jobb, tidTilFørsteKjøring, tidMellomHverKjøring)
 }
 
-fun slettKandidaterOgKandidatlister(repository: Repository) {
+fun slettKandidaterOgKandidatlister(repository: KandidatlisteRepository) {
     log.info("Starter periodisk slettej≈obb for kandidater og kandidatlister")
     slettKandidater(repository)
     slettKandidatlister(repository)
 }
 
-private fun slettKandidater(repository: Repository) {
+private fun slettKandidater(repository: KandidatlisteRepository) {
     val kandidater = repository.hentKandidaterSomIkkeErEndretSiden(seksMånederSiden())
 
     if (kandidater.isEmpty()) return
@@ -36,7 +37,7 @@ private fun slettKandidater(repository: Repository) {
     }
 }
 
-private fun slettKandidatlister(repository: Repository) {
+private fun slettKandidatlister(repository: KandidatlisteRepository) {
     val kandidatlister = repository.hentTommeKandidatlisterSomIkkeErSlettetOgEldreEnn(seksMånederSiden())
 
     if (kandidatlister.isEmpty()) return

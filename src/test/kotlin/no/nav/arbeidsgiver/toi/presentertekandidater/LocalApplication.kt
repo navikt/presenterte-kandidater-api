@@ -15,6 +15,9 @@ import org.testcontainers.utility.DockerImageName
 import java.net.URL
 import io.mockk.mockk
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
 import java.util.*
@@ -26,7 +29,7 @@ fun main() {
     startLocalApplication(
         envs = miljøvariabler,
         presenterteKandidaterService = presenterteKandidaterService,
-        repository = repository,
+        kandidatlisteRepository = repository,
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     )
 }
@@ -66,7 +69,7 @@ fun startLocalApplication(
     envs: Map<String, String> = miljøvariabler,
     rapid: TestRapid = TestRapid(),
     presenterteKandidaterService: PresenterteKandidaterService = mockk(),
-    repository: Repository = opprettTestRepositoryMedLokalPostgres(),
+    kandidatlisteRepository: KandidatlisteRepository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
@@ -74,7 +77,7 @@ fun startLocalApplication(
         javalin,
         rapid,
         presenterteKandidaterService,
-        repository,
+        kandidatlisteRepository,
         openSearchKlient,
         konverteringsfilstier
     ) { true }
@@ -97,7 +100,7 @@ fun opprettJavalinMedTilgangskontrollForTest(
     )
 }.start(9000)
 
-fun opprettTestRepositoryMedLokalPostgres(): Repository {
+fun opprettTestRepositoryMedLokalPostgres(): KandidatlisteRepository {
     val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
         .withDatabaseName("dbname")
         .withUsername("username")
@@ -106,10 +109,10 @@ fun opprettTestRepositoryMedLokalPostgres(): Repository {
     postgres.start()
     log("LocalApplication").info("Started Postgres ${postgres.jdbcUrl}")
 
-    val repository = Repository(lagDatasource(postgres))
-    repository.kjørFlywayMigreringer()
+    val kandidatlisteRepository = KandidatlisteRepository(lagDatasource(postgres))
+    kandidatlisteRepository.kjørFlywayMigreringer()
 
-    return repository
+    return kandidatlisteRepository
 }
 
 fun lagDatasource(postgres: PostgreSQLContainer<*>) = HikariConfig().apply {

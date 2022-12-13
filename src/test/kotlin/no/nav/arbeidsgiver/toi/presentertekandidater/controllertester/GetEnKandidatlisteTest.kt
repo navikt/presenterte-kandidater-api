@@ -8,6 +8,9 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
@@ -41,7 +44,7 @@ class GetEnKandidatlisteTest {
 
         startLocalApplication(
             javalin = javalin,
-            repository = repository,
+            kandidatlisteRepository = repository,
             openSearchKlient = openSearchKlient,
             envs = envs
         )

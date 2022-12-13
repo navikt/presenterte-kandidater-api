@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import no.nav.arbeidsgiver.toi.presentertekandidater.Kandidat.ArbeidsgiversVurdering.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.postgresql.util.PSQLException
@@ -11,7 +13,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 import kotlin.test.assertNotNull
 
-internal class RepositoryTest {
+internal class KandidatlisteRepositoryTest {
     private val repository = opprettTestRepositoryMedLokalPostgres()
 
     @Test
@@ -62,14 +64,14 @@ internal class RepositoryTest {
                 kandidatlisteId = lagretKandidatliste?.id!!,
                 uuid = UUID.randomUUID(),
                 arbeidsgiversVurdering = TIL_VURDERING,
-                sistEndret = java.time.ZonedDateTime.now()
+                sistEndret = ZonedDateTime.now()
             ),
             Kandidat(
                 aktørId = "2234567891012",
                 kandidatlisteId = lagretKandidatliste.id!!,
                 uuid = UUID.randomUUID(),
                 arbeidsgiversVurdering = TIL_VURDERING,
-                sistEndret = java.time.ZonedDateTime.now()
+                sistEndret = ZonedDateTime.now()
             )
         )
         kandidater.forEach { repository.lagre(it)}

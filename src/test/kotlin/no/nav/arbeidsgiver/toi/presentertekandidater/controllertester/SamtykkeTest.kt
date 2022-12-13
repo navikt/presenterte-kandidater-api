@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -29,13 +28,14 @@ class SamtykkeTest {
         wiremockServer.start()
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
-        startLocalApplication(javalin = javalin, repository = repository)
+        startLocalApplication(javalin = javalin, kandidatlisteRepository = repository)
     }
 
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
         javalin.stop()
+        wiremockServer.stop()
     }
 
     @Test
