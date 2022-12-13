@@ -1,7 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
@@ -14,26 +12,18 @@ import java.net.http.HttpResponse.BodyHandlers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SamtykkeTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private lateinit var javalin: Javalin
     private val httpClient = HttpClient.newHttpClient()
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
         mockOAuth2Server.start(port = 18301)
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
-        startLocalApplication(javalin = javalin)
-    }
-
-    @BeforeEach
-    fun beforeEach() {
-        wiremockServer.resetAll()
+        startLocalApplication()
     }
 
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
     }
 
     @Test

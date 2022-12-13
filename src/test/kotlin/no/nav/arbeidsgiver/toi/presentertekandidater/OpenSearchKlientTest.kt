@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Cv
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenSearchKlientTest {
     private lateinit var openSearchKlient: OpenSearchKlient
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun setUp() {

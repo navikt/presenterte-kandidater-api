@@ -2,8 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.tomakehurst.wiremock.WireMockServer
-import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
@@ -19,25 +17,17 @@ class DeleteKandidatTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, envs = envs)
-    }
-
-    @AfterEach
-    fun afterEach() {
-        wiremockServer.resetAll()
+        startLocalApplication()
     }
 
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
     }
 
     @Disabled

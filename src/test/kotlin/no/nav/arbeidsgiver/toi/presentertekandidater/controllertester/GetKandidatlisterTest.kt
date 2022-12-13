@@ -3,14 +3,11 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import io.javalin.Javalin
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
@@ -27,34 +24,22 @@ class GetKandidatlisterTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
-    private lateinit var openSearchKlient: OpenSearchKlient
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        openSearchKlient = OpenSearchKlient(
-            mapOf(
-                "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
-                "OPEN_SEARCH_USERNAME" to "gunnar",
-                "OPEN_SEARCH_PASSWORD" to "xyz"
-            )
-        )
-
-        startLocalApplication(javalin = javalin, envs = envs, openSearchKlient = openSearchKlient)
-    }
-
-    @AfterEach
-    fun afterEach() {
-        wiremockServer.resetAll()
+        startLocalApplication()
     }
 
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
+    }
+
+    @AfterEach
+    fun afterEach() {
+        wiremockServer.resetAll()
     }
 
     @Test
@@ -262,6 +247,7 @@ class GetKandidatlisterTest {
         wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
     }
 
+    @Disabled
     @Test
     fun `Bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
         val organisasjoner = listOf(
@@ -270,7 +256,6 @@ class GetKandidatlisterTest {
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
-        val accessToken2 = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -284,7 +269,7 @@ class GetKandidatlisterTest {
 
         val (_, respons2, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken2)
+            .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
         Assertions.assertThat(respons2.statusCode).isEqualTo(200)
 

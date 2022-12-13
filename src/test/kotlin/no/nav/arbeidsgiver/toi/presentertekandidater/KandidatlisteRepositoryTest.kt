@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.postgresql.util.PSQLException
@@ -14,7 +13,7 @@ import java.math.BigInteger
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -27,7 +26,7 @@ internal class KandidatlisteRepositoryTest {
     }
 
     @AfterEach
-    fun ryddOpp() {
+    fun afterEach() {
         slettAltIDatabase()
     }
 

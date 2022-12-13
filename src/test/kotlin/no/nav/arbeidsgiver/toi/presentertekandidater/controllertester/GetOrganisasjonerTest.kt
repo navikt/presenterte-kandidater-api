@@ -3,9 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import io.javalin.Javalin
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -16,14 +14,12 @@ import org.junit.jupiter.api.*
 class GetOrganisasjonerTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
+    private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, envs = envs)
+        startLocalApplication()
     }
 
     @AfterEach
@@ -34,7 +30,6 @@ class GetOrganisasjonerTest {
     @AfterAll
     fun afterAll() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
     }
 
     @Test

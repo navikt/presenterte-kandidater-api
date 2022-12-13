@@ -1,16 +1,17 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.tomakehurst.wiremock.WireMockServer
-import io.javalin.Javalin
+
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -18,31 +19,22 @@ import java.util.*
 class PutVurderingTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
+    private val wiremockServer = hentWiremock()
+    val httpClient = HttpClient.newHttpClient()
 
     @BeforeAll
     fun init() {
-        val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, envs = envs)
-    }
-
-    @BeforeEach
-    fun beforeEach() {
-        slettAltIDatabase()
-        wiremockServer.resetAll()
+        startLocalApplication()
     }
 
     @AfterAll
     fun ryddOpp() {
         mockOAuth2Server.shutdown()
-        javalin.stop()
     }
 
     @Test
-    fun `Skal oppdatere arbeidsgivers vurdering og returnerer 200 OK`() {
+    fun `Skal oppdatere arbeidsgivers vurdering og returnere 200 OK`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "174379426"
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
@@ -58,21 +50,22 @@ class PutVurderingTest {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
+        val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
         val body = """
             {
-              "arbeidsgiversVurdering": "FÅTT_JOBBEN"
+              "arbeidsgiversVurdering": "IKKE_AKTUELL"
             }
         """.trimIndent()
 
-        val (_, response) = fuel
-            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
-            .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
+            .header("Authorization", "Bearer $accessToken")
+            .PUT(BodyPublishers.ofString(body))
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
-        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.FÅTT_JOBBEN)
+        assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL)
         assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
     }
 
@@ -99,20 +92,19 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
-        val (_, response) = fuel
-            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
-            .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
+            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .PUT(BodyPublishers.ofString(body))
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode()).isEqualTo(400)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
         assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
     }
 
     @Test
-    @Disabled("Fungerer lokalt men feiler på GHA")
     fun `Kall med ukjent verdi i vurderingsfeltet skal returnere 400`() {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", "53987549"))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
@@ -122,13 +114,13 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
-        val (_, response) = fuel
-            .put("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering")
-            .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering"))
+            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .PUT(BodyPublishers.ofString(body))
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode()).isEqualTo(400)
     }
 
     @Test
@@ -141,13 +133,13 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
-        val (_, response) = fuel
-            .put("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering")
-            .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering"))
+            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .PUT(BodyPublishers.ofString(body))
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode()).isEqualTo(400)
     }
 
     @Test
@@ -173,12 +165,12 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
-        val (_, response) = fuel
-            .put("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering")
-            .jsonBody(body)
-            .authentication().bearer(hentToken(mockOAuth2Server, tilfeldigFødselsnummer()))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
+            .header("Authorization", "Bearer ${hentToken(mockOAuth2Server, tilfeldigFødselsnummer())}")
+            .PUT(BodyPublishers.ofString(body))
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode()).isEqualTo(403)
     }
 }
