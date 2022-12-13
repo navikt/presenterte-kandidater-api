@@ -27,7 +27,7 @@ internal class KandidatlisteRepositoryTest {
     }
 
     @AfterEach
-    fun afterEach() {
+    fun ryddOpp() {
         slettAltIDatabase()
     }
 

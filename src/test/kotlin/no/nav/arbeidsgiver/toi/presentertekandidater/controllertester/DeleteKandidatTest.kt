@@ -17,7 +17,7 @@ import kotlin.test.assertNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DeleteKandidatTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val wiremockServer = WireMockServer()
+    private val wiremockServer = WireMockServer(0)
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin

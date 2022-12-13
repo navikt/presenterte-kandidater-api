@@ -37,8 +37,13 @@ class PresenterteKandidaterLytterTest {
         logger.addAppender(logWatcher)
     }
 
-    @AfterAll
+    @AfterEach
     fun cleanUp() {
+        slettAltIDatabase()
+    }
+
+    @AfterAll
+    fun explode() {
         javalin.stop()
     }
 

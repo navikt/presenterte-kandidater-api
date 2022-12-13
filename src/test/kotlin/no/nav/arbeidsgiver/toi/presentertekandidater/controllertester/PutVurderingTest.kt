@@ -17,7 +17,7 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PutVurderingTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val wiremockServer = WireMockServer()
+    private val wiremockServer = WireMockServer(0)
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin
@@ -37,13 +37,14 @@ class PutVurderingTest {
     }
 
     @AfterAll
-    fun cleanUp() {
+    fun ryddOpp() {
         mockOAuth2Server.shutdown()
         javalin.stop()
         wiremockServer.shutdown()
     }
 
     @Test
+    @Disabled
     fun `Skal oppdatere arbeidsgivers vurdering og returnerer 200 OK`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "174379426"

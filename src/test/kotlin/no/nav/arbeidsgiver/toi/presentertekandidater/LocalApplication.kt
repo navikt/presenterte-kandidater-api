@@ -61,9 +61,12 @@ fun openSearchKlientForTest(envs: Map<String, String>) = OpenSearchKlient(envs)
 
 fun slettAltIDatabase() {
     val connection = dataSource.connection
-    connection.prepareStatement("delete from kandidatliste").executeQuery()
-    connection.prepareStatement("delete from kandidat").executeQuery()
-    connection.prepareStatement("delete from samtykke").executeQuery()
+
+    connection.use {
+        it.prepareStatement("delete from kandidat").execute()
+        it.prepareStatement("delete from kandidatliste").execute()
+        it.prepareStatement("delete from samtykke").execute()
+    }
 }
 
 private val wiremockPort = 8888

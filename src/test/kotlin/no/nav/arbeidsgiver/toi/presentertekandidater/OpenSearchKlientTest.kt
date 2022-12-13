@@ -12,7 +12,7 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenSearchKlientTest {
-    private val wiremockServer = WireMockServer(9999)
+    private val wiremockServer = WireMockServer(0)
     private lateinit var openSearchKlient: OpenSearchKlient
 
     @BeforeAll

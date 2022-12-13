@@ -20,7 +20,7 @@ class SamtykkeTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private lateinit var javalin: Javalin
     val httpClient = HttpClient.newHttpClient()
-    private val wiremockServer = WireMockServer()
+    private val wiremockServer = WireMockServer(0)
 
     @BeforeAll
     fun init() {
