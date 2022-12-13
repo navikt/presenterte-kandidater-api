@@ -18,7 +18,9 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfi
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.*
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
+import org.flywaydb.core.Flyway
 import java.util.TimeZone
+import javax.sql.DataSource
 
 val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -28,16 +30,12 @@ fun main() {
     val issuerProperties = hentIssuerPropertiesForTokenX(env)
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
-
     val javalin = opprettJavalinMedTilgangskontroll(issuerProperties, altinnKlient)
 
-    val datasource = Databasekonfigurasjon(env).lagDatasource()
-    val kandidatlisteRepository = KandidatlisteRepository(datasource)
-    kandidatlisteRepository.kjørFlywayMigreringer()
+    val databasekonfigurasjon = Databasekonfigurasjon(env)
+    val dataSource = databasekonfigurasjon.lagDatasource()
 
     val openSearchKlient = OpenSearchKlient(env)
-    val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
-
 
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
@@ -47,10 +45,9 @@ fun main() {
     startApp(
         javalin,
         rapidsConnection,
-        presenterteKandidaterService,
-        kandidatlisteRepository,
-        openSearchKlient,
+        dataSource,
         KonverteringFilstier(env),
+        openSearchKlient,
         rapidIsAlive,
     )
 }
@@ -58,12 +55,14 @@ fun main() {
 fun startApp(
     javalin: Javalin,
     rapidsConnection: RapidsConnection,
-    presenterteKandidaterService: PresenterteKandidaterService,
-    kandidatlisteRepository: KandidatlisteRepository,
-    openSearchKlient: OpenSearchKlient,
+    dataSource: DataSource,
     konverteringFilstier: KonverteringFilstier,
+    openSearchKlient: OpenSearchKlient,
     rapidIsAlive: () -> Boolean,
 ) {
+    kjørFlywayMigreringer(dataSource)
+    val kandidatlisteRepository = KandidatlisteRepository(dataSource)
+    val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
     startController(javalin, kandidatlisteRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
@@ -88,3 +87,10 @@ fun opprettJavalinMedTilgangskontroll(
         )
     )
 }.start(9000)
+
+fun kjørFlywayMigreringer(dataSource: DataSource) {
+    Flyway.configure()
+        .dataSource(dataSource)
+        .load()
+        .migrate()
+}

@@ -198,13 +198,6 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun kjørFlywayMigreringer() {
-        Flyway.configure()
-            .dataSource(dataSource)
-            .load()
-            .migrate()
-    }
-
     fun hentKandidat(aktørId: String, kandidatlisteId: BigInteger): Kandidat? {
         dataSource.connection.use {
             val resultSet =

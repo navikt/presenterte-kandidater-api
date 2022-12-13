@@ -23,17 +23,15 @@ import kotlin.test.assertNull
 class GetEnKandidatlisteTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val wiremockServer = WireMockServer()
-    private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
     private lateinit var openSearchKlient: OpenSearchKlient
+    private lateinit var javalin: Javalin
 
     @BeforeAll
     fun init() {
         wiremockServer.start()
         val envs = envs(wiremockServer.port())
-        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
-        mockOAuth2Server.start(port = 18301)
         openSearchKlient = OpenSearchKlient(
             mapOf(
                 "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
@@ -41,12 +39,13 @@ class GetEnKandidatlisteTest {
                 "OPEN_SEARCH_PASSWORD" to "xyz"
             )
         )
+        javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
+        mockOAuth2Server.start(port = 18301)
 
         startLocalApplication(
             javalin = javalin,
-            kandidatlisteRepository = repository,
-            openSearchKlient = openSearchKlient,
-            envs = envs
+            envs = envs,
+            openSearchKlient = openSearchKlient
         )
     }
 

@@ -13,23 +13,17 @@ import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 import java.net.URL
-import io.mockk.mockk
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
 import java.util.*
-
-private val repository = opprettTestRepositoryMedLokalPostgres()
+import javax.sql.DataSource
 
 fun main() {
-    val presenterteKandidaterService = PresenterteKandidaterService(repository)
     startLocalApplication(
         envs = miljøvariabler,
-        presenterteKandidaterService = presenterteKandidaterService,
-        kandidatlisteRepository = repository,
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     )
 }
@@ -38,8 +32,39 @@ val issuerProperties = IssuerProperties(
     URL("http://localhost:18301/default/.well-known/openid-configuration"),
     listOf("default"),
     "tokenX"
-
 )
+
+val lokalPostgres: PostgreSQLContainer<*>
+    get() {
+        val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
+            .withDatabaseName("dbname")
+            .withUsername("username")
+            .withPassword("pwd")
+
+        postgres.start()
+        return postgres
+    }
+
+val dataSource = HikariConfig().apply {
+    jdbcUrl = lokalPostgres.jdbcUrl
+    minimumIdle = 1
+    maximumPoolSize = 2
+    driverClassName = "org.postgresql.Driver"
+    initializationFailTimeout = 5000
+    username = lokalPostgres.username
+    password = lokalPostgres.password
+    validate()
+}.let(::HikariDataSource)
+
+fun kandidatlisteRepositoryMedLokalPostgres() = KandidatlisteRepository(dataSource)
+fun openSearchKlientForTest(envs: Map<String, String>) = OpenSearchKlient(envs)
+
+fun slettAltIDatabase() {
+    val connection = dataSource.connection
+    connection.prepareStatement("delete from kandidatliste").executeQuery()
+    connection.prepareStatement("delete from kandidat").executeQuery()
+    connection.prepareStatement("delete from samtykke").executeQuery()
+}
 
 private val wiremockPort = 8888
 
@@ -67,19 +92,16 @@ fun envs(wiremockPort: Int) = miljøvariabler.toMutableMap().also {
 fun startLocalApplication(
     javalin: Javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties),
     envs: Map<String, String> = miljøvariabler,
-    rapid: TestRapid = TestRapid(),
-    presenterteKandidaterService: PresenterteKandidaterService = mockk(),
-    kandidatlisteRepository: KandidatlisteRepository = opprettTestRepositoryMedLokalPostgres(),
     openSearchKlient: OpenSearchKlient = OpenSearchKlient(envs),
+    rapid: TestRapid = TestRapid(),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
     startApp(
         javalin,
         rapid,
-        presenterteKandidaterService,
-        kandidatlisteRepository,
-        openSearchKlient,
-        konverteringsfilstier
+        dataSource,
+        konverteringsfilstier,
+        openSearchKlient
     ) { true }
 }
 
@@ -100,29 +122,4 @@ fun opprettJavalinMedTilgangskontrollForTest(
     )
 }.start(9000)
 
-fun opprettTestRepositoryMedLokalPostgres(): KandidatlisteRepository {
-    val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
-        .withDatabaseName("dbname")
-        .withUsername("username")
-        .withPassword("pwd")
-
-    postgres.start()
-    log("LocalApplication").info("Started Postgres ${postgres.jdbcUrl}")
-
-    val kandidatlisteRepository = KandidatlisteRepository(lagDatasource(postgres))
-    kandidatlisteRepository.kjørFlywayMigreringer()
-
-    return kandidatlisteRepository
-}
-
-fun lagDatasource(postgres: PostgreSQLContainer<*>) = HikariConfig().apply {
-    jdbcUrl = postgres.jdbcUrl
-    minimumIdle = 1
-    maximumPoolSize = 2
-    driverClassName = "org.postgresql.Driver"
-    initializationFailTimeout = 5000
-    username = postgres.username
-    password = postgres.password
-    validate()
-}.let(::HikariDataSource)
 

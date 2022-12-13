@@ -17,7 +17,7 @@ import java.net.http.HttpResponse.BodyHandlers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SamtykkeTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private lateinit var javalin: Javalin
     val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = WireMockServer()
@@ -28,7 +28,7 @@ class SamtykkeTest {
         wiremockServer.start()
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
-        startLocalApplication(javalin = javalin, kandidatlisteRepository = repository)
+        startLocalApplication(javalin = javalin)
     }
 
     @AfterAll

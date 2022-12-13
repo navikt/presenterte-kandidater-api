@@ -3,6 +3,8 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import org.flywaydb.core.Flyway
+import javax.sql.DataSource
 
 class Databasekonfigurasjon(env: Map<String, String>) {
     private val host = env.variable("NAIS_DATABASE_PRESENTERTE_KANDIDATER_API_PRESENTERTE_KANDIDATER_DB_HOST")

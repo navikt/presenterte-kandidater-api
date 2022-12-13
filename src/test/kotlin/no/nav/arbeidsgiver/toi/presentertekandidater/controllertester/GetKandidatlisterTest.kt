@@ -26,7 +26,7 @@ import kotlin.test.assertNull
 class GetKandidatlisterTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val wiremockServer = WireMockServer()
-    private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin
     lateinit var openSearchKlient: OpenSearchKlient
@@ -45,7 +45,7 @@ class GetKandidatlisterTest {
             )
         )
 
-        startLocalApplication(javalin = javalin, kandidatlisteRepository = repository, openSearchKlient = openSearchKlient, envs = envs)
+        startLocalApplication(javalin = javalin, envs = envs, openSearchKlient = openSearchKlient)
     }
 
     @AfterEach

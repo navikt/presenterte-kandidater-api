@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SlettejobbTest {
-    private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val repository = kandidatlisteRepositoryMedLokalPostgres()
 
     @Test
     fun `Slettejobb skal slette tomme kandidatlister som ikke er endret på 6mnd`() {

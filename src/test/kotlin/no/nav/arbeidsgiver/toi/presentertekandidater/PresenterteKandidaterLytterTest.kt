@@ -17,15 +17,14 @@ import kotlin.test.assertNotNull
 class PresenterteKandidaterLytterTest {
     private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val testRapid = TestRapid()
-    private val repository = opprettTestRepositoryMedLokalPostgres()
-    private val presenterteKandidaterService = PresenterteKandidaterService(repository)
+    private val repository = kandidatlisteRepositoryMedLokalPostgres()
+    private val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepositoryMedLokalPostgres())
     lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
     fun init() {
         startLocalApplication(
             rapid = testRapid,
-            presenterteKandidaterService = presenterteKandidaterService,
             javalin = javalin
         )
         setUpLogWatcher()

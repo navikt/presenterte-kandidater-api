@@ -16,7 +16,6 @@ import org.junit.jupiter.api.*
 class GetOrganisasjonerTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val wiremockServer = WireMockServer()
-    private val repository = opprettTestRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin
 
@@ -26,7 +25,7 @@ class GetOrganisasjonerTest {
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
-        startLocalApplication(javalin = javalin, kandidatlisteRepository = repository, envs = envs)
+        startLocalApplication(javalin = javalin, envs = envs)
     }
 
     @AfterEach

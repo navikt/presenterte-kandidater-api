@@ -17,31 +17,21 @@ import java.util.UUID
 class KonverteringTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
-    private val repository = opprettTestRepositoryMedLokalPostgres()
+    private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val wiremockServer = WireMockServer(8889)
     private val fuel = FuelManager()
-    lateinit var openSearchKlient: OpenSearchKlient
     lateinit var konverteringFilstier: KonverteringFilstier
 
     @BeforeAll
     fun init() {
         mockOAuth2Server.start(port = 18302)
         wiremockServer.start()
-        openSearchKlient = OpenSearchKlient(
-            mapOf(
-                "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
-                "OPEN_SEARCH_USERNAME" to "gunnar",
-                "OPEN_SEARCH_PASSWORD" to "xyz"
-            )
-        )
         konverteringFilstier = KonverteringFilstier(
             mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
         )
 
         startLocalApplication(
             javalin = javalin,
-            kandidatlisteRepository = repository,
-            openSearchKlient = openSearchKlient,
             konverteringsfilstier = konverteringFilstier
         )
 
