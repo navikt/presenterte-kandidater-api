@@ -7,7 +7,15 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
 import kotlin.random.Random
 
-val mockOAuth2Server = MockOAuth2Server().also { it.start(port = 18301) }
+private var harStartetMockOAuth2Server = false
+val mockOAuth2Server = MockOAuth2Server()
+
+fun startMockOAuth2Server() {
+    if (!harStartetMockOAuth2Server) {
+        mockOAuth2Server.start(port = 18301)
+        harStartetMockOAuth2Server = true
+    }
+}
 
 private fun tilfeldigFødselsnummer(): String {
     fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }

@@ -37,11 +37,6 @@ class KonverteringTest {
         assertThat(response.statusCode).isEqualTo(200)
     }
 
-    @AfterAll
-    fun cleanUp() {
-        mockOAuth2Server.shutdown()
-    }
-
     @Test
     fun `Konvertering av kandidatliste lagres riktig`() {
 

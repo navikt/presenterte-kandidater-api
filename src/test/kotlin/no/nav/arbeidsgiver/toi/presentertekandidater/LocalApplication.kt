@@ -108,6 +108,7 @@ fun startLocalApplication(
     rapid: TestRapid = TestRapid(),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
+    startMockOAuth2Server()
     javalin.stop()
     javalin = opprettJavalinMedTilgangskontrollForTest()
 
