@@ -12,24 +12,17 @@ import org.junit.jupiter.api.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetOrganisasjonerTest {
-    private val mockOAuth2Server = MockOAuth2Server()
     private val fuel = FuelManager()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        mockOAuth2Server.start(port = 18301)
         startLocalApplication()
     }
 
     @AfterEach
     fun afterEach() {
         wiremockServer.resetAll()
-    }
-
-    @AfterAll
-    fun afterAll() {
-        mockOAuth2Server.shutdown()
     }
 
     @Test

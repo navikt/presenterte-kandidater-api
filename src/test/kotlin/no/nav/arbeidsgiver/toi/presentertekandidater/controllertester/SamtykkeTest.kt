@@ -11,19 +11,12 @@ import java.net.http.HttpResponse.BodyHandlers
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SamtykkeTest {
-    private val mockOAuth2Server = MockOAuth2Server()
     private val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        mockOAuth2Server.start(port = 18301)
         startLocalApplication()
-    }
-
-    @AfterAll
-    fun cleanUp() {
-        mockOAuth2Server.shutdown()
     }
 
     @Test

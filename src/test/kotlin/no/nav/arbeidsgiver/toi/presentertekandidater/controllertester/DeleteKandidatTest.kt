@@ -5,7 +5,6 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
@@ -14,20 +13,13 @@ import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DeleteKandidatTest {
-    private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        mockOAuth2Server.start(port = 18301)
         startLocalApplication()
-    }
-
-    @AfterAll
-    fun cleanUp() {
-        mockOAuth2Server.shutdown()
     }
 
     @Disabled

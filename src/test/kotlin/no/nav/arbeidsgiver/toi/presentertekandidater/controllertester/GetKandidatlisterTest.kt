@@ -21,20 +21,13 @@ import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetKandidatlisterTest {
-    private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
     fun init() {
-        mockOAuth2Server.start(port = 18301)
         startLocalApplication()
-    }
-
-    @AfterAll
-    fun cleanUp() {
-        mockOAuth2Server.shutdown()
     }
 
     @AfterEach

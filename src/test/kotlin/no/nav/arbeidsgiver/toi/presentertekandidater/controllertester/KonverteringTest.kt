@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.io.File
@@ -13,17 +12,13 @@ import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KonverteringTest {
-    private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     lateinit var konverteringFilstier: KonverteringFilstier
     private val wiremockServer = hentWiremock()
 
-
     @BeforeAll
     fun init() {
-        mockOAuth2Server.start(port = 18302)
-
         konverteringFilstier = KonverteringFilstier(
             mapOf(Pair("NAIS_CLUSTER_NAME", "test"))
         )

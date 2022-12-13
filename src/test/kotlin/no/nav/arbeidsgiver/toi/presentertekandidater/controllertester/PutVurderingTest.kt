@@ -17,20 +17,13 @@ import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PutVurderingTest {
-    private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val wiremockServer = hentWiremock()
     val httpClient = HttpClient.newHttpClient()
 
     @BeforeAll
     fun init() {
-        mockOAuth2Server.start(port = 18301)
         startLocalApplication()
-    }
-
-    @AfterAll
-    fun ryddOpp() {
-        mockOAuth2Server.shutdown()
     }
 
     @Test

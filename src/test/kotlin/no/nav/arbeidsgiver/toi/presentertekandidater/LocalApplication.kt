@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKli
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -30,6 +31,8 @@ private val issuerProperties = IssuerProperties(
     listOf("default"),
     "tokenX"
 )
+
+val mockOAuth2Server = MockOAuth2Server().also { it.start(port = 18301) }
 
 val lokalPostgres: PostgreSQLContainer<*>
     get() {
