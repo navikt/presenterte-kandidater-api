@@ -27,11 +27,6 @@ class PutVurderingTest {
         startLocalApplication()
     }
 
-    @BeforeEach
-    fun beforeEach() {
-        slettAltIDatabase()
-    }
-
     @AfterEach
     fun afterEach() {
         wiremockServer.resetAll()

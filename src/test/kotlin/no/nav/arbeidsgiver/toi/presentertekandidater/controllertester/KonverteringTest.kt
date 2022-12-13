@@ -22,7 +22,6 @@ class KonverteringTest {
 
     @BeforeAll
     fun init() {
-        slettAltIDatabase()
         mockOAuth2Server.start(port = 18302)
 
         konverteringFilstier = KonverteringFilstier(
@@ -46,7 +45,6 @@ class KonverteringTest {
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
-        slettAltIDatabase()
     }
 
     @Test

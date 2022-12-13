@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
-import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat

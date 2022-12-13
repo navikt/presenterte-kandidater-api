@@ -65,7 +65,14 @@ val dataSource = HikariConfig().apply {
     validate()
 }.let(::HikariDataSource)
 
-fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository = KandidatlisteRepository(dataSource)
+fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository {
+    try {
+        slettAltIDatabase()
+    } catch (e: Exception) {
+        println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
+    }
+    return KandidatlisteRepository(dataSource)
+}
 
 fun openSearchKlient() = OpenSearchKlient(envs)
 

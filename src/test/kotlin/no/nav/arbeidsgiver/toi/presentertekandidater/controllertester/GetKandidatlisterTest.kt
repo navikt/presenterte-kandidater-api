@@ -27,7 +27,6 @@ class GetKandidatlisterTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
-    private lateinit var javalin: Javalin
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
@@ -259,7 +258,6 @@ class GetKandidatlisterTest {
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val accessToken = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
-        val accessToken2 = hentToken(mockOAuth2Server, tilfeldigFødselsnummer())
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -273,7 +271,7 @@ class GetKandidatlisterTest {
 
         val (_, respons2, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken2)
+            .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
         Assertions.assertThat(respons2.statusCode).isEqualTo(200)
 

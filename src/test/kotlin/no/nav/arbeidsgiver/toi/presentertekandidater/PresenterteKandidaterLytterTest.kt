@@ -17,7 +17,7 @@ import kotlin.test.assertNotNull
 class PresenterteKandidaterLytterTest {
     private val testRapid = TestRapid()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepositoryMedLokalPostgres())
+    private val presenterteKandidaterService = PresenterteKandidaterService(repository)
     lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
@@ -31,11 +31,6 @@ class PresenterteKandidaterLytterTest {
         logWatcher.start()
         val logger = LoggerFactory.getLogger(PresenterteKandidaterLytter::class.java.name) as ch.qos.logback.classic.Logger
         logger.addAppender(logWatcher)
-    }
-
-    @BeforeEach
-    fun beforeEach() {
-        slettAltIDatabase()
     }
 
     @Test
@@ -119,7 +114,7 @@ class PresenterteKandidaterLytterTest {
         val kandidatEtterAndreMelding = kandidaterEtterAndreMelding.first()
         assertNotNull(kandidatEtterAndreMelding.id)
         assertThat(kandidatEtterAndreMelding.aktørId).isEqualTo(aktørId)
-        assertThat(kandidatEtterAndreMelding.kandidatlisteId).isEqualTo(kandidatEtterAndreMelding.id)
+        assertThat(kandidatEtterAndreMelding.kandidatlisteId).isEqualTo(kandidatEtterAndreMelding.kandidatlisteId)
         assertNotNull(kandidatEtterAndreMelding.uuid)
     }
 
