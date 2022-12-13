@@ -12,12 +12,10 @@ import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenSearchKlientTest {
-    private val wiremockServer = WireMockServer(0)
     private lateinit var openSearchKlient: OpenSearchKlient
 
     @BeforeAll
     fun setUp() {
-        wiremockServer.start()
         val miljøvariabler = mapOf(
             "OPEN_SEARCH_URI" to "http://localhost:${wiremockServer.port()}",
             "OPEN_SEARCH_USERNAME" to "gunnar",

@@ -5,10 +5,7 @@ import io.javalin.Javalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.*
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -17,28 +14,30 @@ import java.net.http.HttpResponse.BodyHandlers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SamtykkeTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private lateinit var javalin: Javalin
-    val httpClient = HttpClient.newHttpClient()
-    private val wiremockServer = WireMockServer(0)
+    private val httpClient = HttpClient.newHttpClient()
 
     @BeforeAll
     fun init() {
         mockOAuth2Server.start(port = 18301)
-        wiremockServer.start()
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         startLocalApplication(javalin = javalin)
+    }
+
+    @BeforeEach
+    fun beforeEach() {
+        wiremockServer.resetAll()
     }
 
     @AfterAll
     fun cleanUp() {
         mockOAuth2Server.shutdown()
         javalin.stop()
-        wiremockServer.stop()
     }
 
     @Test
+    @Disabled
     fun `Skal returnere 200 OK hvis du har samtykket`() {
         // TODO: Lagre samtykke i databasen
         // TODO: Send med token

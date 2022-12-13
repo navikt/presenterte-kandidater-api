@@ -22,7 +22,6 @@ import kotlin.test.assertNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetEnKandidatlisteTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val wiremockServer = WireMockServer(0)
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var openSearchKlient: OpenSearchKlient
@@ -30,7 +29,6 @@ class GetEnKandidatlisteTest {
 
     @BeforeAll
     fun init() {
-        wiremockServer.start()
         val envs = envs(wiremockServer.port())
         openSearchKlient = OpenSearchKlient(
             mapOf(
@@ -58,7 +56,6 @@ class GetEnKandidatlisteTest {
     fun cleanUp() {
         mockOAuth2Server.shutdown()
         javalin.stop()
-        wiremockServer.shutdown()
     }
 
     @Test

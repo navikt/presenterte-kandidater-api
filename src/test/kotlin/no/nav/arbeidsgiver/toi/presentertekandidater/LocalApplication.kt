@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.javalin.Javalin
@@ -18,6 +19,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
+import org.apache.http.impl.conn.Wire
 import java.util.*
 import javax.sql.DataSource
 
@@ -27,6 +29,8 @@ fun main() {
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     )
 }
+
+
 
 val issuerProperties = IssuerProperties(
     URL("http://localhost:18301/default/.well-known/openid-configuration"),
@@ -43,6 +47,19 @@ val lokalPostgres: PostgreSQLContainer<*>
 
         postgres.start()
         return postgres
+    }
+
+private const val wiremockPort = 2022
+
+private val ettellerannet = WireMockServer(wiremockPort).also {
+    it.start()
+}
+
+val wiremockServer: WireMockServer
+    get() {
+        ettellerannet.stop()
+        ettellerannet.start()
+        return ettellerannet
     }
 
 val dataSource = HikariConfig().apply {
@@ -67,8 +84,6 @@ fun slettAltIDatabase() {
         it.prepareStatement("delete from samtykke").execute()
     }
 }
-
-private val wiremockPort = 8888
 
 private val miljøvariabler = mapOf(
     "OPEN_SEARCH_URI" to "uri",

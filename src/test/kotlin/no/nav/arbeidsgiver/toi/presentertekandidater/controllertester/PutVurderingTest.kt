@@ -17,14 +17,12 @@ import java.util.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PutVurderingTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val wiremockServer = WireMockServer(0)
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin
 
     @BeforeAll
     fun init() {
-        wiremockServer.start()
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
@@ -37,16 +35,10 @@ class PutVurderingTest {
         wiremockServer.resetAll()
     }
 
-    @AfterEach
-    fun afterEach() {
-        wiremockServer.resetAll()
-    }
-
     @AfterAll
     fun ryddOpp() {
         mockOAuth2Server.shutdown()
         javalin.stop()
-        wiremockServer.shutdown()
     }
 
     @Test

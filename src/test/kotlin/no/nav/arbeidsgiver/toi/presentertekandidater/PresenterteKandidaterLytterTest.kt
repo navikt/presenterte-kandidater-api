@@ -37,8 +37,8 @@ class PresenterteKandidaterLytterTest {
         logger.addAppender(logWatcher)
     }
 
-    @AfterEach
-    fun cleanUp() {
+    @BeforeEach
+    fun beforeEach() {
         slettAltIDatabase()
     }
 

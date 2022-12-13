@@ -18,7 +18,6 @@ class KonverteringTest {
     private val mockOAuth2Server = MockOAuth2Server()
     private val javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties)
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val wiremockServer = WireMockServer(8889)
     private val fuel = FuelManager()
     lateinit var konverteringFilstier: KonverteringFilstier
     private lateinit var openSearchKlient: OpenSearchKlient
@@ -28,7 +27,6 @@ class KonverteringTest {
     fun init() {
         slettAltIDatabase()
         mockOAuth2Server.start(port = 18302)
-        wiremockServer.start()
 
         openSearchKlient = OpenSearchKlient(
             mapOf(
@@ -63,9 +61,9 @@ class KonverteringTest {
 
     @AfterAll
     fun cleanUp() {
+        wiremockServer.resetAll()
         mockOAuth2Server.shutdown()
         javalin.stop()
-        wiremockServer.shutdown()
         slettAltIDatabase()
     }
 

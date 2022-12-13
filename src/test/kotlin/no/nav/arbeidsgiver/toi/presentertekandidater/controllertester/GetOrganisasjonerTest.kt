@@ -15,13 +15,11 @@ import org.junit.jupiter.api.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetOrganisasjonerTest {
     private val mockOAuth2Server = MockOAuth2Server()
-    private val wiremockServer = WireMockServer(0)
     private val fuel = FuelManager()
     private lateinit var javalin: Javalin
 
     @BeforeAll
     fun init() {
-        wiremockServer.start()
         val envs = envs(wiremockServer.port())
         javalin = opprettJavalinMedTilgangskontrollForTest(issuerProperties, envs)
         mockOAuth2Server.start(port = 18301)
@@ -34,10 +32,9 @@ class GetOrganisasjonerTest {
     }
 
     @AfterAll
-    fun cleanUp() {
+    fun afterAll() {
         mockOAuth2Server.shutdown()
         javalin.stop()
-        wiremockServer.shutdown()
     }
 
     @Test
