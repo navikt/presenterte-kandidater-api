@@ -6,6 +6,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
 import java.util.*
@@ -23,7 +24,6 @@ class DeleteKandidatTest {
         startLocalApplication()
     }
 
-    @Disabled
     @Test
     fun `Skal slette kandidat og returnere 200 OK`() {
         val virksomhetsnummer = "987654321"
@@ -37,7 +37,7 @@ class DeleteKandidatTest {
         val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -46,11 +46,10 @@ class DeleteKandidatTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode).isEqualTo(200)
         assertNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
     }
 
-    @Disabled
     @Test
     fun `Skal returnere 403 når man ikke representerer virksomheten`() {
         val virksomhetsnummerManIkkeHarRettighetTil = "123456789"
@@ -65,7 +64,7 @@ class DeleteKandidatTest {
         val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil))
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -74,12 +73,11 @@ class DeleteKandidatTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(403)
         val jsonbody = response.body().asString("application/json;charset=utf-8")
-        Assertions.assertThat(jsonbody.isEmpty())
+        assertThat(jsonbody.isEmpty())
     }
 
-    @Disabled
     @Test
     fun `Skal ikke kunne slette kandidat hvis man ikke har samtykket til vilkår`() {
         val virksomhetsnummer = "987654321"
@@ -93,14 +91,32 @@ class DeleteKandidatTest {
         val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
             .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(451)
+        assertThat(response.statusCode).isEqualTo(451)
         assertNotNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
+    }
+
+    @Test
+    fun `Skal få 400 bad request hvis kandidaten ikke eksisterer`() {
+        val virksomhetsnummer = "987654321"
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val kandidatUuidSomIkkeFinnes = UUID.randomUUID()
+
+        val (_, response) = fuel
+            .delete("http://localhost:9000/kandidat/${kandidatUuidSomIkkeFinnes}")
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(400)
     }
 }

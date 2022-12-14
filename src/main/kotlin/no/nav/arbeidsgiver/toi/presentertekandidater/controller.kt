@@ -1,9 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.post
-import io.javalin.apibuilder.ApiBuilder.put
+import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
@@ -35,6 +33,7 @@ fun startController(
             oppdaterArbeidsgiversVurdering(kandidatlisteRepository),
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
+        delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
         post(
             "/internal/konverterdata",
             konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
@@ -90,6 +89,15 @@ private val hentKandidatlister: (kandidatlisteRepository: KandidatlisteRepositor
         val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
         context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
         context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
+    }
+}
+
+private val slettKandidat: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { kandidatlisteRepository ->
+    { context ->
+        val kandidatUuid: UUID = UUID.fromString(context.pathParam("uuid"))
+        val kandidatliste = kandidatlisteRepository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
+        context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)
+        kandidatlisteRepository.slettKandidat(kandidatUuid)
     }
 }
 
