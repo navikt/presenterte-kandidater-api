@@ -9,6 +9,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.Clock
 import java.time.Duration
@@ -17,6 +18,7 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetKandidatlisterTest {
@@ -41,7 +43,7 @@ class GetKandidatlisterTest {
             .get(endepunkt)
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(401)
+        assertThat(response.statusCode).isEqualTo(401)
     }
 
     @Test
@@ -52,7 +54,7 @@ class GetKandidatlisterTest {
             .authentication().bearer(hentUgyldigToken())
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(401)
+        assertThat(response.statusCode).isEqualTo(401)
     }
 
     @Test
@@ -70,7 +72,32 @@ class GetKandidatlisterTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode).isEqualTo(400)
+    }
+
+    @Test
+    fun `Returnerer 451 hvis ikke samtykket til vilkår`() {
+        val stillingId = UUID.randomUUID()
+        val virksomhetsnummer = "98435243"
+        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummer"
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummer,
+            stillingId = stillingId
+        )
+        repository.lagre(kandidatliste)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+
+        val (_, response) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(451)
     }
 
     @Test
@@ -95,25 +122,25 @@ class GetKandidatlisterTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
             defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
         val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
         val antallKandidater = kandidatlisteMedKandidaterJson[0]["antallKandidater"]
-        Assertions.assertThat(antallKandidater.asInt()).isZero()
-        Assertions.assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
-        Assertions.assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
-        Assertions.assertThat(kandidatlisteJson["virksomhetsnummer"].textValue()).isEqualTo(virksomhetsnummer)
-        Assertions.assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
-        Assertions.assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
-        Assertions.assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo("Tittel")
+        assertThat(antallKandidater.asInt()).isZero()
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue()).isEqualTo(virksomhetsnummer)
+        assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
+        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo("Tittel")
         assertNull(kandidatlisteJson["id"])
-        Assertions.assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue())).isCloseTo(
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue())).isCloseTo(
             kandidatliste.sistEndret,
             Assertions.within(3, ChronoUnit.SECONDS)
         )
-        Assertions.assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue())).isCloseTo(
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue())).isCloseTo(
             kandidatliste.opprettet,
             Assertions.within(3, ChronoUnit.SECONDS)
         )
@@ -139,13 +166,13 @@ class GetKandidatlisterTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode).isEqualTo(200)
         val kandidatlisterMedKandidaterJson = defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
         val opprettetDatoFørsteListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].textValue())
         val opprettetDatoAndreListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[1]["kandidatliste"]["opprettet"].textValue())
         val opprettetDatoTredjeListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[2]["kandidatliste"]["opprettet"].textValue())
-        Assertions.assertThat(opprettetDatoFørsteListe).isAfter(opprettetDatoAndreListe)
-        Assertions.assertThat(opprettetDatoAndreListe).isAfter(opprettetDatoTredjeListe)
+        assertThat(opprettetDatoFørsteListe).isAfter(opprettetDatoAndreListe)
+        assertThat(opprettetDatoAndreListe).isAfter(opprettetDatoTredjeListe)
     }
 
     @Test
@@ -171,9 +198,9 @@ class GetKandidatlisterTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(403)
         val jsonbody = response.body().asString("application/json;charset=utf-8")
-        Assertions.assertThat(jsonbody.isEmpty())
+        assertThat(jsonbody.isEmpty())
     }
 
     @Test
@@ -191,13 +218,13 @@ class GetKandidatlisterTest {
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
-        Assertions.assertThat(respons1.statusCode).isEqualTo(200)
+        assertThat(respons1.statusCode).isEqualTo(200)
 
         val (_, respons2, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
-        Assertions.assertThat(respons2.statusCode).isEqualTo(200)
+        assertThat(respons2.statusCode).isEqualTo(200)
 
         wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(1, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
@@ -244,13 +271,13 @@ class GetKandidatlisterTest {
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
-        Assertions.assertThat(respons1.statusCode).isEqualTo(200)
+        assertThat(respons1.statusCode).isEqualTo(200)
 
         val (_, respons2, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken2)
             .responseObject<List<AltinnReportee>>()
-        Assertions.assertThat(respons2.statusCode).isEqualTo(200)
+        assertThat(respons2.statusCode).isEqualTo(200)
 
         wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
@@ -272,7 +299,7 @@ class GetKandidatlisterTest {
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
-        Assertions.assertThat(respons1.statusCode).isEqualTo(200)
+        assertThat(respons1.statusCode).isEqualTo(200)
 
         // Setter klokka fram i tid
         val constantClock: Clock =
@@ -282,7 +309,7 @@ class GetKandidatlisterTest {
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
             .authentication().bearer(accessToken)
             .responseObject<List<AltinnReportee>>()
-        Assertions.assertThat(respons2.statusCode).isEqualTo(200)
+        assertThat(respons2.statusCode).isEqualTo(200)
 
         wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
@@ -315,10 +342,10 @@ class GetKandidatlisterTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
             defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
-        Assertions.assertThat(kandidatlisteMedKandidaterJson).isEmpty()
+        assertThat(kandidatlisteMedKandidaterJson).isEmpty()
     }
 }

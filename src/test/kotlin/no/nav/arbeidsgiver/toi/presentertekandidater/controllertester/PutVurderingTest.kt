@@ -64,6 +64,40 @@ class PutVurderingTest {
     }
 
     @Test
+    fun `Skal returnere 451 hvis man ikke har samtykket til vilkår`() {
+        val stillingId = UUID.randomUUID()
+        val virksomhetsnummer = "174379426"
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat = Kandidat(
+            aktørId = "3498943",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = ZonedDateTime.now().minusDays(1)
+        )
+        repository.lagre(kandidat)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        val accessToken = hentToken(fødselsnummer)
+        val body = """
+            {
+              "arbeidsgiversVurdering": "IKKE_AKTUELL"
+            }
+        """.trimIndent()
+
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
+            .header("Authorization", "Bearer $accessToken")
+            .PUT(BodyPublishers.ofString(body))
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
+        assertThat(response.statusCode()).isEqualTo(451)
+    }
+
+    @Test
     fun `Kall med nullverdi i vurderingsfeltet skal returnere 400`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "23569876"

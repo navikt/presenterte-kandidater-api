@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
 import java.util.*
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -76,5 +77,30 @@ class DeleteKandidatTest {
         Assertions.assertThat(response.statusCode).isEqualTo(403)
         val jsonbody = response.body().asString("application/json;charset=utf-8")
         Assertions.assertThat(jsonbody.isEmpty())
+    }
+
+    @Disabled
+    @Test
+    fun `Skal ikke kunne slette kandidat hvis man ikke har samtykket til vilkår`() {
+        val virksomhetsnummer = "987654321"
+        val stillingId = UUID.randomUUID()
+        val kandidatliste = kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummer,
+            stillingId = stillingId
+        )
+        repository.lagre(kandidatliste)
+        val lagretKandidatliste = repository.hentKandidatliste(stillingId)!!
+        val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        repository.lagre(kandidat)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
+        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+
+        val (_, response) = fuel
+            .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
+            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
+            .response()
+
+        Assertions.assertThat(response.statusCode).isEqualTo(451)
+        assertNotNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
     }
 }

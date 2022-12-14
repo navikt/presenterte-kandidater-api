@@ -9,11 +9,13 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetEnKandidatlisteTest {
@@ -37,7 +39,6 @@ class GetEnKandidatlisteTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
 
@@ -77,7 +78,7 @@ class GetEnKandidatlisteTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode).isEqualTo(200)
 
         val jsonbody = response.body().asString("application/json;charset=utf-8")
         val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
@@ -85,23 +86,74 @@ class GetEnKandidatlisteTest {
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
         assertNull(kandidatlisteJson["id"])
-        Assertions.assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
-        Assertions.assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo(kandidatliste.tittel)
-        Assertions.assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue()))
+        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo(kandidatliste.tittel)
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue()))
             .isEqualTo(kandidatliste.sistEndret)
-        Assertions.assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue()))
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue()))
             .isEqualTo(kandidatliste.opprettet)
-        Assertions.assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
-        Assertions.assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
-        Assertions.assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
-        Assertions.assertThat(kandidatlisteJson["virksomhetsnummer"].textValue())
+        assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue())
             .isEqualTo(kandidatliste.virksomhetsnummer)
 
-        Assertions.assertThat(kandidaterJson).hasSize(2)
+        assertThat(kandidaterJson).hasSize(2)
         assertKandidat(kandidaterJson[0], kandidat1)
         assertKandidat(kandidaterJson[1], kandidat2)
         assertNotNull(kandidaterJson[0]["cv"]);
         assertNotNull(kandidaterJson[1]["cv"]);
+    }
+
+    @Test
+    fun `Skal ikke returnere kandidatliste og kandidater med CV hvis samtykke mangler`() {
+        val stillingId = UUID.randomUUID()
+        val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
+        val nå = ZonedDateTime.now()
+        val virksomhetsnummer = "111111111"
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
+
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat1 = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = nå
+        )
+        val kandidat2 = Kandidat(
+            aktørId = "666",
+            kandidatlisteId = kandidatliste.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = nå
+        )
+
+        repository.lagre(kandidat1)
+        repository.lagre(kandidat2)
+
+        val esRespons = Testdata.flereKandidaterFraES(aktørId1 = kandidat1.aktørId, aktørid2 = kandidat2.aktørId)
+        stubHentingAvKandidater(
+            requestBody = openSearchKlient.lagBodyForHentingAvCver(
+                listOf(
+                    kandidat1.aktørId,
+                    kandidat2.aktørId
+                )
+            ), responsBody = esRespons
+        )
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        val (_, response, result) = fuel
+            .get(endepunkt)
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(451)
     }
 
     @Test
@@ -148,10 +200,10 @@ class GetEnKandidatlisteTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode).isEqualTo(403)
 
         val jsonbody = response.body().asString("application/json;charset=utf-8")
-        Assertions.assertThat(jsonbody.isEmpty())
+        assertThat(jsonbody.isEmpty())
     }
 
     @Test
@@ -179,18 +231,18 @@ class GetEnKandidatlisteTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        Assertions.assertThat(response.statusCode).isEqualTo(404)
+        assertThat(response.statusCode).isEqualTo(404)
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
-        Assertions.assertThat(fraRespons["kandidat"]).isNotEmpty
+        assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
-        Assertions.assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
-        Assertions.assertThat(
+        assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
+        assertThat(
             fraRespons["kandidat"]["arbeidsgiversVurdering"].textValue()
                 .equals(fraDatabasen.arbeidsgiversVurdering.name)
         )
-        Assertions.assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
+        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
     }
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
