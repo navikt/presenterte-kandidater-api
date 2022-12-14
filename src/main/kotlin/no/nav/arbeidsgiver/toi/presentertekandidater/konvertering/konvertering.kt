@@ -73,7 +73,7 @@ val konverterFraArbeidsmarked: (kandidatlisteRepository: KandidatlisteRepository
 
                     val arbeidsmarkedKandidaterForListe = kandidaterForKandidatliste
                         .map {
-                            val aktørId = openSearchKlient.hentAktørid(it.kandidatnr)
+                            val aktørId = openSearchKlient.hentAktørid(it.kandidatnr, it.stilling_id)
 
                             if (aktørId == null) {
                                 log("konvertering").info("Aktør med kandidatnr ${it.kandidatnr} for stilling ${it.stilling_id} ligger ikke som synlig i rekrutteringsbistand, konverteres ikke")
