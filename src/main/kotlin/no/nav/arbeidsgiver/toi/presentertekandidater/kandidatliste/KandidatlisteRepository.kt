@@ -274,4 +274,12 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             }.executeUpdate()
         }
     }
+
+    fun slettKandidat(kandidatUuid: UUID) {
+        return dataSource.connection.use {
+            it.prepareStatement("delete from kandidat where uuid = ?").apply {
+                this.setObject(1, kandidatUuid)
+            }.executeUpdate()
+        }
+    }
 }
