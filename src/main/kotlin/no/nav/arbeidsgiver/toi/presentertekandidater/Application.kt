@@ -67,9 +67,16 @@ fun startApp(
     startController(javalin, kandidatlisteRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
 
-    rapidsConnection.also {
-        PresenterteKandidaterLytter(it, presenterteKandidaterService)
-    }.start()
+    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
+
+    if (!erProd) {
+        log("ApplicationKt").info("Starter Kafka-lytting")
+        rapidsConnection.also {
+            PresenterteKandidaterLytter(it, presenterteKandidaterService)
+        }.start()
+    } else {
+        log("ApplicationKt").info("Starter IKKE Kafka-lytting")
+    }
 }
 
 fun opprettJavalinMedTilgangskontroll(

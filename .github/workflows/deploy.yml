@@ -71,23 +71,20 @@ jobs:
           RESOURCE: nais/nais.yaml
           VARS: nais/nais-dev.json
 
-#
-# Sikre at dataene er OK før vi deployer til prod
-#
-#  deploy-to-prod:
-#    name: Deploy til prod
-#    needs: deploy-to-dev
-#    if: github.ref == 'refs/heads/main'
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: nais/deploy/actions/deploy@v1
-#        env:
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-#          CLUSTER: prod-gcp
-#          VAR: image=${{ env.IMAGE }}
-#          RESOURCE: nais/nais.yaml
-#          VARS: nais/nais-prod.json
+  deploy-to-prod:
+    name: Deploy til prod
+    needs: deploy-to-dev
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-gcp
+          VAR: image=${{ env.IMAGE }}
+          RESOURCE: nais/nais.yaml
+          VARS: nais/nais-prod.json
 
   deploy-alerts:
     name: Deploy alerts to prod
