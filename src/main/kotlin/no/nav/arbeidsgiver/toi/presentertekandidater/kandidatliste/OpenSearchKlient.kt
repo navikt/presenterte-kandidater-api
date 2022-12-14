@@ -72,7 +72,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
     }
 
-    fun hentAktørid(kandidatnr: String): String? {
+    fun hentAktørid(kandidatnr: String, stillingId: String): String? {
         val (respons, resultat) = post(lagBodyForHentingAvAktørId(kandidatnr))
 
         return when (respons.statusCode) {
@@ -83,6 +83,11 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 val responsJsonNode = objectMapper.readTree(data)
 
                 val hits = responsJsonNode["hits"]["hits"]
+
+                if(hits == null|| hits.size() == 0) {
+                    log.info("Fant ikke $kandidatnr i stilling $stillingId opensearch");
+                    return null
+                }
 
                 hits
                     .map { it["fields"]["aktorId"] }
