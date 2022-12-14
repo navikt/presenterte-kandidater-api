@@ -70,4 +70,28 @@ class SamtykkeTest {
 
         assertTrue(repository.harSamtykket(fødselsnummer))
     }
+
+    @Test
+    fun `Skal returnere 200 OK selv om samtykke allerede finnes`() {
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        val fødselsnummer = tilfeldigFødselsnummer()
+
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build()
+        val respons = httpClient.send(request, BodyHandlers.ofString())
+        assertThat(respons.statusCode()).isEqualTo(200)
+        assertTrue(repository.harSamtykket(fødselsnummer))
+
+        val request2 = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build()
+        val respons2 = httpClient.send(request2, BodyHandlers.ofString())
+        assertThat(respons2.statusCode()).isEqualTo(200)
+    }
 }

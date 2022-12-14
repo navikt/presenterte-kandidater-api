@@ -76,7 +76,11 @@ private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) 
 private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
         val fødselsnummer = context.hentFødselsnummer()
-        samtykkeRepository.lagre(fødselsnummer)
+
+        val harSamtykketAllerede = samtykkeRepository.harSamtykket(fødselsnummer)
+        if (!harSamtykketAllerede) {
+            samtykkeRepository.lagre(fødselsnummer)
+        }
         context.status(200)
     }
 }
