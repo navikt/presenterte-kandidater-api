@@ -37,9 +37,14 @@ fun main() {
 
     val openSearchKlient = OpenSearchKlient(env)
 
-    lateinit var rapidIsAlive: () -> Boolean
+    lateinit var rapidHarStartet: () -> Boolean
+    lateinit var rapidErOppe: () -> Boolean
+
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
-        rapidIsAlive = kafkaRapid::isRunning
+        if (kafkaRapid.isRunning()) {
+            rapidHarStartet = kafkaRapid::isRunning
+        }
+        rapidErOppe = kafkaRapid::isRunning
     })
 
     startApp(
@@ -47,7 +52,8 @@ fun main() {
         dataSource,
         KonverteringFilstier(env),
         openSearchKlient,
-        rapidIsAlive,
+        rapidHarStartet,
+        rapidErOppe,
         altinnKlient,
         issuerProperties
     )
@@ -58,7 +64,8 @@ fun startApp(
     dataSource: DataSource,
     konverteringFilstier: KonverteringFilstier,
     openSearchKlient: OpenSearchKlient,
-    rapidIsAlive: () -> Boolean,
+    rapidHarStartet: () -> Boolean,
+    rapidErOppe: () -> Boolean,
     altinnKlient: AltinnKlient,
     issuerProperties: IssuerProperties
 ) {
@@ -67,13 +74,25 @@ fun startApp(
     kjørFlywayMigreringer(dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
-    javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
 
-    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
+    javalin.get("/isalive", {
+        if (rapidHarStartet() && !rapidErOppe()) {
+            startRapid(rapidsConnection, presenterteKandidaterService)
+        }
+        it.status(if (rapidHarStartet()) 200 else 500)
+    }, Rolle.UNPROTECTED)
 
-    log("ApplicationKt").info("Starter Kafka-lytting")
+    // Når rapid går ned, override metoden "stop"
+    // Kjøre super.stop()
+    // Så kjøre super.start()
+
+    startRapid(rapidsConnection, presenterteKandidaterService)
+}
+
+private fun startRapid(rapidsConnection: RapidsConnection, presenterteKandidaterService: PresenterteKandidaterService) {
+    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
     rapidsConnection.also {
         if (!erProd) {
             PresenterteKandidaterLytter(it, presenterteKandidaterService)
