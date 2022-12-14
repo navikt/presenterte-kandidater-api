@@ -8,7 +8,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
@@ -71,9 +70,11 @@ class GetEnKandidatlisteTest {
             ), responsBody = esRespons
         )
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -139,9 +140,12 @@ class GetEnKandidatlisteTest {
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
 
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)
@@ -168,9 +172,11 @@ class GetEnKandidatlisteTest {
             )
         )
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(404)

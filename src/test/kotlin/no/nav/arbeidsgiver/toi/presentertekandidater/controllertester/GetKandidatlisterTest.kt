@@ -8,7 +8,6 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import java.time.Clock
@@ -64,9 +63,11 @@ class GetKandidatlisterTest {
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val endepunkt = "http://localhost:9000/kandidatlister"
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(400)
@@ -87,9 +88,11 @@ class GetKandidatlisterTest {
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -129,9 +132,11 @@ class GetKandidatlisterTest {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),)
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -159,9 +164,11 @@ class GetKandidatlisterTest {
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)
@@ -176,7 +183,9 @@ class GetKandidatlisterTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val accessToken = hentToken()
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val accessToken = hentToken(fødselsnummer)
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -198,7 +207,9 @@ class GetKandidatlisterTest {
     fun `Bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
         val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, tomListeAvOrganisasjoner)
-        val accessToken = hentToken()
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val accessToken = hentToken(fødselsnummer)
 
         fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -221,8 +232,13 @@ class GetKandidatlisterTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val accessToken = hentToken()
-        val accessToken2 = hentToken()
+        val fødselsnummer1 = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer1)
+        val accessToken = hentToken(fødselsnummer1)
+
+        val fødselsnummer2 = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer2)
+        val accessToken2 = hentToken(fødselsnummer2)
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -248,7 +264,9 @@ class GetKandidatlisterTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val accessToken = hentToken()
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val accessToken = hentToken(fødselsnummer)
 
         val (_, respons1, _) = fuel
             .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
@@ -290,9 +308,11 @@ class GetKandidatlisterTest {
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .get(endepunkt)
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)

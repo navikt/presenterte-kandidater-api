@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
 import kotlin.random.Random
@@ -27,7 +28,11 @@ fun tilfeldigFødselsnummer(): String {
     return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
 
-fun hentToken(fødselsnummer: String = tilfeldigFødselsnummer()): String {
+fun lagreSamtykke(fødselsnummer: String) {
+    SamtykkeRepository(dataSource).lagre(fødselsnummer)
+}
+
+fun hentToken(fødselsnummer: String): String {
     return mockOAuth2Server.issueToken(claims = mapOf("pid" to fødselsnummer)).serialize()
 }
 

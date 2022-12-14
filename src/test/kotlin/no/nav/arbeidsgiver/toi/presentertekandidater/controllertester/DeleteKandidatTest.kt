@@ -38,9 +38,11 @@ class DeleteKandidatTest {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(200)
@@ -64,9 +66,11 @@ class DeleteKandidatTest {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil))
         stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
         Assertions.assertThat(response.statusCode).isEqualTo(403)

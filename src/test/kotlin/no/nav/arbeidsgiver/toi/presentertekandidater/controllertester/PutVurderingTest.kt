@@ -4,7 +4,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.net.URI
@@ -43,7 +42,9 @@ class PutVurderingTest {
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
-        val accessToken = hentToken()
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val accessToken = hentToken(fødselsnummer)
         val body = """
             {
               "arbeidsgiversVurdering": "IKKE_AKTUELL"
@@ -85,8 +86,10 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken()}")
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -107,8 +110,10 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken()}")
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -126,8 +131,10 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken()}")
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -158,8 +165,10 @@ class PutVurderingTest {
             }
         """.trimIndent()
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/vurdering"))
-            .header("Authorization", "Bearer ${hentToken()}")
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
             .PUT(BodyPublishers.ofString(body))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())

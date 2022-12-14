@@ -6,7 +6,6 @@ import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 
@@ -27,7 +26,6 @@ class GetOrganisasjonerTest {
 
     @Test
     fun `Returnerer 200 og liste over alle organisasjoner der bruker har en rolle`() {
-        val accessToken = hentToken()
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
@@ -36,7 +34,7 @@ class GetOrganisasjonerTest {
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(accessToken)
+            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
             .responseObject<List<AltinnReportee>>()
 
         Assertions.assertThat(respons.statusCode).isEqualTo(200)
@@ -53,7 +51,7 @@ class GetOrganisasjonerTest {
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(hentToken())
+            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
             .responseObject<List<AltinnReportee>>()
 
         Assertions.assertThat(respons.statusCode).isEqualTo(200)
@@ -69,11 +67,11 @@ class GetOrganisasjonerTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
-        val accessToken = hentToken()
 
+        val fødselsnummer = tilfeldigFødselsnummer()
         val (_, respons1, result1) = fuel
             .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(accessToken)
+            .authentication().bearer(hentToken(fødselsnummer))
             .responseObject<List<AltinnReportee>>()
 
         Assertions.assertThat(respons1.statusCode).isEqualTo(200)
@@ -82,7 +80,7 @@ class GetOrganisasjonerTest {
 
         val (_, respons2, result2) = fuel
             .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(accessToken)
+            .authentication().bearer(hentToken(fødselsnummer))
             .responseObject<List<AltinnReportee>>()
 
         Assertions.assertThat(respons2.statusCode).isEqualTo(200)

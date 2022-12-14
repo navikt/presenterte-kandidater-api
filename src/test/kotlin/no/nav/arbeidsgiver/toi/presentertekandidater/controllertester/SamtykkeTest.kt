@@ -2,14 +2,11 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import junit.framework.TestCase.assertTrue
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
-import java.net.http.HttpRequest.BodyPublisher
-import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
 
@@ -60,7 +57,6 @@ class SamtykkeTest {
         stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
-
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
             .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
             .POST(HttpRequest.BodyPublishers.noBody())
