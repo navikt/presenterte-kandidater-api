@@ -7,6 +7,7 @@ import io.javalin.http.Handler
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
 import io.javalin.http.UnauthorizedResponse
+import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjonerForRekruttering
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
@@ -48,6 +49,7 @@ private fun autentiserArbeidsgiver(
         false
     } else {
         val fnr = fødselsnummerClaim.toString()
+        context.setFødselsnummer(fnr)
         val accessToken = hentAccessTokenFraHeader(context)
 
         if (forRolleRekruttering) {

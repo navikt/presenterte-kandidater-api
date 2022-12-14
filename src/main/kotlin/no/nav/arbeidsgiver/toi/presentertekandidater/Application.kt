@@ -15,6 +15,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKli
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.startPeriodiskSlettingAvKandidaterOgKandidatlister
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
+import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.*
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.security.token.support.core.configuration.IssuerProperties
@@ -62,9 +63,10 @@ fun startApp(
 ) {
     kjørFlywayMigreringer(dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
+    val samtykkeRepository = SamtykkeRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    startController(javalin, kandidatlisteRepository, openSearchKlient, konverteringFilstier)
+    startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
 
     val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"

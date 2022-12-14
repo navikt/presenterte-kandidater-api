@@ -9,12 +9,14 @@ import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.util.*
 
 fun startController(
     javalin: Javalin,
     kandidatlisteRepository: KandidatlisteRepository,
+    samtykkeRepository: SamtykkeRepository,
     openSearchKlient: OpenSearchKlient,
     konverteringFilstier: KonverteringFilstier,
 ) {
@@ -26,7 +28,7 @@ fun startController(
             hentKandidatliste(kandidatlisteRepository, openSearchKlient),
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
-        get("/samtykke", hentSamtykke(kandidatlisteRepository), Rolle.ARBEIDSGIVER)
+        get("/samtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
         // post("/samtykke", lagreSamtykke())
         put(
             "/kandidat/{uuid}/vurdering",
@@ -61,9 +63,13 @@ private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: Kandidatli
     }
 }
 
-private val hentSamtykke: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { repository ->
+private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
-        context.status(403)
+        val fødselsnummer = context.hentFødselsnummer()
+        when (samtykkeRepository.harSamtykket(fødselsnummer)) {
+            true -> context.status(200)
+            false -> context.status(403)
+        }
     }
 }
 
@@ -121,6 +127,11 @@ fun Context.hentOrganisasjoner(): List<AltinnReportee> =
     attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
 
 fun Context.setOrganisasjoner(altinnReportee: List<AltinnReportee>) = attribute("organisasjoner", altinnReportee)
+
+fun Context.hentFødselsnummer(): String =
+    attribute("fødselsnummer") ?: error("Context har ikke fødselsnummer")
+
+fun Context.setFødselsnummer(fødselsnummer: String) = attribute("fødselsnummer", fødselsnummer)
 fun Context.setOrganisasjonerForRekruttering(altinnReportee: List<AltinnReportee>) =
     attribute("organisasjonerForRekruttering", altinnReportee)
 

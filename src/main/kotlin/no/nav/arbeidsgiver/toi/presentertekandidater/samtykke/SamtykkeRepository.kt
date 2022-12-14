@@ -8,7 +8,7 @@ class SamtykkeRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             val sql = """
                 insert into samtykke(fødselsnummer, opprettet) 
-                values (?, current_timestamp())
+                values (?, current_timestamp)
             """.trimIndent()
 
             it.prepareStatement(sql).apply {

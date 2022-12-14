@@ -23,15 +23,13 @@ class SamtykkeTest {
         startLocalApplication()
     }
 
-    @Disabled
     @Test
     fun `Skal returnere 200 OK hvis du har samtykket`() {
         val fødselsnummer = tilfeldigFødselsnummer()
         repository.lagre(fødselsnummer)
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
-            .header("Authorization", "Bearer ${hentToken()}")
-            .POST(HttpRequest.BodyPublishers.ofString(""))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
             .build()
         val respons = httpClient.send(request, BodyHandlers.ofString())
 

@@ -19,9 +19,10 @@ fun startMockOAuth2Server() {
 
 fun tilfeldigFødselsnummer(): String {
     fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
+    fun Int.tilÅrstallMedToTegn() = this.toString().let {it.substring(2)}
     val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
     val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
-    val tilfeldigÅr = Random.nextInt(1910, 2010).tilStrengMedToTegn()
+    val tilfeldigÅr = Random.nextInt(1910, 2010).tilÅrstallMedToTegn()
     val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
     return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
