@@ -69,14 +69,15 @@ fun startApp(
 
     val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
 
-    if (!erProd) {
-        log("ApplicationKt").info("Starter Kafka-lytting")
-        rapidsConnection.also {
+    log("ApplicationKt").info("Starter Kafka-lytting")
+    rapidsConnection.also {
+        if (!erProd) {
             PresenterteKandidaterLytter(it, presenterteKandidaterService)
-        }.start()
-    } else {
-        log("ApplicationKt").info("Starter IKKE Kafka-lytting")
-    }
+            log("Application").info("Startet lytter")
+        } else {
+            log("Application").info("Startet IKKE lytting")
+        }
+    }.start()
 }
 
 fun opprettJavalinMedTilgangskontroll(
