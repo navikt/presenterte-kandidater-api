@@ -79,7 +79,7 @@ fun startApp(
             PresenterteKandidaterLytter(it, presenterteKandidaterService)
             log("Application").info("Startet lytter")
         } else {
-            log("Application").info("Startet IKKE lytting")
+            log("Application").info("Startet IKKE lytting på grunn av featuretoggle for prod-gcp")
         }
     }.start()
 }
