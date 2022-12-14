@@ -31,7 +31,6 @@ fun main() {
     val issuerProperties = hentIssuerPropertiesForTokenX(env)
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
-    val javalin = opprettJavalinMedTilgangskontroll(issuerProperties, altinnKlient)
 
     val databasekonfigurasjon = Databasekonfigurasjon(env)
     val dataSource = databasekonfigurasjon.lagDatasource()
@@ -44,26 +43,29 @@ fun main() {
     })
 
     startApp(
-        javalin,
         rapidsConnection,
         dataSource,
         KonverteringFilstier(env),
         openSearchKlient,
         rapidIsAlive,
+        altinnKlient,
+        issuerProperties
     )
 }
 
 fun startApp(
-    javalin: Javalin,
     rapidsConnection: RapidsConnection,
     dataSource: DataSource,
     konverteringFilstier: KonverteringFilstier,
     openSearchKlient: OpenSearchKlient,
     rapidIsAlive: () -> Boolean,
+    altinnKlient: AltinnKlient,
+    issuerProperties: IssuerProperties
 ) {
+    val samtykkeRepository = SamtykkeRepository(dataSource)
+    val javalin = opprettJavalinMedTilgangskontroll(issuerProperties, altinnKlient, samtykkeRepository)
     kjørFlywayMigreringer(dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
-    val samtykkeRepository = SamtykkeRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
@@ -84,10 +86,11 @@ fun startApp(
 
 fun opprettJavalinMedTilgangskontroll(
     issuerProperties: IssuerProperties,
-    altinnKlient: AltinnKlient
+    altinnKlient: AltinnKlient,
+    samtykkeRepository: SamtykkeRepository
 ): Javalin = Javalin.create {
     it.defaultContentType = "application/json"
-    it.accessManager(styrTilgang(issuerProperties, altinnKlient))
+    it.accessManager(styrTilgang(issuerProperties, altinnKlient, samtykkeRepository))
     it.jsonMapper(
         JavalinJackson(
             jacksonObjectMapper().registerModule(JavaTimeModule())

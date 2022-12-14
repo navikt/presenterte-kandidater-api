@@ -111,38 +111,28 @@ private val envs = mapOf(
     "NAIS_CLUSTER_NAME" to "local"
 )
 
-private var javalin = opprettJavalinMedTilgangskontrollForTest()
+private var harStartetApplikasjonen = false
+val testRapid = TestRapid()
 
 fun startLocalApplication(
-    rapid: TestRapid = TestRapid(),
     konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
 ) {
-    startMockOAuth2Server()
-    javalin.stop()
-    javalin = opprettJavalinMedTilgangskontrollForTest()
+    if (!harStartetApplikasjonen) {
+        startMockOAuth2Server()
+        val altinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
 
-    startApp(
-        javalin,
-        rapid,
-        dataSource,
-        konverteringsfilstier,
-        OpenSearchKlient(envs)
-    ) { true }
+        startApp(
+            testRapid,
+            dataSource,
+            konverteringsfilstier,
+            OpenSearchKlient(envs),
+            { true },
+            altinnKlient,
+            issuerProperties
+        )
+        harStartetApplikasjonen = true
+    }
 }
 
-fun opprettJavalinMedTilgangskontrollForTest(
-    altinnKlient: AltinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
-): Javalin = Javalin.create {
-    it.defaultContentType = "application/json"
-    it.accessManager(styrTilgang(issuerProperties, altinnKlient))
-    it.jsonMapper(
-        JavalinJackson(
-            jacksonObjectMapper().registerModule(JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
-                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-        )
-    )
-}.start(9000)
 
 

@@ -15,14 +15,13 @@ import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
-    private val testRapid = TestRapid()
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
     lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
     fun init() {
-        startLocalApplication(rapid = testRapid)
+        startLocalApplication()
         setUpLogWatcher()
     }
 

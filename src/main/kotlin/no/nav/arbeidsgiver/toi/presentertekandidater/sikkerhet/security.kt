@@ -2,29 +2,29 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole
-import io.javalin.http.Context
-import io.javalin.http.Handler
+import io.javalin.http.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
-import io.javalin.http.UnauthorizedResponse
+import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjonerForRekruttering
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
+import org.eclipse.jetty.http.HttpStatus
 
 
 enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
 }
 
-fun styrTilgang(issuerProperties: IssuerProperties, altinnKlient: AltinnKlient) =
+fun styrTilgang(issuerProperties: IssuerProperties, altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRepository) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
 
         val erAutentisert = when {
             roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
-                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, forRolleRekruttering = true)
+                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, samtykkeRepository, forRolleRekruttering = true)
             roller.contains(Rolle.ARBEIDSGIVER) ->
-                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, forRolleRekruttering = false)
+                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, samtykkeRepository, forRolleRekruttering = false)
             roller.contains(Rolle.UNPROTECTED) -> true
 
             else -> false
@@ -41,6 +41,7 @@ private fun autentiserArbeidsgiver(
     context: Context,
     issuerProperties: IssuerProperties,
     altinnKlient: AltinnKlient,
+    samtykkeRepository: SamtykkeRepository,
     forRolleRekruttering: Boolean
 ): Boolean {
     val fødselsnummerClaim = hentTokenClaims(context, issuerProperties)?.get("pid")
@@ -53,6 +54,10 @@ private fun autentiserArbeidsgiver(
         val accessToken = hentAccessTokenFraHeader(context)
 
         if (forRolleRekruttering) {
+            val harSamtykketVilkår = samtykkeRepository.harSamtykket(fnr)
+            if (!harSamtykketVilkår) {
+                throw UnavailableForLegalReasons()
+            }
             val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekruttering(fnr, accessToken)
             context.setOrganisasjonerForRekruttering(organisasjoner)
         } else {
@@ -86,3 +91,8 @@ private fun hentAccessTokenFraHeader(context: Context): String {
 
     return accessTokenMedBearerPrefix.replace("Bearer ", "")
 }
+
+class UnavailableForLegalReasons @JvmOverloads constructor(
+    message: String = "Unavailable for legal reasons",
+    details: Map<String, String> = mapOf()
+) : HttpResponseException(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS_451, message, details)
