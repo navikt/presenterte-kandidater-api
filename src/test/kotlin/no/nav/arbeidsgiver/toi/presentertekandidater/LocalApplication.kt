@@ -12,10 +12,10 @@ import io.javalin.plugin.json.JavalinJackson
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.styrTilgang
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -73,6 +73,15 @@ fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository {
         println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
     }
     return KandidatlisteRepository(dataSource)
+}
+
+fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
+    try {
+        slettAltIDatabase()
+    } catch (e: Exception) {
+        println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
+    }
+    return SamtykkeRepository(dataSource)
 }
 
 fun openSearchKlient() = OpenSearchKlient(envs)

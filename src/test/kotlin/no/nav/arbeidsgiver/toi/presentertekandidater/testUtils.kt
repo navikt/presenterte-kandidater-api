@@ -17,7 +17,7 @@ fun startMockOAuth2Server() {
     }
 }
 
-private fun tilfeldigFødselsnummer(): String {
+fun tilfeldigFødselsnummer(): String {
     fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
     val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
     val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
@@ -26,8 +26,8 @@ private fun tilfeldigFødselsnummer(): String {
     return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
 
-fun hentToken(): String {
-    return mockOAuth2Server.issueToken(claims = mapOf("pid" to tilfeldigFødselsnummer())).serialize()
+fun hentToken(fødselsnummer: String = tilfeldigFødselsnummer()): String {
+    return mockOAuth2Server.issueToken(claims = mapOf("pid" to fødselsnummer)).serialize()
 }
 
 fun hentUgyldigToken(): String {
