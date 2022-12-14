@@ -29,7 +29,7 @@ fun startController(
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
         get("/samtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
-        // post("/samtykke", lagreSamtykke())
+        post("/samtykke", lagreSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
         put(
             "/kandidat/{uuid}/vurdering",
             oppdaterArbeidsgiversVurdering(kandidatlisteRepository),
@@ -70,6 +70,14 @@ private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) 
             true -> context.status(200)
             false -> context.status(403)
         }
+    }
+}
+
+private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
+    { context ->
+        val fødselsnummer = context.hentFødselsnummer()
+        samtykkeRepository.lagre(fødselsnummer)
+        context.status(200)
     }
 }
 

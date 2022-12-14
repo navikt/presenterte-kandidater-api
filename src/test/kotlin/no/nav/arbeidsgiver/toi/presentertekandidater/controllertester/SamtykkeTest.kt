@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublisher
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
@@ -38,16 +39,14 @@ class SamtykkeTest {
     }
 
     @Test
-    fun `Skal returnere 403 OK hvis du ikke har samtykket`() {
-        val accessToken = hentToken()
-
+    fun `Skal returnere 403 hvis du ikke har samtykket`() {
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
-            .header("Authorization", "Bearer $accessToken")
+            .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")
             .build()
         val respons = httpClient.send(request, BodyHandlers.ofString())
         assertThat(respons.statusCode()).isEqualTo(403)
@@ -55,6 +54,20 @@ class SamtykkeTest {
 
     @Test
     fun `Skal lagre samtykke på innlogget bruker`() {
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
 
+        val fødselsnummer = tilfeldigFødselsnummer()
+
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build()
+        val respons = httpClient.send(request, BodyHandlers.ofString())
+        assertThat(respons.statusCode()).isEqualTo(200)
+
+        assertTrue(repository.harSamtykket(fødselsnummer))
     }
 }
