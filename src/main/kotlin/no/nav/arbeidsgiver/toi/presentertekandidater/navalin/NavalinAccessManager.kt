@@ -4,10 +4,12 @@ import com.nimbusds.jwt.JWTClaimsSet
 import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
 import io.javalin.http.UnauthorizedResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.TOKEN_X
+import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
@@ -31,15 +33,27 @@ class NavalinAccessManager(
 
     private fun kanAutentisereMedEnAvRollene(context: Context, rolleKonfigurasjoner: List<RolleKonfigurasjon>): Boolean =
         rolleKonfigurasjoner.any {
-            val issuerProperties = hentIssuerProperties(it.tokenUtsteder)
-
-            val tokenClaims = if (issuerProperties != null) {
-                hentTokenClaims(context, issuerProperties)
+            if (it.autentiseringskrav == null) {
+                true
             } else {
-                lagTomJwtTokenClaims()
+                kanAutentisere(context, it.tokenUtsteder, it.autentiseringskrav)
             }
-            it.autentiseringskrav(tokenClaims, context, hentAccessTokenFraHeader(context))
         }
+
+    private fun kanAutentisere(context: Context, tokenUtsteder: TokenUtsteder, autentiseringskrav: (JwtTokenClaims, Context, AccessToken) -> Boolean): Boolean {
+        val issuerProperties = hentIssuerProperties(tokenUtsteder)
+
+        val tokenClaims = if (issuerProperties != null) {
+            hentTokenClaims(context, issuerProperties)
+        } else {
+            lagTomJwtTokenClaims()
+        }
+
+        if (tokenClaims == null) {
+            throw UnauthorizedResponse()
+        }
+        return autentiseringskrav(tokenClaims, context, hentAccessTokenFraHeader(context))
+    }
 
     private fun lagTomJwtTokenClaims(): JwtTokenClaims = JwtTokenClaims(JWTClaimsSet.parse(""))
 

@@ -35,7 +35,10 @@ fun lagreSamtykke(fødselsnummer: String) {
 }
 
 fun hentToken(fødselsnummer: String): String {
-    return mockOAuth2Server.issueToken(claims = mapOf("pid" to fødselsnummer)).serialize()
+    return mockOAuth2Server.issueToken(
+        audience = "clientId",
+        claims = mapOf("pid" to fødselsnummer)
+    ).serialize()
 }
 
 fun hentUgyldigToken(): String {

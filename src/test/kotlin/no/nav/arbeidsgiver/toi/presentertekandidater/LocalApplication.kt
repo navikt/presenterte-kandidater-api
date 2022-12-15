@@ -18,12 +18,6 @@ fun main() {
     startLocalApplication()
 }
 
-private val issuerProperties = IssuerProperties(
-    URL("http://localhost:18301/default/.well-known/openid-configuration"),
-    listOf("default"),
-    "tokenX"
-)
-
 val lokalPostgres: PostgreSQLContainer<*>
     get() {
         val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
@@ -88,6 +82,12 @@ fun slettAltIDatabase() {
     }
 }
 
+private val issuerProperties = IssuerProperties(
+    URL("http://localhost:18301/default/.well-known/openid-configuration"),
+    listOf("default"),
+    "tokenX"
+)
+
 private val envs = mapOf(
     "OPEN_SEARCH_URI" to "http://localhost:${wiremockPort}",
     "OPEN_SEARCH_USERNAME" to "gunnar",
@@ -95,7 +95,7 @@ private val envs = mapOf(
     "NAIS_APP_NAME" to "min-app",
     "ALTINN_PROXY_URL" to "http://localhost:$wiremockPort/altinn-proxy-url",
     "ALTINN_PROXY_AUDIENCE" to "din:app",
-    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost:$wiremockPort/token-x-well-known-url",
+    "TOKEN_X_WELL_KNOWN_URL" to "http://localhost:18301/default/.well-known/openid-configuration",
     "TOKEN_X_TOKEN_ENDPOINT" to "http://localhost:$wiremockPort/token-x-token-endpoint",
     "TOKEN_X_PRIVATE_JWK" to Testdata.privateJwk,
     "TOKEN_X_CLIENT_ID" to "clientId",

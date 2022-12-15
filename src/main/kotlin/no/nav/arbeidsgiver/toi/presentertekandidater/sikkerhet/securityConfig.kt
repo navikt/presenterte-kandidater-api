@@ -30,7 +30,7 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
     RolleKonfigurasjon(
         rolle = Rolle.UNPROTECTED,
         tokenUtsteder = INGEN,
-        autentiseringskrav = åpent
+        autentiseringskrav = null
     )
 )
 
