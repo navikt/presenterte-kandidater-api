@@ -82,12 +82,6 @@ fun slettAltIDatabase() {
     }
 }
 
-private val issuerProperties = IssuerProperties(
-    URL("http://localhost:18301/default/.well-known/openid-configuration"),
-    listOf("default"),
-    "tokenX"
-)
-
 private val envs = mapOf(
     "OPEN_SEARCH_URI" to "http://localhost:${wiremockPort}",
     "OPEN_SEARCH_USERNAME" to "gunnar",

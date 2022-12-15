@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import no.nav.helse.rapids_rivers.RapidApplication
 import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
@@ -68,7 +69,15 @@ fun startApp(
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
 
     val rollekonfigurasjon = konfigurerRoller(altinnKlient, samtykkeRepository)
-    val javalin = startJavalin(rollekonfigurasjoner = rollekonfigurasjon, miljøvariabler = envs)
+    val javalin = startJavalin(
+        rollekonfigurasjoner = rollekonfigurasjon,
+        jsonMapper = JavalinJackson(
+            jacksonObjectMapper().registerModule(JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+        ),
+        miljøvariabler = envs)
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
 
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
