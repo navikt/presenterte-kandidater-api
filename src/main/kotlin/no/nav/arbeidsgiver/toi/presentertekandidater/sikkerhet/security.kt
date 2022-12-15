@@ -24,7 +24,7 @@ fun styrTilgang(
     samtykkeRepository: SamtykkeRepository
 ) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
-        log("styrTilgang").info("Er på toppen av acecss manager")
+        log("styrTilgang").info("Er på toppen av access manager med rolle $roller")
 
         val erAutentisert = when {
             roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
@@ -65,6 +65,7 @@ private fun autentiserArbeidsgiver(
     forRolleRekruttering: Boolean
 ): Boolean {
     val fødselsnummerClaim = hentTokenClaims(context, issuerProperties)?.get("pid")
+    log("autentiserArbeidsgiver").info("Er på toppen av autentiserArbeidsgiver")
 
     return if (fødselsnummerClaim == null) {
         log("autentiserArbeidsgiver").info("Ouch. Har ikke fødselsnummer-claims ...")
