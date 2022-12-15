@@ -24,6 +24,7 @@ fun styrTilgang(
     samtykkeRepository: SamtykkeRepository
 ) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
+        log("styrTilgang").info("Er på toppen av acecss manager")
 
         val erAutentisert = when {
             roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
