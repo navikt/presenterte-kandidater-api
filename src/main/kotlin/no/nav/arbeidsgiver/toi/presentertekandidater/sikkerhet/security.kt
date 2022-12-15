@@ -58,10 +58,10 @@ private fun autentiserArbeidsgiver(
             if (!harSamtykketVilkår) {
                 throw UnavailableForLegalReasons()
             }
-            val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekruttering(fnr, accessToken)
+            val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr, accessToken)
             context.setOrganisasjonerForRekruttering(organisasjoner)
         } else {
-            val organisasjoner = altinnKlient.hentOrganisasjonerFraAltinn(fnr, accessToken)
+            val organisasjoner = altinnKlient.hentOrganisasjoner(fnr, accessToken)
             context.setOrganisasjoner(organisasjoner)
         }
         true

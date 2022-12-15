@@ -28,6 +28,8 @@ fun tilfeldigFødselsnummer(): String {
     return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
 
+fun tilfeldigVirksomhetsnummer() = tilfeldigFødselsnummer().substring(0, 9)
+
 fun lagreSamtykke(fødselsnummer: String) {
     SamtykkeRepository(dataSource).lagre(fødselsnummer)
 }
