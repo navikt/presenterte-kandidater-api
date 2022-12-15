@@ -4,12 +4,10 @@ import com.nimbusds.jwt.JWTClaimsSet
 import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
-import io.javalin.http.ForbiddenResponse
 import io.javalin.http.Handler
 import io.javalin.http.UnauthorizedResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.TOKEN_X
-import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
@@ -33,10 +31,10 @@ class NavalinAccessManager(
 
     private fun kanAutentisereMedEnAvRollene(context: Context, rolleKonfigurasjoner: List<RolleKonfigurasjon>): Boolean =
         rolleKonfigurasjoner.any {
-            if (it.autentiseringskrav == null) {
+            if (it.autoriseringskrav == null) {
                 true
             } else {
-                kanAutentisere(context, it.tokenUtsteder, it.autentiseringskrav)
+                kanAutentisere(context, it.tokenUtsteder, it.autoriseringskrav)
             }
         }
 

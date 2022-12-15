@@ -25,10 +25,9 @@ fun startJavalin(
 }
 
 data class RolleKonfigurasjon(
-    val rolle: RouteRole, // Trenger man denne?
+    val rolle: RouteRole,
     val tokenUtsteder: TokenUtsteder,
-    val autentiseringskrav: ((JwtTokenClaims, Context, AccessToken) -> Boolean)?
-    // PåkrevdeClaims
+    val autoriseringskrav: ((JwtTokenClaims, Context, AccessToken) -> Boolean)? = null
 )
 
 typealias AccessToken = String

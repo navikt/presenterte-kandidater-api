@@ -20,17 +20,16 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
-        autentiseringskrav = autentiserArbeidsgiver(altinnKlient, samtykkeRepository, false)
+        autoriseringskrav = autentiserArbeidsgiver(altinnKlient, samtykkeRepository, false)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING,
         tokenUtsteder = TOKEN_X,
-        autentiseringskrav = autentiserArbeidsgiver(altinnKlient, samtykkeRepository, true)
+        autoriseringskrav = autentiserArbeidsgiver(altinnKlient, samtykkeRepository, true)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.UNPROTECTED,
-        tokenUtsteder = INGEN,
-        autentiseringskrav = null
+        tokenUtsteder = INGEN
     )
 )
 
