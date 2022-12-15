@@ -4,6 +4,7 @@ import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole
 import io.javalin.http.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
@@ -17,14 +18,32 @@ enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
 }
 
-fun styrTilgang(issuerProperties: IssuerProperties, altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRepository) =
+fun styrTilgang(
+    issuerProperties: IssuerProperties,
+    altinnKlient: AltinnKlient,
+    samtykkeRepository: SamtykkeRepository
+) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
 
         val erAutentisert = when {
             roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
-                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, samtykkeRepository, forRolleRekruttering = true)
+                autentiserArbeidsgiver(
+                    ctx,
+                    issuerProperties,
+                    altinnKlient,
+                    samtykkeRepository,
+                    forRolleRekruttering = true
+                )
+
             roller.contains(Rolle.ARBEIDSGIVER) ->
-                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, samtykkeRepository, forRolleRekruttering = false)
+                autentiserArbeidsgiver(
+                    ctx,
+                    issuerProperties,
+                    altinnKlient,
+                    samtykkeRepository,
+                    forRolleRekruttering = false
+                )
+
             roller.contains(Rolle.UNPROTECTED) -> true
 
             else -> false
@@ -47,6 +66,8 @@ private fun autentiserArbeidsgiver(
     val fødselsnummerClaim = hentTokenClaims(context, issuerProperties)?.get("pid")
 
     return if (fødselsnummerClaim == null) {
+        log("autentiserArbeidsgiver").info("Ouch. Har ikke fødselsnummer-claims ...")
+
         false
     } else {
         val fnr = fødselsnummerClaim.toString()
@@ -58,11 +79,14 @@ private fun autentiserArbeidsgiver(
             if (!harSamtykketVilkår) {
                 throw UnavailableForLegalReasons()
             }
+
             val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr, accessToken)
             context.setOrganisasjonerForRekruttering(organisasjoner)
         } else {
             val organisasjoner = altinnKlient.hentOrganisasjoner(fnr, accessToken)
             context.setOrganisasjoner(organisasjoner)
+
+            log("autentiserArbeidsgiver").info("Autentiserer arbeidsgiver. Har fødselsnummer med ${fnr.length} sifre. Har tilgang til ${organisasjoner.size} organisasjoner, inkludert ${(organisasjoner.firstOrNull()?.name ?: "ingen organisasjoner")}")
         }
         true
     }
