@@ -74,6 +74,8 @@ private fun autentiserArbeidsgiver(
         context.setFødselsnummer(fnr)
         val accessToken = hentAccessTokenFraHeader(context)
 
+        log("autentiserArbeidsgiver").info("Validerer token for rolle rekruttering? $forRolleRekruttering")
+
         if (forRolleRekruttering) {
             val harSamtykketVilkår = samtykkeRepository.harSamtykket(fnr)
             if (!harSamtykketVilkår) {
