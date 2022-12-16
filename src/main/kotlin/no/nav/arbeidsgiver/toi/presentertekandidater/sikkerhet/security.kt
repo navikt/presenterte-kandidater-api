@@ -4,7 +4,6 @@ import io.javalin.core.security.AccessManager
 import io.javalin.core.security.RouteRole
 import io.javalin.http.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
@@ -24,8 +23,6 @@ fun styrTilgang(
     samtykkeRepository: SamtykkeRepository
 ) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
-        log("styrTilgang").info("Er på toppen av access manager med rolle $roller")
-
         val erAutentisert = when {
             roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
                 autentiserArbeidsgiver(
@@ -65,18 +62,13 @@ private fun autentiserArbeidsgiver(
     forRolleRekruttering: Boolean
 ): Boolean {
     val fødselsnummerClaim = hentTokenClaims(context, issuerProperties)?.get("pid")
-    log("autentiserArbeidsgiver").info("Er på toppen av autentiserArbeidsgiver")
 
     return if (fødselsnummerClaim == null) {
-        log("autentiserArbeidsgiver").info("Ouch. Har ikke fødselsnummer-claims ...")
-
         false
     } else {
         val fnr = fødselsnummerClaim.toString()
         context.setFødselsnummer(fnr)
         val accessToken = hentAccessTokenFraHeader(context)
-
-        log("autentiserArbeidsgiver").info("Validerer token for rolle rekruttering? $forRolleRekruttering")
 
         if (forRolleRekruttering) {
             val harSamtykketVilkår = samtykkeRepository.harSamtykket(fnr)
@@ -89,13 +81,10 @@ private fun autentiserArbeidsgiver(
         } else {
             val organisasjoner = altinnKlient.hentOrganisasjoner(fnr, accessToken)
             context.setOrganisasjoner(organisasjoner)
-
-            log("autentiserArbeidsgiver").info("Autentiserer arbeidsgiver. Har fødselsnummer med ${fnr.length} sifre. Har tilgang til ${organisasjoner.size} organisasjoner, inkludert ${(organisasjoner.firstOrNull()?.name ?: "ingen organisasjoner")}")
         }
         true
     }
 }
-
 
 private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
     hentTokenValidationHandler(
