@@ -6,6 +6,6 @@
     "kafka_consumer_group_id": "presenterte-kandidagter-api-rapidconsumer-1",
     "gcp_db_tier": "db-custom-1-3840",
     "gcp_disk_autoresize": "true",
-    "altinn_proxy_url": "http://altinn-rettigheter-proxy.arbeidsgiver.svc.cluster.local",
+    "altinn_proxy_url": "https://altinn-rettigheter-proxy.intern.nav.no/altinn-rettigheter-proxy",
     "altinn_proxy_audience": "prod-gcp:arbeidsgiver:altinn-rettigheter-proxy"
 }
