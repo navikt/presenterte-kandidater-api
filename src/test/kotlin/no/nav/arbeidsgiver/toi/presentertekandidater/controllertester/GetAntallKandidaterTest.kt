@@ -11,11 +11,12 @@ import java.util.*
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class GetKandidaterForArbeidsgiverTest {
+class GetAntallKandidaterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private val wiremockServer = hentWiremock()
-    private val endepunkt = "http://localhost:9000/ekstern/kandidaterforarbeidsgiver"
+    private val endepunkt = "http://localhost:9000/ekstern/antallkandidater"
+    fun endepunkt(virksomhetsnummer: String) = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
 
     @BeforeAll
     fun init() {
@@ -67,7 +68,6 @@ class GetKandidaterForArbeidsgiverTest {
     fun `Skal kunne hente ut kandidater selv om man ikke har samtykket til vilkår`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "98435243"
-        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummer,
             stillingId = stillingId
@@ -81,7 +81,7 @@ class GetKandidaterForArbeidsgiverTest {
         val fødselsnummer = tilfeldigFødselsnummer()
 
         val (_, response) = fuel
-            .get(endepunktMedVirksomhetsnummer)
+            .get(endepunkt(virksomhetsnummer))
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
@@ -95,7 +95,6 @@ class GetKandidaterForArbeidsgiverTest {
     fun `Returnerer antall kandidater 0 dersom det ikke finnes kandidater knyttet til virksomhetsnummer`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "323534343"
-        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummer,
             stillingId = stillingId
@@ -109,7 +108,7 @@ class GetKandidaterForArbeidsgiverTest {
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
-            .get(endepunktMedVirksomhetsnummer)
+            .get(endepunkt(virksomhetsnummer))
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
@@ -124,7 +123,6 @@ class GetKandidaterForArbeidsgiverTest {
     @Test
     fun `Returnerer antall kandidater 0 dersom det ikke finnes kandidatlister knyttet til virksomhetsnummer`() {
         val virksomhetsnummer = "323534343"
-        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
 
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
@@ -134,7 +132,7 @@ class GetKandidaterForArbeidsgiverTest {
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
-            .get(endepunktMedVirksomhetsnummer)
+            .get(endepunkt(virksomhetsnummer))
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
@@ -150,7 +148,6 @@ class GetKandidaterForArbeidsgiverTest {
     fun `Returnerer antall kandidater knyttet til virksomhetsnummer`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "123123123"
-        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
 
         repository.lagre(
             kandidatliste().copy(
@@ -168,7 +165,7 @@ class GetKandidaterForArbeidsgiverTest {
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
-            .get(endepunktMedVirksomhetsnummer)
+            .get(endepunkt(virksomhetsnummer))
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
@@ -178,5 +175,25 @@ class GetKandidaterForArbeidsgiverTest {
            response.body().asString("application/json;charset=utf-8")
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":1}""")
+    }
+
+    @Test
+    fun `Returnerer 403 når man henter ut antall kandidater for annet virksomhetsnummer enn man representerer`() {
+        val virksomhetsnummerManIkkeRepresenterer = tilfeldigVirksomhetsnummer()
+        val virksomhetsnummerManRepresenterer = tilfeldigVirksomhetsnummer()
+
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManRepresenterer),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val (_, response) = fuel
+            .get(endepunkt(virksomhetsnummerManIkkeRepresenterer))
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
     }
 }
