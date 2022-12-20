@@ -122,6 +122,31 @@ class GetKandidaterForArbeidsgiverTest {
     }
 
     @Test
+    fun `Returnerer antall kandidater 0 dersom det ikke finnes kandidatlister knyttet til virksomhetsnummer`() {
+        val virksomhetsnummer = "323534343"
+        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
+
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val (_, response) = fuel
+            .get(endepunktMedVirksomhetsnummer)
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+
+        val kandidatlisteMedKandidaterJson =
+           response.body().asString("application/json;charset=utf-8")
+
+        assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":0}""")
+    }
+
+    @Test
     fun `Returnerer antall kandidater knyttet til virksomhetsnummer`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "123123123"
@@ -153,6 +178,5 @@ class GetKandidaterForArbeidsgiverTest {
            response.body().asString("application/json;charset=utf-8")
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":1}""")
-
     }
 }
