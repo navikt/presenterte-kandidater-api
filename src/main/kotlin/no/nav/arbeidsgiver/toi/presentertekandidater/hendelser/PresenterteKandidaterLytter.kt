@@ -35,6 +35,7 @@ class PresenterteKandidaterLytter(
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        throw error("Rapid skal gå ned.")
         try {
             val kandidathendelsePacket = packet["kandidathendelse"]
             val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)

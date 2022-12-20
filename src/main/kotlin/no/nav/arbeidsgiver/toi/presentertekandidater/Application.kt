@@ -27,6 +27,7 @@ import javax.sql.DataSource
 
 val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+val logger = log("Application")
 
 fun main() {
     val env = System.getenv()
@@ -84,16 +85,21 @@ fun startApp(
                 .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
                 .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
         ),
-        miljøvariabler = envs)
+        miljøvariabler = envs
+    )
 
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
 
     javalin.get("/isalive", {
         if (rapidHarStartet() && !rapidErOppe()) {
-            startRapid(rapidsConnection, presenterteKandidaterService)
+            val restartetRapid = startRapid(rapidsConnection, presenterteKandidaterService)
+            logger.info("Rapid er nede og ble restartet ${restartetRapid}")
+            it.status(if (restartetRapid) 200 else 500)
+        } else {
+            logger.info("Rapid er oppe og har startet ${rapidHarStartet()}")
+            it.status(if (rapidHarStartet()) 200 else 500)
         }
-        it.status(if (rapidHarStartet()) 200 else 500)
     }, Rolle.UNPROTECTED)
 
     // Når rapid går ned, override metoden "stop"
@@ -103,16 +109,17 @@ fun startApp(
     startRapid(rapidsConnection, presenterteKandidaterService)
 }
 
-private fun startRapid(rapidsConnection: RapidsConnection, presenterteKandidaterService: PresenterteKandidaterService) {
-    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "ikke-featurtoggle-lenger"
-    rapidsConnection.also {
-        if (!erProd) {
+private fun startRapid(rapidsConnection: RapidsConnection, presenterteKandidaterService: PresenterteKandidaterService) : Boolean {
+    return try {
+        rapidsConnection.also {
             PresenterteKandidaterLytter(it, presenterteKandidaterService)
             log("Application").info("Startet lytter")
-        } else {
-            log("Application").info("Startet IKKE lytting på grunn av featuretoggle for prod-gcp")
-        }
-    }.start()
+        }.start()
+        true
+    } catch (e: Exception) {
+        logger.error("Rapid ble ikke startet.", e)
+        false
+    }
 }
 
 fun kjørFlywayMigreringer(dataSource: DataSource) {

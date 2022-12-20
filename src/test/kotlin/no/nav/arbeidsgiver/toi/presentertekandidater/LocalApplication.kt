@@ -113,6 +113,7 @@ fun startLocalApplication(
             konverteringsfilstier,
             OpenSearchKlient(envs),
             { true },
+            { true },
             altinnKlient,
             envs
         )

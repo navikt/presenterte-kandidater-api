@@ -37,8 +37,8 @@ jobs:
 
   deploy-to-dev:
     name: Deploy til dev
-    needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/kul-feature'
+    #needs: test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/kafka'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
