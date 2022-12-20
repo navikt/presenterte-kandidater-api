@@ -4,6 +4,7 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.lagKandidatTilKandidatliste
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.util.*
@@ -91,7 +92,7 @@ class GetKandidaterForArbeidsgiverTest {
     }
 
     @Test
-    fun `Returnerer 200 OK med alle kandidatlister tilknyttet oppgitt virksomhetsnummer`() {
+    fun `Returnerer antall kandidater 0 dersom det ikke finnes kandidater knyttet til virksomhetsnummer`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "323534343"
         val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
@@ -118,6 +119,40 @@ class GetKandidaterForArbeidsgiverTest {
            response.body().asString("application/json;charset=utf-8")
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":0}""")
+    }
+
+    @Test
+    fun `Returnerer antall kandidater knyttet til virksomhetsnummer`() {
+        val stillingId = UUID.randomUUID()
+        val virksomhetsnummer = "123123123"
+        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
+
+        repository.lagre(
+            kandidatliste().copy(
+            virksomhetsnummer = virksomhetsnummer,
+            stillingId = stillingId
+        ))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat = lagKandidatTilKandidatliste(kandidatliste?.id!!)
+        repository.lagre(kandidat)
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val (_, response) = fuel
+            .get(endepunktMedVirksomhetsnummer)
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(200)
+
+        val kandidatlisteMedKandidaterJson =
+           response.body().asString("application/json;charset=utf-8")
+
+        assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":1}""")
 
     }
 }
