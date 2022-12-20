@@ -43,6 +43,8 @@ spec:
     inbound:
       rules:
         - application: presenterte-kandidater
+        - application: min-side-arbeidsgiver
+          namespace: fager
     outbound:
       rules:
         - application: altinn-rettigheter-proxy
