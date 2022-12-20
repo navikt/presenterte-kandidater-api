@@ -11,6 +11,10 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.time.Clock
 import java.time.Duration
 import java.time.ZoneId

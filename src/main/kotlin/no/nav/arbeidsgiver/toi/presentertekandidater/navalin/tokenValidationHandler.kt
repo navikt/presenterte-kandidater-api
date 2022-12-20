@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
+package no.nav.arbeidsgiver.toi.presentertekandidater.navalin
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.security.token.support.core.configuration.IssuerProperties
@@ -11,7 +11,7 @@ data class CachedHandler(
     val expires: LocalDateTime,
 )
 
-val cache: HashMap<String, CachedHandler> = HashMap()
+private val cache: HashMap<String, CachedHandler> = HashMap()
 
 fun hentTokenValidationHandler(
     issuerProperties: IssuerProperties
