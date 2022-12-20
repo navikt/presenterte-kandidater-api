@@ -39,6 +39,7 @@ fun startController(
             konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
             Rolle.UNPROTECTED
         )
+        get("/ekstern/kandidaterforarbeidsgiver", hentKandidaterForArbeidsgiver(kandidatlisteRepository), Rolle.ARBEIDSGIVER)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
@@ -126,6 +127,19 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
         }
     }
 
+private val hentKandidaterForArbeidsgiver: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
+    { repository ->
+        { context ->
+            log("hentKandidaterForArbeidsgiver").info("Henter kandidater for arbeidsgiver.")
+            val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
+            val antallKandidater = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer).map{
+                it.antallKandidater
+            }.sum()
+
+            context.json(antallKandidater)
+        }
+    }
+
 private val hentOrganisasjoner: (Context) -> Unit =
     { context ->
         log("hentOrganisasjoner").info("Henter organisasjoner for bruker med fnr på ${context.hentFødselsnummer().length} sifre")
@@ -133,6 +147,7 @@ private val hentOrganisasjoner: (Context) -> Unit =
             context.hentOrganisasjoner()
         )
     }
+
 
 data class KandidatDto(
     val kandidat: Kandidat, val cv: Cv?,
