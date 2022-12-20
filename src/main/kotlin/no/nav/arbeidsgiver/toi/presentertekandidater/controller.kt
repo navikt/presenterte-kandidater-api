@@ -39,29 +39,34 @@ fun startController(
             konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
             Rolle.UNPROTECTED
         )
-        get("/ekstern/kandidaterforarbeidsgiver", hentKandidaterForArbeidsgiver(kandidatlisteRepository), Rolle.EKSTERN_ARBEIDSGIVER)
+        get(
+            "/ekstern/kandidaterforarbeidsgiver",
+            hentKandidaterForArbeidsgiver(kandidatlisteRepository),
+            Rolle.EKSTERN_ARBEIDSGIVER
+        )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
     }
 }
 
-private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { repository ->
-    { context ->
-        val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
-        val jsonBody = defaultObjectMapper.readTree(context.body())
-        val arbeidsgiversVurdering =
-            Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
+private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
+    { repository ->
+        { context ->
+            val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
+            val jsonBody = defaultObjectMapper.readTree(context.body())
+            val arbeidsgiversVurdering =
+                Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
 
-        val kandidatliste = repository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
-        context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)
+            val kandidatliste = repository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
+            context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)
 
-        when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
-            true -> context.status(200)
-            false -> context.status(400)
+            when (repository.oppdaterArbeidsgiversVurdering(kandidatUuid, arbeidsgiversVurdering)) {
+                true -> context.status(200)
+                false -> context.status(400)
+            }
         }
     }
-}
 
 private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
@@ -85,22 +90,25 @@ private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context)
     }
 }
 
-private val hentKandidatlister: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { repository ->
-    { context ->
-        val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
-        context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
-        context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
+private val hentKandidatlister: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
+    { repository ->
+        { context ->
+            val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
+            context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
+            context.json(repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer))
+        }
     }
-}
 
-private val slettKandidat: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit = { kandidatlisteRepository ->
-    { context ->
-        val kandidatUuid: UUID = UUID.fromString(context.pathParam("uuid"))
-        val kandidatliste = kandidatlisteRepository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
-        context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)
-        kandidatlisteRepository.slettKandidat(kandidatUuid)
+private val slettKandidat: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
+    { kandidatlisteRepository ->
+        { context ->
+            val kandidatUuid: UUID = UUID.fromString(context.pathParam("uuid"))
+            val kandidatliste =
+                kandidatlisteRepository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
+            context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)
+            kandidatlisteRepository.slettKandidat(kandidatUuid)
+        }
     }
-}
 
 private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository, opensearchKlient: OpenSearchKlient) -> (Context) -> Unit =
     { repository, opensearchKlient ->
@@ -132,13 +140,15 @@ private val hentKandidaterForArbeidsgiver: (kandidatlisteRepository: Kandidatlis
         { context ->
             log("hentKandidaterForArbeidsgiver").info("Henter kandidater for arbeidsgiver.")
             val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
-            val antallKandidater = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer).map{
+            val antallKandidater = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer).map {
                 it.antallKandidater
             }.sum()
 
-            data class DTO(val antallKandidater: Int)
-
-            context.json(DTO(antallKandidater))
+            context.json(
+                object {
+                    val antallKandidater = antallKandidater
+                }
+            )
         }
     }
 
