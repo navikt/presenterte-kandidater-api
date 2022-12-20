@@ -16,7 +16,6 @@ import java.net.URL
 class NavalinAccessManager(
     private val rolleKonfigurasjoner: List<RolleKonfigurasjon>,
     private val miljøvariabler: Map<String, String>): AccessManager {
-    val roller = rolleKonfigurasjoner.map { it.rolle }
 
     override fun manage(handler: Handler, ctx: Context, routeRoles: MutableSet<RouteRole>) {
         val aktuelleRollekonfigurasjoner = rolleKonfigurasjoner.filter { routeRoles.contains(it.rolle) }

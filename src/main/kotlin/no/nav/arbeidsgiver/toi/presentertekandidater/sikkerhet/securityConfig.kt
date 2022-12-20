@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
 import io.javalin.http.HttpResponseException
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hentFødselsnummer
@@ -11,6 +12,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManage
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.RolleKonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
+import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjonerForRekruttering
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.eclipse.jetty.http.HttpStatus
@@ -21,7 +23,6 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
         rolle = Rolle.ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
         autoriseringskrav = hentRepresenterteOrganisasjoner(altinnKlient, samtykkeRepository, true)
-
     ),
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING,
@@ -94,24 +95,18 @@ val hentRepresenterteOrganisasjoner: (AltinnKlient, SamtykkeRepository, Boolean)
             val organisasjoner =
                 altinnKlient.hentOrganisasjoner(fnr, accessToken)
 
-            if (organisasjoner.isNotEmpty()) {
-                context.setOrganisasjonerForRekruttering(organisasjoner)
+            context.setOrganisasjoner(organisasjoner)
 
-            }
-                true
+            true
 
         }
     }
 
 fun settFødselsnummerPåKontekst(claims: JwtTokenClaims, context: Context) {
-    val fødselsnummerClaim = claims.get("pid")
+    val fødselsnummerClaim = claims.get("pid") ?: throw ForbiddenResponse()
 
-    if (fødselsnummerClaim == null) {
-        false // TODO
-    } else {
-        val fnr = fødselsnummerClaim.toString()
-        context.setFødselsnummer(fnr)
-    }
+    val fnr = fødselsnummerClaim.toString()
+    context.setFødselsnummer(fnr)
 }
 
 class UnavailableForLegalReasons @JvmOverloads constructor(
