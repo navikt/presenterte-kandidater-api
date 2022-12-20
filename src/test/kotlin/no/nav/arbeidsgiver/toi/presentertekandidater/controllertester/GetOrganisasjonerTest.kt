@@ -61,7 +61,7 @@ class GetOrganisasjonerTest {
 
 
     @Test
-    fun `Skal ikke bruke cache i Altinn-klient`() {
+    fun `Skal bruke cache i Altinn-klient`() {
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
@@ -87,7 +87,7 @@ class GetOrganisasjonerTest {
         val organisasjonerFraRespons2 = result2.get()
         Assertions.assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
-        wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
+        wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
+        wiremockServer.verify(1, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
     }
 }

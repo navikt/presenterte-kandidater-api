@@ -128,6 +128,7 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
 
 private val hentOrganisasjoner: (Context) -> Unit =
     { context ->
+        log("hentOrganisasjoner").info("Henter organisasjoner for bruker med fnr på ${context.hentFødselsnummer().length} sifre")
         context.json(
             context.hentOrganisasjoner()
         )

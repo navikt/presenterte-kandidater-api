@@ -17,14 +17,31 @@ enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
 }
 
-fun styrTilgang(issuerProperties: IssuerProperties, altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRepository) =
+fun styrTilgang(
+    issuerProperties: IssuerProperties,
+    altinnKlient: AltinnKlient,
+    samtykkeRepository: SamtykkeRepository
+) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
-
         val erAutentisert = when {
             roller.contains(Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING) ->
-                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, samtykkeRepository, forRolleRekruttering = true)
+                autentiserArbeidsgiver(
+                    ctx,
+                    issuerProperties,
+                    altinnKlient,
+                    samtykkeRepository,
+                    forRolleRekruttering = true
+                )
+
             roller.contains(Rolle.ARBEIDSGIVER) ->
-                autentiserArbeidsgiver(ctx, issuerProperties, altinnKlient, samtykkeRepository, forRolleRekruttering = false)
+                autentiserArbeidsgiver(
+                    ctx,
+                    issuerProperties,
+                    altinnKlient,
+                    samtykkeRepository,
+                    forRolleRekruttering = false
+                )
+
             roller.contains(Rolle.UNPROTECTED) -> true
 
             else -> false
@@ -58,16 +75,16 @@ private fun autentiserArbeidsgiver(
             if (!harSamtykketVilkår) {
                 throw UnavailableForLegalReasons()
             }
-            val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekruttering(fnr, accessToken)
+
+            val organisasjoner = altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr, accessToken)
             context.setOrganisasjonerForRekruttering(organisasjoner)
         } else {
-            val organisasjoner = altinnKlient.hentOrganisasjonerFraAltinn(fnr, accessToken)
+            val organisasjoner = altinnKlient.hentOrganisasjoner(fnr, accessToken)
             context.setOrganisasjoner(organisasjoner)
         }
         true
     }
 }
-
 
 private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
     hentTokenValidationHandler(
