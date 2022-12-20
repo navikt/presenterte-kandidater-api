@@ -179,4 +179,25 @@ class GetKandidaterForArbeidsgiverTest {
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":1}""")
     }
+
+    @Test
+    fun `Returnerer 403 når man henter ut antall kandidater for annet virksomhetsnummer enn man representerer`() {
+        val virksomhetsnummerManIkkeRepresenterer = tilfeldigVirksomhetsnummer()
+        val virksomhetsnummerManRepresenterer = tilfeldigVirksomhetsnummer()
+        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummerManIkkeRepresenterer"
+
+        val organisasjoner = listOf(
+            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManRepresenterer),
+        )
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val (_, response) = fuel
+            .get(endepunktMedVirksomhetsnummer)
+            .authentication().bearer(hentToken(fødselsnummer))
+            .response()
+
+        assertThat(response.statusCode).isEqualTo(403)
+    }
 }
