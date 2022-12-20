@@ -18,26 +18,19 @@ class NavalinAccessManager(
     private val miljøvariabler: Map<String, String>): AccessManager {
 
     override fun manage(handler: Handler, ctx: Context, routeRoles: MutableSet<RouteRole>) {
-        val aktuelleRollekonfigurasjoner = rolleKonfigurasjoner.filter { routeRoles.contains(it.rolle) }
-        val erAutentisert = kanAutentisereMedEnAvRollene(ctx, aktuelleRollekonfigurasjoner)
+        require(routeRoles.size == 1) {"Støtter kun bruk av en rolle per endepunkt."}
+        val rollekonfigurasjon = rolleKonfigurasjoner.find { routeRoles.contains(it.rolle) } ?: error("Bruker ukonfigurert rolle på endepunktet.")
+        val erAutentisert =
+            if (rollekonfigurasjon.autoriseringskrav == null) true
+            else kanAutentisereOgAutorisere(ctx, rollekonfigurasjon.tokenUtsteder, rollekonfigurasjon.autoriseringskrav)
 
         if (!erAutentisert) {
             throw UnauthorizedResponse()
-        } else {
-            handler.handle(ctx)
         }
+        handler.handle(ctx)
     }
 
-    private fun kanAutentisereMedEnAvRollene(context: Context, rolleKonfigurasjoner: List<RolleKonfigurasjon>): Boolean =
-        rolleKonfigurasjoner.any {
-            if (it.autoriseringskrav == null) {
-                true
-            } else {
-                kanAutentisere(context, it.tokenUtsteder, it.autoriseringskrav)
-            }
-        }
-
-    private fun kanAutentisere(context: Context, tokenUtsteder: TokenUtsteder, autentiseringskrav: (JwtTokenClaims, Context, AccessToken) -> Boolean): Boolean {
+    private fun kanAutentisereOgAutorisere(context: Context, tokenUtsteder: TokenUtsteder, autoriseringskrav: (JwtTokenClaims, Context, AccessToken) -> Boolean): Boolean {
         val issuerProperties = hentIssuerProperties(tokenUtsteder)
 
         val tokenClaims = if (issuerProperties != null) {
@@ -49,7 +42,7 @@ class NavalinAccessManager(
         if (tokenClaims == null) {
             throw UnauthorizedResponse()
         }
-        return autentiseringskrav(tokenClaims, context, hentAccessTokenFraHeader(context))
+        return autoriseringskrav(tokenClaims, context, hentAccessTokenFraHeader(context))
     }
 
     private fun lagTomJwtTokenClaims(): JwtTokenClaims = JwtTokenClaims(JWTClaimsSet.parse(""))
