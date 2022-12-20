@@ -15,7 +15,7 @@ where
 l.db_id in (select distinct db_id from agkandliste ll
   where ll.stilling_id = l.stilling_id and
   ll.stilling_id is not null and ll.organisasjon_referanse is not null and ll.tittel is not null
-  and
+  and ll.opprettet_av='NAV' and
   ll.opprettet_tidspunkt in( select max(lll.opprettet_tidspunkt) from agkandliste lll where lll.stilling_id=ll.stilling_id )
   )
 order by l.opprettet_tidspunkt desc;
@@ -32,6 +32,7 @@ select distinct(k.kandidatnr) as kandidatnr, to_char(k.lagt_til_tidspunkt, 'yyyy
   and exists (select 1 from AGKANDLISTE ll
     where ll.stilling_id is not null and ll.organisasjon_referanse is not null and ll.tittel is not null
     and k.agkandliste_db_id = ll.db_id
+    and ll.opprettet_av='NAV'
     and ll.stilling_id=l.stilling_id
     and ll.opprettet_tidspunkt > to_date('2022-05-01', 'yyyy-mm-dd'))
     order by k.kandidatnr, l.stilling_id, endret_tidspunkt desc;

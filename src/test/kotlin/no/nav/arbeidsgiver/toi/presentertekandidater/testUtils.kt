@@ -28,12 +28,17 @@ fun tilfeldigFødselsnummer(): String {
     return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
 }
 
+fun tilfeldigVirksomhetsnummer() = tilfeldigFødselsnummer().substring(0, 9)
+
 fun lagreSamtykke(fødselsnummer: String) {
     SamtykkeRepository(dataSource).lagre(fødselsnummer)
 }
 
 fun hentToken(fødselsnummer: String): String {
-    return mockOAuth2Server.issueToken(claims = mapOf("pid" to fødselsnummer)).serialize()
+    return mockOAuth2Server.issueToken(
+        audience = "clientId",
+        claims = mapOf("pid" to fødselsnummer)
+    ).serialize()
 }
 
 fun hentUgyldigToken(): String {

@@ -11,6 +11,10 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.time.Clock
 import java.time.Duration
 import java.time.ZoneId
@@ -250,72 +254,6 @@ class GetKandidatlisterTest {
 
         wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
-    }
-
-    @Test
-    fun `Bruker ikke cache når det hentes organisasjoner for annen bruker`() {
-        val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-        )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val fødselsnummer1 = tilfeldigFødselsnummer()
-        lagreSamtykke(fødselsnummer1)
-        val accessToken = hentToken(fødselsnummer1)
-
-        val fødselsnummer2 = tilfeldigFødselsnummer()
-        lagreSamtykke(fødselsnummer2)
-        val accessToken2 = hentToken(fødselsnummer2)
-
-        val (_, respons1, _) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
-        assertThat(respons1.statusCode).isEqualTo(200)
-
-        val (_, respons2, _) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken2)
-            .responseObject<List<AltinnReportee>>()
-        assertThat(respons2.statusCode).isEqualTo(200)
-
-        wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
-    }
-
-    @Disabled
-    @Test
-    fun `Bruker ikke cache når det har gått mer enn 15 minutter fra forrige kall`() {
-        val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
-        )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val fødselsnummer = tilfeldigFødselsnummer()
-        lagreSamtykke(fødselsnummer)
-        val accessToken = hentToken(fødselsnummer)
-
-        val (_, respons1, _) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
-        assertThat(respons1.statusCode).isEqualTo(200)
-
-        // Setter klokka fram i tid
-        val constantClock: Clock =
-            Clock.fixed(ZonedDateTime.now().plusMinutes(15).plusNanos(1).toInstant(), ZoneId.systemDefault())
-
-        val (_, respons2, _) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
-        assertThat(respons2.statusCode).isEqualTo(200)
-
-        wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
-
-        // Setter klokka tilbake
-        Clock.offset(constantClock, Duration.ZERO)
     }
 
     @Test

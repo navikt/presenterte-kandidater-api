@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.jsonMapper
 import no.nav.helse.rapids_rivers.RapidApplication
 import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
@@ -15,6 +16,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKli
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.startPeriodiskSlettingAvKandidaterOgKandidatlister
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
+import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.startJavalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.*
 import no.nav.helse.rapids_rivers.RapidsConnection
@@ -28,7 +30,6 @@ val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(Jav
 
 fun main() {
     val env = System.getenv()
-    val issuerProperties = hentIssuerPropertiesForTokenX(env)
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
 
@@ -55,7 +56,7 @@ fun main() {
         rapidHarStartet,
         rapidErOppe,
         altinnKlient,
-        issuerProperties
+        env
     )
 }
 
@@ -67,13 +68,24 @@ fun startApp(
     rapidHarStartet: () -> Boolean,
     rapidErOppe: () -> Boolean,
     altinnKlient: AltinnKlient,
-    issuerProperties: IssuerProperties
+    envs: Map<String, String>
 ) {
     val samtykkeRepository = SamtykkeRepository(dataSource)
-    val javalin = opprettJavalinMedTilgangskontroll(issuerProperties, altinnKlient, samtykkeRepository)
     kjørFlywayMigreringer(dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
+
+    val rollekonfigurasjon = konfigurerRoller(altinnKlient, samtykkeRepository)
+    val javalin = startJavalin(
+        rollekonfigurasjoner = rollekonfigurasjon,
+        jsonMapper = JavalinJackson(
+            jacksonObjectMapper().registerModule(JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+        ),
+        miljøvariabler = envs)
+
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
 
@@ -92,7 +104,7 @@ fun startApp(
 }
 
 private fun startRapid(rapidsConnection: RapidsConnection, presenterteKandidaterService: PresenterteKandidaterService) {
-    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
+    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "ikke-featurtoggle-lenger"
     rapidsConnection.also {
         if (!erProd) {
             PresenterteKandidaterLytter(it, presenterteKandidaterService)
@@ -102,23 +114,6 @@ private fun startRapid(rapidsConnection: RapidsConnection, presenterteKandidater
         }
     }.start()
 }
-
-fun opprettJavalinMedTilgangskontroll(
-    issuerProperties: IssuerProperties,
-    altinnKlient: AltinnKlient,
-    samtykkeRepository: SamtykkeRepository
-): Javalin = Javalin.create {
-    it.defaultContentType = "application/json"
-    it.accessManager(styrTilgang(issuerProperties, altinnKlient, samtykkeRepository))
-    it.jsonMapper(
-        JavalinJackson(
-            jacksonObjectMapper().registerModule(JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
-                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-        )
-    )
-}.start(9000)
 
 fun kjørFlywayMigreringer(dataSource: DataSource) {
     Flyway.configure()
