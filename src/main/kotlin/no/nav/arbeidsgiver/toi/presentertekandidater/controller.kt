@@ -40,8 +40,8 @@ fun startController(
             Rolle.UNPROTECTED
         )
         get(
-            "/ekstern/kandidaterforarbeidsgiver",
-            hentKandidaterForArbeidsgiver(kandidatlisteRepository),
+            "/ekstern/antallkandidater",
+            hentAntallKandidater(kandidatlisteRepository),
             Rolle.EKSTERN_ARBEIDSGIVER
         )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
@@ -135,11 +135,12 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
         }
     }
 
-private val hentKandidaterForArbeidsgiver: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
+private val hentAntallKandidater: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
     { repository ->
         { context ->
             log("hentKandidaterForArbeidsgiver").info("Henter kandidater for arbeidsgiver.")
             val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
+            context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
             val antallKandidater = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer).map {
                 it.antallKandidater
             }.sum()
