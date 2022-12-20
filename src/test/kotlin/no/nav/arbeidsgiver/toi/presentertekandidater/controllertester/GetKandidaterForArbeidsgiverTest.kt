@@ -2,29 +2,19 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.jackson.responseObject
-import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import java.time.Clock
-import java.time.Duration
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetKandidaterForArbeidsgiverTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val fuel = FuelManager()
     private val wiremockServer = hentWiremock()
+    private val endepunkt = "http://localhost:9000/ekstern/kandidaterforarbeidsgiver"
 
     @BeforeAll
     fun init() {
@@ -38,7 +28,6 @@ class GetKandidaterForArbeidsgiverTest {
 
     @Test
     fun `Svarer 401 Unauthorized hvis forespørselen ikke inneholder et token`() {
-        val endepunkt = "http://localhost:9000/ekstern/kandidaterforarbeidsgiver"
         val (_, response) = fuel
             .get(endepunkt)
             .response()
@@ -48,7 +37,6 @@ class GetKandidaterForArbeidsgiverTest {
 
     @Test
     fun `Svarer 401 Unauthorized hvis forespørselens token er ugyldig`() {
-        val endepunkt = "http://localhost:9000/ekstern/kandidaterforarbeidsgiver"
         val (_, response) = fuel
             .get(endepunkt)
             .authentication().bearer(hentUgyldigToken())
@@ -64,7 +52,6 @@ class GetKandidaterForArbeidsgiverTest {
             Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
         )
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-        val endepunkt = "http://localhost:9000/ekstern/kandidaterforarbeidsgiver"
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
@@ -79,7 +66,7 @@ class GetKandidaterForArbeidsgiverTest {
     fun `Skal kunne hente ut kandidater selv om man ikke har samtykket til vilkår`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "98435243"
-        val endepunkt = "http://localhost:9000/kandidaterforarbeidsgiver?virksomhetsnummer=$virksomhetsnummer"
+        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummer,
             stillingId = stillingId
@@ -93,7 +80,7 @@ class GetKandidaterForArbeidsgiverTest {
         val fødselsnummer = tilfeldigFødselsnummer()
 
         val (_, response) = fuel
-            .get(endepunkt)
+            .get(endepunktMedVirksomhetsnummer)
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
@@ -111,7 +98,7 @@ class GetKandidaterForArbeidsgiverTest {
     fun `Returnerer 200 OK med alle kandidatlister tilknyttet oppgitt virksomhetsnummer`() {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "323534343"
-        val endepunkt = "http://localhost:9000/kandidaterforarbeidsgiver?virksomhetsnummer=$virksomhetsnummer"
+        val endepunktMedVirksomhetsnummer = "$endepunkt?virksomhetsnummer=$virksomhetsnummer"
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummer,
             stillingId = stillingId
@@ -125,7 +112,7 @@ class GetKandidaterForArbeidsgiverTest {
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
-            .get(endepunkt)
+            .get(endepunktMedVirksomhetsnummer)
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 

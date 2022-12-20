@@ -39,7 +39,7 @@ fun startController(
             konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
             Rolle.UNPROTECTED
         )
-        get("/ekstern/kandidaterforarbeidsgiver", hentKandidaterForArbeidsgiver(kandidatlisteRepository), Rolle.ARBEIDSGIVER)
+        get("/ekstern/kandidaterforarbeidsgiver", hentKandidaterForArbeidsgiver(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
