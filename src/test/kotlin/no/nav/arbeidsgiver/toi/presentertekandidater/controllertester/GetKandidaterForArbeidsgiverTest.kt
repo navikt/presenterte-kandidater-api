@@ -87,11 +87,7 @@ class GetKandidaterForArbeidsgiverTest {
         assertThat(response.statusCode).isEqualTo(200)
         val kandidatlisteMedKandidaterJson =
             response.body().asString("application/json;charset=utf-8")
-        assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""
-            {
-                "antallKandidater": 0
-            }
-        """.trimIndent())
+        assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":0}""")
     }
 
     @Test
@@ -121,11 +117,7 @@ class GetKandidaterForArbeidsgiverTest {
         val kandidatlisteMedKandidaterJson =
            response.body().asString("application/json;charset=utf-8")
 
-        assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""
-            {
-                "antallKandidater": 0
-            }
-        """.trimIndent())
+        assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":0}""")
 
     }
 }

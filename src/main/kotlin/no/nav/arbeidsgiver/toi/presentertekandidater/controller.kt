@@ -39,7 +39,7 @@ fun startController(
             konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
             Rolle.UNPROTECTED
         )
-        get("/ekstern/kandidaterforarbeidsgiver", hentKandidaterForArbeidsgiver(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        get("/ekstern/kandidaterforarbeidsgiver", hentKandidaterForArbeidsgiver(kandidatlisteRepository), Rolle.EKSTERN_ARBEIDSGIVER)
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
@@ -136,7 +136,9 @@ private val hentKandidaterForArbeidsgiver: (kandidatlisteRepository: Kandidatlis
                 it.antallKandidater
             }.sum()
 
-            context.json(antallKandidater)
+            data class DTO(val antallKandidater: Int)
+
+            context.json(DTO(antallKandidater))
         }
     }
 
