@@ -96,7 +96,7 @@ class DeleteKandidatTest {
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
             .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
-            .response()
+            .response() F
 
         assertThat(response.statusCode).isEqualTo(451)
         assertNotNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
