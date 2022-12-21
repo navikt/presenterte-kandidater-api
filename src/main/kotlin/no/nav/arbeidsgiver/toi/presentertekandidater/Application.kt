@@ -20,6 +20,8 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfi
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.startJavalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkMetrikkJobb
+import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkRepository
 import no.nav.helse.rapids_rivers.RapidsConnection
 import org.flywaydb.core.Flyway
 import java.util.TimeZone
@@ -70,6 +72,10 @@ fun startApp(
 
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val rollekonfigurasjon = konfigurerRoller(altinnKlient, samtykkeRepository)
+
+    val statistikkRepository = StatistikkRepository(dataSource)
+    val statistikkMetrikkJobb = StatistikkMetrikkJobb(statistikkRepository, prometheusRegistry)
+
     val javalin = startJavalin(
         rollekonfigurasjoner = rollekonfigurasjon,
         jsonMapper = JavalinJackson(
@@ -87,6 +93,7 @@ fun startApp(
 
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
+    statistikkMetrikkJobb.start()
 
     val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "ikke-featurtoggle-lenger"
 

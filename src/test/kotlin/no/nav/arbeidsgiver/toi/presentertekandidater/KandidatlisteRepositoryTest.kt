@@ -33,7 +33,10 @@ internal class KandidatlisteRepositoryTest {
     @Test
     fun `Persistering og henting av kandidatliste går OK`() {
         val kandidatliste = lagKandidatliste()
-        repository.lagre(kandidatliste)
+
+        val lagretKandidatliste = repository.lagre(kandidatliste)
+        assertThat(lagretKandidatliste.id).isNotNull()
+
         repository.hentKandidatliste(kandidatliste.stillingId).apply {
             assertThat(this?.id).isNotNull
             assertThat(this?.tittel).isEqualTo(kandidatliste.tittel)

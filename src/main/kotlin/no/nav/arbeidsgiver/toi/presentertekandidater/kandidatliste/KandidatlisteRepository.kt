@@ -9,7 +9,7 @@ import java.util.UUID
 import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
-    fun lagre(kandidatliste: Kandidatliste) {
+    fun lagre(kandidatliste: Kandidatliste) : Kandidatliste {
         dataSource.connection.use {
             val sql = """
                 insert into kandidatliste(
@@ -24,7 +24,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 ) values (?, ?, ?, ?, ?, ?, ?, ?)
             """.trimIndent()
 
-            it.prepareStatement(sql).apply {
+            val statement = it.prepareStatement(sql, arrayOf("id")).apply {
                 this.setObject(1, kandidatliste.stillingId)
                 this.setObject(2, kandidatliste.uuid)
                 this.setString(3, kandidatliste.tittel)
@@ -33,8 +33,17 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 this.setString(6, kandidatliste.virksomhetsnummer)
                 this.setTimestamp(7, Timestamp(kandidatliste.sistEndret.toInstant().toEpochMilli()))
                 this.setTimestamp(8, Timestamp(kandidatliste.opprettet.toInstant().toEpochMilli()))
-            }.execute()
+            }
+            val numRows = statement.executeUpdate()
+            if (numRows > 0) {
+                val rs = statement.generatedKeys
+                if (rs.next()) {
+                    val id =rs.getBigDecimal(1).toBigInteger()
+                    return kandidatliste.copy(id = id)
+                }
+            }
         }
+        return kandidatliste
     }
 
     fun oppdater(kandidatliste: Kandidatliste) {
@@ -56,7 +65,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun lagre(kandidat: Kandidat) {
+    fun lagre(kandidat: Kandidat) : Kandidat {
         dataSource.connection.use {
             val sql = """
                 insert into kandidat(
@@ -68,14 +77,23 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 ) values (?, ?, ?, ?, ?)
             """.trimIndent()
 
-            it.prepareStatement(sql).apply {
+            val statement = it.prepareStatement(sql, arrayOf("id")).apply {
                 this.setObject(1, kandidat.aktørId)
                 this.setObject(2, kandidat.kandidatlisteId)
                 this.setObject(3, kandidat.uuid)
                 this.setString(4, kandidat.arbeidsgiversVurdering.name)
                 this.setTimestamp(5, Timestamp(kandidat.sistEndret.toInstant().toEpochMilli()))
-            }.execute()
+            }
+            val numRows = statement.executeUpdate()
+            if (numRows > 0) {
+                val rs = statement.generatedKeys
+                if (rs.next()) {
+                    val id =rs.getBigDecimal(1).toBigInteger()
+                    return kandidat.copy(id = id)
+                }
+            }
         }
+        return kandidat
     }
 
     fun hentKandidatliste(stillingId: UUID): Kandidatliste? {
