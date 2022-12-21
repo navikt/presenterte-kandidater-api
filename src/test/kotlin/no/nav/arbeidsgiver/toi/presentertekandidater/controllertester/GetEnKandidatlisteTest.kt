@@ -8,6 +8,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
@@ -62,6 +63,7 @@ class GetEnKandidatlisteTest {
         repository.lagre(kandidat2)
 
         val esRespons = Testdata.flereKandidaterFraES(aktørId1 = kandidat1.aktørId, aktørid2 = kandidat2.aktørId)
+        val esResponseCver = objectMapper.readTree(esRespons)["hits"]["hits"]
         stubHentingAvKandidater(
             requestBody = openSearchKlient.lagBodyForHentingAvCver(
                 listOf(
@@ -101,8 +103,8 @@ class GetEnKandidatlisteTest {
         assertThat(kandidaterJson).hasSize(2)
         assertKandidat(kandidaterJson[0], kandidat1)
         assertKandidat(kandidaterJson[1], kandidat2)
-        assertNotNull(kandidaterJson[0]["cv"]);
-        assertNotNull(kandidaterJson[1]["cv"]);
+        assertCv(kandidaterJson[0]["cv"], esResponseCver[0])
+        assertCv(kandidaterJson[1]["cv"], esResponseCver[1])
     }
 
     @Test
@@ -243,6 +245,16 @@ class GetEnKandidatlisteTest {
                 .equals(fraDatabasen.arbeidsgiversVurdering.name)
         )
         assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
+    }
+
+    private fun assertCv(fraRespons: JsonNode, openSearchCvRespons: JsonNode) {
+        val openSearchCv = openSearchCvRespons["_source"]
+        assertThat(fraRespons["mobiltelefonnummer"].asText()).isEqualTo(openSearchCv["mobiltelefon"].asText())
+        assertThat(fraRespons["epost"].asText()).isEqualTo(openSearchCv["epostadresse"].asText())
+        assertThat(fraRespons["fornavn"].asText()).isEqualTo(openSearchCv["fornavn"].asText())
+        assertThat(fraRespons["etternavn"].asText()).isEqualTo(openSearchCv["etternavn"].asText())
+        assertThat(fraRespons["sammendrag"].asText()).isEqualTo(openSearchCv["beskrivelse"].asText())
+        assertThat(fraRespons["bosted"].asText()).isEqualTo(openSearchCv["poststed"].asText())
     }
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {

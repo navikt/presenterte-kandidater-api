@@ -81,7 +81,7 @@ class OpenSearchKlientTest {
         assertThat(cv1?.fornavn).isEqualTo("Ugjennomsiktig")
         assertThat(cv1?.etternavn).isEqualTo("Dal")
         assertThat(cv1?.bosted).isEqualTo("Vega")
-        assertThat(cv1?.mobiltelefonnummer).isEqualTo(null)
+        assertThat(cv1?.mobiltelefonnummer).isEqualTo("44887766")
     }
 
     @Test

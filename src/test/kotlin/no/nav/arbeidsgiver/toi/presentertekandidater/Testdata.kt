@@ -373,10 +373,10 @@ object Testdata {
             					],
             					"fornavn": "Ugjennomsiktig",
             					"poststed": "Vega",
-            					"mobiltelefon": null,
+            					"mobiltelefon": "44887766",
             					"fodselsdato": "1975-09-19T23:00:00.000+00:00",
             					"etternavn": "Dal",
-            					"epostadresse": null,
+            					"epostadresse": "nei@nei.no",
             					"sprak": [
             						{
             							"sprakKode": null,
@@ -523,7 +523,7 @@ object Testdata {
             					"mobiltelefon": null,
             					"fodselsdato": "1970-12-14T23:00:00.000+00:00",
             					"etternavn": "Vaktel",
-            					"epostadresse": null,
+            					"epostadresse": "hei@hei.no",
             					"sprak": [],
             					"yrkeserfaring": [],
             					"beskrivelse": ""
