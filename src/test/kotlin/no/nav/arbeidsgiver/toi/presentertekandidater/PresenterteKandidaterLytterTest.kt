@@ -2,10 +2,11 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
@@ -40,7 +41,7 @@ class PresenterteKandidaterLytterTest {
 
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val kandidatliste =
             repository.hentKandidatliste(stillingsId)
         val kandidater = repository.hentKandidater(kandidatliste?.id!!)
@@ -71,7 +72,7 @@ class PresenterteKandidaterLytterTest {
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
 
         // Verifiser etter første melding
         val kandidatlisteEtterFørsteMelding = repository.hentKandidatliste(stillingsId)
@@ -119,7 +120,7 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `Skal lagre begge kandidater når vi får meldinger om kandidathendelser som gjelder samme kandidatliste`() {
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val (aktørId1, aktørId2) = listOf("1234", "5678")
         val førsteMelding = meldingOmKandidathendelseDeltCv(aktørId = aktørId1, stillingsId = stillingsId)
@@ -148,7 +149,7 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret, men med endrede opplysninger, skal den oppdateres`() {
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
 
         val førsteAktørId = "2040897398605"
@@ -171,7 +172,7 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at lukket kandidatliste når ingen har fått jobben registreres med status LUKKET`() {
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val aktørId = "1122334455"
         val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
@@ -189,7 +190,7 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at lukket kandidatliste når noen fikk jobben registreres med status LUKKET`() {
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val aktørId = "6655443322"
         val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
@@ -207,7 +208,7 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at annullert kandidatliste registreres som slettet fra databasen`() {
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val aktørId = "44556677"
         val meldingOmOpprettelseAvKandidatliste = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
@@ -225,7 +226,7 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at kandidat slettes fra kandidatliste ved slettekandidathendelse`() {
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val stillingsId = UUID.randomUUID()
         val førsteAktørId = "44556677"
         val førsteStillingstittel = "Stilling hvis kandidat skal slettes fra!"
@@ -253,7 +254,7 @@ class PresenterteKandidaterLytterTest {
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         val kandidatliste = repository.hentKandidatliste(stillingsId)
 
         // Verifiser kandidatliste
@@ -269,7 +270,7 @@ class PresenterteKandidaterLytterTest {
         val meldingSomVilFeile = meldingSomKanFeileVedUgyldigStillingsId(stillingsId = stillingsIdSomVilFeile)
         testRapid.sendTestMessage(meldingSomVilFeile)
 
-        PresenterteKandidaterLytter(testRapid, presenterteKandidaterService)
+        PresenterteKandidaterLytter(testRapid, PrometheusMeterRegistry(PrometheusConfig.DEFAULT), presenterteKandidaterService)
         assertThat(logWatcher.list).isNotEmpty
         assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.")
     }

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.jsonMapper
 import no.nav.helse.rapids_rivers.RapidApplication
-import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -23,7 +21,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.startJavalin
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.*
 import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.flywaydb.core.Flyway
 import java.util.TimeZone
 import javax.sql.DataSource
@@ -87,6 +84,7 @@ fun startApp(
     javalin.get("/internal/prometheus",
         {it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape())}, Rolle.UNPROTECTED)
 
+
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
 
@@ -95,7 +93,7 @@ fun startApp(
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
         if (!erProd) {
-            PresenterteKandidaterLytter(it, presenterteKandidaterService)
+            PresenterteKandidaterLytter(it, prometheusRegistry, presenterteKandidaterService)
             log("Application").info("Startet lytter")
         } else {
             log("Application").info("Startet IKKE lytting på grunn av featuretoggle for prod-gcp")
