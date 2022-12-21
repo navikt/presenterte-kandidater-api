@@ -85,7 +85,7 @@ fun startApp(
         registry = prometheusRegistry)
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
     javalin.get("/prometheus",
-        {it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape())})
+        {it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape())}, Rolle.UNPROTECTED)
 
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
