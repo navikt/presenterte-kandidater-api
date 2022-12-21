@@ -4,6 +4,7 @@ import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.HttpResponseException
+import io.javalin.http.UnauthorizedResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hentFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.AccessToken
@@ -22,17 +23,17 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
-        autoriseringskrav = hentRepresenterteOrganisasjoner(altinnKlient, samtykkeRepository, true)
+        validerAutorisering = hentRepresenterteOrganisasjoner(altinnKlient, samtykkeRepository, true)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING,
         tokenUtsteder = TOKEN_X,
-        autoriseringskrav = sjekkSamtykkeOgRolleRekruttering(altinnKlient, samtykkeRepository)
+        validerAutorisering = validerSamtykkeOgRolleRekruttering(altinnKlient, samtykkeRepository)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.EKSTERN_ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
-        autoriseringskrav = sjekkRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)
+        validerAutorisering = validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.UNPROTECTED,
@@ -44,17 +45,15 @@ enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING, EKSTERN_ARBEIDSGIVER
 }
 
-val sjekkSamtykkeOgRolleRekruttering : (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Boolean =
+val validerSamtykkeOgRolleRekruttering : (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient, samtykkeRepository ->
         { jwtTokenClaims, context, accessToken ->
-
-            val harRolleRekruttering = sjekkRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)(jwtTokenClaims, context, accessToken)
-            val harSamtykket = sjekkSamtykke(samtykkeRepository)(jwtTokenClaims, context, accessToken)
-            harRolleRekruttering && harSamtykket
+            validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)(jwtTokenClaims, context, accessToken)
+            validerSamtykke(samtykkeRepository)(jwtTokenClaims, context, accessToken)
         }
     }
 
-val sjekkSamtykke: (SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Boolean =
+val validerSamtykke: (SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { samtykkeRepository ->
         { jwtTokenClaims, context, accessToken ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
@@ -64,11 +63,10 @@ val sjekkSamtykke: (SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken
             if (!harSamtykketVilkår) {
                 throw UnavailableForLegalReasons()
             }
-            true
         }
     }
 
-val sjekkRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Boolean =
+val validerRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient, samtykkeRepository ->
         { jwtTokenClaims, context, accessToken ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
@@ -78,15 +76,14 @@ val sjekkRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient, SamtykkeR
                 altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr, accessToken)
 
             if (organisasjoner.isEmpty()) {
-                false
+                throw UnauthorizedResponse()
             } else {
                 context.setOrganisasjonerForRekruttering(organisasjoner)
-                true
             }
         }
     }
 
-val hentRepresenterteOrganisasjoner: (AltinnKlient, SamtykkeRepository, Boolean) -> (JwtTokenClaims, Context, AccessToken) -> Boolean =
+val hentRepresenterteOrganisasjoner: (AltinnKlient, SamtykkeRepository, Boolean) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient, samtykkeRepository, forRolleRekruttering ->
         { jwtTokenClaims, context, accessToken ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
@@ -96,9 +93,6 @@ val hentRepresenterteOrganisasjoner: (AltinnKlient, SamtykkeRepository, Boolean)
                 altinnKlient.hentOrganisasjoner(fnr, accessToken)
 
             context.setOrganisasjoner(organisasjoner)
-
-            true
-
         }
     }
 

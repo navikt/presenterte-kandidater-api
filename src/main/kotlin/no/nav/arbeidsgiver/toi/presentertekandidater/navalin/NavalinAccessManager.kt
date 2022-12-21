@@ -20,17 +20,12 @@ class NavalinAccessManager(
     override fun manage(handler: Handler, ctx: Context, routeRoles: MutableSet<RouteRole>) {
         require(routeRoles.size == 1) {"Støtter kun bruk av en rolle per endepunkt."}
         val rollekonfigurasjon = rolleKonfigurasjoner.find { routeRoles.contains(it.rolle) } ?: error("Bruker ukonfigurert rolle på endepunktet.")
-        val erAutentisert =
-            if (rollekonfigurasjon.autoriseringskrav == null) true
-            else kanAutentisereOgAutorisere(ctx, rollekonfigurasjon.tokenUtsteder, rollekonfigurasjon.autoriseringskrav)
 
-        if (!erAutentisert) {
-            throw UnauthorizedResponse()
-        }
+        kanAutentisereOgAutorisere(ctx, rollekonfigurasjon.tokenUtsteder, rollekonfigurasjon.validerAutorisering)
         handler.handle(ctx)
     }
 
-    private fun kanAutentisereOgAutorisere(context: Context, tokenUtsteder: TokenUtsteder, autoriseringskrav: (JwtTokenClaims, Context, AccessToken) -> Boolean): Boolean {
+    private fun kanAutentisereOgAutorisere(context: Context, tokenUtsteder: TokenUtsteder, validerAutorisering: ((JwtTokenClaims, Context, AccessToken) -> Unit)?) {
         val issuerProperties = hentIssuerProperties(tokenUtsteder)
 
         val tokenClaims = if (issuerProperties != null) {
@@ -42,10 +37,12 @@ class NavalinAccessManager(
         if (tokenClaims == null) {
             throw UnauthorizedResponse()
         }
-        return autoriseringskrav(tokenClaims, context, hentAccessTokenFraHeader(context))
+        if (validerAutorisering != null) {
+            validerAutorisering(tokenClaims, context, hentAccessTokenFraHeader(context))
+        }
     }
 
-    private fun lagTomJwtTokenClaims(): JwtTokenClaims = JwtTokenClaims(JWTClaimsSet.parse(""))
+    private fun lagTomJwtTokenClaims(): JwtTokenClaims = JwtTokenClaims(JWTClaimsSet.parse("{}"))
 
     private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
         hentTokenValidationHandler(
