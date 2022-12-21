@@ -250,6 +250,7 @@ class GetEnKandidatlisteTest {
     private fun assertCv(fraRespons: JsonNode, openSearchCvRespons: JsonNode) {
         val openSearchCv = openSearchCvRespons["_source"]
         assertThat(fraRespons["mobiltelefonnummer"].asText()).isEqualTo(openSearchCv["mobiltelefon"].asText())
+        assertThat(fraRespons["telefonnummer"].asText()).isEqualTo(openSearchCv["telefon"].asText())
         assertThat(fraRespons["epost"].asText()).isEqualTo(openSearchCv["epostadresse"].asText())
         assertThat(fraRespons["fornavn"].asText()).isEqualTo(openSearchCv["fornavn"].asText())
         assertThat(fraRespons["etternavn"].asText()).isEqualTo(openSearchCv["etternavn"].asText())

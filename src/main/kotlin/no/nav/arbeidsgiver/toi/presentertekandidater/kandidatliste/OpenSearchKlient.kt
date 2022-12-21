@@ -134,6 +134,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "aktorId",
                 "poststed",
                 "mobiltelefon",
+                "telefon",
                 "epostadresse",
                 "fornavn",
                 "etternavn",
@@ -159,6 +160,8 @@ data class Cv(
     val bosted: String,
     @JsonAlias("mobiltelefon")
     val mobiltelefonnummer: String?,
+    @JsonAlias("telefon")
+    val telefonnummer: String?,
     @JsonAlias("epostadresse")
     val epost: String?,
     @JsonAlias("fodselsdato") @JsonDeserialize(using = AlderDeserializer::class)
