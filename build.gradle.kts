@@ -27,6 +27,8 @@ tasks.test {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("io.javalin:javalin:4.1.1")
+    implementation("io.micrometer:micrometer-core:1.10.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
 
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

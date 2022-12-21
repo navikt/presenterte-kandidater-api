@@ -9,6 +9,9 @@ import com.fasterxml.jackson.module.kotlin.jsonMapper
 import no.nav.helse.rapids_rivers.RapidApplication
 import io.javalin.Javalin
 import io.javalin.plugin.json.JavalinJackson
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.prometheus.client.exporter.common.TextFormat
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
@@ -68,6 +71,7 @@ fun startApp(
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
 
+    val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     val rollekonfigurasjon = konfigurerRoller(altinnKlient, samtykkeRepository)
     val javalin = startJavalin(
         rollekonfigurasjoner = rollekonfigurasjon,
@@ -77,8 +81,11 @@ fun startApp(
                 .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
                 .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
         ),
-        miljøvariabler = envs)
+        miljøvariabler = envs,
+        registry = prometheusRegistry)
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
+    javalin.get("/prometheus",
+        {it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape())})
 
     startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
