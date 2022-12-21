@@ -22,7 +22,7 @@ spec:
       enabled: true
   prometheus:
     enabled: true
-    path: /prometheus
+    path: /internal/prometheus
     port: "9000"
   replicas:
     min: 1
