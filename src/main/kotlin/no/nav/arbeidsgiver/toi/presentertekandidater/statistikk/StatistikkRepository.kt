@@ -9,12 +9,13 @@ class StatistikkRepository (private val dataSource: DataSource) {
                 select count(*) from kandidatliste where slettet = false
             """.trimIndent()
 
-            val rs = c.prepareStatement(sql)
-                .executeQuery()
-            if (rs.next())
-                return rs.getInt(1)
-            else
-                return 0
+            c.prepareStatement(sql).use { s->
+                val rs = s.executeQuery()
+                if (rs.next())
+                    return rs.getInt(1)
+                else
+                    return 0
+            }
         }
     }
 
@@ -28,13 +29,13 @@ class StatistikkRepository (private val dataSource: DataSource) {
                 l.slettet = false
             """.trimIndent()
 
-            val rs = c.prepareStatement(sql)
-                .executeQuery()
-            if (rs.next())
-                return rs.getInt(1)
-            else
-                return 0
+            c.prepareStatement(sql).use { s ->
+                val rs = s.executeQuery()
+                if (rs.next())
+                    return rs.getInt(1)
+                else
+                    return 0
+            }
         }
     }
-
 }
