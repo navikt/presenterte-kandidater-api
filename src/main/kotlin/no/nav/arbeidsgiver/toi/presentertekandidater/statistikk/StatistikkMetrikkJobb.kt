@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.statistikk
 
+import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import org.slf4j.LoggerFactory
@@ -20,7 +21,8 @@ class StatistikkMetrikkJobb(private val statistikkRepository: StatistikkReposito
 
     init {
         Kandidat.ArbeidsgiversVurdering.values().asSequence().forEach { v ->
-            kandidatVurderinger[v.name] =  meterRegistry.gauge("antall_kandidatvurderinger", AtomicLong(0))
+            kandidatVurderinger[v.name] = meterRegistry.gauge("antall_kandidatvurderinger",
+                Tags.of("vurdering", v.name), AtomicLong(0)) as AtomicLong
         }
     }
     val executor = Executors.newScheduledThreadPool(1)
