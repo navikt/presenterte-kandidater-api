@@ -53,6 +53,18 @@ internal class StatistikkRepositoryTest {
 
         assertThat(statistikkRepository.antallKandidater()).isEqualTo(2)
     }
+    @Test
+    fun `Tell antall kandidater med vurdering`() {
+        val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet=true))
+
+        val kandidat1 = kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1", AKTUELL))
+        val kandidat2 = kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
+        val kandidat3 = kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3", AKTUELL))
+
+        assertThat(statistikkRepository.antallKandidaterMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(1)
+    }
 
     private fun lagKandidatliste() = Kandidatliste(
         stillingId = UUID.randomUUID(),
@@ -64,11 +76,12 @@ internal class StatistikkRepositoryTest {
         opprettet = ZonedDateTime.now()
     )
 
-    private fun lagKandidat(kandidatlisteId: BigInteger, aktørId: String) = Kandidat(
+    private fun lagKandidat(kandidatlisteId: BigInteger, aktørId: String,
+                            arbeidsgiversVurdering:Kandidat.ArbeidsgiversVurdering = TIL_VURDERING) = Kandidat(
         uuid = UUID.randomUUID(),
         aktørId = aktørId,
         kandidatlisteId = kandidatlisteId,
-        arbeidsgiversVurdering = TIL_VURDERING,
+        arbeidsgiversVurdering = arbeidsgiversVurdering,
         sistEndret = ZonedDateTime.now()
     )
 }

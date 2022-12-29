@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.statistikk
 
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -13,12 +14,18 @@ class StatistikkMetrikkJobb(private val statistikkRepository: StatistikkReposito
         val LOG = LoggerFactory.getLogger(StatistikkMetrikkJobb::class.java)
     }
 
-    val antallKandidatlister = AtomicLong(0)
-    val antallKandidater = AtomicLong(0)
+    private val antallKandidatlister = AtomicLong(0)
+    private val antallKandidater = AtomicLong(0)
 
-    val antallKandidatlisterGauge = meterRegistry.gauge("antall_kandidatlister", antallKandidatlister)
-    val antallKandidaterGauge = meterRegistry.gauge("antall_kandidater", antallKandidater)
+    private val antallKandidatlisterGauge = meterRegistry.gauge("antall_kandidatlister", antallKandidatlister)
+    private val antallKandidaterGauge = meterRegistry.gauge("antall_kandidater", antallKandidater)
+    private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
+    init {
+        Kandidat.ArbeidsgiversVurdering.values().asSequence().forEach { v ->
+            kandidatVurderinger[v.name] = AtomicLong(0)
+        }
+    }
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
@@ -42,9 +49,12 @@ class StatistikkMetrikkJobb(private val statistikkRepository: StatistikkReposito
         try {
             antallKandidatlister.getAndSet(statistikkRepository.antallKandidatlister().toLong())
             antallKandidater.getAndSet(statistikkRepository.antallKandidater().toLong())
+
+            kandidatVurderinger.keys.forEach { k ->
+                kandidatVurderinger[k]?.getAndSet(statistikkRepository.antallKandidaterMedVurdering(k).toLong())
+            }
         } catch (e: Exception) {
             LOG.warn("Problemer med å hente statistikk: ${e.message}", e)
         }
     }
-
 }
