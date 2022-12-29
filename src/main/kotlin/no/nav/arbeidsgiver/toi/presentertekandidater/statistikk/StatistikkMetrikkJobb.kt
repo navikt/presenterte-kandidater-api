@@ -14,16 +14,13 @@ class StatistikkMetrikkJobb(private val statistikkRepository: StatistikkReposito
         val LOG = LoggerFactory.getLogger(StatistikkMetrikkJobb::class.java)
     }
 
-    private val antallKandidatlister = AtomicLong(0)
-    private val antallKandidater = AtomicLong(0)
-
-    private val antallKandidatlisterGauge = meterRegistry.gauge("antall_kandidatlister", antallKandidatlister)
-    private val antallKandidaterGauge = meterRegistry.gauge("antall_kandidater", antallKandidater)
+    private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
+    private val antallKandidater = meterRegistry.gauge("antall_kandidater", AtomicLong(0))
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
     init {
         Kandidat.ArbeidsgiversVurdering.values().asSequence().forEach { v ->
-            kandidatVurderinger[v.name] = AtomicLong(0)
+            kandidatVurderinger[v.name] =  meterRegistry.gauge("antall_kandidatvurderinger", AtomicLong(0))
         }
     }
     val executor = Executors.newScheduledThreadPool(1)
