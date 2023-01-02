@@ -4,12 +4,12 @@ import javax.sql.DataSource
 class StatistikkRepository (private val dataSource: DataSource) {
 
     fun antallKandidatlister(): Int {
-        dataSource.connection.use { c ->
+        dataSource.connection.use { connection ->
             val sql = """
                 select count(*) from kandidatliste where slettet = false
             """.trimIndent()
 
-            c.prepareStatement(sql).use { s->
+            connection.prepareStatement(sql).use { s->
                 val rs = s.executeQuery()
                 if (rs.next())
                     return rs.getInt(1)
@@ -20,7 +20,7 @@ class StatistikkRepository (private val dataSource: DataSource) {
     }
 
     fun antallKandidater(): Int {
-        dataSource.connection.use { c ->
+        dataSource.connection.use { connection ->
             val sql = """
                 select count(distinct k.aktør_id)
                 from kandidat k, kandidatliste l
@@ -29,7 +29,7 @@ class StatistikkRepository (private val dataSource: DataSource) {
                 l.slettet = false
             """.trimIndent()
 
-            c.prepareStatement(sql).use { s ->
+            connection.prepareStatement(sql).use { s ->
                 val rs = s.executeQuery()
                 if (rs.next())
                     return rs.getInt(1)
@@ -39,7 +39,7 @@ class StatistikkRepository (private val dataSource: DataSource) {
         }
     }
     fun antallKandidaterMedVurdering(vurdering: String): Int {
-        dataSource.connection.use { c ->
+        dataSource.connection.use { connection ->
             val sql = """
                 select count(distinct k.aktør_id)
                 from kandidat k, kandidatliste l
@@ -49,7 +49,7 @@ class StatistikkRepository (private val dataSource: DataSource) {
                 k.arbeidsgivers_vurdering = ?
             """.trimIndent()
 
-            c.prepareStatement(sql).apply {
+            connection.prepareStatement(sql).apply {
                 this.setString(1, vurdering)
             }.use { s ->
                 val rs = s.executeQuery()

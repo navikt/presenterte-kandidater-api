@@ -13,7 +13,7 @@ class SamtykkeRepository(private val dataSource: DataSource) {
 
             it.prepareStatement(sql).apply {
                 this.setString(1, fødselsnummer)
-            }.use { s-> s.execute() }
+            }.use { statement-> statement.execute() }
         }
     }
 
@@ -25,6 +25,6 @@ class SamtykkeRepository(private val dataSource: DataSource) {
 
             it.prepareStatement(sql).apply {
                 this.setString(1, fødselsnummer)
-            }.use { s-> s.executeQuery().next() }
+            }.use { statement-> statement.executeQuery().next() }
         }
 }

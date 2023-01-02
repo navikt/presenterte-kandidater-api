@@ -9,7 +9,7 @@ import java.util.UUID
 import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
-    fun lagre(kandidatliste: Kandidatliste) : Kandidatliste {
+    fun lagre(kandidatliste: Kandidatliste): Kandidatliste {
         dataSource.connection.use {
             val sql = """
                 insert into kandidatliste(
@@ -34,11 +34,11 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 this.setTimestamp(7, Timestamp(kandidatliste.sistEndret.toInstant().toEpochMilli()))
                 this.setTimestamp(8, Timestamp(kandidatliste.opprettet.toInstant().toEpochMilli()))
             }.use { statement ->
-            val numRows = statement.executeUpdate()
+                val numRows = statement.executeUpdate()
                 if (numRows > 0) {
                     val rs = statement.generatedKeys
                     if (rs.next()) {
-                        val id =rs.getBigDecimal(1).toBigInteger()
+                        val id = rs.getBigDecimal(1).toBigInteger()
                         return kandidatliste.copy(id = id)
                     }
                 }
@@ -62,11 +62,11 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 this.setString(4, kandidatliste.virksomhetsnummer)
                 this.setTimestamp(5, Timestamp(kandidatliste.sistEndret.toInstant().toEpochMilli()))
                 this.setObject(6, kandidatliste.stillingId)
-            }.use { s-> s.execute() }
+            }.use { statement -> statement.execute() }
         }
     }
 
-    fun lagre(kandidat: Kandidat) : Kandidat {
+    fun lagre(kandidat: Kandidat): Kandidat {
         dataSource.connection.use {
             val sql = """
                 insert into kandidat(
@@ -89,7 +89,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 if (numRows > 0) {
                     val rs = statement.generatedKeys
                     if (rs.next()) {
-                        val id =rs.getBigDecimal(1).toBigInteger()
+                        val id = rs.getBigDecimal(1).toBigInteger()
                         return kandidat.copy(id = id)
                     }
                 }
@@ -106,8 +106,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
 
             it.prepareStatement(sql).apply {
                 this.setObject(1, stillingId)
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 if (!resultSet.next()) {
                     return null
@@ -128,8 +128,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
 
             it.prepareStatement(sql).apply {
                 this.setObject(1, kandidatUuid)
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 if (!resultSet.next()) {
                     return null
@@ -154,8 +154,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 |""".trimMargin()
             ).apply {
                 this.setObject(1, virksomhetsnummer)
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 return generateSequence {
                     if (resultSet.next()) {
@@ -180,8 +180,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 |""".trimMargin()
             ).apply {
                 this.setTimestamp(1, Timestamp(dato.toInstant().toEpochMilli()))
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 return generateSequence {
                     if (resultSet.next()) {
@@ -202,8 +202,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                 |""".trimMargin()
             ).apply {
                 this.setTimestamp(1, Timestamp(dato.toInstant().toEpochMilli()))
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 return generateSequence {
                     if (resultSet.next()) {
@@ -218,8 +218,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             it.prepareStatement("select * from kandidat where kandidatliste_id = ?").apply {
                 this.setObject(1, kandidatlisteId)
-            }.use {s->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 return generateSequence {
                     if (resultSet.next()) {
@@ -235,8 +235,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement("select * from kandidat where aktør_id = ? and kandidatliste_id = ?").apply {
                 this.setObject(1, aktørId)
                 this.setObject(2, kandidatlisteId)
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 if (!resultSet.next()) {
                     return null
@@ -251,8 +251,8 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         dataSource.connection.use {
             it.prepareStatement("select * from kandidat where uuid = ?").apply {
                 this.setObject(1, uuid)
-            }.use { s ->
-                val resultSet = s.executeQuery()
+            }.use { statement ->
+                val resultSet = statement.executeQuery()
 
                 if (!resultSet.next()) {
                     return null
@@ -262,14 +262,15 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun oppdaterArbeidsgiversVurdering(kandidatUuid: UUID, vurdering: Kandidat.ArbeidsgiversVurdering) : Boolean {
+    fun oppdaterArbeidsgiversVurdering(kandidatUuid: UUID, vurdering: Kandidat.ArbeidsgiversVurdering): Boolean {
         return dataSource.connection.use {
-            it.prepareStatement("update kandidat set arbeidsgivers_vurdering = ?, sist_endret = ? where uuid = ?").apply {
-                this.setString(1, vurdering.name)
-                this.setTimestamp(2, Timestamp(ZonedDateTime.now().toInstant().toEpochMilli()))
-                this.setObject(3, kandidatUuid)
-            }.use { s ->
-                s.executeUpdate().let {
+            it.prepareStatement("update kandidat set arbeidsgivers_vurdering = ?, sist_endret = ? where uuid = ?")
+                .apply {
+                    this.setString(1, vurdering.name)
+                    this.setTimestamp(2, Timestamp(ZonedDateTime.now().toInstant().toEpochMilli()))
+                    this.setObject(3, kandidatUuid)
+                }.use { statement ->
+                statement.executeUpdate().let {
                     val bleOppdatert = it == 1
                     log.info("${kandidatUuid} ble oppdatert med ${vurdering} : ${bleOppdatert}")
                     bleOppdatert
@@ -282,7 +283,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         return dataSource.connection.use {
             it.prepareStatement("update kandidatliste set slettet = true where stilling_id = ?").apply {
                 this.setObject(1, stillingId)
-            }.use { s-> s.executeUpdate() }
+            }.use { statement -> statement.executeUpdate() }
         }
     }
 
@@ -291,7 +292,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement("update kandidatliste set status = ? where stilling_id = ?").apply {
                 this.setObject(1, Kandidatliste.Status.LUKKET.name)
                 this.setObject(2, stillingId)
-            }.use { s-> s.executeUpdate() }
+            }.use { statement -> statement.executeUpdate() }
         }
     }
 
@@ -300,7 +301,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
             it.prepareStatement("delete from kandidat where aktør_id = ? and kandidatliste_id = ?").apply {
                 this.setString(1, aktørId)
                 this.setObject(2, kandidatlisteId)
-            }.use { s-> s.executeUpdate() }
+            }.use { statement -> statement.executeUpdate() }
         }
     }
 
@@ -308,7 +309,7 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         return dataSource.connection.use {
             it.prepareStatement("delete from kandidat where id = ?").apply {
                 this.setObject(1, kandidatId)
-            }.use { s-> s.executeUpdate() }
+            }.use { statement -> statement.executeUpdate() }
         }
     }
 
