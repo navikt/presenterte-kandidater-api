@@ -147,7 +147,7 @@ class GetEnKandidatlisteTest {
         )
 
         val fødselsnummer = tilfeldigFødselsnummer()
-        val (_, response, result) = fuel
+        val (_, response, _) = fuel
             .get(endepunkt)
             .authentication().bearer(hentToken(fødselsnummer))
             .response()

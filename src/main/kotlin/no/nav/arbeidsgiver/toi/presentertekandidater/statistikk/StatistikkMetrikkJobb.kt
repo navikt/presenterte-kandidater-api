@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.statistikk
 import io.micrometer.core.instrument.Tags
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -10,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class StatistikkMetrikkJobb(
     private val statistikkRepository: StatistikkRepository,
+    private val openSearchKlient: OpenSearchKlient,
     private val meterRegistry: PrometheusMeterRegistry,
 ) {
 
@@ -20,6 +22,7 @@ class StatistikkMetrikkJobb(
     private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
     private val antallUnikeKandidater = meterRegistry.gauge("antall_unike_kandidater", AtomicLong(0))
     private val antallKandidatinnslag = meterRegistry.gauge("antall_kandidatinnslag", AtomicLong(0))
+    private val antallKandidaterIKandidatsøk = meterRegistry.gauge("antall_kandidater_i_kandidatsøk", AtomicLong(0))
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
     init {
@@ -55,6 +58,7 @@ class StatistikkMetrikkJobb(
             antallKandidatlister.getAndSet(statistikkRepository.antallKandidatlister())
             antallUnikeKandidater.getAndSet(statistikkRepository.antallUnikeKandidater())
             antallKandidatinnslag.getAndSet(statistikkRepository.antallKandidatinnslag())
+            antallKandidaterIKandidatsøk.getAndSet(openSearchKlient.hentAntallKandidater())
 
             kandidatVurderinger.keys.forEach { k ->
                 kandidatVurderinger[k]?.getAndSet(statistikkRepository.antallKandidatinnslagMedVurdering(k))

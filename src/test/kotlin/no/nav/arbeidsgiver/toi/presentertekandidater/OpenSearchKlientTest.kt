@@ -108,7 +108,7 @@ class OpenSearchKlientTest {
 
     @Test
     fun `hentAntallKandidater returnerer antall kandidater i OpenSearch`() {
-        val forventetAntall = 193135;
+        val forventetAntall = 193135L
         val forventetRespons = """
             {
             	"count": $forventetAntall,

@@ -107,7 +107,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
         }
     }
 
-    fun hentAntallKandidater(): Int {
+    fun hentAntallKandidater(): Long {
         val (_, respons, result) = Fuel
             .get("$baseUrl/_count")
             .authentication()
@@ -118,7 +118,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
             200 -> {
                 val data = result.get()
 
-                objectMapper.readTree(data)["count"].asInt()
+                objectMapper.readTree(data)["count"].asLong()
             }
 
             else -> {

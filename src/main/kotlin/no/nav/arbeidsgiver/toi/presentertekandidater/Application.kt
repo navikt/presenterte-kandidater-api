@@ -76,7 +76,7 @@ fun startApp(
     val rollekonfigurasjon = konfigurerRoller(altinnKlient, samtykkeRepository)
 
     val statistikkRepository = StatistikkRepository(dataSource)
-    val statistikkMetrikkJobb = StatistikkMetrikkJobb(statistikkRepository, prometheusRegistry)
+    val statistikkMetrikkJobb = StatistikkMetrikkJobb(statistikkRepository, openSearchKlient, prometheusRegistry)
 
     val javalin = startJavalin(
         rollekonfigurasjoner = rollekonfigurasjon,
