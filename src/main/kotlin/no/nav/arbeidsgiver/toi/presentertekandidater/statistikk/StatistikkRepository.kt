@@ -83,4 +83,21 @@ class StatistikkRepository(private val dataSource: DataSource) {
             }
         }
     }
+    
+    fun antallSamtykker() : Long {
+        dataSource.connection.use { connection ->  
+            val sql = """
+                select count(*)
+                from samtykke
+            """.trimIndent()
+
+            connection.prepareStatement(sql).use { s ->
+                val rs = s.executeQuery()
+                if (rs.next())
+                    return rs.getLong(1)
+                else
+                    return 0
+            }
+        }
+    }
 }

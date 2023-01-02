@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkRepository
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
@@ -17,6 +18,7 @@ import java.util.*
 internal class StatistikkRepositoryTest {
     private val kandidatlisteRepository = kandidatlisteRepositoryMedLokalPostgres()
     private val statistikkRepository = StatistikkRepository(dataSource)
+    private val samtykkeRepository = SamtykkeRepository(dataSource)
 
     @BeforeAll
     fun beforeAll() {
@@ -113,6 +115,14 @@ internal class StatistikkRepositoryTest {
         assertThat(statistikkRepository.antallKandidatinnslagMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(
             1
         )
+    }
+
+    @Test
+    fun `Tell antall samtykker `() {
+        samtykkeRepository.lagre(tilfeldigFødselsnummer())
+        samtykkeRepository.lagre(tilfeldigFødselsnummer())
+        samtykkeRepository.lagre(tilfeldigFødselsnummer())
+        assertThat( statistikkRepository.antallSamtykker()).isEqualTo(3)
     }
 
     private fun lagKandidatliste() = Kandidatliste(
