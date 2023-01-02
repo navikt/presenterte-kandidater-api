@@ -4,7 +4,8 @@ import javax.sql.DataSource
 
 class StatistikkRepository(private val dataSource: DataSource) {
 
-    fun antallKandidatlister(): Int {
+
+    fun antallKandidatlister(): Long {
         dataSource.connection.use { connection ->
             val sql = """
                 select count(*) from kandidatliste where slettet = false
@@ -13,14 +14,14 @@ class StatistikkRepository(private val dataSource: DataSource) {
             connection.prepareStatement(sql).use { s ->
                 val rs = s.executeQuery()
                 if (rs.next())
-                    return rs.getInt(1)
+                    return rs.getLong(1)
                 else
                     return 0
             }
         }
     }
 
-    fun antallKandidater(): Int {
+    fun antallUnikeKandidater(): Long {
         dataSource.connection.use { connection ->
             val sql = """
                 select count(distinct k.aktør_id)
@@ -33,14 +34,34 @@ class StatistikkRepository(private val dataSource: DataSource) {
             connection.prepareStatement(sql).use { s ->
                 val rs = s.executeQuery()
                 if (rs.next())
-                    return rs.getInt(1)
+                    return rs.getLong(1)
                 else
                     return 0
             }
         }
     }
 
-    fun antallKandidaterMedVurdering(vurdering: String): Int {
+    fun antallKandidatinnslag(): Long {
+        dataSource.connection.use { connection ->
+            val sql = """
+                select count(k.aktør_id)
+                from kandidat k, kandidatliste l
+                where 
+                k.kandidatliste_id = l.id and
+                l.slettet = false
+            """.trimIndent()
+
+            connection.prepareStatement(sql).use { s ->
+                val rs = s.executeQuery()
+                if (rs.next())
+                    return rs.getLong(1)
+                else
+                    return 0
+            }
+        }
+    }
+
+    fun antallKandidaterMedVurdering(vurdering: String): Long {
         dataSource.connection.use { connection ->
             val sql = """
                 select count(distinct k.aktør_id)
@@ -56,7 +77,7 @@ class StatistikkRepository(private val dataSource: DataSource) {
             }.use { s ->
                 val rs = s.executeQuery()
                 if (rs.next())
-                    return rs.getInt(1)
+                    return rs.getLong(1)
                 else
                     return 0
             }

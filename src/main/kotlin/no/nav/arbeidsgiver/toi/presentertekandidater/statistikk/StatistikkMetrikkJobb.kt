@@ -17,8 +17,9 @@ class StatistikkMetrikkJobb(
         val LOG = LoggerFactory.getLogger(StatistikkMetrikkJobb::class.java)
     }
 
-    private val antallKandidatlister = meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
-    private val antallKandidater = meterRegistry.gauge("antall_kandidater", AtomicLong(0))
+    private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
+    private val antallUnikeKandidater = meterRegistry.gauge("antall_unike_kandidater", AtomicLong(0))
+    private val antallKandidatinnslag = meterRegistry.gauge("antall_kandidatinnslag", AtomicLong(0))
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
     init {
@@ -51,11 +52,12 @@ class StatistikkMetrikkJobb(
 
     private fun hentStatistikk() {
         try {
-            antallKandidatlister.getAndSet(statistikkRepository.antallKandidatlister().toLong())
-            antallKandidater.getAndSet(statistikkRepository.antallKandidater().toLong())
+            antallKandidatlister.getAndSet(statistikkRepository.antallKandidatlister())
+            antallUnikeKandidater.getAndSet(statistikkRepository.antallUnikeKandidater())
+            antallKandidatinnslag.getAndSet(statistikkRepository.antallKandidatinnslag())
 
             kandidatVurderinger.keys.forEach { k ->
-                kandidatVurderinger[k]?.getAndSet(statistikkRepository.antallKandidaterMedVurdering(k).toLong())
+                kandidatVurderinger[k]?.getAndSet(statistikkRepository.antallKandidaterMedVurdering(k))
             }
         } catch (e: Exception) {
             LOG.warn("Problemer med å hente statistikk: ${e.message}", e)

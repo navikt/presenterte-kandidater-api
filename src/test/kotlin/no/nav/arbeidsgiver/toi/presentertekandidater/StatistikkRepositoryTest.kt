@@ -30,51 +30,85 @@ internal class StatistikkRepositoryTest {
 
     @Test
     fun `Tell antall kandidatlister`() {
-        val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
-        val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
-        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet = true))
+        kandidatlisteRepository.lagre(lagKandidatliste())
+        kandidatlisteRepository.lagre(lagKandidatliste())
+        kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet=true))
 
         assertThat(statistikkRepository.antallKandidatlister()).isEqualTo(2)
     }
 
     @Test
-    fun `Tell antall kandidater`() {
+    fun `Tell antall unike kandidater`() {
+        val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
+
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør1"))
+
+        assertThat(statistikkRepository.antallUnikeKandidater()).isEqualTo(1)
+    }
+
+    @Test
+    fun `Skal ikke telle unike kandidater fra slettede kandidatlister`() {
         val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
         val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
         val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet = true))
 
-        val kandidat1 =
-            kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1"))
-        val kandidat2 =
-            kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
-        val kandidat3 =
-            kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3"))
 
-        assertThat(statistikkRepository.antallKandidater()).isEqualTo(2)
+        assertThat(statistikkRepository.antallUnikeKandidater()).isEqualTo(2)
+    }
+
+    @Test
+    fun `Tell antall kandidatinnslag`() {
+        val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste())
+
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør1"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3"))
+
+        assertThat(statistikkRepository.antallKandidatinnslag()).isEqualTo(3)
+    }
+
+    @Test
+    fun `Telling av antall kandidatinnslag skal ikke inkludere innslag som tilhører slettete kandidatlister`() {
+        val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet = true))
+
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør1"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør1"))
+
+        assertThat(statistikkRepository.antallKandidatinnslag()).isEqualTo(2)
     }
 
     @Test
     fun `Tell antall kandidater med vurdering`() {
         val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
         val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
-        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet = true))
+        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste())
 
-        val kandidat1 = kandidatlisteRepository.lagre(
-            lagKandidat(
-                kandidatlisteId = kandidatliste1.id!!,
-                aktørId = "aktør1",
-                AKTUELL
-            )
-        )
-        val kandidat2 =
-            kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
-        val kandidat3 = kandidatlisteRepository.lagre(
-            lagKandidat(
-                kandidatlisteId = kandidatliste3.id!!,
-                aktørId = "aktør3",
-                AKTUELL
-            )
-        )
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1", AKTUELL))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3", AKTUELL))
+
+        assertThat(statistikkRepository.antallKandidaterMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(2)
+    }
+
+    @Test
+    fun `Telling av antall kandidater med vurdering skal ikkke inkludere kandidater på slettete kandidatlister`() {
+        val kandidatliste1 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste2 = kandidatlisteRepository.lagre(lagKandidatliste())
+        val kandidatliste3 = kandidatlisteRepository.lagre(lagKandidatliste().copy(slettet=true))
+
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1", AKTUELL))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3", AKTUELL))
 
         assertThat(statistikkRepository.antallKandidaterMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(
             1
