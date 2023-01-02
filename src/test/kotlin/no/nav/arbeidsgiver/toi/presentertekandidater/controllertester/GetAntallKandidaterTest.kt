@@ -115,7 +115,7 @@ class GetAntallKandidaterTest {
         assertThat(response.statusCode).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
-           response.body().asString("application/json;charset=utf-8")
+            response.body().asString("application/json;charset=utf-8")
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":0}""")
     }
@@ -139,7 +139,7 @@ class GetAntallKandidaterTest {
         assertThat(response.statusCode).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
-           response.body().asString("application/json;charset=utf-8")
+            response.body().asString("application/json;charset=utf-8")
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":0}""")
     }
@@ -151,9 +151,10 @@ class GetAntallKandidaterTest {
 
         repository.lagre(
             kandidatliste().copy(
-            virksomhetsnummer = virksomhetsnummer,
-            stillingId = stillingId
-        ))
+                virksomhetsnummer = virksomhetsnummer,
+                stillingId = stillingId
+            )
+        )
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat = lagKandidatTilKandidatliste(kandidatliste?.id!!)
         repository.lagre(kandidat)
@@ -172,7 +173,7 @@ class GetAntallKandidaterTest {
         assertThat(response.statusCode).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
-           response.body().asString("application/json;charset=utf-8")
+            response.body().asString("application/json;charset=utf-8")
 
         assertThat(kandidatlisteMedKandidaterJson).isEqualTo("""{"antallKandidater":1}""")
     }

@@ -1,7 +1,7 @@
 # Beskrivelse av konverteringen
 
-
 ## Uttrekk fra gammel database
+
 Den gamle databasen er en on-prem Oracle database. For å hente ut data kan man f.eks kjøre spørringene
 under i Oracle SQL Developer (i VDI) og eksportere de som JSON:
 
@@ -38,7 +38,6 @@ select distinct(k.kandidatnr) as kandidatnr, to_char(k.lagt_til_tidspunkt, 'yyyy
     order by k.kandidatnr, l.stilling_id, endret_tidspunkt desc;
 ```
 
-
 Hvis men bruker JSON eksport i Oracle SQL Developer så må man fjerne den første linje og den siste }
 Hvis man har perl installert så kan dette gjøres med:
 
@@ -53,19 +52,24 @@ Hvis du i tillegg ønsker pen og lesbar output, så legger du på en pipe til jq
 ```
 
 ## Oppretting av fil
+
 - Kjør sql'er i vwmware image i oracle sql developer
 - Eksporter filer som json
 
 ## Filnavn og plassering av fil
+
 Migreringskoden forventer at uttrekkene legges i /tmp mappen på poddene
+
 - /tmp/kandidater-konvertering.json
 - /tmp/kandidatlister-konvertering.json
 
 ## Starte konverteringsjobb
+
 Når filene ligger på poden, kan vi kjøre
 post mot http://<ingress>/internal/konverterdata
 
 ### Konverteringsjobb i dev
+
 (Logg inn på pod)
 
 ```
@@ -73,6 +77,7 @@ post mot http://<ingress>/internal/konverterdata
 ```
 
 ### Konverteringsjobb i prod@
+
 (Logg inn på pod)
 
 ```

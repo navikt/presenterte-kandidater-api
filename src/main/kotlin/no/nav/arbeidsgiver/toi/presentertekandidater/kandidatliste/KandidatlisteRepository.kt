@@ -1,11 +1,10 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
-import org.flywaydb.core.Flyway
 import java.math.BigInteger
 import java.sql.Timestamp
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 import javax.sql.DataSource
 
 class KandidatlisteRepository(private val dataSource: DataSource) {
@@ -270,12 +269,12 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
                     this.setTimestamp(2, Timestamp(ZonedDateTime.now().toInstant().toEpochMilli()))
                     this.setObject(3, kandidatUuid)
                 }.use { statement ->
-                statement.executeUpdate().let {
-                    val bleOppdatert = it == 1
-                    log.info("${kandidatUuid} ble oppdatert med ${vurdering} : ${bleOppdatert}")
-                    bleOppdatert
+                    statement.executeUpdate().let {
+                        val bleOppdatert = it == 1
+                        log.info("${kandidatUuid} ble oppdatert med ${vurdering} : ${bleOppdatert}")
+                        bleOppdatert
+                    }
                 }
-            }
         }
     }
 

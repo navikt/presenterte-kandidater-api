@@ -45,10 +45,14 @@ enum class Rolle : RouteRole {
     ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING, EKSTERN_ARBEIDSGIVER
 }
 
-val validerSamtykkeOgRolleRekruttering : (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
+val validerSamtykkeOgRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient, samtykkeRepository ->
         { jwtTokenClaims, context, accessToken ->
-            validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)(jwtTokenClaims, context, accessToken)
+            validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)(
+                jwtTokenClaims,
+                context,
+                accessToken
+            )
             validerSamtykke(samtykkeRepository)(jwtTokenClaims, context, accessToken)
         }
     }
@@ -105,5 +109,5 @@ fun settFødselsnummerPåKontekst(claims: JwtTokenClaims, context: Context) {
 
 class UnavailableForLegalReasons @JvmOverloads constructor(
     message: String = "Unavailable for legal reasons",
-    details: Map<String, String> = mapOf()
+    details: Map<String, String> = mapOf(),
 ) : HttpResponseException(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS_451, message, details)

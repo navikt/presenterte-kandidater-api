@@ -84,7 +84,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
                 val hits = responsJsonNode["hits"]["hits"]
 
-                if(hits == null|| hits.size() == 0) {
+                if (hits == null || hits.size() == 0) {
                     log.info("Fant ikke $kandidatnr i stilling $stillingId opensearch");
                     return null
                 }
@@ -174,7 +174,7 @@ data class Cv(
     val sammendrag: String,
     val utdanning: List<Utdanning>,
     @JsonAlias("sprak")
-    val språk: List<Språk>
+    val språk: List<Språk>,
 )
 
 data class Arbeidserfaring(
@@ -194,7 +194,7 @@ data class Utdanning(
     @JsonAlias("fraDato")
     val fra: ZonedDateTime,
     @JsonAlias("tilDato")
-    val til: ZonedDateTime?
+    val til: ZonedDateTime?,
 )
 
 data class Språk(
@@ -203,7 +203,7 @@ data class Språk(
     @JsonAlias("ferdighetMuntlig")
     val muntlig: String,
     @JsonAlias("ferdighetSkriftlig")
-    val skriftlig: String
+    val skriftlig: String,
 )
 
 

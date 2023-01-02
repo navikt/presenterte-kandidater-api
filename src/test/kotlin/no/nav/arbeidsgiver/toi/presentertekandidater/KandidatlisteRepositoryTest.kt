@@ -91,7 +91,7 @@ internal class KandidatlisteRepositoryTest {
                 sistEndret = ZonedDateTime.now()
             )
         )
-        kandidater.forEach { repository.lagre(it)}
+        kandidater.forEach { repository.lagre(it) }
 
         val kandidatlister = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(kandidatliste.virksomhetsnummer)
         assertThat(kandidatlister.size).isEqualTo(1)
@@ -173,7 +173,7 @@ internal class KandidatlisteRepositoryTest {
 
         repository.lagre(kandidatliste1)
 
-        assertThatThrownBy{
+        assertThatThrownBy {
             repository.lagre(kandidatliste2)
         }.isInstanceOf(PSQLException::class.java)
     }
@@ -213,8 +213,12 @@ internal class KandidatlisteRepositoryTest {
         val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
 
         assertNotNull(lagretKandidatliste)
-        assertThat(lagretKandidatliste.sistEndret).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
-        assertThat(lagretKandidatliste.opprettet).isEqualToIgnoringSeconds(Instant.now().atZone(ZoneId.of(("Europe/Oslo"))))
+        assertThat(lagretKandidatliste.sistEndret).isEqualToIgnoringSeconds(
+            Instant.now().atZone(ZoneId.of(("Europe/Oslo")))
+        )
+        assertThat(lagretKandidatliste.opprettet).isEqualToIgnoringSeconds(
+            Instant.now().atZone(ZoneId.of(("Europe/Oslo")))
+        )
     }
 
     @Test

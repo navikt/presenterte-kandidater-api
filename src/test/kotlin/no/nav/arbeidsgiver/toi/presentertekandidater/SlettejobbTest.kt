@@ -46,8 +46,10 @@ class SlettejobbTest {
         repository.lagre(kandidatliste)
         kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
 
-        val kandidatSomSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(6))
-        val kandidatSomIkkeSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!).copy(sistEndret = ZonedDateTime.now().minusMonths(5))
+        val kandidatSomSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+            .copy(sistEndret = ZonedDateTime.now().minusMonths(6))
+        val kandidatSomIkkeSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+            .copy(sistEndret = ZonedDateTime.now().minusMonths(5))
         repository.lagre(kandidatSomSkalSlettes)
         repository.lagre(kandidatSomIkkeSkalSlettes)
 

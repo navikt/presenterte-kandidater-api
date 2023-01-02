@@ -6,7 +6,7 @@ import java.math.BigInteger
 import java.sql.ResultSet
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 data class Kandidatliste(
     @JsonIgnore
@@ -18,7 +18,7 @@ data class Kandidatliste(
     val slettet: Boolean = false,
     val virksomhetsnummer: String,
     val sistEndret: ZonedDateTime,
-    val opprettet: ZonedDateTime
+    val opprettet: ZonedDateTime,
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet) = Kandidatliste(
@@ -51,7 +51,7 @@ data class Kandidatliste(
 }
 
 data class KandidatlisteMedAntallKandidater(
-    val kandidatliste: Kandidatliste, val antallKandidater: Int
+    val kandidatliste: Kandidatliste, val antallKandidater: Int,
 )
 
 data class Kandidat(
@@ -63,7 +63,7 @@ data class Kandidat(
     @JsonIgnore
     val kandidatlisteId: BigInteger,
     val arbeidsgiversVurdering: ArbeidsgiversVurdering,
-    val sistEndret: ZonedDateTime
+    val sistEndret: ZonedDateTime,
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {

@@ -11,18 +11,10 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
-import java.time.Clock
-import java.time.Duration
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetKandidatlisterTest {
@@ -154,13 +146,16 @@ class GetKandidatlisterTest {
     fun `Returnerer kandidatlistene sortert på opprettet-dato`() {
         val virksomhetsnummer = "123456788"
         val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummer"
-        val kandidatlisteOpprettet1UkeSiden = kandidatliste().copy(opprettet = ZonedDateTime.now().minusWeeks(1), virksomhetsnummer = virksomhetsnummer)
-        val kandidatlisteOpprettet1MånedSiden = kandidatliste().copy(opprettet = ZonedDateTime.now().minusMonths(1), virksomhetsnummer = virksomhetsnummer)
-        val kandidatlisteOpprettet1ÅrSiden = kandidatliste().copy(opprettet = ZonedDateTime.now().minusYears(1), virksomhetsnummer = virksomhetsnummer)
+        val kandidatlisteOpprettet1UkeSiden =
+            kandidatliste().copy(opprettet = ZonedDateTime.now().minusWeeks(1), virksomhetsnummer = virksomhetsnummer)
+        val kandidatlisteOpprettet1MånedSiden =
+            kandidatliste().copy(opprettet = ZonedDateTime.now().minusMonths(1), virksomhetsnummer = virksomhetsnummer)
+        val kandidatlisteOpprettet1ÅrSiden =
+            kandidatliste().copy(opprettet = ZonedDateTime.now().minusYears(1), virksomhetsnummer = virksomhetsnummer)
         repository.lagre(kandidatlisteOpprettet1UkeSiden)
         repository.lagre(kandidatlisteOpprettet1ÅrSiden)
         repository.lagre(kandidatlisteOpprettet1MånedSiden)
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -171,10 +166,14 @@ class GetKandidatlisterTest {
             .response()
 
         assertThat(response.statusCode).isEqualTo(200)
-        val kandidatlisterMedKandidaterJson = defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
-        val opprettetDatoFørsteListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].textValue())
-        val opprettetDatoAndreListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[1]["kandidatliste"]["opprettet"].textValue())
-        val opprettetDatoTredjeListe = ZonedDateTime.parse(kandidatlisterMedKandidaterJson[2]["kandidatliste"]["opprettet"].textValue())
+        val kandidatlisterMedKandidaterJson =
+            defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+        val opprettetDatoFørsteListe =
+            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].textValue())
+        val opprettetDatoAndreListe =
+            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[1]["kandidatliste"]["opprettet"].textValue())
+        val opprettetDatoTredjeListe =
+            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[2]["kandidatliste"]["opprettet"].textValue())
         assertThat(opprettetDatoFørsteListe).isAfter(opprettetDatoAndreListe)
         assertThat(opprettetDatoAndreListe).isAfter(opprettetDatoTredjeListe)
     }
@@ -184,7 +183,8 @@ class GetKandidatlisterTest {
         val virksomhetsnummerManForsøkerÅHenteKandidatlisterFor = "123456789"
         val virksomhetsnummerManHarRettighetTil = "987654321"
         val stillingId = UUID.randomUUID()
-        val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummerManForsøkerÅHenteKandidatlisterFor"
+        val endepunkt =
+            "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummerManForsøkerÅHenteKandidatlisterFor"
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummerManForsøkerÅHenteKandidatlisterFor,
             stillingId = stillingId

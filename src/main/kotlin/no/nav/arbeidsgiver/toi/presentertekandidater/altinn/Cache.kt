@@ -31,12 +31,12 @@ class Cache(private val levetid: Duration) {
 
     private data class CachetOrganisasjoner(
         val organisasjoner: List<AltinnReportee>,
-        val utløper: ZonedDateTime
+        val utløper: ZonedDateTime,
     )
 
     private data class Nøkkel(
         val fødselsnummer: String,
-        val filtrering: AltinnFiltrering
+        val filtrering: AltinnFiltrering,
     )
 
     enum class AltinnFiltrering {

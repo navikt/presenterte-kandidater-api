@@ -16,7 +16,7 @@ fun startJavalin(
     miljøvariabler: Map<String, String>,
     defaultContentType: String = "application/json",
     jsonMapper: JsonMapper = JavalinJackson(),
-    registry: MeterRegistry
+    registry: MeterRegistry,
 ): Javalin {
     require(rollekonfigurasjoner.isNotEmpty()) { "Støtter ikke opprettelse av Javalin uten rollekonfigurasjon" }
 
@@ -31,7 +31,7 @@ fun startJavalin(
 data class RolleKonfigurasjon(
     val rolle: RouteRole,
     val tokenUtsteder: TokenUtsteder,
-    val validerAutorisering: ((JwtTokenClaims, Context, AccessToken) -> Unit)? = null
+    val validerAutorisering: ((JwtTokenClaims, Context, AccessToken) -> Unit)? = null,
 )
 
 typealias AccessToken = String

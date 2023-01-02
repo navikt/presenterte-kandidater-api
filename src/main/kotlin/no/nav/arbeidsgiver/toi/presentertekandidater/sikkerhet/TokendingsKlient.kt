@@ -25,7 +25,14 @@ class TokendingsKlient(envs: Map<String, String>) {
     fun veksleInnToken(accessToken: String, scope: String): String {
         val formData = listOf(
             "grant_type" to "urn:ietf:params:oauth:grant-type:token-exchange",
-            "client_assertion" to getClientAssertion(TokenXProperties(clientId, issuer, privateJwk, tokenDingsExchangeUrl)),
+            "client_assertion" to getClientAssertion(
+                TokenXProperties(
+                    clientId,
+                    issuer,
+                    privateJwk,
+                    tokenDingsExchangeUrl
+                )
+            ),
             "client_assertion_type" to "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
             "subject_token_type" to "urn:ietf:params:oauth:token-type:jwt",
             "audience" to scope,
@@ -38,6 +45,7 @@ class TokendingsKlient(envs: Map<String, String>) {
             is Result.Failure -> {
                 throw RuntimeException("Kunne ikke veksle inn token hos TokenX", result.error)
             }
+
             is Result.Success -> {
                 log.info("Vekslet inn token hos TokenX")
                 return result.get().accessToken
@@ -74,7 +82,7 @@ class TokendingsKlient(envs: Map<String, String>) {
         val clientId: String,
         val issuer: String,
         val privateJwk: String,
-        val tokenEndpoint: String
+        val tokenEndpoint: String,
     ) {
         fun parseJwk() = RSAKey.parse(privateJwk)
         fun getJwsSigner() = RSASSASigner(parseJwk())
@@ -84,6 +92,6 @@ class TokendingsKlient(envs: Map<String, String>) {
         @JsonAlias("access_token")
         val accessToken: String,
         @JsonAlias("expires_in")
-        val expiresIn: Int
+        val expiresIn: Int,
     )
 }

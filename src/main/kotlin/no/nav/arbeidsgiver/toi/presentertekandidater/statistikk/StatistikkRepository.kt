@@ -1,7 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.statistikk
+
 import javax.sql.DataSource
 
-class StatistikkRepository (private val dataSource: DataSource) {
+class StatistikkRepository(private val dataSource: DataSource) {
 
     fun antallKandidatlister(): Int {
         dataSource.connection.use { connection ->
@@ -9,7 +10,7 @@ class StatistikkRepository (private val dataSource: DataSource) {
                 select count(*) from kandidatliste where slettet = false
             """.trimIndent()
 
-            connection.prepareStatement(sql).use { s->
+            connection.prepareStatement(sql).use { s ->
                 val rs = s.executeQuery()
                 if (rs.next())
                     return rs.getInt(1)
@@ -38,6 +39,7 @@ class StatistikkRepository (private val dataSource: DataSource) {
             }
         }
     }
+
     fun antallKandidaterMedVurdering(vurdering: String): Int {
         dataSource.connection.use { connection ->
             val sql = """

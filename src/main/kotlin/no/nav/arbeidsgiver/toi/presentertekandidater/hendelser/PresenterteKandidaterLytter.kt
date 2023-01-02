@@ -10,14 +10,13 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import java.util.concurrent.atomic.AtomicLong
 
 class PresenterteKandidaterLytter(
     rapidsConnection: RapidsConnection,
     private val prometheusRegistry: MeterRegistry,
     private val presenterteKandidaterService: PresenterteKandidaterService,
 
-) : River.PacketListener {
+    ) : River.PacketListener {
     init {
         River(rapidsConnection).apply {
             validate {
@@ -40,7 +39,8 @@ class PresenterteKandidaterLytter(
     private val cvDeltCounter: Counter = Counter.builder("cvDelt").register(prometheusRegistry)
     private val cvSlettetCounter: Counter = Counter.builder("cvSlettet").register(prometheusRegistry)
     private val annullertCounter: Counter = Counter.builder("cvAnnullert").register(prometheusRegistry)
-    private val kandidatlisteLukketCounter: Counter = Counter.builder("kandidatlisteLukket").register(prometheusRegistry)
+    private val kandidatlisteLukketCounter: Counter =
+        Counter.builder("kandidatlisteLukket").register(prometheusRegistry)
 
     private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -71,13 +71,17 @@ class PresenterteKandidaterLytter(
                     presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
                     annullertCounter.increment()
                 }
+
                 Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> {
                     presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
                     kandidatlisteLukketCounter.increment()
                 }
             }
         } catch (e: Exception) {
-            log.error("Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.", e)
+            log.error(
+                "Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.",
+                e
+            )
         }
     }
 }

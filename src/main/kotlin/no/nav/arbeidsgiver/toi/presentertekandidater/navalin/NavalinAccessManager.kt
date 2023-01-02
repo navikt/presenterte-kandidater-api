@@ -15,17 +15,23 @@ import java.net.URL
 
 class NavalinAccessManager(
     private val rolleKonfigurasjoner: List<RolleKonfigurasjon>,
-    private val miljøvariabler: Map<String, String>): AccessManager {
+    private val miljøvariabler: Map<String, String>,
+) : AccessManager {
 
     override fun manage(handler: Handler, ctx: Context, routeRoles: MutableSet<RouteRole>) {
-        require(routeRoles.size == 1) {"Støtter kun bruk av en rolle per endepunkt."}
-        val rollekonfigurasjon = rolleKonfigurasjoner.find { routeRoles.contains(it.rolle) } ?: error("Bruker ukonfigurert rolle på endepunktet.")
+        require(routeRoles.size == 1) { "Støtter kun bruk av en rolle per endepunkt." }
+        val rollekonfigurasjon = rolleKonfigurasjoner.find { routeRoles.contains(it.rolle) }
+            ?: error("Bruker ukonfigurert rolle på endepunktet.")
 
         kanAutentisereOgAutorisere(ctx, rollekonfigurasjon.tokenUtsteder, rollekonfigurasjon.validerAutorisering)
         handler.handle(ctx)
     }
 
-    private fun kanAutentisereOgAutorisere(context: Context, tokenUtsteder: TokenUtsteder, validerAutorisering: ((JwtTokenClaims, Context, AccessToken) -> Unit)?) {
+    private fun kanAutentisereOgAutorisere(
+        context: Context,
+        tokenUtsteder: TokenUtsteder,
+        validerAutorisering: ((JwtTokenClaims, Context, AccessToken) -> Unit)?,
+    ) {
         val issuerProperties = hentIssuerProperties(tokenUtsteder)
 
         val tokenClaims = if (issuerProperties != null) {

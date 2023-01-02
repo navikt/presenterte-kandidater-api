@@ -14,7 +14,7 @@ data class CachedHandler(
 private val cache: HashMap<String, CachedHandler> = HashMap()
 
 fun hentTokenValidationHandler(
-    issuerProperties: IssuerProperties
+    issuerProperties: IssuerProperties,
 ): JwtTokenValidationHandler {
     val cachedHandler = cache["tokendings"]
 

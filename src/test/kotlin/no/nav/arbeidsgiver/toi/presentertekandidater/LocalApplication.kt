@@ -9,10 +9,8 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKli
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
-import java.net.URL
 
 fun main() {
     startLocalApplication()
@@ -101,7 +99,7 @@ private var harStartetApplikasjonen = false
 val testRapid = TestRapid()
 
 fun startLocalApplication(
-    konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs)
+    konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs),
 ) {
     if (!harStartetApplikasjonen) {
         startMockOAuth2Server()

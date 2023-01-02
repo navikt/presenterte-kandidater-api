@@ -5,7 +5,6 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
@@ -34,7 +33,13 @@ class DeleteKandidatTest {
         )
         repository.lagre(kandidatliste)
         val lagretKandidatliste = repository.hentKandidatliste(stillingId)!!
-        val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        val kandidat = Kandidat(
+            uuid = UUID.randomUUID(),
+            aktørId = "dummy",
+            kandidatlisteId = lagretKandidatliste.id!!,
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = ZonedDateTime.now()
+        )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
@@ -61,7 +66,13 @@ class DeleteKandidatTest {
         )
         repository.lagre(kandidatliste)
         val lagretKandidatliste = repository.hentKandidatliste(stillingId)!!
-        val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        val kandidat = Kandidat(
+            uuid = UUID.randomUUID(),
+            aktørId = "dummy",
+            kandidatlisteId = lagretKandidatliste.id!!,
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = ZonedDateTime.now()
+        )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
@@ -88,7 +99,13 @@ class DeleteKandidatTest {
         )
         repository.lagre(kandidatliste)
         val lagretKandidatliste = repository.hentKandidatliste(stillingId)!!
-        val kandidat = Kandidat(uuid = UUID.randomUUID(), aktørId = "dummy", kandidatlisteId = lagretKandidatliste.id!!, arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING, sistEndret = ZonedDateTime.now())
+        val kandidat = Kandidat(
+            uuid = UUID.randomUUID(),
+            aktørId = "dummy",
+            kandidatlisteId = lagretKandidatliste.id!!,
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = ZonedDateTime.now()
+        )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)

@@ -36,7 +36,8 @@ class OpenSearchKlientTest {
 
         stubHentingAvKandidater(
             requestBody = openSearchRequestBody,
-            responsBody = openSearchResponseBody)
+            responsBody = openSearchResponseBody
+        )
 
         val kandidaterMedCv: Map<String, Cv?> = openSearchKlient.hentCver(aktørIder)
         assertThat(kandidaterMedCv).hasSize(2)
@@ -47,28 +48,32 @@ class OpenSearchKlientTest {
         assertThat(cv1?.aktørId).isEqualTo(aktørId1)
         assertThat(cv2?.aktørId).isEqualTo(aktørId2)
         assertThat(cv1?.kompetanse).hasSize(22)
-        assertThat(cv1?.kompetanse).containsAll(listOf("Fallskjermsertifikat",
-            "Trenerarbeid",
-            "Taekwondo",
-            "Fritidsdykking",
-            "Java (Programmeringsspråk)",
-            "Kotlin (Programming Language)",
-            "Scala",
-            "Spring framework",
-            "Java/JEE",
-            "Relasjonsdatabase",
-            "Git versjonskontrollsystem",
-            "Apache Subversion (SVN)",
-            "Jenkins (Software)",
-            "Apache Maven",
-            "Oracle Relational Database",
-            "IntelliJ IDEA",
-            "GitHub",
-            "Agile-utvikling",
-            "Agile Scrum",
-            "Test-driven development (TDD)",
-            "Domain Driven Design",
-            "Kodegjennomgang"))
+        assertThat(cv1?.kompetanse).containsAll(
+            listOf(
+                "Fallskjermsertifikat",
+                "Trenerarbeid",
+                "Taekwondo",
+                "Fritidsdykking",
+                "Java (Programmeringsspråk)",
+                "Kotlin (Programming Language)",
+                "Scala",
+                "Spring framework",
+                "Java/JEE",
+                "Relasjonsdatabase",
+                "Git versjonskontrollsystem",
+                "Apache Subversion (SVN)",
+                "Jenkins (Software)",
+                "Apache Maven",
+                "Oracle Relational Database",
+                "IntelliJ IDEA",
+                "GitHub",
+                "Agile-utvikling",
+                "Agile Scrum",
+                "Test-driven development (TDD)",
+                "Domain Driven Design",
+                "Kodegjennomgang"
+            )
+        )
         assertThat(cv1?.arbeidserfaring).hasSize(3)
         assertThat(cv1?.arbeidserfaring?.get(0)?.arbeidsgiver).isEqualTo("Knowit Objectnet")
         assertThat(cv1?.utdanning).hasSize(3)
@@ -103,9 +108,11 @@ class OpenSearchKlientTest {
 
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
-        wiremockServer.stubFor(post("/veilederkandidat_current/_search")
-            .withBasicAuth("gunnar", "xyz")
-            .withRequestBody(containing(requestBody))
-            .willReturn(ok(responsBody)))
+        wiremockServer.stubFor(
+            post("/veilederkandidat_current/_search")
+                .withBasicAuth("gunnar", "xyz")
+                .withRequestBody(containing(requestBody))
+                .willReturn(ok(responsBody))
+        )
     }
- }
+}

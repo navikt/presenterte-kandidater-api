@@ -181,7 +181,12 @@ class PutVurderingTest {
         val kandidatlistasVirksomhetsnummer = "543219876"
         val innloggetBrukersVirksomhetsnummer = "987654321"
         val stillingId = UUID.randomUUID()
-        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = kandidatlistasVirksomhetsnummer))
+        repository.lagre(
+            kandidatliste().copy(
+                stillingId = stillingId,
+                virksomhetsnummer = kandidatlistasVirksomhetsnummer
+            )
+        )
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat = Kandidat(
             aktørId = "1234",
@@ -191,7 +196,7 @@ class PutVurderingTest {
             sistEndret = ZonedDateTime.now().minusDays(1)
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", innloggetBrukersVirksomhetsnummer),)
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", innloggetBrukersVirksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val body = """
             {

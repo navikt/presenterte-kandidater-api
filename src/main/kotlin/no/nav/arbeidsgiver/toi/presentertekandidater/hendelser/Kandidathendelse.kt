@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 import java.time.ZonedDateTime
-import java.util.UUID
+import java.util.*
 
 data class Kandidathendelse(
     val type: Type,

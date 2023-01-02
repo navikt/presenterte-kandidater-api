@@ -15,7 +15,7 @@ import java.time.Duration
 
 class AltinnKlient(
     envs: Map<String, String>,
-    private val tokendingsKlient: TokendingsKlient
+    private val tokendingsKlient: TokendingsKlient,
 ) {
     private val consumerId = envs.variable("NAIS_APP_NAME")
     private val altinnProxyUrl = envs.variable("ALTINN_PROXY_URL")
@@ -31,7 +31,7 @@ class AltinnKlient(
         log.info("Skal hente organisasjoner for innlogget person")
 
         val cachetOrganisasjoner = cache.hentFraCache(fnr, ENKELTRETTIGHET_REKRUTTERING)
-        if (cachetOrganisasjoner != null ) return cachetOrganisasjoner
+        if (cachetOrganisasjoner != null) return cachetOrganisasjoner
 
         val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
 

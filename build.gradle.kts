@@ -1,12 +1,11 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
-
 plugins {
     kotlin("jvm") version "1.6.21"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     application
 }
 
-application {3
+application {
+    3
     mainClass.set("no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt")
 }
 
@@ -57,6 +56,6 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.17.5")
     testImplementation("org.testcontainers:postgresql:1.17.5")
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
-    testImplementation ("io.mockk:mockk:1.13.2")
+    testImplementation("io.mockk:mockk:1.13.2")
 
 }

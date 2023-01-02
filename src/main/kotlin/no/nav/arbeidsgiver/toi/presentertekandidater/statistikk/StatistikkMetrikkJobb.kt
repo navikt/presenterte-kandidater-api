@@ -8,27 +8,32 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
-class StatistikkMetrikkJobb(private val statistikkRepository: StatistikkRepository,
-                            private val meterRegistry: PrometheusMeterRegistry) {
+class StatistikkMetrikkJobb(
+    private val statistikkRepository: StatistikkRepository,
+    private val meterRegistry: PrometheusMeterRegistry,
+) {
 
     companion object {
         val LOG = LoggerFactory.getLogger(StatistikkMetrikkJobb::class.java)
     }
 
-    private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
+    private val antallKandidatlister = meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
     private val antallKandidater = meterRegistry.gauge("antall_kandidater", AtomicLong(0))
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
     init {
         Kandidat.ArbeidsgiversVurdering.values().asSequence().forEach { v ->
-            kandidatVurderinger[v.name] = meterRegistry.gauge("antall_kandidatvurderinger",
-                Tags.of("vurdering", v.name), AtomicLong(0)) as AtomicLong
+            kandidatVurderinger[v.name] = meterRegistry.gauge(
+                "antall_kandidatvurderinger",
+                Tags.of("vurdering", v.name), AtomicLong(0)
+            ) as AtomicLong
         }
     }
+
     val executor = Executors.newScheduledThreadPool(1)
 
     fun start() {
-        executor.scheduleWithFixedDelay({hentStatistikk()}, 5L, 20L, TimeUnit.SECONDS)
+        executor.scheduleWithFixedDelay({ hentStatistikk() }, 5L, 20L, TimeUnit.SECONDS)
     }
 
     fun stopp() {
