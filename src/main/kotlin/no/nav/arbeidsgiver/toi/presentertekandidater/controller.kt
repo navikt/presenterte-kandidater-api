@@ -7,6 +7,8 @@ import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import java.util.*

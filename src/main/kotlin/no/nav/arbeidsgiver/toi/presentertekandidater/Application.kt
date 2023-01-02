@@ -13,7 +13,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.startPeriodiskSlettingAvKandidaterOgKandidatlister
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.startJavalin

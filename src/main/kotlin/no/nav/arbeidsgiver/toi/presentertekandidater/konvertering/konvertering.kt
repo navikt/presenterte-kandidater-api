@@ -6,7 +6,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.ArbeidsgiversVurdering
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId

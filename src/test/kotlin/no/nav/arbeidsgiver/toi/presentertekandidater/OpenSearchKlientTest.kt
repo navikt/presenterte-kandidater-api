@@ -2,8 +2,8 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Cv
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.OpenSearchKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -104,6 +104,31 @@ class OpenSearchKlientTest {
 
         assertThat(kandidaterMedCv).hasSize(2)
         assertThat(kandidaterMedCv.values).containsOnlyNulls()
+    }
+
+    @Test
+    fun `hentAntallKandidater returnerer antall kandidater i OpenSearch`() {
+        val forventetAntall = 193135;
+        val forventetRespons = """
+            {
+            	"count": $forventetAntall,
+            	"_shards": {
+            		"total": 3,
+            		"successful": 3,
+            		"skipped": 0,
+            		"failed": 0
+            	}
+            }
+        """.trimIndent()
+
+        wiremockServer.stubFor(
+            get("/veilederkandidat_current/_count")
+                .withBasicAuth("gunnar", "xyz")
+                .willReturn(ok(forventetRespons))
+        )
+
+        val antallKandidater = openSearchKlient.hentAntallKandidater()
+        assertThat(antallKandidater).isEqualTo(forventetAntall)
     }
 
 

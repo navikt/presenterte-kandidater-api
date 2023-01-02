@@ -1,4 +1,4 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
+package no.nav.arbeidsgiver.toi.presentertekandidater.opensearch
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -23,7 +23,9 @@ import java.time.Period
 import java.time.ZonedDateTime
 
 class OpenSearchKlient(envs: Map<String, String>) {
-    private val url = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current/_search"
+    private val baseUrl = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current"
+    private val searchUrl = "${baseUrl}/_search"
+
     private val username = envs.variable("OPEN_SEARCH_USERNAME")
     private val password = envs.variable("OPEN_SEARCH_PASSWORD")
 
@@ -32,7 +34,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
     private fun post(body: String): Pair<Response, Result<String, FuelError>> {
         val (_, response, result) = Fuel
-            .post(url)
+            .post(searchUrl)
             .jsonBody(body)
             .authentication()
             .basic(username, password)
@@ -101,6 +103,27 @@ class OpenSearchKlient(envs: Map<String, String>) {
             else -> {
                 log.error("hentkandidatNr for $kandidatnr mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
                 throw RuntimeException("Kall mot openSearch feilet for kandidatNr $kandidatnr")
+            }
+        }
+    }
+
+    fun hentAntallKandidater(): Int {
+        val (_, respons, result) = Fuel
+            .get("$baseUrl/_count")
+            .authentication()
+            .basic(username, password)
+            .responseString()
+
+        return when (respons.statusCode) {
+            200 -> {
+                val data = result.get()
+
+                objectMapper.readTree(data)["count"].asInt()
+            }
+
+            else -> {
+                log.error("hentAntallKandidater mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                throw RuntimeException("hentAntallKandidater mot openSearch feilet")
             }
         }
     }
