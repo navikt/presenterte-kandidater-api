@@ -61,10 +61,10 @@ class StatistikkRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun antallKandidaterMedVurdering(vurdering: String): Long {
+    fun antallKandidatinnslagMedVurdering(vurdering: String): Long {
         dataSource.connection.use { connection ->
             val sql = """
-                select count(distinct k.aktør_id)
+                select count(k.*)
                 from kandidat k, kandidatliste l
                 where 
                 k.kandidatliste_id = l.id and

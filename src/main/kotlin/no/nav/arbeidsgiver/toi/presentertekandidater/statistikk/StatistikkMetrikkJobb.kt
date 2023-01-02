@@ -57,7 +57,7 @@ class StatistikkMetrikkJobb(
             antallKandidatinnslag.getAndSet(statistikkRepository.antallKandidatinnslag())
 
             kandidatVurderinger.keys.forEach { k ->
-                kandidatVurderinger[k]?.getAndSet(statistikkRepository.antallKandidaterMedVurdering(k))
+                kandidatVurderinger[k]?.getAndSet(statistikkRepository.antallKandidatinnslagMedVurdering(k))
             }
         } catch (e: Exception) {
             LOG.warn("Problemer med å hente statistikk: ${e.message}", e)

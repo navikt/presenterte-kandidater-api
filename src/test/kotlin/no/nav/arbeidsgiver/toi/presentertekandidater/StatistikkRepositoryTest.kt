@@ -95,9 +95,9 @@ internal class StatistikkRepositoryTest {
 
         kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1", AKTUELL))
         kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
-        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3", AKTUELL))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør1", AKTUELL))
 
-        assertThat(statistikkRepository.antallKandidaterMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(2)
+        assertThat(statistikkRepository.antallKandidatinnslagMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(2)
     }
 
     @Test
@@ -108,9 +108,9 @@ internal class StatistikkRepositoryTest {
 
         kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste1.id!!, aktørId = "aktør1", AKTUELL))
         kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste2.id!!, aktørId = "aktør2"))
-        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør3", AKTUELL))
+        kandidatlisteRepository.lagre(lagKandidat(kandidatlisteId = kandidatliste3.id!!, aktørId = "aktør1", AKTUELL))
 
-        assertThat(statistikkRepository.antallKandidaterMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(
+        assertThat(statistikkRepository.antallKandidatinnslagMedVurdering(Kandidat.ArbeidsgiversVurdering.AKTUELL.name)).isEqualTo(
             1
         )
     }
