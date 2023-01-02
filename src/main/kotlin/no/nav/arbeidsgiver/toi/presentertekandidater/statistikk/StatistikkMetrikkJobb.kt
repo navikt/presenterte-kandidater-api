@@ -23,6 +23,7 @@ class StatistikkMetrikkJobb(
     private val antallUnikeKandidater = meterRegistry.gauge("antall_unike_kandidater", AtomicLong(0))
     private val antallKandidatinnslag = meterRegistry.gauge("antall_kandidatinnslag", AtomicLong(0))
     private val antallKandidaterIKandidatsøk = meterRegistry.gauge("antall_kandidater_i_kandidatsøk", AtomicLong(0))
+    private val antallSamtykker = meterRegistry.gauge("antall_samtykker", AtomicLong(0))
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
     init {
@@ -58,6 +59,7 @@ class StatistikkMetrikkJobb(
             antallKandidatlister.getAndSet(statistikkRepository.antallKandidatlister())
             antallUnikeKandidater.getAndSet(statistikkRepository.antallUnikeKandidater())
             antallKandidatinnslag.getAndSet(statistikkRepository.antallKandidatinnslag())
+            antallSamtykker.getAndSet(statistikkRepository.antallSamtykker())
             antallKandidaterIKandidatsøk.getAndSet(openSearchKlient.hentAntallKandidater())
 
             kandidatVurderinger.keys.forEach { k ->
