@@ -90,7 +90,8 @@ fun startApp(
         registry = prometheusRegistry
     )
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    javalin.get("/internal/prometheus",
+    javalin.get(
+        "/internal/prometheus",
         { it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape()) }, Rolle.UNPROTECTED
     )
 
@@ -99,16 +100,10 @@ fun startApp(
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
     statistikkMetrikkJobb.start()
 
-    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
-
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
-        if (!erProd) {
-            PresenterteKandidaterLytter(it, prometheusRegistry, presenterteKandidaterService)
-            log("Application").info("Startet lytter")
-        } else {
-            log("Application").info("Startet IKKE lytting på grunn av featuretoggle for prod-gcp")
-        }
+        PresenterteKandidaterLytter(it, prometheusRegistry, presenterteKandidaterService)
+        log("Application").info("Startet lytter")
     }.start()
 }
 
