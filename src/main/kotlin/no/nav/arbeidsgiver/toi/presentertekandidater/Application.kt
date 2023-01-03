@@ -99,7 +99,7 @@ fun startApp(
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
     statistikkMetrikkJobb.start()
 
-    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "ikke-featurtoggle-lenger"
+    val erProd = System.getenv("NAIS_CLUSTER_NAME")?.toString()?.lowercase() == "prod-gcp"
 
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
