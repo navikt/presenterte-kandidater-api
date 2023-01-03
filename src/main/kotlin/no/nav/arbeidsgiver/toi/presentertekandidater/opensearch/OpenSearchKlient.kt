@@ -180,7 +180,7 @@ data class Cv(
     val fornavn: String,
     val etternavn: String,
     @JsonAlias("poststed")
-    val bosted: String,
+    val bosted: String?,
     @JsonAlias("mobiltelefon")
     val mobiltelefonnummer: String?,
     @JsonAlias("telefon")
@@ -201,19 +201,19 @@ data class Cv(
 )
 
 data class Arbeidserfaring(
-    val fraDato: ZonedDateTime,
+    val fraDato: ZonedDateTime?,
     val tilDato: ZonedDateTime?,
-    val arbeidsgiver: String,
-    val sted: String,
-    val stillingstittel: String,
-    val beskrivelse: String,
+    val arbeidsgiver: String?,
+    val sted: String?,
+    val stillingstittel: String?,
+    val beskrivelse: String?,
 )
 
 data class Utdanning(
     @JsonAlias("alternativGrad")
-    val utdanningsretning: String,
-    val beskrivelse: String,
-    val utdannelsessted: String,
+    val utdanningsretning: String?,
+    val beskrivelse: String?,
+    val utdannelsessted: String?,
     @JsonAlias("fraDato")
     val fra: ZonedDateTime,
     @JsonAlias("tilDato")

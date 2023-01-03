@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.enKandidatFraESMedMangeNullFelter
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
@@ -87,6 +88,22 @@ class OpenSearchKlientTest {
         assertThat(cv1?.etternavn).isEqualTo("Dal")
         assertThat(cv1?.bosted).isEqualTo("Vega")
         assertThat(cv1?.mobiltelefonnummer).isEqualTo("44887766")
+    }
+
+    @Test
+    fun `Godta at gitte felter på CV er null`() {
+        val aktørId = "12345"
+        val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(listOf(aktørId))
+        val openSearchResponseBody = enKandidatFraESMedMangeNullFelter(aktørId)
+
+        stubHentingAvKandidater(
+            requestBody = openSearchRequestBody,
+            responsBody = openSearchResponseBody
+        )
+
+        val kandidaterMedCv: Map<String, Cv?> = openSearchKlient.hentCver(listOf(aktørId))
+        assertThat(kandidaterMedCv).hasSize(1)
+        assertThat(kandidaterMedCv.values).hasSize(1)
     }
 
     @Test
