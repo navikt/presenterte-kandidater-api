@@ -310,19 +310,22 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `Hvis noe feiler ved mottak av kandidathendelse skal dette catches og logges`() {
+    fun `Hvis noe feiler ved mottak av kandidathendelse skal det logges og kaste feil`() {
         val stillingsIdSomVilFeile = "ikke-gyldig-UUID"
 
         val meldingSomVilFeile = meldingSomKanFeileVedUgyldigStillingsId(stillingsId = stillingsIdSomVilFeile)
-        testRapid.sendTestMessage(meldingSomVilFeile)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
+        assertThrows<Exception> {
+            testRapid.sendTestMessage(meldingSomVilFeile)
+
+            PresenterteKandidaterLytter(
+                testRapid,
+                PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+                presenterteKandidaterService
+            )
+        }
         assertThat(logWatcher.list).isNotEmpty
-        assertThat(logWatcher.list[logWatcher.list.size - 1].message).isEqualTo("Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.")
+        assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Feil ved mottak av kandidathendelse. Dette må håndteres:")
     }
 
     private fun lagGyldigKandidatliste(stillingsId: UUID): Kandidatliste = Kandidatliste(
