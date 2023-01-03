@@ -79,9 +79,10 @@ class PresenterteKandidaterLytter(
             }
         } catch (e: Exception) {
             log.error(
-                "Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt.",
+                "Feil ved mottak av kandidathendelse. Dette må håndteres og man må resette offset for å lese meldingen på nytt: ${e.message}.",
                 e
             )
+            throw e
         }
     }
 }
