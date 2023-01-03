@@ -50,7 +50,6 @@ fun main() {
     startApp(
         rapidsConnection,
         dataSource,
-        KonverteringFilstier(env),
         openSearchKlient,
         rapidIsAlive,
         altinnKlient,
@@ -61,7 +60,6 @@ fun main() {
 fun startApp(
     rapidsConnection: RapidsConnection,
     dataSource: DataSource,
-    konverteringFilstier: KonverteringFilstier,
     openSearchKlient: OpenSearchKlient,
     rapidIsAlive: () -> Boolean,
     altinnKlient: AltinnKlient,
@@ -96,7 +94,7 @@ fun startApp(
     )
 
 
-    startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient, konverteringFilstier)
+    startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
     statistikkMetrikkJobb.start()
 

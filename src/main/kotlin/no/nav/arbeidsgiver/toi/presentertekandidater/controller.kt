@@ -17,8 +17,7 @@ fun startController(
     javalin: Javalin,
     kandidatlisteRepository: KandidatlisteRepository,
     samtykkeRepository: SamtykkeRepository,
-    openSearchKlient: OpenSearchKlient,
-    konverteringFilstier: KonverteringFilstier,
+    openSearchKlient: OpenSearchKlient
 ) {
     javalin.routes {
         get("/organisasjoner", hentOrganisasjoner, Rolle.ARBEIDSGIVER)
@@ -36,11 +35,6 @@ fun startController(
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
         delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
-        post(
-            "/internal/konverterdata",
-            konverterFraArbeidsmarked(kandidatlisteRepository, openSearchKlient, konverteringFilstier),
-            Rolle.UNPROTECTED
-        )
         get(
             "/ekstern/antallkandidater",
             hentAntallKandidater(kandidatlisteRepository),

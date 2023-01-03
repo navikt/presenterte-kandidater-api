@@ -98,9 +98,7 @@ private val envs = mapOf(
 private var harStartetApplikasjonen = false
 val testRapid = TestRapid()
 
-fun startLocalApplication(
-    konverteringsfilstier: KonverteringFilstier = KonverteringFilstier(envs),
-) {
+fun startLocalApplication() {
     if (!harStartetApplikasjonen) {
         startMockOAuth2Server()
         val altinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
@@ -108,7 +106,6 @@ fun startLocalApplication(
         startApp(
             testRapid,
             dataSource,
-            konverteringsfilstier,
             OpenSearchKlient(envs),
             { true },
             altinnKlient,
