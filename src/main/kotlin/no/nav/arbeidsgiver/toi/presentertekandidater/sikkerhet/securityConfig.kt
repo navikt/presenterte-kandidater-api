@@ -23,7 +23,7 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
-        validerAutorisering = hentRepresenterteOrganisasjoner(altinnKlient, samtykkeRepository, true)
+        validerAutorisering = hentRepresenterteOrganisasjoner(altinnKlient)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING,
@@ -33,7 +33,7 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
     RolleKonfigurasjon(
         rolle = Rolle.EKSTERN_ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
-        validerAutorisering = validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)
+        validerAutorisering = validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.UNPROTECTED,
@@ -48,7 +48,7 @@ enum class Rolle : RouteRole {
 val validerSamtykkeOgRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient, samtykkeRepository ->
         { jwtTokenClaims, context, accessToken ->
-            validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient, samtykkeRepository)(
+            validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient)(
                 jwtTokenClaims,
                 context,
                 accessToken
@@ -59,7 +59,7 @@ val validerSamtykkeOgRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (J
 
 val validerSamtykke: (SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { samtykkeRepository ->
-        { jwtTokenClaims, context, accessToken ->
+        { jwtTokenClaims, context, _ ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
             val fnr = context.hentFødselsnummer()
 
@@ -70,8 +70,8 @@ val validerSamtykke: (SamtykkeRepository) -> (JwtTokenClaims, Context, AccessTok
         }
     }
 
-val validerRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
-    { altinnKlient, samtykkeRepository ->
+val validerRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
+    { altinnKlient ->
         { jwtTokenClaims, context, accessToken ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
             val fnr = context.hentFødselsnummer()
@@ -87,8 +87,8 @@ val validerRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient, Samtykk
         }
     }
 
-val hentRepresenterteOrganisasjoner: (AltinnKlient, SamtykkeRepository, Boolean) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
-    { altinnKlient, samtykkeRepository, forRolleRekruttering ->
+val hentRepresenterteOrganisasjoner: (AltinnKlient) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
+    { altinnKlient ->
         { jwtTokenClaims, context, accessToken ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
             val fnr = context.hentFødselsnummer()
