@@ -103,12 +103,12 @@ fun startApp(
 
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
-//        if (!erProd) {
+        if (!erProd) {
             PresenterteKandidaterLytter(it, prometheusRegistry, presenterteKandidaterService)
             log("Application").info("Startet lytter")
-//        } else {
-//            log("Application").info("Startet IKKE lytting på grunn av featuretoggle for prod-gcp")
-//        }
+        } else {
+            log("Application").info("Startet IKKE lytting på grunn av featuretoggle for prod-gcp")
+        }
     }.start()
 }
 
