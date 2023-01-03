@@ -14,10 +14,10 @@ spec:
       expr: sum(up{app="presenterte-kandidater-api", job="kubernetes-pods"}) == 0
       for: 1s
       description: "Appen er nede"
-      action: "https://logs.adeo.no/goto/ab2e52186c18abccf8a98e0ec87eb85c"
+      action: "https://logs.adeo.no/app/r/s/J1BAt"
 
     - alert: 'presenterte-kandidater-api'
       expr: sum(increase(logd_messages_total{log_app="presenterte-kandidater-api",log_level="Error"}[10m])) > 0
       for: 10s
       description: "Appen har logget en feil"
-      action: "https://logs.adeo.no/goto/ab2e52186c18abccf8a98e0ec87eb85c"
+      action: "https://logs.adeo.no/app/r/s/J1BAt"
