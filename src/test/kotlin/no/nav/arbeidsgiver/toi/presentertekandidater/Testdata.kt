@@ -85,6 +85,16 @@ object Testdata {
             							"beskrivelse": "Tysk, fransk, elevrådsarbeid, samfunnskunnskap, geografi, religion"
             						}
             					],
+                                "forerkort": [
+                                    {
+                                        "fraDato": null,
+                                        "forerkortKodeKlasse": "B - Personbil",
+                                        "forerkortKode": null,
+                                        "utsteder": null,
+                                        "tilDato": null,
+                                        "alternativKlasse": null
+                                    }
+                                ],
             					"kompetanseObj": [
             						{
             							"alternativtNavn": "Fallskjermsertifikat",
@@ -569,6 +579,16 @@ object Testdata {
             							"beskrivelse": "Tysk, fransk, elevrådsarbeid, samfunnskunnskap, geografi, religion"
             						}
             					],
+            					"forerkort": [
+                                    {
+                                        "fraDato": "2007-07-14T22:00:00.000+00:00",
+                                        "forerkortKodeKlasse": "B - Personbil",
+                                        "forerkortKode": null,
+                                        "utsteder": null,
+                                        "tilDato": "2070-07-29T22:00:00.000+00:00",
+                                        "alternativKlasse": null
+                                    }
+                                ],
             					"kompetanseObj": [
             						{
             							"alternativtNavn": "Fallskjermsertifikat",
@@ -1012,7 +1032,8 @@ object Testdata {
             					"epostadresse": "hei@hei.no",
             					"sprak": [],
             					"yrkeserfaring": [],
-            					"beskrivelse": ""
+            					"beskrivelse": "",
+                                "forerkort": []
             				}
             			}
             		]

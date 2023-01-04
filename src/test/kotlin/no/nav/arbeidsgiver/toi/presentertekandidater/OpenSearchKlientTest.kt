@@ -88,6 +88,7 @@ class OpenSearchKlientTest {
         assertThat(cv1?.etternavn).isEqualTo("Dal")
         assertThat(cv1?.bosted).isEqualTo("Vega")
         assertThat(cv1?.mobiltelefonnummer).isEqualTo("44887766")
+        assertThat(cv1?.førerkort?.first()?.førerkortKodeKlasse).isEqualTo("B - Personbil")
     }
 
     @Test
