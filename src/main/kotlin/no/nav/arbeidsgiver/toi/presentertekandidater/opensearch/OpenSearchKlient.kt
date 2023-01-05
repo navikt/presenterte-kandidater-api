@@ -168,7 +168,8 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "beskrivelse",
                 "utdanning",
                 "sprak",
-                "forerkort"
+                "forerkort",
+                "fagdokumentasjon"
             ]
         }
         """
@@ -200,7 +201,8 @@ data class Cv(
     @JsonAlias("sprak")
     val språk: List<Språk>,
     @JsonAlias("forerkort")
-    val førerkort: List<Førerkort>
+    val førerkort: List<Førerkort>,
+    val fagdokumentasjon: List<Fagdokumentasjon>
 )
 
 data class Arbeidserfaring(
@@ -235,6 +237,12 @@ data class Språk(
 data class Førerkort(
     @JsonAlias("forerkortKodeKlasse")
     val førerkortKodeKlasse: String,
+)
+
+data class Fagdokumentasjon(
+    val tittel: String?,
+    val type: String,
+    val beskrivelse: String?
 )
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {

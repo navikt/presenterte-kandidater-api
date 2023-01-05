@@ -95,6 +95,13 @@ object Testdata {
                                         "alternativKlasse": null
                                     }
                                 ],
+                                "fagdokumentasjon": [
+						            {
+                                        "tittel": null,
+							            "type": "Fagbrev/svennebrev",
+                                        "beskrivelse": null
+						            }
+					            ],
             					"kompetanseObj": [
             						{
             							"alternativtNavn": "Fallskjermsertifikat",
@@ -579,6 +586,11 @@ object Testdata {
             							"beskrivelse": "Tysk, fransk, elevrådsarbeid, samfunnskunnskap, geografi, religion"
             						}
             					],
+                                "fagdokumentasjon": [
+						            {
+							            "type": "Fagbrev/svennebrev"
+						            }
+					            ],
             					"forerkort": [
                                     {
                                         "fraDato": "2007-07-14T22:00:00.000+00:00",
@@ -1033,7 +1045,17 @@ object Testdata {
             					"sprak": [],
             					"yrkeserfaring": [],
             					"beskrivelse": "",
-                                "forerkort": []
+                                "forerkort": [],
+                                "fagdokumentasjon": [
+						            {
+							            "type": "Fagbrev/svennebrev"
+						            },
+						            {
+                                        "tittel": "En tittel",
+							            "type": "Fagbrev/svennebrev",
+                                        "beskrivelse": "En beskrivelse"
+						            }
+					            ]
             				}
             			}
             		]
