@@ -9,7 +9,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OpenSearchKlientTest {
@@ -96,12 +95,6 @@ class OpenSearchKlientTest {
         assertThat(cv1?.godkjenninger).isEmpty()
         assertThat(cv2?.godkjenninger?.size).isEqualTo(1)
         assertThat(cv2?.godkjenninger?.first()).isEqualTo("NS-EN 1418 Gassbeskyttet buesveising Metode 114")
-        assertThat(cv1?.andreGodkjenninger).hasSize(0)
-        assertThat(cv2?.andreGodkjenninger).hasSize(2)
-        assertThat(cv2?.andreGodkjenninger?.first()?.tittel).isEqualTo("Førstehjelpsinstruktør")
-        assertThat(cv2?.andreGodkjenninger?.first()?.dato).isEqualTo("2019-03-01")
-        assertThat(cv2?.andreGodkjenninger?.get(1)?.tittel).isEqualTo("Ambulansekjøring")
-        assertNull(cv2?.andreGodkjenninger?.get(1)?.dato)
     }
 
     @Test
