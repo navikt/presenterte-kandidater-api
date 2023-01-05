@@ -97,7 +97,7 @@ object Testdata {
                                 ],
                                 "fagdokumentasjon": [
 						            {
-                                        "tittel": null,
+                                        "tittel": "Fagbrevtittel",
 							            "type": "Fagbrev/svennebrev",
                                         "beskrivelse": null
 						            }
@@ -588,6 +588,7 @@ object Testdata {
             					],
                                 "fagdokumentasjon": [
 						            {
+                                        "tittel": null,
 							            "type": "Fagbrev/svennebrev"
 						            }
 					            ],
@@ -1048,10 +1049,11 @@ object Testdata {
                                 "forerkort": [],
                                 "fagdokumentasjon": [
 						            {
+                                        "tittel": "Fagbrevtittel",
 							            "type": "Fagbrev/svennebrev"
 						            },
 						            {
-                                        "tittel": "En tittel",
+                                        "tittel": null,
 							            "type": "Fagbrev/svennebrev",
                                         "beskrivelse": "En beskrivelse"
 						            }
