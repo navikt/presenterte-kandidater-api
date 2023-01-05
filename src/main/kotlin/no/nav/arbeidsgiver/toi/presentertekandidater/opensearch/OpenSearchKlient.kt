@@ -17,6 +17,7 @@ import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
+import no.nav.arbeidsgiver.toi.presentertekandidater.defaultObjectMapper
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 import java.time.Period
@@ -72,39 +73,6 @@ class OpenSearchKlient(envs: Map<String, String>) {
             }
         }
 
-    }
-
-    fun hentAktørid(kandidatnr: String, stillingId: String): String? {
-        val (respons, resultat) = post(lagBodyForHentingAvAktørId(kandidatnr))
-
-        return when (respons.statusCode) {
-            200 -> {
-                log.info("hentAktørId fra OpenSearch ok")
-
-                val data = resultat.get()
-                val responsJsonNode = objectMapper.readTree(data)
-
-                val hits = responsJsonNode["hits"]["hits"]
-
-                if (hits == null || hits.size() == 0) {
-                    log.info("Fant ikke $kandidatnr i stilling $stillingId opensearch");
-                    return null
-                }
-
-                hits
-                    .map { it["fields"]["aktorId"] }
-                    .first().first().asText()
-            }
-
-            404 -> {
-                null
-            }
-
-            else -> {
-                log.error("hentkandidatNr for $kandidatnr mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
-                throw RuntimeException("Kall mot openSearch feilet for kandidatNr $kandidatnr")
-            }
-        }
     }
 
     fun hentAntallKandidater(): Long {
@@ -171,7 +139,8 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "forerkort",
                 "fagdokumentasjon",
                 "godkjenninger",
-                "sertifikatObj"
+                "sertifikatObj",
+                "kursObj"
             ]
         }
         """
@@ -212,7 +181,10 @@ data class Cv(
     val godkjenninger: List<String>,
     @JsonAlias("sertifikatObj")
     @JsonDeserialize(using = AndreGodkjenningerDeserializer::class)
-    val andreGodkjenninger: List<AnnenGodkjenning>
+    val andreGodkjenninger: List<AnnenGodkjenning>,
+    @JsonAlias("kursObj")
+    @JsonDeserialize(using = KursDeserializer::class)
+    val kurs: List<Kurs>
 )
 
 data class Arbeidserfaring(
@@ -252,6 +224,13 @@ data class Førerkort(
 data class AnnenGodkjenning(
     val tittel: String,
     val dato: String?
+)
+
+data class Kurs(
+    val tittel: String,
+    val omfangVerdi: Int?,
+    val omfangEnhet: String?,
+    val tilDato: ZonedDateTime?
 )
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
@@ -294,13 +273,24 @@ private class AndreGodkjenningerDeserializer : StdDeserializer<List<AnnenGodkjen
             )
         }
     }
-
-    fun somNullableString(jsonNode: JsonNode?): String? =
-        if (erString(jsonNode)) {
-            jsonNode?.asText()
-        } else {
-            null
-        }
-
-    fun erString(jsonNode: JsonNode?) = jsonNode != null && !jsonNode.isNull && jsonNode.asText().isNotEmpty()
 }
+
+private class KursDeserializer : StdDeserializer<List<Kurs>>(List::class.java) {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<Kurs> {
+        return ctxt.readValue(parser, JsonNode::class.java)
+            .filter { erString(it["tittel"]) }
+            .map { it.tilKlasse(Kurs::class.java)}
+    }
+}
+
+fun somNullableString(jsonNode: JsonNode?): String? =
+    if (erString(jsonNode)) {
+        jsonNode?.asText()
+    } else {
+        null
+    }
+
+fun erString(jsonNode: JsonNode?) = jsonNode != null && !jsonNode.isNull && jsonNode.asText().isNotEmpty()
+
+fun <T> JsonNode.tilKlasse(type: Class<T>) =
+    defaultObjectMapper.readValue(defaultObjectMapper.writeValueAsString(this), type)

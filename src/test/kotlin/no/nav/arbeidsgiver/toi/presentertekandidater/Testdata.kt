@@ -56,6 +56,17 @@ object Testdata {
             				"_score": 1.0,
             				"_source": {
             					"aktorId": "$aktørId",
+                                "kursObj": [
+            						{
+            							"fraDato": null,
+            							"arrangor": null,
+            							"omfangVerdi": null,
+            							"omfangEnhet": null,
+            							"tittel": null,
+            							"tilDato": null,
+            							"beskrivelse": null
+            						}
+            					],
             					"utdanning": [
             						{
             							"yrkestatus": "INGEN",
@@ -583,6 +594,35 @@ object Testdata {
             				"_score": 1.0,
             				"_source": {
             					"aktorId": "$aktørId1",
+            					"kursObj": [
+            						{
+            							"fraDato": null,
+            							"arrangor": "Garden-HMKG",
+            							"omfangVerdi": 10,
+            							"omfangEnhet": "DAG",
+            							"tittel": "Sanitet nivå 2",
+            							"tilDato": "2018-01-31T23:00:00.000+00:00",
+            							"beskrivelse": ""
+            						},
+            						{
+            							"fraDato": null,
+            							"arrangor": "Stanima Helse",
+            							"omfangVerdi": 1,
+            							"omfangEnhet": "DAG",
+            							"tittel": null,
+            							"tilDato": null,
+            							"beskrivelse": ""
+            						},
+            						{
+            							"fraDato": null,
+            							"arrangor": null,
+            							"omfangVerdi": null,
+            							"omfangEnhet": null,
+            							"tittel": "Varme arbeider",
+            							"tilDato": "2015-05-31T22:00:00.000+00:00",
+            							"beskrivelse": null
+            						}
+            					],
             					"utdanning": [
             						{
             							"yrkestatus": "INGEN",
@@ -1087,6 +1127,26 @@ object Testdata {
             				"_score": 1.0,
             				"_source": {
             					"aktorId": "$aktørid2",
+                                "kursObj": [
+            						{
+            							"fraDato": null,
+            							"arrangor": "Garden-HMKG",
+            							"omfangVerdi": 10,
+            							"omfangEnhet": "DAG",
+            							"tittel": "Sanitet nivå 2",
+            							"tilDato": "2018-01-31T23:00:00.000+00:00",
+            							"beskrivelse": ""
+            						},
+            						{
+            							"fraDato": null,
+            							"arrangor": "Stanima Helse",
+            							"omfangVerdi": 1,
+            							"omfangEnhet": "DAG",
+            							"tittel": null,
+            							"tilDato": null,
+            							"beskrivelse": ""
+            						}
+            					],
             					"utdanning": [],
             					"kompetanseObj": [],
             					"fornavn": "Elastisk",

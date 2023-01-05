@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.time.ZonedDateTime
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -102,6 +103,12 @@ class OpenSearchKlientTest {
         assertThat(cv2?.andreGodkjenninger?.first()?.dato).isEqualTo("2019-03-01")
         assertThat(cv2?.andreGodkjenninger?.get(1)?.tittel).isEqualTo("Ambulansekjøring")
         assertNull(cv2?.andreGodkjenninger?.get(1)?.dato)
+        assertThat(cv1?.kurs).hasSize(2)
+        assertThat(cv1?.kurs?.get(0)?.tittel).isEqualTo("Sanitet nivå 2")
+        assertThat(cv1?.kurs?.get(0)?.omfangEnhet).isEqualTo("DAG")
+        assertThat(cv1?.kurs?.get(0)?.omfangVerdi).isEqualTo(10)
+        assertThat(cv1?.kurs?.get(0)?.tilDato).isEqualTo(ZonedDateTime.parse("2018-01-31T23:00:00.000+00:00"))
+        assertThat(cv2?.kurs).hasSize(1)
     }
 
     @Test
