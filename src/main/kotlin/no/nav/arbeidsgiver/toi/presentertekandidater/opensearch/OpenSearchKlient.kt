@@ -284,12 +284,12 @@ private class AndreGodkjenningerDeserializer : StdDeserializer<List<AnnenGodkjen
 
             harAlternativtNavn || harSertifikatKodeNavn
         }.map {
-            val harAlternativtNavn = erString(it["alternativtNavn"])
-            val alternativtNavn = it["alternativtNavn"].asText()
-            val sertifikatKodeNavn = it["sertifikatKodeNavn"].asText()
+            val alternativtNavn = somNullableString(it["alternativtNavn"])
+            val sertifikatKodeNavn = somNullableString(it["sertifikatKodeNavn"])
+            val tittel: String = alternativtNavn ?: sertifikatKodeNavn ?: throw Exception("Skal ha sjekket at én av dem ikke er null")
 
             AnnenGodkjenning(
-                tittel = if (harAlternativtNavn) alternativtNavn else sertifikatKodeNavn,
+                tittel = tittel,
                 dato = somNullableString(it["fraDato"])
             )
         }

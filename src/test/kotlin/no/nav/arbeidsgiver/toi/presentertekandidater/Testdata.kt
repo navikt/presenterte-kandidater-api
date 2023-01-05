@@ -1138,10 +1138,7 @@ object Testdata {
                                     },
                                     {
                                         "utsteder": "",
-                                        "sertifikatKode": null,
-                                        "sertifikatKodeNavn": null,
                                         "alternativtNavn": "Ambulansekjøring",
-                                        "tilDato": null,
                                         "fraDato": ""
                                     },
                                     {
