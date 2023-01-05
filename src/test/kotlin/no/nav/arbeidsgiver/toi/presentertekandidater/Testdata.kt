@@ -102,6 +102,15 @@ object Testdata {
                                         "beskrivelse": null
 						            }
 					            ],
+                                "godkjenninger": [
+                                    {
+                                      "tittel": "NS-EN 1418 Gassbeskyttet buesveising Metode 114",
+                                      "utsteder": "",
+                                      "gjennomfoert": "2019-03-21",
+                                      "utloeper": null,
+                                      "konseptId": "1104579"
+                                    }
+					            ],
             					"kompetanseObj": [
             						{
             							"alternativtNavn": "Fallskjermsertifikat",
@@ -592,6 +601,15 @@ object Testdata {
 							            "type": "Fagbrev/svennebrev"
 						            }
 					            ],
+                                "godkjenninger": [
+                                    {
+                                      "tittel": null,
+                                      "utsteder": "",
+                                      "gjennomfoert": "2019-03-21",
+                                      "utloeper": null,
+                                      "konseptId": "1104579"
+                                    }
+					            ],
             					"forerkort": [
                                     {
                                         "fraDato": "2007-07-14T22:00:00.000+00:00",
@@ -1057,6 +1075,22 @@ object Testdata {
 							            "type": "Fagbrev/svennebrev",
                                         "beskrivelse": "En beskrivelse"
 						            }
+					            ],
+                                "godkjenninger": [
+                                    {
+                                      "tittel": "NS-EN 1418 Gassbeskyttet buesveising Metode 114",
+                                      "utsteder": "",
+                                      "gjennomfoert": "2019-03-21",
+                                      "utloeper": null,
+                                      "konseptId": "1104579"
+                                    },
+                                    {
+                                      "tittel": null,
+                                      "utsteder": "",
+                                      "gjennomfoert": null,
+                                      "utloeper": null,
+                                      "konseptId": null
+                                    }
 					            ]
             				}
             			}

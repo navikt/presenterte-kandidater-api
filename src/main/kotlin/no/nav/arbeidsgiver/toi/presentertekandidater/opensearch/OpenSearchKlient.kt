@@ -169,7 +169,8 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "utdanning",
                 "sprak",
                 "forerkort",
-                "fagdokumentasjon"
+                "fagdokumentasjon",
+                "godkjenninger"
             ]
         }
         """
@@ -203,7 +204,9 @@ data class Cv(
     @JsonAlias("forerkort")
     val førerkort: List<Førerkort>,
     @JsonDeserialize(using = TilStringlisteDeserializer.FagdokumentasjonDeserializer::class)
-    val fagdokumentasjon: List<String>
+    val fagdokumentasjon: List<String>,
+    @JsonDeserialize(using = TilStringlisteDeserializer.GodkjenningerDeserializer::class)
+    val godkjenninger: List<String>
 )
 
 data class Arbeidserfaring(
@@ -249,8 +252,10 @@ private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
 }
 
 private abstract class TilStringlisteDeserializer(val felt: String) : StdDeserializer<List<String>>(List::class.java) {
+
     class KompetanseDeserializer : TilStringlisteDeserializer("kompKodeNavn")
     class FagdokumentasjonDeserializer : TilStringlisteDeserializer("tittel")
+    class GodkjenningerDeserializer : TilStringlisteDeserializer("tittel")
 
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).mapNotNull { it[felt].textValue() }

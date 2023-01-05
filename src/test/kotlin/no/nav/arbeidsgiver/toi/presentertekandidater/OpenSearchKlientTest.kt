@@ -92,6 +92,9 @@ class OpenSearchKlientTest {
         assertThat(cv1?.fagdokumentasjon).isEmpty()
         assertThat(cv2?.fagdokumentasjon?.size).isEqualTo(1)
         assertThat(cv2?.fagdokumentasjon?.first()).isEqualTo("Fagbrevtittel")
+        assertThat(cv1?.godkjenninger).isEmpty()
+        assertThat(cv2?.godkjenninger?.size).isEqualTo(1)
+        assertThat(cv2?.godkjenninger?.first()).isEqualTo("NS-EN 1418 Gassbeskyttet buesveising Metode 114")
     }
 
     @Test
