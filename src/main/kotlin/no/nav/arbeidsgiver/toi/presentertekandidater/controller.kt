@@ -43,6 +43,9 @@ fun startController(
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
         log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
+    }.exception(Exception::class.java) { e, ctx ->
+        log("controller").error("Kall mot ${ctx.path()} førte til en ukjent feil.", e)
+        ctx.status(500)
     }
 }
 

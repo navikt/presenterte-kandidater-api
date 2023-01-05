@@ -170,7 +170,8 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "sprak",
                 "forerkort",
                 "fagdokumentasjon",
-                "godkjenninger"
+                "godkjenninger",
+                "sertifikatObj"
             ]
         }
         """
@@ -190,9 +191,11 @@ data class Cv(
     val telefonnummer: String?,
     @JsonAlias("epostadresse")
     val epost: String?,
-    @JsonAlias("fodselsdato") @JsonDeserialize(using = AlderDeserializer::class)
+    @JsonAlias("fodselsdato")
+    @JsonDeserialize(using = AlderDeserializer::class)
     val alder: Int,
-    @JsonAlias("kompetanseObj") @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
+    @JsonAlias("kompetanseObj")
+    @JsonDeserialize(using = TilStringlisteDeserializer.KompetanseDeserializer::class)
     val kompetanse: List<String>,
     @JsonAlias("yrkeserfaring")
     val arbeidserfaring: List<Arbeidserfaring>,
@@ -206,7 +209,10 @@ data class Cv(
     @JsonDeserialize(using = TilStringlisteDeserializer.FagdokumentasjonDeserializer::class)
     val fagdokumentasjon: List<String>,
     @JsonDeserialize(using = TilStringlisteDeserializer.GodkjenningerDeserializer::class)
-    val godkjenninger: List<String>
+    val godkjenninger: List<String>,
+    @JsonAlias("sertifikatObj")
+    @JsonDeserialize(using = AndreGodkjenningerDeserializer::class)
+    val andreGodkjenninger: List<AnnenGodkjenning>
 )
 
 data class Arbeidserfaring(
@@ -243,6 +249,11 @@ data class Førerkort(
     val førerkortKodeKlasse: String,
 )
 
+data class AnnenGodkjenning(
+    val tittel: String,
+    val dato: String?
+)
+
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
         return Period.between(
@@ -260,4 +271,36 @@ private abstract class TilStringlisteDeserializer(val felt: String) : StdDeseria
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
         return ctxt.readValue(parser, JsonNode::class.java).mapNotNull { it[felt].textValue() }
     }
+}
+
+private class AndreGodkjenningerDeserializer : StdDeserializer<List<AnnenGodkjenning>>(List::class.java) {
+
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<AnnenGodkjenning> {
+        val andreGodkjenninger = ctxt.readValue(parser, JsonNode::class.java)
+
+        return andreGodkjenninger.filter {
+            val harAlternativtNavn = erString(it["alternativtNavn"])
+            val harSertifikatKodeNavn = erString(it["sertifikatKodeNavn"])
+
+            harAlternativtNavn || harSertifikatKodeNavn
+        }.map {
+            val alternativtNavn = somNullableString(it["alternativtNavn"])
+            val sertifikatKodeNavn = somNullableString(it["sertifikatKodeNavn"])
+            val tittel: String = alternativtNavn ?: sertifikatKodeNavn ?: throw Exception("Skal ha sjekket at én av dem ikke er null")
+
+            AnnenGodkjenning(
+                tittel = tittel,
+                dato = somNullableString(it["fraDato"])
+            )
+        }
+    }
+
+    fun somNullableString(jsonNode: JsonNode?): String? =
+        if (erString(jsonNode)) {
+            jsonNode?.asText()
+        } else {
+            null
+        }
+
+    fun erString(jsonNode: JsonNode?) = jsonNode != null && !jsonNode.isNull && jsonNode.asText().isNotEmpty()
 }
