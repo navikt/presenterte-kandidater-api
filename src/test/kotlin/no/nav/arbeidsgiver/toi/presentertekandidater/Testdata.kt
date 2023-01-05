@@ -111,7 +111,7 @@ object Testdata {
                                       "konseptId": "1104579"
                                     }
 					            ],
-                                "sertifikater": [
+                                "sertifikatObj": [
                                     {
                                         "utsteder": "",
                                         "sertifikatKode": null,
@@ -627,7 +627,7 @@ object Testdata {
                                       "konseptId": "1104579"
                                     }
 					            ],
-                                "sertifikater": [
+                                "sertifikatObj": [
                                     {
                                         "utsteder": "",
                                         "sertifikatKode": null,
@@ -1127,7 +1127,7 @@ object Testdata {
                                       "konseptId": null
                                     }
 					            ],
-                                "sertifikater": [
+                                "sertifikatObj": [
                                     {
                                         "utsteder": "",
                                         "sertifikatKode": null,

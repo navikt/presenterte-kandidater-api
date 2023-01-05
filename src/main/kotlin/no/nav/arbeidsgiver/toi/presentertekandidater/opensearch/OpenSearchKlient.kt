@@ -171,7 +171,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "forerkort",
                 "fagdokumentasjon",
                 "godkjenninger",
-                "sertifikater"
+                "sertifikatObj"
             ]
         }
         """
@@ -210,7 +210,7 @@ data class Cv(
     val fagdokumentasjon: List<String>,
     @JsonDeserialize(using = TilStringlisteDeserializer.GodkjenningerDeserializer::class)
     val godkjenninger: List<String>,
-    @JsonAlias("sertifikater")
+    @JsonAlias("sertifikatObj")
     @JsonDeserialize(using = AndreGodkjenningerDeserializer::class)
     val andreGodkjenninger: List<AnnenGodkjenning>
 )
@@ -279,25 +279,28 @@ private class AndreGodkjenningerDeserializer : StdDeserializer<List<AnnenGodkjen
         val andreGodkjenninger = ctxt.readValue(parser, JsonNode::class.java)
 
         return andreGodkjenninger.filter {
-            val harAlternativtNavn = it["alternativtNavn"]?.erString() ?: false
-            val harSertifikatKodeNavn = it["sertifikatKodeNavn"]?.erString() ?: false
+            val harAlternativtNavn = erString(it["alternativtNavn"])
+            val harSertifikatKodeNavn = erString(it["sertifikatKodeNavn"])
 
             harAlternativtNavn || harSertifikatKodeNavn
         }.map {
+            val harAlternativtNavn = erString(it["alternativtNavn"])
+            val alternativtNavn = it["alternativtNavn"].asText()
+            val sertifikatKodeNavn = it["sertifikatKodeNavn"].asText()
+
             AnnenGodkjenning(
-                tittel = if (it["alternativtNavn"].erString()) it["alternativtNavn"].asText() else it["sertifikatKodeNavn"].asText(),
+                tittel = if (harAlternativtNavn) alternativtNavn else sertifikatKodeNavn,
                 dato = somNullableString(it["fraDato"])
             )
         }
     }
 
-    fun somNullableString(jsonNode: JsonNode?): String? {
-        return if (jsonNode == null) {
-            null
+    fun somNullableString(jsonNode: JsonNode?): String? =
+        if (erString(jsonNode)) {
+            jsonNode?.asText()
         } else {
-            if (jsonNode.erString()) jsonNode.asText() else null
+            null
         }
-    }
 
-    fun JsonNode.erString() = !isNull && asText().isNotEmpty()
+    fun erString(jsonNode: JsonNode?) = jsonNode != null && !jsonNode.isNull && jsonNode.asText().isNotEmpty()
 }
