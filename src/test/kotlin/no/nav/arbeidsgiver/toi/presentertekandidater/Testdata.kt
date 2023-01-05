@@ -111,6 +111,23 @@ object Testdata {
                                       "konseptId": "1104579"
                                     }
 					            ],
+                                "sertifikater": [
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": null,
+                                        "alternativtNavn": null,
+                                        "fraDato": "2019-03-01",
+                                        "tilDato": null
+                                    },
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": null,
+                                        "alternativtNavn": null,
+                                        "fraDato": "2019-03-01"
+                                    }
+                                ],
             					"kompetanseObj": [
             						{
             							"alternativtNavn": "Fallskjermsertifikat",
@@ -610,6 +627,24 @@ object Testdata {
                                       "konseptId": "1104579"
                                     }
 					            ],
+                                "sertifikater": [
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": null,
+                                        "alternativtNavn": null,
+                                        "fraDato": "2019-03-01",
+                                        "tilDato": null
+                                    },
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": "",
+                                        "alternativtNavn": null,
+                                        "fraDato": null,
+                                        "tilDato": null
+                                    }
+                                ],
             					"forerkort": [
                                     {
                                         "fraDato": "2007-07-14T22:00:00.000+00:00",
@@ -1091,7 +1126,33 @@ object Testdata {
                                       "utloeper": null,
                                       "konseptId": null
                                     }
-					            ]
+					            ],
+                                "sertifikater": [
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": "Førstehjelpsinstruktør",
+                                        "alternativtNavn": null,
+                                        "fraDato": "2019-03-01",
+                                        "tilDato": null
+                                    },
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": null,
+                                        "alternativtNavn": "Ambulansekjøring",
+                                        "tilDato": null,
+                                        "fraDato": ""
+                                    },
+                                    {
+                                        "utsteder": "",
+                                        "sertifikatKode": null,
+                                        "sertifikatKodeNavn": null,
+                                        "alternativtNavn": null,
+                                        "fraDato": "2019-03-01",
+                                        "tilDato": null
+                                    }
+                                ]
             				}
             			}
             		]
