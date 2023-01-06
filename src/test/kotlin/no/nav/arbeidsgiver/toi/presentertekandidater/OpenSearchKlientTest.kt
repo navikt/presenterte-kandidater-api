@@ -109,6 +109,12 @@ class OpenSearchKlientTest {
         assertThat(cv1?.kurs?.get(0)?.omfangVerdi).isEqualTo(10)
         assertThat(cv1?.kurs?.get(0)?.tilDato).isEqualTo(ZonedDateTime.parse("2018-01-31T23:00:00.000+00:00"))
         assertThat(cv2?.kurs).hasSize(1)
+        assertThat(cv1?.andreErfaringer).hasSize(2)
+        assertThat(cv1?.andreErfaringer?.get(0)?.rolle).isEqualTo("Millitærtjeneste")
+        assertThat(cv1?.andreErfaringer?.get(0)?.beskrivelse).isEqualTo("Grensejeger i finnmark")
+        assertThat(cv1?.andreErfaringer?.get(0)?.fraDato).isEqualTo(ZonedDateTime.parse("2015-02-28T23:00:00.000+00:00"))
+        assertThat(cv1?.andreErfaringer?.get(0)?.tilDato).isEqualTo(ZonedDateTime.parse("2016-02-29T23:00:00.000+00:00"))
+        assertThat(cv2?.andreErfaringer).hasSize(1)
     }
 
     @Test

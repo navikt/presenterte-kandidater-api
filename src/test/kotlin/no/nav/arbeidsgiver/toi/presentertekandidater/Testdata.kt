@@ -139,6 +139,14 @@ object Testdata {
                                         "fraDato": "2019-03-01"
                                     }
                                 ],
+                                "annenerfaringObj": [
+                                    {
+                                        "fraDato": "2014-07-31T22:00:00.000+00:00",
+                                        "tilDato": null,
+                                        "beskrivelse": null,
+                                        "rolle": "Fotballtrener"
+                                    }
+                                ],
             					"kompetanseObj": [
             						{
             							"alternativtNavn": "Fallskjermsertifikat",
@@ -685,6 +693,20 @@ object Testdata {
                                         "tilDato": null
                                     }
                                 ],
+                                "annenerfaringObj": [
+                                    {
+                                        "fraDato": "2015-02-28T23:00:00.000+00:00",
+                                        "tilDato": "2016-02-29T23:00:00.000+00:00",
+                                        "beskrivelse": "Grensejeger i finnmark",
+                                        "rolle": "Millitærtjeneste"
+                                    },
+                                    {
+                                        "fraDato": "2014-07-31T22:00:00.000+00:00",
+                                        "tilDato": null,
+                                        "beskrivelse": null,
+                                        "rolle": "Fotballtrener"
+                                    }
+                                ],
             					"forerkort": [
                                     {
                                         "fraDato": "2007-07-14T22:00:00.000+00:00",
@@ -1208,6 +1230,14 @@ object Testdata {
                                         "alternativtNavn": null,
                                         "fraDato": "2019-03-01",
                                         "tilDato": null
+                                    }
+                                ],
+                                "annenerfaringObj": [
+                                    {
+                                        "fraDato": "2015-02-28T23:00:00.000+00:00",
+                                        "tilDato": "2016-02-29T23:00:00.000+00:00",
+                                        "beskrivelse": "Grensejeger i finnmark",
+                                        "rolle": "Millitærtjeneste"
                                     }
                                 ]
             				}

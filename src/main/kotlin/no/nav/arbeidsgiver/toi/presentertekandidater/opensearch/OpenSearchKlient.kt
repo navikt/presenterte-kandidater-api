@@ -140,7 +140,8 @@ class OpenSearchKlient(envs: Map<String, String>) {
                 "fagdokumentasjon",
                 "godkjenninger",
                 "sertifikatObj",
-                "kursObj"
+                "kursObj",
+                "annenerfaringObj"
             ]
         }
         """
@@ -184,7 +185,11 @@ data class Cv(
     val andreGodkjenninger: List<AnnenGodkjenning>,
     @JsonAlias("kursObj")
     @JsonDeserialize(using = KursDeserializer::class)
-    val kurs: List<Kurs>
+    val kurs: List<Kurs>,
+    @JsonAlias("annenerfaringObj")
+    @JsonDeserialize(using = AndreErfaringerDeserializer::class)
+    val andreErfaringer: List<AnnenErfaring>,
+
 )
 
 data class Arbeidserfaring(
@@ -231,6 +236,13 @@ data class Kurs(
     val omfangVerdi: Int?,
     val omfangEnhet: String?,
     val tilDato: ZonedDateTime?
+)
+
+data class AnnenErfaring(
+    val rolle: String,
+    val beskrivelse: String?,
+    val fraDato: ZonedDateTime,
+    val tilDato: ZonedDateTime?,
 )
 
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
@@ -280,6 +292,14 @@ private class KursDeserializer : StdDeserializer<List<Kurs>>(List::class.java) {
         return ctxt.readValue(parser, JsonNode::class.java)
             .filter { erString(it["tittel"]) }
             .map { it.tilKlasse(Kurs::class.java)}
+    }
+}
+
+private class AndreErfaringerDeserializer : StdDeserializer<List<AnnenErfaring>>(List::class.java) {
+    override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<AnnenErfaring> {
+        return ctxt.readValue(parser, JsonNode::class.java)
+            .filter { erString(it["rolle"]) }
+            .map { it.tilKlasse(AnnenErfaring::class.java)}
     }
 }
 
