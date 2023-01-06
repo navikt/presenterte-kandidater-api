@@ -241,7 +241,7 @@ data class Kurs(
 data class AnnenErfaring(
     val rolle: String,
     val beskrivelse: String?,
-    val fraDato: ZonedDateTime,
+    val fraDato: ZonedDateTime?,
     val tilDato: ZonedDateTime?,
 )
 

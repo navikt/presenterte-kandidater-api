@@ -141,7 +141,7 @@ object Testdata {
                                 ],
                                 "annenerfaringObj": [
                                     {
-                                        "fraDato": "2014-07-31T22:00:00.000+00:00",
+                                        "fraDato": null,
                                         "tilDato": null,
                                         "beskrivelse": null,
                                         "rolle": "Fotballtrener"
