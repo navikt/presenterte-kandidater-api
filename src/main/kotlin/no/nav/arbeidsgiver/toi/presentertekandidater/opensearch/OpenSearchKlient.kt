@@ -260,7 +260,7 @@ private abstract class TilStringlisteDeserializer(val felt: String) : StdDeseria
     class GodkjenningerDeserializer : TilStringlisteDeserializer("tittel")
 
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
-        return ctxt.readValue(parser, JsonNode::class.java).mapNotNull { it[felt].textValue() }
+        return ctxt.readValue(parser, JsonNode::class.java).mapNotNull { it[felt]?.textValue() }
     }
 }
 

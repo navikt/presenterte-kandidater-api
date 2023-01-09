@@ -111,6 +111,13 @@ object Testdata {
                                         "tittel": "Fagbrevtittel",
 							            "type": "Fagbrev/svennebrev",
                                         "beskrivelse": null
+						            },
+                                    {
+                                        "tittel": null,
+							            "type": "Fagbrev/svennebrev"
+						            },
+                                    {
+							            "type": "Fagbrev/svennebrev"
 						            }
 					            ],
                                 "godkjenninger": [
