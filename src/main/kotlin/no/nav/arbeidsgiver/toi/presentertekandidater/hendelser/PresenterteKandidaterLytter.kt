@@ -31,6 +31,7 @@ class PresenterteKandidaterLytter(
                 )
                 it.demandKey("kandidathendelse")
                 it.demandKey("stilling")
+                it.rejectValue("@slutt_av_hendelseskjede", true)
             }
         }.register(this)
 
@@ -77,6 +78,8 @@ class PresenterteKandidaterLytter(
                     kandidatlisteLukketCounter.increment()
                 }
             }
+            packet["@slutt_av_hendelseskjede"] = true
+            context.publish(packet.toJson())
         } catch (e: Exception) {
             log.error(
                 "Feil ved mottak av kandidathendelse. Dette må håndteres: ${e.message}.",
