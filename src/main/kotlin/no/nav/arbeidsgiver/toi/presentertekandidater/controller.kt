@@ -127,6 +127,9 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
                     val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
                     val kandidatDtoer = kandidater.map { KandidatDto(it, cver[it.aktørId]) }
 
+                    log("hentKandidatliste")
+                        .info("Henter kandidater for stilling $stillingId. Listen har ${kandidater.size} kandidater, og OpenSearch returnerte ${cver.filter { cv -> cv.value != null }.size} CV-er.")
+
                     context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
                 }
 
