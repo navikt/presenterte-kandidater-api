@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
@@ -31,6 +32,11 @@ class PresenterteKandidaterLytterTest {
             PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
             presenterteKandidaterService
         )
+    }
+
+    @BeforeEach
+    fun setUp() {
+        testRapid.reset()
     }
 
     private fun setUpLogWatcher() {
@@ -284,6 +290,57 @@ class PresenterteKandidaterLytterTest {
         assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Feil ved mottak av kandidathendelse. Dette må håndteres:")
     }
 
+    @Test
+    fun `Etter å ha lagret kandidatlisten skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+        assertThat(testRapid.inspektør.size).isEqualTo(1)
+        assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
+    }
+
+    @Test
+    fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+        assertThat(testRapid.inspektør.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal ikke lagre kandidatliste og kandidat når vi får melding om kandidathendelse med slutt_av_hendelseskjede satt til true`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+
+        // Verifiser kandidatliste
+        assertNull(repository.hentKandidatliste(stillingsId))
+    }
+
     private fun lagGyldigKandidatliste(stillingsId: UUID): Kandidatliste = Kandidatliste(
         id = null,
         uuid = UUID.randomUUID(),
@@ -299,6 +356,7 @@ class PresenterteKandidaterLytterTest {
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",
         stillingsId: UUID,
+        sluttkvittering: Boolean?= null,
     ) =
         """
             {
@@ -351,6 +409,7 @@ class PresenterteKandidaterLytterTest {
                 "opprettet": "2022-11-09T10:38:00.057867691",
                 "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
               }
+              ${if (sluttkvittering == null) "" else """, "@slutt_av_hendelseskjede": $sluttkvittering"""}
             }
         """.trimIndent()
 
