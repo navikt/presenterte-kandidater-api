@@ -114,6 +114,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
     fun lagBodyForHentingAvCver(aktørIder: List<String>) = """
         {
+            "size": 10000,
             "query": {
                 "terms": {
                     "aktorId": [
