@@ -7,23 +7,36 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PresenterteKandidaterLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
     lateinit var logWatcher: ListAppender<ILoggingEvent>
+    private val testRapid = TestRapid()
 
     @BeforeAll
     fun init() {
         startLocalApplication()
         setUpLogWatcher()
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+    }
+
+    @BeforeEach
+    fun setUp() {
+        testRapid.reset()
     }
 
     private fun setUpLogWatcher() {
@@ -42,11 +55,6 @@ class PresenterteKandidaterLytterTest {
 
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val kandidatliste =
             repository.hentKandidatliste(stillingsId)
         val kandidater = repository.hentKandidater(kandidatliste?.id!!)
@@ -77,11 +85,6 @@ class PresenterteKandidaterLytterTest {
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
 
         // Verifiser etter første melding
         val kandidatlisteEtterFørsteMelding = repository.hentKandidatliste(stillingsId)
@@ -129,11 +132,6 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `Skal lagre begge kandidater når vi får meldinger om kandidathendelser som gjelder samme kandidatliste`() {
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val stillingsId = UUID.randomUUID()
         val (aktørId1, aktørId2) = listOf("1234", "5678")
         val førsteMelding = meldingOmKandidathendelseDeltCv(aktørId = aktørId1, stillingsId = stillingsId)
@@ -162,11 +160,6 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `Når vi mottar kandidathendelse om en kandidatliste vi allerede har lagret, men med endrede opplysninger, skal den oppdateres`() {
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val stillingsId = UUID.randomUUID()
 
         val førsteAktørId = "2040897398605"
@@ -191,11 +184,6 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at lukket kandidatliste når ingen har fått jobben registreres med status LUKKET`() {
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val stillingsId = UUID.randomUUID()
         val aktørId = "1122334455"
         val meldingOmOpprettelseAvKandidatliste =
@@ -215,11 +203,6 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at lukket kandidatliste når noen fikk jobben registreres med status LUKKET`() {
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val stillingsId = UUID.randomUUID()
         val aktørId = "6655443322"
         val meldingOmOpprettelseAvKandidatliste =
@@ -239,11 +222,6 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at annullert kandidatliste registreres som slettet fra databasen`() {
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val stillingsId = UUID.randomUUID()
         val aktørId = "44556677"
         val meldingOmOpprettelseAvKandidatliste =
@@ -262,11 +240,6 @@ class PresenterteKandidaterLytterTest {
 
     @Test
     fun `test at kandidat slettes fra kandidatliste ved slettekandidathendelse`() {
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val stillingsId = UUID.randomUUID()
         val førsteAktørId = "44556677"
         val førsteStillingstittel = "Stilling hvis kandidat skal slettes fra!"
@@ -296,11 +269,6 @@ class PresenterteKandidaterLytterTest {
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         val kandidatliste = repository.hentKandidatliste(stillingsId)
 
         // Verifiser kandidatliste
@@ -317,15 +285,60 @@ class PresenterteKandidaterLytterTest {
 
         assertThrows<Exception> {
             testRapid.sendTestMessage(meldingSomVilFeile)
-
-            PresenterteKandidaterLytter(
-                testRapid,
-                PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-                presenterteKandidaterService
-            )
         }
         assertThat(logWatcher.list).isNotEmpty
         assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Feil ved mottak av kandidathendelse. Dette må håndteres:")
+    }
+
+    @Test
+    fun `Etter å ha lagret kandidatlisten skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+        assertThat(testRapid.inspektør.size).isEqualTo(1)
+        assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
+    }
+
+    @Test
+    fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+        assertThat(testRapid.inspektør.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `Skal ikke lagre kandidatliste og kandidat når vi får melding om kandidathendelse med slutt_av_hendelseskjede satt til true`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+
+        testRapid.sendTestMessage(melding)
+
+        PresenterteKandidaterLytter(
+            testRapid,
+            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
+            presenterteKandidaterService
+        )
+
+        // Verifiser kandidatliste
+        assertNull(repository.hentKandidatliste(stillingsId))
     }
 
     private fun lagGyldigKandidatliste(stillingsId: UUID): Kandidatliste = Kandidatliste(
@@ -343,6 +356,7 @@ class PresenterteKandidaterLytterTest {
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",
         stillingsId: UUID,
+        sluttkvittering: Boolean?= null,
     ) =
         """
             {
@@ -395,6 +409,7 @@ class PresenterteKandidaterLytterTest {
                 "opprettet": "2022-11-09T10:38:00.057867691",
                 "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
               }
+              ${if (sluttkvittering == null) "" else """, "@slutt_av_hendelseskjede": $sluttkvittering"""}
             }
         """.trimIndent()
 
