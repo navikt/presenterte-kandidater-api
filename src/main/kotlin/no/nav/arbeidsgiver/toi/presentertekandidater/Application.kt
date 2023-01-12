@@ -98,6 +98,8 @@ fun startApp(
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
     statistikkMetrikkJobb.start()
 
+    secureLog.info("Tester SecureLog")
+
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, prometheusRegistry, presenterteKandidaterService)
