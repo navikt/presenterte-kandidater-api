@@ -48,17 +48,29 @@ class SlettejobbTest {
     @Test
     fun `Skal slette kandidater som ble opprettet for 6 måneder siden`() {
         val seksMånederSiden = ZonedDateTime.now().minusMonths(6)
-        val nyKandidatliste = kandidatliste(UUID.randomUUID()).copy(opprettet = seksMånederSiden.minusDays(1))
-        repository.lagre(nyKandidatliste)
-        val kandidatliste = repository.hentKandidatliste(nyKandidatliste.stillingId)!!
+        val kandidatliste = repository.lagre(
+            kandidatliste(UUID.randomUUID()).copy(opprettet = seksMånederSiden.minusDays(1))
+        )
+        val kandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+        repository.lagre(kandidat)
+        settOpprettetTidspunkt(kandidat.aktørId, seksMånederSiden)
+        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
 
-        val kandidatSomSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
-        val kandidatSomIkkeSkalSlettes = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
-        repository.lagre(kandidatSomSkalSlettes)
-        repository.lagre(kandidatSomIkkeSkalSlettes)
-        settOpprettetTidspunkt(kandidatSomSkalSlettes.aktørId, seksMånederSiden)
-        settOpprettetTidspunkt(kandidatSomIkkeSkalSlettes.aktørId, seksMånederSiden.plusDays(1))
-        assertEquals(2, repository.hentKandidater(kandidatliste.id!!).size)
+        slettKandidaterOgKandidatlister(repository)
+
+        assertEquals(0, repository.hentKandidater(kandidatliste.id!!).size)
+    }
+
+    @Test
+    fun `Skal ikke slette kandidater som ble opprettet for under 6 måneder siden`() {
+        val seksMånederSiden = ZonedDateTime.now().minusMonths(6)
+        val kandidatliste = repository.lagre(
+            kandidatliste(UUID.randomUUID()).copy(opprettet = seksMånederSiden.minusDays(1))
+        )
+        val kandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+        repository.lagre(kandidat)
+        settOpprettetTidspunkt(kandidat.aktørId, seksMånederSiden.plusDays(1))
+        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
 
         slettKandidaterOgKandidatlister(repository)
 
