@@ -14,6 +14,11 @@ import kotlin.test.assertTrue
 class SlettejobbTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
 
+    @BeforeAll
+    fun beforeAll() {
+        kjørFlywayMigreringer(dataSource)
+    }
+
     @Test
     fun `Slettejobb skal slette tomme kandidatlister som ikke er endret på 6mnd`() {
         var kandidatlisteSomSkalSlettes = kandidatliste(UUID.randomUUID()).copy(
