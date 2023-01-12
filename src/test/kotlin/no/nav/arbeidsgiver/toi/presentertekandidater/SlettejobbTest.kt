@@ -18,7 +18,7 @@ class SlettejobbTest {
 
     @BeforeAll
     fun beforeAll() {
-        startLocalApplication()
+        kjørFlywayMigreringer(dataSource)
     }
 
     @Test
