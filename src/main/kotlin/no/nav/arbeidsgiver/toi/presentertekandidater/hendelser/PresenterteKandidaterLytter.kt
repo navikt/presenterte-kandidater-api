@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.arbeidsgiver.toi.presentertekandidater.secureLog
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
@@ -51,7 +52,8 @@ class PresenterteKandidaterLytter(
             val kandidathendelsePacket = packet["kandidathendelse"]
             val kandidathendelse = objectMapper.treeToValue(kandidathendelsePacket, Kandidathendelse::class.java)
 
-            log.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
+            log.info("Mottok event ${kandidathendelse.type}. Se SecureLog for aktørId")
+            secureLog.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
 
             when (kandidathendelse.type) {
                 Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
