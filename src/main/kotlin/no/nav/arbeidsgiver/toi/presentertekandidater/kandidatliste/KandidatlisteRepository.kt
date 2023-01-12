@@ -191,13 +191,13 @@ class KandidatlisteRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun hentKandidaterSomIkkeErEndretSiden(dato: ZonedDateTime): List<Kandidat> {
+    fun hentKandidaterOpprettetFør(dato: ZonedDateTime): List<Kandidat> {
         dataSource.connection.use {
             it.prepareStatement(
                 """
                 |select *
                 |from kandidat k 
-                |where k.sist_endret < ?
+                |where k.opprettet < ?
                 |""".trimMargin()
             ).apply {
                 this.setTimestamp(1, Timestamp(dato.toInstant().toEpochMilli()))
