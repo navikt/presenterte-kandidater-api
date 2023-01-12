@@ -83,14 +83,15 @@ class SlettejobbTest {
     }
 
     private fun settOpprettetTidspunkt(aktørId: String, opprettetTidspunkt: ZonedDateTime) {
-        dataSource.connection.prepareStatement("""
-            update kandidat
-            set opprettet = ?
-            where aktør_id = ?
-        """.trimIndent()).use {
-            it.setTimestamp(1, Timestamp(opprettetTidspunkt.toInstant().toEpochMilli()))
-            it.setString(2, aktørId)
-            it.execute()
+        dataSource.connection.use {
+            it.prepareStatement("""
+                update kandidat
+                set opprettet = ?
+                where aktør_id = ?
+            """.trimIndent()).apply {
+                setTimestamp(1, Timestamp(opprettetTidspunkt.toInstant().toEpochMilli()))
+                setString(2, aktørId)
+            }.execute()
         }
     }
 }
