@@ -34,6 +34,8 @@ spec:
     requests:
       cpu: 200m
       memory: 512Mi
+  secureLogs:
+    enabled: true
   openSearch:
     access: read
     instance: kandidat

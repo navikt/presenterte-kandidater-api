@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.arbeidsgiver.toi.presentertekandidater.secureLog
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -20,7 +21,7 @@ fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: Kandidatliste
 }
 
 fun slettKandidaterOgKandidatlister(repository: KandidatlisteRepository) {
-    log.info("Starter periodisk slettej≈obb for kandidater og kandidatlister")
+    log.info("Starter periodisk slettejobb for kandidater og kandidatlister")
     slettKandidater(repository)
     slettKandidatlister(repository)
 }
@@ -32,7 +33,8 @@ private fun slettKandidater(repository: KandidatlisteRepository) {
     log.info("Skal slette ${kandidater.size} kandidater")
     kandidater.forEach { kandidat ->
         repository.slettKandidat(kandidat.id!!)
-        log.info("Slettet kandidat med aktørId ${kandidat.aktørId} for kandidatlisteId ${kandidat.kandidatlisteId} på grunn av periodisk sletteregel.")
+        log.info("Slettet kandidat fra kandidatliste med kandidatlisteId ${kandidat.kandidatlisteId} på grunn av periodisk sletteregel. Se SecureLog for aktørId.")
+        secureLog.info("Slettet kandidat med aktørId ${kandidat.aktørId} fra kandidatliste med kandidatlisteId ${kandidat.kandidatlisteId} pga. sletteregel")
     }
 }
 

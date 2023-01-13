@@ -41,10 +41,12 @@ fun startController(
             Rolle.EKSTERN_ARBEIDSGIVER
         )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
-        log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
+        log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input. Se SecureLog for stacktrace.")
+        secureLog.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
     }.exception(Exception::class.java) { e, ctx ->
-        log("controller").error("Kall mot ${ctx.path()} førte til en ukjent feil.", e)
+        log("controller").error("Kall mot ${ctx.path()} førte til en ukjent feil. Se SecureLog for stacktrace.")
+        secureLog.error("Kall mot ${ctx.path()} førte til en ukjent feil.", e)
         ctx.status(500)
     }
 }
@@ -198,8 +200,9 @@ fun Context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer: String) {
     val representererVirksomhet =
         virksomhetsnummer in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
     if (!representererVirksomhet) {
-        log.info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
-        throw ForbiddenResponse("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
+        log.info("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet. Se virksomhetsnummer i SecureLog")
+        secureLog.info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
+        throw ForbiddenResponse("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet")
     }
 }
 
