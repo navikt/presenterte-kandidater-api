@@ -27,7 +27,7 @@ fun slettKandidaterOgKandidatlister(repository: KandidatlisteRepository) {
 }
 
 private fun slettKandidater(repository: KandidatlisteRepository) {
-    val kandidater = repository.hentKandidaterSomIkkeErEndretSiden(seksMånederSiden())
+    val kandidater = repository.hentKandidaterOpprettetFør(seksMånederSiden())
 
     if (kandidater.isEmpty()) return
     log.info("Skal slette ${kandidater.size} kandidater")
