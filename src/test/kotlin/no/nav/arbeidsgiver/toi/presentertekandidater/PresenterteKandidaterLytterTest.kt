@@ -20,7 +20,7 @@ import kotlin.test.assertNull
 class PresenterteKandidaterLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
-    lateinit var logWatcher: ListAppender<ILoggingEvent>
+    private lateinit var logWatcher: ListAppender<ILoggingEvent>
     private val testRapid = TestRapid()
 
     @BeforeAll
@@ -128,6 +128,38 @@ class PresenterteKandidaterLytterTest {
         assertThat(kandidatEtterAndreMelding.aktørId).isEqualTo(aktørId)
         assertThat(kandidatEtterAndreMelding.kandidatlisteId).isEqualTo(kandidatEtterAndreMelding.kandidatlisteId)
         assertNotNull(kandidatEtterAndreMelding.uuid)
+    }
+
+    @Test
+    fun `Skal sende notifikasjonsmelding når CV-delt-melding mottas`() {
+        val melding = meldingOmKandidathendelseDeltCvMedVeilederOgEpostFelter(aktørId = "dummyAktørId12345")
+
+        testRapid.sendTestMessage(melding)
+
+        val inspektør = testRapid.inspektør
+        assertThat(inspektør.size).isOne
+        val notifikasjonsmelding = inspektør.message(0).asText()
+        assertThat(notifikasjonsmelding).isEqualTo("""
+              "@event_name": "notifikasjon.cv-delt",
+              "notifikasjonsId": "656028f2-d031-4d53-8a44-156efc1a2385-2022-11-09T10:37:45.108+01:00",
+              "stillingsId": "656028f2-d031-4d53-8a44-156efc1a2385",
+              "virksomhetsnummer": "912998827",
+              "utførendeVeilederFornavn": "Veileder",
+              "utførendeVeilederEtternavn": "Veiledersen"
+              "mottakerEpost": "test@testepost.no",
+        """.trimIndent())
+    }
+
+    @Test
+    fun `Hvis noe feiler ved mottak av kandidathendelse skal det ikke publiseres notifikasjonsmelding`() {
+        val stillingsIdSomVilFeile = "ikke-gyldig-UUID"
+
+        val meldingSomVilFeile = meldingSomKanFeileVedUgyldigStillingsId(stillingsId = stillingsIdSomVilFeile)
+
+        assertThrows<Exception> {
+            testRapid.sendTestMessage(meldingSomVilFeile)
+        }
+        assertThat(testRapid.inspektør.size).isZero
     }
 
     @Test
@@ -351,6 +383,47 @@ class PresenterteKandidaterLytterTest {
         ZonedDateTime.now(),
         ZonedDateTime.now()
     )
+
+    private fun meldingOmKandidathendelseDeltCvMedVeilederOgEpostFelter(
+        aktørId: String,
+        stillingstittel: String = "Noen skal få denne jobben!",
+        stillingsId: UUID = UUID.randomUUID(),
+    ) =
+        """
+            {
+              "@event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
+              "kandidathendelse": {
+                "type": "CV_DELT_VIA_REKRUTTERINGSBISTAND",
+                "aktørId": "$aktørId",
+                "organisasjonsnummer": "912998827",
+                "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
+                "tidspunkt": "2022-11-09T10:37:45.108+01:00",
+                "stillingsId": "$stillingsId",
+                "utførtAvNavIdent": "Z994633",
+                "utførtAvNavKontorKode": "0313",
+                "synligKandidat": true,
+                "harHullICv": true,
+                "alder": 27,
+                "tilretteleggingsbehov": [],
+                "utførendeVeilederFornavn": "Veileder",
+                "utførendeVeilederEtternavn": "Veiledersen"
+                "mottakerEpost": "test@testepost.no",
+              },
+              "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+              "@opprettet": "2022-11-09T10:38:02.181523695",
+              "system_read_count": 0,
+              "stillingsinfo": {
+                "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
+                "stillingsid": "$stillingsId",
+                "eier": null,
+                "notat": null,
+                "stillingskategori": "STILLING"
+              },
+              "stilling": {
+                "stillingstittel": "$stillingstittel"
+              }
+            }
+        """.trimIndent()
 
     private fun meldingOmKandidathendelseDeltCv(
         aktørId: String,
