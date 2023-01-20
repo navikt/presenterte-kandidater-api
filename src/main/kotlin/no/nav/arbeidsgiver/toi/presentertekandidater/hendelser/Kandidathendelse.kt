@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
+import com.fasterxml.jackson.annotation.JsonAlias
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -11,6 +12,12 @@ data class Kandidathendelse(
     val stillingsId: UUID,
     val utførtAvNavIdent: String? = null,
     val utførtAvNavKontorKode: String? = null,
+)
+
+data class CvDeltData(
+    val utførendeVeilederFornavn: String,
+    val utførendeVeilederEtternavn: String,
+    val mottakerEpost: String,
 )
 
 enum class Type(private val eventNamePostfix: String) {

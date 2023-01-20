@@ -2,8 +2,13 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
@@ -22,6 +27,8 @@ class PresenterteKandidaterLytterTest {
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
     private lateinit var logWatcher: ListAppender<ILoggingEvent>
     private val testRapid = TestRapid()
+    private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     @BeforeAll
     fun init() {
@@ -29,6 +36,7 @@ class PresenterteKandidaterLytterTest {
         setUpLogWatcher()
         PresenterteKandidaterLytter(
             testRapid,
+            NotifikasjonPubliserer(testRapid),
             PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
             presenterteKandidaterService
         )
@@ -131,35 +139,27 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `Skal sende notifikasjonsmelding når CV-delt-melding mottas`() {
-        val melding = meldingOmKandidathendelseDeltCvMedVeilederOgEpostFelter(aktørId = "dummyAktørId12345")
+    fun `Skal sende notifikasjonsmelding når CV-delt-melding med CvDeltData mottas`() {
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseMedCvDeltData(aktørId = "2210897398605", stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
 
         val inspektør = testRapid.inspektør
-        assertThat(inspektør.size).isOne
-        val notifikasjonsmelding = inspektør.message(0).asText()
-        assertThat(notifikasjonsmelding).isEqualTo("""
-              "@event_name": "notifikasjon.cv-delt",
-              "notifikasjonsId": "656028f2-d031-4d53-8a44-156efc1a2385-2022-11-09T10:37:45.108+01:00",
-              "stillingsId": "656028f2-d031-4d53-8a44-156efc1a2385",
-              "virksomhetsnummer": "912998827",
-              "utførendeVeilederFornavn": "Veileder",
-              "utførendeVeilederEtternavn": "Veiledersen"
-              "mottakerEpost": "test@testepost.no",
-        """.trimIndent())
+        assertThat(inspektør.size).isEqualTo(2) // Andre melding er for @slutt_av_hendelseskjede
+        val notifikasjonsmeldingjJsonNode = inspektør.message(0)
+        assertThat(notifikasjonsmeldingjJsonNode["@event_name"].asText()).isEqualTo("notifikasjon.cv-delt")
+        assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("656028f2-d031-4d53-8a44-156efc1a2385-2022-11-09T10:37:45.108+01:00")
+        assertThat(notifikasjonsmeldingjJsonNode["stillingsId"].asText()).isEqualTo(stillingsId)
+        assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("912998827")
+        assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederFornavn"].asText()).isEqualTo("Veileder")
+        assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
+        assertThat(notifikasjonsmeldingjJsonNode["mottakerEpost"].asText()).isEqualTo("test@testepost.no")
     }
 
     @Test
-    fun `Hvis noe feiler ved mottak av kandidathendelse skal det ikke publiseres notifikasjonsmelding`() {
-        val stillingsIdSomVilFeile = "ikke-gyldig-UUID"
-
-        val meldingSomVilFeile = meldingSomKanFeileVedUgyldigStillingsId(stillingsId = stillingsIdSomVilFeile)
-
-        assertThrows<Exception> {
-            testRapid.sendTestMessage(meldingSomVilFeile)
-        }
-        assertThat(testRapid.inspektør.size).isZero
+    fun `Hvis databaselarging feiler ved mottak av kandidathendelse skal det ikke publiseres notifikasjonsmelding`() {
+        TODO("IKKE IMPLEMENTERT")
     }
 
     @Test
@@ -330,11 +330,6 @@ class PresenterteKandidaterLytterTest {
 
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         assertThat(testRapid.inspektør.size).isEqualTo(1)
         assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
     }
@@ -347,11 +342,6 @@ class PresenterteKandidaterLytterTest {
 
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         assertThat(testRapid.inspektør.size).isEqualTo(0)
     }
 
@@ -362,12 +352,6 @@ class PresenterteKandidaterLytterTest {
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
 
         testRapid.sendTestMessage(melding)
-
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
 
         // Verifiser kandidatliste
         assertNull(repository.hentKandidatliste(stillingsId))
@@ -384,12 +368,12 @@ class PresenterteKandidaterLytterTest {
         ZonedDateTime.now()
     )
 
-    private fun meldingOmKandidathendelseDeltCvMedVeilederOgEpostFelter(
+    private fun meldingOmKandidathendelseMedCvDeltData(
         aktørId: String,
-        stillingstittel: String = "Noen skal få denne jobben!",
-        stillingsId: UUID = UUID.randomUUID(),
+        stillingsId: UUID
     ) =
         """
+            
             {
               "@event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
               "kandidathendelse": {
@@ -406,12 +390,28 @@ class PresenterteKandidaterLytterTest {
                 "alder": 27,
                 "tilretteleggingsbehov": [],
                 "utførendeVeilederFornavn": "Veileder",
-                "utførendeVeilederEtternavn": "Veiledersen"
-                "mottakerEpost": "test@testepost.no",
+                "utførendeVeilederEtternavn": "Veiledersen",
+                "mottakerEpost": "test@testepost.no"
               },
               "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
               "@opprettet": "2022-11-09T10:38:02.181523695",
               "system_read_count": 0,
+              "system_participating_services": [
+                {
+                  "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                  "time": "2022-11-09T10:38:00.057867691",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                },
+                {
+                  "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+                  "time": "2022-11-09T10:38:02.181523695",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                }
+              ],
               "stillingsinfo": {
                 "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
                 "stillingsid": "$stillingsId",
@@ -420,7 +420,12 @@ class PresenterteKandidaterLytterTest {
                 "stillingskategori": "STILLING"
               },
               "stilling": {
-                "stillingstittel": "$stillingstittel"
+                "stillingstittel": "Noen skal få denne jobben!"
+              },
+              "@forårsaket_av": {
+                "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                "opprettet": "2022-11-09T10:38:00.057867691",
+                "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
               }
             }
         """.trimIndent()

@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
@@ -14,7 +15,8 @@ import no.nav.helse.rapids_rivers.River
 
 class PresenterteKandidaterLytter(
     rapidsConnection: RapidsConnection,
-    private val prometheusRegistry: MeterRegistry,
+    private val notifikasjonPubliserer: NotifikasjonPubliserer,
+    prometheusRegistry: MeterRegistry,
     private val presenterteKandidaterService: PresenterteKandidaterService,
 
     ) : River.PacketListener {
@@ -59,6 +61,10 @@ class PresenterteKandidaterLytter(
                 Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
                     val stillingstittel = packet["stilling"]["stillingstittel"].asText()
                     presenterteKandidaterService.lagreCvDeltHendelse(kandidathendelse, stillingstittel)
+
+                    hentCvDeltData(kandidathendelsePacket)?.also {
+                        notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, it)
+                    }
                     cvDeltCounter.increment()
                 }
 
@@ -88,6 +94,15 @@ class PresenterteKandidaterLytter(
                 e
             )
             throw e
+        }
+    }
+
+    private fun hentCvDeltData(kandidathendelsePacket: JsonNode): CvDeltData? {
+        return try {
+            objectMapper.treeToValue(kandidathendelsePacket, CvDeltData::class.java)
+        } catch (e: Exception) {
+            log.info("Kunne ikke hente CvDeltData fra kandidathendelseJson")
+            null
         }
     }
 }
