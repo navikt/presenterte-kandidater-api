@@ -149,7 +149,7 @@ class PresenterteKandidaterLytterTest {
         assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederFornavn"].asText()).isEqualTo("Veileder")
         assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
         assertThat(notifikasjonsmeldingjJsonNode["mottakerEpost"].asText()).isEqualTo("test@testepost.no")
-        assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"].asBoolean()).isFalse
+        assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
     }
 
     @Test
@@ -327,7 +327,7 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `Etter å ha lagret kandidatlisten skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
+    fun `Etter å ha lagret CV_DELT uten å sende notifikasjonsmelding skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)

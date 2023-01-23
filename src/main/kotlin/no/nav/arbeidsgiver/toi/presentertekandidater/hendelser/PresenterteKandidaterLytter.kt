@@ -57,15 +57,21 @@ class PresenterteKandidaterLytter(
             log.info("Mottok event ${kandidathendelse.type}. Se SecureLog for aktørId")
             secureLog.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
 
-            when (kandidathendelse.type) {
+            val harPublisertNyMeldingPåRapid = when (kandidathendelse.type) {
                 Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
                     val stillingstittel = packet["stilling"]["stillingstittel"].asText()
                     presenterteKandidaterService.lagreCvDeltHendelse(kandidathendelse, stillingstittel)
-
-                    hentCvDeltData(kandidathendelsePacket)?.also {
-                        notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, it)
-                    }
                     cvDeltCounter.increment()
+
+                    val cvDeltData = hentCvDeltData(kandidathendelsePacket)
+
+                    val harSendtNotifikasjonsmelding = if (cvDeltData != null) {
+                        notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, cvDeltData)
+                        true
+                    } else {
+                        false
+                    }
+                    harSendtNotifikasjonsmelding
                 }
 
                 Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE -> {
@@ -74,21 +80,26 @@ class PresenterteKandidaterLytter(
                         kandidathendelse.stillingsId
                     )
                     cvSlettetCounter.increment()
+                    false
                 }
 
                 Type.ANNULLERT -> {
                     presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
                     annullertCounter.increment()
+                    false
                 }
 
                 Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> {
                     presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
                     kandidatlisteLukketCounter.increment()
+                    false
                 }
             }
-            // TODO: Ikke alltid sant
-            packet["@slutt_av_hendelseskjede"] = true
-            context.publish(packet.toJson())
+
+            if (!harPublisertNyMeldingPåRapid) {
+                packet["@slutt_av_hendelseskjede"] = true
+                context.publish(packet.toJson())
+            }
         } catch (e: Exception) {
             log.error(
                 "Feil ved mottak av kandidathendelse. Dette må håndteres: ${e.message}.",
