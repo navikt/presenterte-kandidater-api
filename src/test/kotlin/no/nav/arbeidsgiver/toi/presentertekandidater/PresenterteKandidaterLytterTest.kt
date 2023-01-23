@@ -2,10 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
@@ -27,8 +23,6 @@ class PresenterteKandidaterLytterTest {
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
     private lateinit var logWatcher: ListAppender<ILoggingEvent>
     private val testRapid = TestRapid()
-    private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     @BeforeAll
     fun init() {
@@ -146,20 +140,30 @@ class PresenterteKandidaterLytterTest {
         testRapid.sendTestMessage(melding)
 
         val inspektør = testRapid.inspektør
-        assertThat(inspektør.size).isEqualTo(2) // Andre melding er for @slutt_av_hendelseskjede
+        assertThat(inspektør.size).isEqualTo(1)
         val notifikasjonsmeldingjJsonNode = inspektør.message(0)
         assertThat(notifikasjonsmeldingjJsonNode["@event_name"].asText()).isEqualTo("notifikasjon.cv-delt")
-        assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("656028f2-d031-4d53-8a44-156efc1a2385-2022-11-09T10:37:45.108+01:00")
-        assertThat(notifikasjonsmeldingjJsonNode["stillingsId"].asText()).isEqualTo(stillingsId)
+        assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("$stillingsId-2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
+        assertThat(notifikasjonsmeldingjJsonNode["stillingsId"].asText()).isEqualTo(stillingsId.toString())
         assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("912998827")
         assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederFornavn"].asText()).isEqualTo("Veileder")
         assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
         assertThat(notifikasjonsmeldingjJsonNode["mottakerEpost"].asText()).isEqualTo("test@testepost.no")
+        assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"].asBoolean()).isFalse
     }
 
     @Test
-    fun `Hvis databaselarging feiler ved mottak av kandidathendelse skal det ikke publiseres notifikasjonsmelding`() {
-        TODO("IKKE IMPLEMENTERT")
+    fun `Hvis databaselagring feiler ved mottak av kandidathendelse skal det ikke publiseres notifikasjonsmelding`() {
+        val melding = meldingOmKandidathendelseMedCvDeltData(
+            aktørId = "UGYLDIG_AKTØR_ID_SOM_ER_ALTFOR_LANG_FOR_DB",
+            stillingsId = UUID.randomUUID()
+        )
+
+        assertThrows<Exception> {
+            testRapid.sendTestMessage(melding)
+        }
+
+        assertThat(testRapid.inspektør.size).isEqualTo(0)
     }
 
     @Test
@@ -338,7 +342,8 @@ class PresenterteKandidaterLytterTest {
     fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+        val melding =
+            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
 
         testRapid.sendTestMessage(melding)
 
@@ -349,7 +354,8 @@ class PresenterteKandidaterLytterTest {
     fun `Skal ikke lagre kandidatliste og kandidat når vi får melding om kandidathendelse med slutt_av_hendelseskjede satt til true`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+        val melding =
+            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
 
         testRapid.sendTestMessage(melding)
 
@@ -434,7 +440,7 @@ class PresenterteKandidaterLytterTest {
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",
         stillingsId: UUID,
-        sluttkvittering: Boolean?= null,
+        sluttkvittering: Boolean? = null,
     ) =
         """
             {

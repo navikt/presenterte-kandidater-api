@@ -86,6 +86,7 @@ class PresenterteKandidaterLytter(
                     kandidatlisteLukketCounter.increment()
                 }
             }
+            // TODO: Ikke alltid sant
             packet["@slutt_av_hendelseskjede"] = true
             context.publish(packet.toJson())
         } catch (e: Exception) {
