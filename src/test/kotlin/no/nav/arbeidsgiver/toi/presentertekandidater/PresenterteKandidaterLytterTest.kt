@@ -146,9 +146,9 @@ class PresenterteKandidaterLytterTest {
         assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("$stillingsId-2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
         assertThat(notifikasjonsmeldingjJsonNode["stillingsId"].asText()).isEqualTo(stillingsId.toString())
         assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("912998827")
-        assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederFornavn"].asText()).isEqualTo("Veileder")
-        assertThat(notifikasjonsmeldingjJsonNode["utførendeVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
-        assertThat(notifikasjonsmeldingjJsonNode["mottakerEpost"].asText()).isEqualTo("test@testepost.no")
+        assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederFornavn"].asText()).isEqualTo("Veileder")
+        assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
+        assertThat(notifikasjonsmeldingjJsonNode["epostAdresseArbeidsgiver"].asText()).isEqualTo("test@testepost.no")
         assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
     }
 
@@ -395,9 +395,9 @@ class PresenterteKandidaterLytterTest {
                 "harHullICv": true,
                 "alder": 27,
                 "tilretteleggingsbehov": [],
-                "utførendeVeilederFornavn": "Veileder",
-                "utførendeVeilederEtternavn": "Veiledersen",
-                "mottakerEpost": "test@testepost.no"
+                "utførtAvVeilederFornavn": "Veileder",
+                "utførtAvVeilederEtternavn": "Veiledersen",
+                "epostAdresseArbeidsgiver": "test@testepost.no"
               },
               "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
               "@opprettet": "2022-11-09T10:38:02.181523695",

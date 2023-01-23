@@ -14,9 +14,9 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
                 "notifikasjonsId": "$notifikasjonsId",
                 "stillingsId": "${kandidathendelse.stillingsId}",
                 "virksomhetsnummer": "${kandidathendelse.organisasjonsnummer}",
-                "utførendeVeilederFornavn": "${cvDeltData.utførendeVeilederFornavn}",
-                "utførendeVeilederEtternavn": "${cvDeltData.utførendeVeilederEtternavn}",
-                "mottakerEpost": "${cvDeltData.mottakerEpost}"
+                "utførtAvVeilederFornavn": "${cvDeltData.utførtAvVeilederFornavn}",
+                "utførtAvVeilederEtternavn": "${cvDeltData.utførtAvVeilederEtternavn}",
+                "epostAdresseArbeidsgiver": "${cvDeltData.epostAdresseArbeidsgiver}"
             }
         """.trimIndent()
         rapidsConnection.publish(notifikasjonsId, melding)
