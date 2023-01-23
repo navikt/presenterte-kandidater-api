@@ -19,6 +19,6 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
                 "epostAdresseArbeidsgiver": "${cvDeltData.epostAdresseArbeidsgiver}"
             }
         """.trimIndent()
-        rapidsConnection.publish(notifikasjonsId, melding)
+        rapidsConnection.publish(kandidathendelse.stillingsId.toString(), melding)
     }
 }
