@@ -41,17 +41,13 @@ colima start
 
 ## For Nav-ansatte
 
-- Dette Git-repositoriet eies
-  av [Team inkludering i Produktområde arbeidsgiver](https://navno.sharepoint.com/sites/intranett-prosjekter-og-utvikling/SitePages/Produktomr%C3%A5de-arbeidsgiver.aspx)
-  .
-- Slack-kanaler:
-    - [#arbeidsgiver-toi-dev](https://nav-it.slack.com/archives/C02HTU8DBSR)
-    - [#arbeidsgiver-utvikling](https://nav-it.slack.com/archives/CD4MES6BB)
-    - [#arbeidsgiver-general](https://nav-it.slack.com/archives/CCM649PDH)
+* Dette Git-repositoriet eies
+  av [team Toi i produktområde Arbeidsgiver](https://teamkatalog.nav.no/team/76f378c5-eb35-42db-9f4d-0e8197be0131).
+* Slack-kanaler:
+    * [#arbeidsgiver-toi-dev](https://nav-it.slack.com/archives/C02HTU8DBSR)
+    * [#rekrutteringsbistand-værsågod](https://nav-it.slack.com/archives/C02HWV01P54)
 
 ## For folk utenfor Nav
 
-- Opprett gjerne en issue i Github for alle typer spørsmål
-- IT-utviklerne i Github-teamet https://github.com/orgs/navikt/teams/arbeidsgiver-inkludering
-- IT-avdelingen
-  i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
+
