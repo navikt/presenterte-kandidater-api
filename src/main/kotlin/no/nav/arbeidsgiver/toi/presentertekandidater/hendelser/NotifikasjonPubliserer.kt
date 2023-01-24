@@ -7,12 +7,14 @@ import java.time.ZoneId
 class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
 
     fun publiserNotifikasjonForCvDelt(kandidathendelse: Kandidathendelse, cvDeltData: CvDeltData) {
-        val notifikasjonsId = "${kandidathendelse.stillingsId}-${kandidathendelse.tidspunkt.withZoneSameInstant(ZoneId.of("Europe/Oslo"))}"
+        val tidspunkt = kandidathendelse.tidspunkt.withZoneSameInstant(ZoneId.of("Europe/Oslo"))
+        val notifikasjonsId = "${kandidathendelse.stillingsId}-$tidspunkt"
         val melding = """
             {
                 "@event_name": "notifikasjon.cv-delt",
                 "notifikasjonsId": "$notifikasjonsId",
                 "stillingsId": "${kandidathendelse.stillingsId}",
+                "tidspunktForHendelse": "$tidspunkt",
                 "virksomhetsnummer": "${kandidathendelse.organisasjonsnummer}",
                 "utførtAvVeilederFornavn": "${cvDeltData.utførtAvVeilederFornavn}",
                 "utførtAvVeilederEtternavn": "${cvDeltData.utførtAvVeilederEtternavn}",

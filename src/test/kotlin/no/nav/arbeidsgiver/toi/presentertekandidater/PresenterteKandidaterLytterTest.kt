@@ -149,6 +149,7 @@ class PresenterteKandidaterLytterTest {
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederFornavn"].asText()).isEqualTo("Veileder")
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
         assertThat(notifikasjonsmeldingjJsonNode["epostAdresseArbeidsgiver"].asText()).isEqualTo("test@testepost.no")
+        assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
         assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
     }
 
