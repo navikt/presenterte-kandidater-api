@@ -148,7 +148,7 @@ class PresenterteKandidaterLytterTest {
         assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("912998827")
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederFornavn"].asText()).isEqualTo("Veileder")
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
-        assertThat(notifikasjonsmeldingjJsonNode["epostAdresseArbeidsgiver"].asText()).isEqualTo("test@testepost.no")
+        assertThat(notifikasjonsmeldingjJsonNode["arbeidsgiversEpostadresser"].toList().map { it.asText() }).containsExactlyInAnyOrder("test@testepost.no", "m@m.no")
         assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
         assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
     }
@@ -398,7 +398,7 @@ class PresenterteKandidaterLytterTest {
                 "tilretteleggingsbehov": [],
                 "utførtAvVeilederFornavn": "Veileder",
                 "utførtAvVeilederEtternavn": "Veiledersen",
-                "epostAdresseArbeidsgiver": "test@testepost.no"
+                "arbeidsgiversEpostadresser": ["test@testepost.no", "m@m.no"]
               },
               "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
               "@opprettet": "2022-11-09T10:38:02.181523695",

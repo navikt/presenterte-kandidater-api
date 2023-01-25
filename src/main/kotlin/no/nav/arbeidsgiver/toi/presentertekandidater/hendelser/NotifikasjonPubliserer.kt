@@ -9,6 +9,7 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
     fun publiserNotifikasjonForCvDelt(kandidathendelse: Kandidathendelse, cvDeltData: CvDeltData) {
         val tidspunkt = kandidathendelse.tidspunkt.withZoneSameInstant(ZoneId.of("Europe/Oslo"))
         val notifikasjonsId = "${kandidathendelse.stillingsId}-$tidspunkt"
+
         val melding = """
             {
                 "@event_name": "notifikasjon.cv-delt",
@@ -18,7 +19,7 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
                 "virksomhetsnummer": "${kandidathendelse.organisasjonsnummer}",
                 "utførtAvVeilederFornavn": "${cvDeltData.utførtAvVeilederFornavn}",
                 "utførtAvVeilederEtternavn": "${cvDeltData.utførtAvVeilederEtternavn}",
-                "epostAdresseArbeidsgiver": "${cvDeltData.epostAdresseArbeidsgiver}"
+                "arbeidsgiversEpostadresser": ${cvDeltData.arbeidsgiversEpostadresser.map { "\"$it\"" }}
             }
         """.trimIndent()
         rapidsConnection.publish(kandidathendelse.stillingsId.toString(), melding)

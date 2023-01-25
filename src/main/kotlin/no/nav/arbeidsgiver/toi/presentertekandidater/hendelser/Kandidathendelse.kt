@@ -16,7 +16,7 @@ data class Kandidathendelse(
 data class CvDeltData(
     val utførtAvVeilederFornavn: String,
     val utførtAvVeilederEtternavn: String,
-    val epostAdresseArbeidsgiver: String,
+    val arbeidsgiversEpostadresser: List<String>,
 )
 
 enum class Type(private val eventNamePostfix: String) {
