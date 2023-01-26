@@ -17,6 +17,8 @@ data class CvDeltData(
     val utførtAvVeilederFornavn: String,
     val utførtAvVeilederEtternavn: String,
     val arbeidsgiversEpostadresser: List<String>,
+    val meldingTilArbeidsgiver: String,
+    val stillingstittel: String
 )
 
 enum class Type(private val eventNamePostfix: String) {
