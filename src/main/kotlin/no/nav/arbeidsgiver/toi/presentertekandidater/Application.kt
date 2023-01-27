@@ -10,6 +10,7 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.prometheus.client.exporter.common.TextFormat
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
@@ -100,7 +101,7 @@ fun startApp(
 
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
-        PresenterteKandidaterLytter(it, prometheusRegistry, presenterteKandidaterService)
+        PresenterteKandidaterLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         log("Application").info("Startet lytter")
     }.start()
 }

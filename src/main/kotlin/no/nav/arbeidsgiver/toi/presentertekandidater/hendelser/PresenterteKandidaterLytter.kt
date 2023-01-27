@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
@@ -14,7 +15,8 @@ import no.nav.helse.rapids_rivers.River
 
 class PresenterteKandidaterLytter(
     rapidsConnection: RapidsConnection,
-    private val prometheusRegistry: MeterRegistry,
+    private val notifikasjonPubliserer: NotifikasjonPubliserer,
+    prometheusRegistry: MeterRegistry,
     private val presenterteKandidaterService: PresenterteKandidaterService,
 
     ) : River.PacketListener {
@@ -55,11 +57,21 @@ class PresenterteKandidaterLytter(
             log.info("Mottok event ${kandidathendelse.type}. Se SecureLog for aktørId")
             secureLog.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
 
-            when (kandidathendelse.type) {
+            val harPublisertNyMeldingPåRapid = when (kandidathendelse.type) {
                 Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
                     val stillingstittel = packet["stilling"]["stillingstittel"].asText()
                     presenterteKandidaterService.lagreCvDeltHendelse(kandidathendelse, stillingstittel)
                     cvDeltCounter.increment()
+
+                    val cvDeltData = hentCvDeltData(kandidathendelsePacket)
+
+                    val harSendtNotifikasjonsmelding = if (cvDeltData != null) {
+                        notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, cvDeltData)
+                        true
+                    } else {
+                        false
+                    }
+                    harSendtNotifikasjonsmelding
                 }
 
                 Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE -> {
@@ -68,26 +80,41 @@ class PresenterteKandidaterLytter(
                         kandidathendelse.stillingsId
                     )
                     cvSlettetCounter.increment()
+                    false
                 }
 
                 Type.ANNULLERT -> {
                     presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
                     annullertCounter.increment()
+                    false
                 }
 
                 Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> {
                     presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
                     kandidatlisteLukketCounter.increment()
+                    false
                 }
             }
-            packet["@slutt_av_hendelseskjede"] = true
-            context.publish(packet.toJson())
+
+            if (!harPublisertNyMeldingPåRapid) {
+                packet["@slutt_av_hendelseskjede"] = true
+                context.publish(packet.toJson())
+            }
         } catch (e: Exception) {
             log.error(
                 "Feil ved mottak av kandidathendelse. Dette må håndteres: ${e.message}.",
                 e
             )
             throw e
+        }
+    }
+
+    private fun hentCvDeltData(kandidathendelsePacket: JsonNode): CvDeltData? {
+        return try {
+            objectMapper.treeToValue(kandidathendelsePacket, CvDeltData::class.java)
+        } catch (e: Exception) {
+            log.info("Kunne ikke hente CvDeltData fra kandidathendelseJson")
+            null
         }
     }
 }

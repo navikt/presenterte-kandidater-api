@@ -4,6 +4,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
@@ -20,7 +21,7 @@ import kotlin.test.assertNull
 class PresenterteKandidaterLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
-    lateinit var logWatcher: ListAppender<ILoggingEvent>
+    private lateinit var logWatcher: ListAppender<ILoggingEvent>
     private val testRapid = TestRapid()
 
     @BeforeAll
@@ -29,6 +30,7 @@ class PresenterteKandidaterLytterTest {
         setUpLogWatcher()
         PresenterteKandidaterLytter(
             testRapid,
+            NotifikasjonPubliserer(testRapid),
             PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
             presenterteKandidaterService
         )
@@ -128,6 +130,43 @@ class PresenterteKandidaterLytterTest {
         assertThat(kandidatEtterAndreMelding.aktørId).isEqualTo(aktørId)
         assertThat(kandidatEtterAndreMelding.kandidatlisteId).isEqualTo(kandidatEtterAndreMelding.kandidatlisteId)
         assertNotNull(kandidatEtterAndreMelding.uuid)
+    }
+
+    @Test
+    fun `Skal sende notifikasjonsmelding når CV-delt-melding med CvDeltData mottas`() {
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingOmKandidathendelseMedCvDeltData(aktørId = "2210897398605", stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+
+        val inspektør = testRapid.inspektør
+        assertThat(inspektør.size).isEqualTo(1)
+        val notifikasjonsmeldingjJsonNode = inspektør.message(0)
+        assertThat(notifikasjonsmeldingjJsonNode["@event_name"].asText()).isEqualTo("notifikasjon.cv-delt")
+        assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("$stillingsId-2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
+        assertThat(notifikasjonsmeldingjJsonNode["stillingsId"].asText()).isEqualTo(stillingsId.toString())
+        assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("912998827")
+        assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederFornavn"].asText()).isEqualTo("Veileder")
+        assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
+        assertThat(notifikasjonsmeldingjJsonNode["arbeidsgiversEpostadresser"].toList().map { it.asText() }).containsExactlyInAnyOrder("test@testepost.no", "m@m.no")
+        assertThat(notifikasjonsmeldingjJsonNode["meldingTilArbeidsgiver"].asText()).isEqualTo("meldingen")
+        assertThat(notifikasjonsmeldingjJsonNode["stillingstittel"].asText()).isEqualTo("stillingstittelen")
+        assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
+        assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
+    }
+
+    @Test
+    fun `Hvis databaselagring feiler ved mottak av kandidathendelse skal det ikke publiseres notifikasjonsmelding`() {
+        val melding = meldingOmKandidathendelseMedCvDeltData(
+            aktørId = "UGYLDIG_AKTØR_ID_SOM_ER_ALTFOR_LANG_FOR_DB",
+            stillingsId = UUID.randomUUID()
+        )
+
+        assertThrows<Exception> {
+            testRapid.sendTestMessage(melding)
+        }
+
+        assertThat(testRapid.inspektør.size).isEqualTo(0)
     }
 
     @Test
@@ -291,18 +330,13 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `Etter å ha lagret kandidatlisten skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
+    fun `Etter å ha lagret CV_DELT uten å sende notifikasjonsmelding skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
         val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
 
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         assertThat(testRapid.inspektør.size).isEqualTo(1)
         assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
     }
@@ -311,15 +345,11 @@ class PresenterteKandidaterLytterTest {
     fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+        val melding =
+            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
 
         testRapid.sendTestMessage(melding)
 
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
         assertThat(testRapid.inspektør.size).isEqualTo(0)
     }
 
@@ -327,15 +357,10 @@ class PresenterteKandidaterLytterTest {
     fun `Skal ikke lagre kandidatliste og kandidat når vi får melding om kandidathendelse med slutt_av_hendelseskjede satt til true`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
+        val melding =
+            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId, sluttkvittering = true)
 
         testRapid.sendTestMessage(melding)
-
-        PresenterteKandidaterLytter(
-            testRapid,
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
 
         // Verifiser kandidatliste
         assertNull(repository.hentKandidatliste(stillingsId))
@@ -352,11 +377,75 @@ class PresenterteKandidaterLytterTest {
         ZonedDateTime.now()
     )
 
+    private fun meldingOmKandidathendelseMedCvDeltData(
+        aktørId: String,
+        stillingsId: UUID
+    ) =
+        """
+            
+            {
+              "@event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
+              "kandidathendelse": {
+                "type": "CV_DELT_VIA_REKRUTTERINGSBISTAND",
+                "aktørId": "$aktørId",
+                "organisasjonsnummer": "912998827",
+                "kandidatlisteId": "08d56a3e-e1e2-4dfb-8078-363fe6489ea9",
+                "tidspunkt": "2022-11-09T10:37:45.108+01:00",
+                "stillingsId": "$stillingsId",
+                "utførtAvNavIdent": "Z994633",
+                "utførtAvNavKontorKode": "0313",
+                "synligKandidat": true,
+                "harHullICv": true,
+                "alder": 27,
+                "tilretteleggingsbehov": [],
+                "utførtAvVeilederFornavn": "Veileder",
+                "utførtAvVeilederEtternavn": "Veiledersen",
+                "arbeidsgiversEpostadresser": ["test@testepost.no", "m@m.no"],
+                "meldingTilArbeidsgiver": "meldingen",
+                "stillingstittel": "stillingstittelen"
+              },
+              "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+              "@opprettet": "2022-11-09T10:38:02.181523695",
+              "system_read_count": 0,
+              "system_participating_services": [
+                {
+                  "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                  "time": "2022-11-09T10:38:00.057867691",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                },
+                {
+                  "id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
+                  "time": "2022-11-09T10:38:02.181523695",
+                  "service": "rekrutteringsbistand-stilling-api",
+                  "instance": "rekrutteringsbistand-stilling-api-544d69cf7b-cpvgs",
+                  "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:88c48704fc1a9db29f744f7e9f6c7bad6c390e5b"
+                }
+              ],
+              "stillingsinfo": {
+                "stillingsinfoid": "ba9b1395-c7b5-4cdc-8060-d5b92ecde52e",
+                "stillingsid": "$stillingsId",
+                "eier": null,
+                "notat": null,
+                "stillingskategori": "STILLING"
+              },
+              "stilling": {
+                "stillingstittel": "Noen skal få denne jobben!"
+              },
+              "@forårsaket_av": {
+                "id": "7becad81-fe66-4800-8bbe-abce2e4dbf75",
+                "opprettet": "2022-11-09T10:38:00.057867691",
+                "event_name": "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand"
+              }
+            }
+        """.trimIndent()
+
     private fun meldingOmKandidathendelseDeltCv(
         aktørId: String,
         stillingstittel: String = "Noen skal få denne jobben!",
         stillingsId: UUID,
-        sluttkvittering: Boolean?= null,
+        sluttkvittering: Boolean? = null,
     ) =
         """
             {
