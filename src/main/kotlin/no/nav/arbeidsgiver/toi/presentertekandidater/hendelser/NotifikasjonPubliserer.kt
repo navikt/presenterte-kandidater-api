@@ -24,6 +24,6 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
                 "stillingstittel": "${cvDeltData.stillingstittel}"
             }
         """.trimIndent()
-        rapidsConnection.publish(kandidathendelse.stillingsId.toString(), melding)
+        rapidsConnection.publish(notifikasjonsId, melding)
     }
 }
