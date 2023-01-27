@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.helse.rapids_rivers.RapidsConnection
 import java.time.ZoneId
 
@@ -25,5 +26,6 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
             }
         """.trimIndent()
         rapidsConnection.publish(notifikasjonsId, melding)
+        log.info("Har publisert notifikasjonsmelding med notifikasjonsId: $notifikasjonsId")
     }
 }
