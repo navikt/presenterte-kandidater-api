@@ -17,9 +17,6 @@ spec:
   readiness:
     port: 8080
     path: /isready
-  azure:
-    application:
-      enabled: true
   prometheus:
     enabled: true
     path: /internal/prometheus
