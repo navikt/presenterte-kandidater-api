@@ -66,11 +66,11 @@ fun startApp(
     rapidIsAlive: () -> Boolean,
     altinnKlient: AltinnKlient,
     envs: Map<String, String>,
+    visningKontaktinfoRepository: VisningKontaktinfoRepository = VisningKontaktinfoRepository(dataSource)
 ) {
     val samtykkeRepository = SamtykkeRepository(dataSource)
     kjørFlywayMigreringer(dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
-    val visningKontaktinfoRepository = VisningKontaktinfoRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
 
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)

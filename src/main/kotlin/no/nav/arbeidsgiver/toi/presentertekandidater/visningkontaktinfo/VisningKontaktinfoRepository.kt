@@ -1,7 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo
 
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.util.*
 import javax.sql.DataSource
 
