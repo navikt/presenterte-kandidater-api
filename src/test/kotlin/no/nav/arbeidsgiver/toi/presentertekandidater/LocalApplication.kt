@@ -4,12 +4,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.controllertester.RegistrerVisningTest
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -70,15 +68,6 @@ fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
     return SamtykkeRepository(dataSource)
 }
 
-fun visningKontaktinfoRepositoryMedLokalPostgres(): VisningKontaktinfoRepository {
-    try {
-        slettAltIDatabase()
-    } catch (e: Exception) {
-        println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
-    }
-    return VisningKontaktinfoRepository(dataSource)
-}
-
 fun openSearchKlient() = OpenSearchKlient(envs)
 
 fun slettAltIDatabase() {
@@ -89,6 +78,14 @@ fun slettAltIDatabase() {
         it.prepareStatement("delete from kandidatliste").execute()
         it.prepareStatement("delete from samtykke").execute()
         it.prepareStatement("delete from visning_kontaktinfo").execute()
+    }
+}
+
+fun renameDatabaseTabell(gammeltTabellNavn: String, nyttTabellNavn: String) {
+    val connection = dataSource.connection
+
+    connection.use {
+        it.prepareStatement("alter table $gammeltTabellNavn rename to $nyttTabellNavn;").execute()
     }
 }
 

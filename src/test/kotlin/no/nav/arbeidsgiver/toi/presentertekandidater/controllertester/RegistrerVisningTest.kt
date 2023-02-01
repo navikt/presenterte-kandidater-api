@@ -20,15 +20,25 @@ class RegistrerVisningTest {
     private val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = hentWiremock()
     private val kandidatlisteRepository = kandidatlisteRepositoryMedLokalPostgres()
+    private lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
     fun init() {
         startLocalApplication()
+        setUpLogWatcher()
     }
 
     @AfterEach
     fun slettDB() {
         slettAltIDatabase()
+    }
+
+    private fun setUpLogWatcher() {
+        logWatcher = ListAppender<ILoggingEvent>()
+        logWatcher.start()
+        val logger =
+            LoggerFactory.getLogger("controller") as ch.qos.logback.classic.Logger
+        logger.addAppender(logWatcher)
     }
 
     @Test
@@ -72,6 +82,37 @@ class RegistrerVisningTest {
 
         assertThat(response.statusCode()).isEqualTo(400)
     }
+
+    @Test
+    fun `Skal returnere 200 selv om registrering av visning feiler`() {
+        val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
+        val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
+        renameDatabaseTabell("visning_kontaktinfo", "feil")
+
+        try {
+            stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+            val fødselsnummer = tilfeldigFødselsnummer()
+            lagreSamtykke(fødselsnummer)
+            val accessToken = hentToken(fødselsnummer)
+
+            val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
+                .header("Authorization", "Bearer $accessToken")
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build()
+            val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
+            assertThat(response.statusCode()).isEqualTo(200)
+
+            assertThat(logWatcher.list).isNotEmpty
+            assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Fikk ikke til å lagre visning av kontakinfo med kandidatuuid: ${kandidat.uuid}")
+        } catch (e: Exception) {
+            fail(e)
+        }
+        finally {
+            renameDatabaseTabell("feil", "visning_kontaktinfo")
+        }
+    }
 }
 
 private fun hentDatabaseRader(aktørId: String): ResultSet {
@@ -83,57 +124,5 @@ private fun hentDatabaseRader(aktørId: String): ResultSet {
         it.prepareStatement(sql).apply {
             this.setString(1, aktørId)
         }.also { statement -> return statement.executeQuery() }
-    }
-}
-
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class RegistrerVisningFeilendeDBTest {
-    private val httpClient = HttpClient.newHttpClient()
-    private val wiremockServer = hentWiremock()
-    private val kandidatlisteRepository = kandidatlisteRepositoryMedLokalPostgres()
-    private lateinit var logWatcher: ListAppender<ILoggingEvent>
-
-    @BeforeAll
-    fun init() {
-        startLocalApplication()
-        setUpLogWatcher()
-    }
-
-    @BeforeEach
-    fun setUp() {
-        slettAltIDatabase()
-    }
-
-    private fun setUpLogWatcher() {
-        logWatcher = ListAppender<ILoggingEvent>()
-        logWatcher.start()
-        val logger =
-            LoggerFactory.getLogger("controller") as ch.qos.logback.classic.Logger
-        logger.addAppender(logWatcher)
-    }
-
-    @Test
-    fun `Skal returnere 200 selv om registrering av visning feiler`() {
-        val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
-        val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-
-        val fødselsnummer = tilfeldigFødselsnummer()
-        lagreSamtykke(fødselsnummer)
-        val accessToken = hentToken(fødselsnummer)
-
-        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
-            .header("Authorization", "Bearer $accessToken")
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build()
-        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-
-        assertThat(response.statusCode()).isEqualTo(200)
-        val databaseRader = hentDatabaseRader(kandidat.aktørId)
-        assertFalse(databaseRader.next())
-
-        assertThat(logWatcher.list).isNotEmpty
-        assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Fikk ikke til å lagre visning av kontakinfo med kandidatuuid: ${kandidat.uuid}")
     }
 }
