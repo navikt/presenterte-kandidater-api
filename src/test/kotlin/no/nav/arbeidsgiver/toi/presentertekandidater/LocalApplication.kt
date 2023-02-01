@@ -42,7 +42,7 @@ fun hentWiremock(): WireMockServer {
 val dataSource = HikariConfig().apply {
     jdbcUrl = lokalPostgres.jdbcUrl
     minimumIdle = 1
-    maximumPoolSize = 2
+    maximumPoolSize = 10
     driverClassName = "org.postgresql.Driver"
     initializationFailTimeout = 5000
     username = lokalPostgres.username
