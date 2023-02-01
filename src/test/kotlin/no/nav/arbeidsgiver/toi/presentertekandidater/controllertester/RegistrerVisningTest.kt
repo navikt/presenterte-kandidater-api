@@ -30,7 +30,7 @@ class RegistrerVisningTest {
 
     @AfterEach
     fun slettDB() {
-        slettAltIDatabase()
+        slettAllDataIDatabase()
     }
 
     private fun setUpLogWatcher() {
@@ -88,9 +88,10 @@ class RegistrerVisningTest {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
-        renameDatabaseTabell("visning_kontaktinfo", "feil")
+
 
         try {
+            renameDatabaseTabell("visning_kontaktinfo", "feil")
             stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
             val fødselsnummer = tilfeldigFødselsnummer()
             lagreSamtykke(fødselsnummer)

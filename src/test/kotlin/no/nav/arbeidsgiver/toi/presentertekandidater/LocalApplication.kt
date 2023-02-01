@@ -52,7 +52,7 @@ val dataSource = HikariConfig().apply {
 
 fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository {
     try {
-        slettAltIDatabase()
+        slettAllDataIDatabase()
     } catch (e: Exception) {
         println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
     }
@@ -61,7 +61,7 @@ fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository {
 
 fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
     try {
-        slettAltIDatabase()
+        slettAllDataIDatabase()
     } catch (e: Exception) {
         println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
     }
@@ -70,7 +70,7 @@ fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
 
 fun openSearchKlient() = OpenSearchKlient(envs)
 
-fun slettAltIDatabase() {
+fun slettAllDataIDatabase() {
     val connection = dataSource.connection
 
     connection.use {
