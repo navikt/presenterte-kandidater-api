@@ -100,9 +100,13 @@ class RegistrerVisningFeilendeDBTest {
 
     @BeforeAll
     fun init() {
-        slettAltIDatabase()
         startLocalApplication(visningKontaktinfoRepository = visningKontaktinfoRepository)
         setUpLogWatcher()
+    }
+
+    @BeforeEach
+    fun setUp() {
+        slettAltIDatabase()
     }
 
     private fun setUpLogWatcher() {
@@ -116,7 +120,7 @@ class RegistrerVisningFeilendeDBTest {
     @Test
     fun `Skal returnere 200 selv om registrering av visning feiler`() {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
-        val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
+        val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 

@@ -110,7 +110,11 @@ private val envs = mapOf(
 private var harStartetApplikasjonen = false
 private val testRapid = TestRapid()
 
-fun startLocalApplication(visningKontaktinfoRepository: VisningKontaktinfoRepository = VisningKontaktinfoRepository(dataSource)) {
+fun startLocalApplication(visningKontaktinfoRepository: VisningKontaktinfoRepository = VisningKontaktinfoRepository(dataSource), startPåNytt: Boolean = false) {
+    if(startPåNytt) {
+        stopMockOAuth2Server()
+
+    }
     if (!harStartetApplikasjonen) {
         startMockOAuth2Server()
         val altinnKlient = AltinnKlient(envs, TokendingsKlient(envs))
