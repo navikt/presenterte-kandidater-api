@@ -2,11 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
-import io.mockk.every
-import io.mockk.mockk
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
-import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import org.slf4j.LoggerFactory
@@ -95,12 +91,11 @@ class RegistrerVisningFeilendeDBTest {
     private val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = hentWiremock()
     private val kandidatlisteRepository = kandidatlisteRepositoryMedLokalPostgres()
-    private val visningKontaktinfoRepository = mockk<VisningKontaktinfoRepository>()
     private lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
     fun init() {
-        startLocalApplication(visningKontaktinfoRepository = visningKontaktinfoRepository)
+        startLocalApplication()
         setUpLogWatcher()
     }
 
@@ -123,8 +118,6 @@ class RegistrerVisningFeilendeDBTest {
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
         stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
-
-        every { visningKontaktinfoRepository.registrerVisning(any(), any()) }.throws(Exception())
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
