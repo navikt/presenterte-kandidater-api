@@ -24,6 +24,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.konfigurerRoller
 import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkMetrikkJobb
 import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkRepository
+import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import org.flywaydb.core.Flyway
@@ -64,11 +65,12 @@ fun startApp(
     openSearchKlient: OpenSearchKlient,
     rapidIsAlive: () -> Boolean,
     altinnKlient: AltinnKlient,
-    envs: Map<String, String>,
+    envs: Map<String, String>
 ) {
     val samtykkeRepository = SamtykkeRepository(dataSource)
     kjørFlywayMigreringer(dataSource)
     val kandidatlisteRepository = KandidatlisteRepository(dataSource)
+    val visningKontaktinfoRepository = VisningKontaktinfoRepository(dataSource)
     val presenterteKandidaterService = PresenterteKandidaterService(kandidatlisteRepository)
 
     val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
@@ -95,7 +97,7 @@ fun startApp(
     )
 
 
-    startController(javalin, kandidatlisteRepository, samtykkeRepository, openSearchKlient)
+    startController(javalin, kandidatlisteRepository, samtykkeRepository, visningKontaktinfoRepository, openSearchKlient)
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
     statistikkMetrikkJobb.start()
 

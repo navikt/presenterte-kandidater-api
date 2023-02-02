@@ -1324,9 +1324,9 @@ object Testdata {
         opprettet = ZonedDateTime.parse("2022-11-15T14:46:37.50899+01:00")
     )
 
-    fun lagKandidatTilKandidatliste(kandidatlisteId: BigInteger): Kandidat = Kandidat(
+    fun lagKandidatTilKandidatliste(kandidatlisteId: BigInteger, aktørId: String = "123"): Kandidat = Kandidat(
         null,
-        aktørId = "123",
+        aktørId = aktørId,
         arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
         kandidatlisteId = kandidatlisteId,
         sistEndret = ZonedDateTime.now(),

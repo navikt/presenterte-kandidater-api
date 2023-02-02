@@ -27,7 +27,7 @@ internal class StatistikkRepositoryTest {
 
     @AfterEach
     fun afterEach() {
-        slettAltIDatabase()
+        slettAllDataIDatabase()
     }
 
     @Test

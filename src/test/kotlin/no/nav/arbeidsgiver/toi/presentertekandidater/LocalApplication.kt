@@ -42,7 +42,7 @@ fun hentWiremock(): WireMockServer {
 val dataSource = HikariConfig().apply {
     jdbcUrl = lokalPostgres.jdbcUrl
     minimumIdle = 1
-    maximumPoolSize = 2
+    maximumPoolSize = 10
     driverClassName = "org.postgresql.Driver"
     initializationFailTimeout = 5000
     username = lokalPostgres.username
@@ -52,7 +52,7 @@ val dataSource = HikariConfig().apply {
 
 fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository {
     try {
-        slettAltIDatabase()
+        slettAllDataIDatabase()
     } catch (e: Exception) {
         println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
     }
@@ -61,7 +61,7 @@ fun kandidatlisteRepositoryMedLokalPostgres(): KandidatlisteRepository {
 
 fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
     try {
-        slettAltIDatabase()
+        slettAllDataIDatabase()
     } catch (e: Exception) {
         println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
     }
@@ -70,13 +70,22 @@ fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
 
 fun openSearchKlient() = OpenSearchKlient(envs)
 
-fun slettAltIDatabase() {
+fun slettAllDataIDatabase() {
     val connection = dataSource.connection
 
     connection.use {
         it.prepareStatement("delete from kandidat").execute()
         it.prepareStatement("delete from kandidatliste").execute()
         it.prepareStatement("delete from samtykke").execute()
+        it.prepareStatement("delete from visning_kontaktinfo").execute()
+    }
+}
+
+fun renameDatabaseTabell(gammeltTabellNavn: String, nyttTabellNavn: String) {
+    val connection = dataSource.connection
+
+    connection.use {
+        it.prepareStatement("alter table $gammeltTabellNavn rename to $nyttTabellNavn;").execute()
     }
 }
 

@@ -5,18 +5,23 @@ import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
+import io.javalin.http.InternalServerErrorResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
+import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import java.util.*
+
+private val logger = log("controller")
 
 fun startController(
     javalin: Javalin,
     kandidatlisteRepository: KandidatlisteRepository,
     samtykkeRepository: SamtykkeRepository,
+    visningKontaktinfoRepository: VisningKontaktinfoRepository,
     openSearchKlient: OpenSearchKlient
 ) {
     javalin.routes {
@@ -35,21 +40,40 @@ fun startController(
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
         delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        post("/kandidat/{uuid}/registrerviskontaktinfo", registrerVisningAvKontaktInfo(kandidatlisteRepository, visningKontaktinfoRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
         get(
             "/ekstern/antallkandidater",
             hentAntallKandidater(kandidatlisteRepository),
             Rolle.EKSTERN_ARBEIDSGIVER
         )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
-        log("controller").warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input. Se SecureLog for stacktrace.")
+        logger.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input. Se SecureLog for stacktrace.")
         secureLog.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
     }.exception(Exception::class.java) { e, ctx ->
-        log("controller").error("Kall mot ${ctx.path()} førte til en ukjent feil. Se SecureLog for stacktrace.")
+        logger.error("Kall mot ${ctx.path()} førte til en ukjent feil. Se SecureLog for stacktrace.")
         secureLog.error("Kall mot ${ctx.path()} førte til en ukjent feil.", e)
         ctx.status(500)
     }
 }
+
+private val registrerVisningAvKontaktInfo: (KandidatlisteRepository, VisningKontaktinfoRepository) -> (Context) -> Unit =
+    { kandidatlisteRepository, visningKontakInfoRepository ->
+        { context ->
+            val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
+            val kandidat = kandidatlisteRepository.hentKandidatMedUUID(kandidatUuid) ?: throw BadRequestResponse()
+            val kandidatliste = kandidatlisteRepository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw InternalServerErrorResponse()
+            val lagringGikkBra = try {
+                visningKontakInfoRepository.registrerVisning(kandidat.aktørId, kandidatliste.stillingId)
+            } catch (e: Exception) {
+                false
+            }
+            if(!lagringGikkBra) {
+                logger.error("Fikk ikke til å lagre visning av kontakinfo med kandidatuuid: $kandidatUuid")
+            }
+            context.status(200)
+        }
+    }
 
 private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
     { repository ->
