@@ -63,7 +63,7 @@ class PresenterteKandidaterLytter(
                     presenterteKandidaterService.lagreCvDeltHendelse(kandidathendelse, stillingstittel)
                     cvDeltCounter.increment()
 
-                    val cvDeltData = hentCvDeltData(kandidathendelsePacket)
+                    val cvDeltData = hentUtCvDeltData(kandidathendelsePacket)
 
                     val harSendtNotifikasjonsmelding = if (cvDeltData != null) {
                         notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, cvDeltData)
@@ -109,11 +109,11 @@ class PresenterteKandidaterLytter(
         }
     }
 
-    private fun hentCvDeltData(kandidathendelsePacket: JsonNode): CvDeltData? {
+    private fun hentUtCvDeltData(kandidathendelsePacket: JsonNode): CvDeltData? {
         return try {
             objectMapper.treeToValue(kandidathendelsePacket, CvDeltData::class.java)
         } catch (e: Exception) {
-            log.info("Kunne ikke hente CvDeltData fra kandidathendelseJson")
+            log.error("Kunne ikke hente CvDeltData fra kandidathendelseJson", e)
             null
         }
     }
