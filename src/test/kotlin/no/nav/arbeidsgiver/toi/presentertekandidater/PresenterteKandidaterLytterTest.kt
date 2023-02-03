@@ -149,9 +149,9 @@ class PresenterteKandidaterLytterTest {
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederFornavn"].asText()).isEqualTo("Veileder")
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
         assertThat(notifikasjonsmeldingjJsonNode["arbeidsgiversEpostadresser"].toList().map { it.asText() }).containsExactlyInAnyOrder("test@testepost.no", "m@m.no")
-        assertThat(notifikasjonsmeldingjJsonNode["meldingTilArbeidsgiver"].asText()).isEqualTo("meldingen")
+        assertThat(notifikasjonsmeldingjJsonNode["meldingTilArbeidsgiver"].asText()).isEqualTo("meldingen \n inneholder linjeskift\noveralt")
         assertThat(notifikasjonsmeldingjJsonNode["stillingstittel"].asText()).isEqualTo("stillingstittelen")
-        assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
+        assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2022-11-09T10:37:45.108+01:00")
         assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
     }
 
@@ -401,7 +401,7 @@ class PresenterteKandidaterLytterTest {
                 "utførtAvVeilederFornavn": "Veileder",
                 "utførtAvVeilederEtternavn": "Veiledersen",
                 "arbeidsgiversEpostadresser": ["test@testepost.no", "m@m.no"],
-                "meldingTilArbeidsgiver": "meldingen",
+                "meldingTilArbeidsgiver": "meldingen \n inneholder linjeskift\noveralt",
                 "stillingstittel": "stillingstittelen"
               },
               "@id": "60bfc604-64ef-48b1-be1f-45ba5486a888",
