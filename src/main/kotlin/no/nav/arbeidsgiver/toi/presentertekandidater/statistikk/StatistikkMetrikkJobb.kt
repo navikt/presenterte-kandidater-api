@@ -20,11 +20,11 @@ class StatistikkMetrikkJobb(
     }
 
     private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", AtomicLong(statistikkRepository.antallKandidatlister()))
-    private val antallUnikeKandidater = meterRegistry.gauge("antall_unike_kandidater", AtomicLong(0))
-    private val antallKandidatinnslag = meterRegistry.gauge("antall_kandidatinnslag", AtomicLong(0))
-    private val antallKandidaterIKandidatsøk = meterRegistry.gauge("antall_kandidater_i_kandidatsøk", AtomicLong(0))
-    private val antallSamtykker = meterRegistry.gauge("antall_samtykker", AtomicLong(0))
-    private val antallKandidaterMedVisningAvKontaktinfo = meterRegistry.gauge("antall_kandidater_med_visning_av_kontaktinfo", AtomicLong(0))
+    private val antallUnikeKandidater = meterRegistry.gauge("antall_unike_kandidater", AtomicLong(statistikkRepository.antallUnikeKandidater()))
+    private val antallKandidatinnslag = meterRegistry.gauge("antall_kandidatinnslag", AtomicLong(statistikkRepository.antallKandidatinnslag()))
+    private val antallKandidaterIKandidatsøk = meterRegistry.gauge("antall_kandidater_i_kandidatsøk", AtomicLong(openSearchKlient.hentAntallKandidater()))
+    private val antallSamtykker = meterRegistry.gauge("antall_samtykker", AtomicLong(statistikkRepository.antallSamtykker()))
+    private val antallKandidaterMedVisningAvKontaktinfo = meterRegistry.gauge("antall_kandidater_med_visning_av_kontaktinfo", AtomicLong(statistikkRepository.antallKandidaterMedVisningAvKontaktinfo()))
 
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
