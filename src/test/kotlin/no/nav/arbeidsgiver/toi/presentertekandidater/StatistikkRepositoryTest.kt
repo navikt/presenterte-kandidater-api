@@ -5,6 +5,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat.Arbe
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkRepository
+import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -19,6 +20,7 @@ internal class StatistikkRepositoryTest {
     private val kandidatlisteRepository = kandidatlisteRepositoryMedLokalPostgres()
     private val statistikkRepository = StatistikkRepository(dataSource)
     private val samtykkeRepository = SamtykkeRepository(dataSource)
+    private val visningKontaktinfoRepository = VisningKontaktinfoRepository(dataSource)
 
     @BeforeAll
     fun beforeAll() {
@@ -123,6 +125,21 @@ internal class StatistikkRepositoryTest {
         samtykkeRepository.lagre(tilfeldigFødselsnummer())
         samtykkeRepository.lagre(tilfeldigFødselsnummer())
         assertThat( statistikkRepository.antallSamtykker()).isEqualTo(3)
+    }
+
+    @Test
+    fun `Tell antall kandidater med åpnet kontaktinformasjon`() {
+        val aktørId = "123"
+        val annenAktørId = "456"
+        val stillingId = UUID.randomUUID()
+        val annenStillingId = UUID.randomUUID()
+
+        visningKontaktinfoRepository.registrerVisning(aktørId = aktørId, stillingId = stillingId)
+        visningKontaktinfoRepository.registrerVisning(aktørId = aktørId, stillingId = stillingId)
+        visningKontaktinfoRepository.registrerVisning(aktørId = annenAktørId, stillingId = stillingId)
+        visningKontaktinfoRepository.registrerVisning(aktørId = annenAktørId, stillingId = annenStillingId)
+
+        assertThat(statistikkRepository.antallKandidaterMedVisningAvKontaktinfo()).isEqualTo(3);
     }
 
     private fun lagKandidatliste() = Kandidatliste(

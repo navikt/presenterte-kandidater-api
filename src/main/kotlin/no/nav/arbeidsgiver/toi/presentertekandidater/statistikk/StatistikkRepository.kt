@@ -100,4 +100,21 @@ class StatistikkRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun antallKandidaterMedVisningAvKontaktinfo(): Long {
+        dataSource.connection.use { connection ->
+            val sql = """
+                select count(distinct (aktør_id, stilling_id))
+                from visning_kontaktinfo;
+            """.trimIndent()
+
+            connection.prepareStatement(sql).use { s ->
+                val rs = s.executeQuery()
+                if (rs.next())
+                    return rs.getLong(1)
+                else
+                    return 0
+            }
+        }
+    }
 }
