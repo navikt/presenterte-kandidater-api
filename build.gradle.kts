@@ -42,7 +42,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
-    implementation("org.apache.kafka:kafka-clients:3.3.1")
+    implementation("org.apache.kafka:kafka-clients:3.4.0")
     implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
 
     implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
