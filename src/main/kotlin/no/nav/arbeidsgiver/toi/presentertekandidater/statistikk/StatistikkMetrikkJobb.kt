@@ -18,8 +18,8 @@ class StatistikkMetrikkJobb(
     companion object {
         val LOG = LoggerFactory.getLogger(StatistikkMetrikkJobb::class.java)
     }
-
-    private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", AtomicLong(0))
+    
+    private val antallKandidatlister =  meterRegistry.gauge("antall_kandidatlister", statistikkRepository.antallKandidatlister())
     private val antallUnikeKandidater = meterRegistry.gauge("antall_unike_kandidater", AtomicLong(0))
     private val antallKandidatinnslag = meterRegistry.gauge("antall_kandidatinnslag", AtomicLong(0))
     private val antallKandidaterIKandidatsøk = meterRegistry.gauge("antall_kandidater_i_kandidatsøk", AtomicLong(0))
