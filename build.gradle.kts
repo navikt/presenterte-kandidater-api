@@ -43,7 +43,7 @@ dependencies {
     implementation("no.nav.security:token-validation-core:2.1.8")
 
     implementation("org.apache.kafka:kafka-clients:3.4.0")
-    implementation("com.github.navikt:rapids-and-rivers:2022061809451655538329.d6deccc62862")
+    implementation("no.nav.arbeidsgiver.toi:toi-rapids-and-rivers-fork:1.1")
 
     implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
 
