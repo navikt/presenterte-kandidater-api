@@ -27,8 +27,6 @@ class PresenterteKandidaterLytter(
                     "@event_name", listOf(
                         "kandidat.annullert",
                         "kandidat.slettet-fra-arbeidsgivers-kandidatliste",
-                        "kandidat.kandidatliste-lukket-noen-andre-fikk-jobben",
-                        "kandidat.kandidatliste-lukket-ingen-fikk-jobben"
                     )
                 )
                 it.demandKey("kandidathendelse")
@@ -39,11 +37,8 @@ class PresenterteKandidaterLytter(
 
     }
 
-    private val cvDeltCounter: Counter = Counter.builder("cvDelt").register(prometheusRegistry)
     private val cvSlettetCounter: Counter = Counter.builder("cvSlettet").register(prometheusRegistry)
     private val annullertCounter: Counter = Counter.builder("cvAnnullert").register(prometheusRegistry)
-    private val kandidatlisteLukketCounter: Counter =
-        Counter.builder("kandidatlisteLukket").register(prometheusRegistry)
 
     private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -70,12 +65,6 @@ class PresenterteKandidaterLytter(
                 Type.ANNULLERT -> {
                     presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
                     annullertCounter.increment()
-                    false
-                }
-
-                Type.KANDIDATLISTE_LUKKET_NOEN_ANDRE_FIKK_JOBBEN, Type.KANDIDATLISTE_LUKKET_INGEN_FIKK_JOBBEN -> {
-                    presenterteKandidaterService.lukkKandidatliste(kandidathendelse.stillingsId)
-                    kandidatlisteLukketCounter.increment()
                     false
                 }
             }
