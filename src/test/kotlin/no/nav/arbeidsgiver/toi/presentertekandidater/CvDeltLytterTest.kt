@@ -20,13 +20,11 @@ import kotlin.test.assertNotNull
 class CvDeltLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
-    private lateinit var logWatcher: ListAppender<ILoggingEvent>
     private val testRapid = TestRapid()
 
     @BeforeAll
     fun init() {
         startLocalApplication()
-        setUpLogWatcher()
         CvDeltLytter(
             testRapid,
             NotifikasjonPubliserer(testRapid),
@@ -38,14 +36,6 @@ class CvDeltLytterTest {
     @BeforeEach
     fun setUp() {
         testRapid.reset()
-    }
-
-    private fun setUpLogWatcher() {
-        logWatcher = ListAppender<ILoggingEvent>()
-        logWatcher.start()
-        val logger =
-            LoggerFactory.getLogger(PresenterteKandidaterLytter::class.java.name) as ch.qos.logback.classic.Logger
-        logger.addAppender(logWatcher)
     }
 
     @Test

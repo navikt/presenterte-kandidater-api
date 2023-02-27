@@ -10,10 +10,7 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.prometheus.client.exporter.common.TextFormat
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.CvDeltLytter
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.startPeriodiskSlettingAvKandidaterOgKandidatlister
@@ -106,6 +103,7 @@ fun startApp(
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
+        KandidatlisteLukketLytter()
         log("Application").info("Startet lytter")
     }.start()
 }
