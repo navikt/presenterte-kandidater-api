@@ -4,6 +4,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.HendelsesLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
@@ -26,7 +27,7 @@ class HendelsesLytterTest {
     fun init() {
         startLocalApplication()
         setUpLogWatcher()
-        PresenterteKandidaterLytter(
+        HendelsesLytter(
             testRapid,
             NotifikasjonPubliserer(testRapid),
             PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
