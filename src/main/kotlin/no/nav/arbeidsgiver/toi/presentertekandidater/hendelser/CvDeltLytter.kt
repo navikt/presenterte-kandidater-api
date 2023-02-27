@@ -14,7 +14,7 @@ import no.nav.helse.rapids_rivers.River
 import java.time.ZonedDateTime
 import java.util.*
 
-class HendelsesLytter(
+class CvDeltLytter(
     rapidsConnection: RapidsConnection,
     private val notifikasjonPubliserer: NotifikasjonPubliserer,
     prometheusRegistry: MeterRegistry,
@@ -52,8 +52,6 @@ class HendelsesLytter(
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
         val stillingsId = UUID.fromString(packet["stillingsId"].asText())
-        val utførtAvNavIdent = packet["utførtAvNavIdent"]
-        val utførtAvNavKontorKode = packet["utførtAvNavKontorKode"]
         val aktørIder = packet["kandidater"].fields().asSequence()
             .map(MutableMap.MutableEntry<String, JsonNode>::key).toList()
         val stillingstittel = packet["stillingstittel"].asText()
