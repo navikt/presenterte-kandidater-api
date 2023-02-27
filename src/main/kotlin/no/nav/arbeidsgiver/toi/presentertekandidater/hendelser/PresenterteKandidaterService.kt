@@ -9,7 +9,7 @@ import java.util.*
 
 class PresenterteKandidaterService(private val kandidatlisteRepository: KandidatlisteRepository) {
 
-    fun lagreNyCvDeltHendelse(organisasjonsnummer: String, stillingsId: UUID, stillingstittel: String, aktørIder: List<String>) {
+    fun lagreCvDeltHendelse(organisasjonsnummer: String, stillingsId: UUID, stillingstittel: String, aktørIder: List<String>) {
         val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
 
         if (kandidatliste == null) {
@@ -45,34 +45,6 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
                     sistEndret = ZonedDateTime.now()
                 ))
             }
-        }
-    }
-
-    fun lagreCvDeltHendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
-        val kandidatliste = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
-
-        if (kandidatliste == null) {
-            val nyKandidatliste = Kandidatliste.ny(
-                stillingId = kandidathendelse.stillingsId,
-                tittel = stillingstittel,
-                virksomhetsnummer = kandidathendelse.organisasjonsnummer
-            )
-            kandidatlisteRepository.lagre(nyKandidatliste)
-        } else {
-            val oppdatertKandidatliste = kandidatliste.copy(
-                tittel = stillingstittel,
-                status = Kandidatliste.Status.ÅPEN,
-                slettet = false
-            )
-            kandidatlisteRepository.oppdater(oppdatertKandidatliste)
-        }
-
-        val kandidatlisteLagret = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
-            ?: throw RuntimeException("Alvorlig feil - kandidatliste skal ikke kunne være null")
-
-        val kandidat = kandidatlisteRepository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id!!)
-        if (kandidat == null) {
-            lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
         }
     }
 

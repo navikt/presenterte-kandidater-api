@@ -11,7 +11,6 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -61,7 +60,7 @@ class HendelsesLytter(
 
         cvDeltCounter.increment()
 
-        presenterteKandidaterService.lagreNyCvDeltHendelse(
+        presenterteKandidaterService.lagreCvDeltHendelse(
             organisasjonsnummer = organisasjonsnummer,
             stillingsId = stillingsId,
             stillingstittel = stillingstittel,
