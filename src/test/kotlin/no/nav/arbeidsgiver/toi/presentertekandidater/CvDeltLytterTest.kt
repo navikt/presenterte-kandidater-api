@@ -1,18 +1,9 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.read.ListAppender
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.CvDeltLytter
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.NotifikasjonPubliserer
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -20,17 +11,10 @@ import kotlin.test.assertNotNull
 class CvDeltLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
     private val presenterteKandidaterService = PresenterteKandidaterService(repository)
-    private val testRapid = TestRapid()
 
     @BeforeAll
     fun init() {
         startLocalApplication()
-        CvDeltLytter(
-            testRapid,
-            NotifikasjonPubliserer(testRapid),
-            PrometheusMeterRegistry(PrometheusConfig.DEFAULT),
-            presenterteKandidaterService
-        )
     }
 
     @BeforeEach

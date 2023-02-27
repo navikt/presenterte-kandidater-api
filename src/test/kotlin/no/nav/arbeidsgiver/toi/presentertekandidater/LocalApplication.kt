@@ -105,7 +105,7 @@ private val envs = mapOf(
 )
 
 private var harStartetApplikasjonen = false
-private val testRapid = TestRapid()
+val testRapid = TestRapid()
 
 fun startLocalApplication() {
     if (!harStartetApplikasjonen) {

@@ -7,10 +7,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
+import no.nav.helse.rapids_rivers.*
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -29,11 +26,7 @@ class CvDeltLytter(
     init {
         River(rapidsConnection).apply {
             validate {
-                it.demandAny(
-                    "@event_name", listOf(
-                        "kandidat_v2.DelCvMedArbeidsgiver"
-                    )
-                )
+                it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
                 it.requireKey(
                     "stilling",
                     "stillingstittel",
@@ -51,7 +44,7 @@ class CvDeltLytter(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
-        val stillingsId = UUID.fromString(packet["stillingsId"].asText())
+        val stillingsId = packet["stillingsId"].asText().toUUID()
         val aktørIder = packet["kandidater"].fields().asSequence()
             .map(MutableMap.MutableEntry<String, JsonNode>::key).toList()
         val stillingstittel = packet["stillingstittel"].asText()

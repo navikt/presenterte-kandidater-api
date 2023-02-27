@@ -103,7 +103,7 @@ fun startApp(
     rapidsConnection.also {
         PresenterteKandidaterLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
-        KandidatlisteLukketLytter()
+        KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
         log("Application").info("Startet lytter")
     }.start()
 }
