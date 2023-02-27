@@ -196,7 +196,34 @@ class HendelsesLytterTest {
         assertThat(oppdatertKandidatliste!!.tittel).isEqualTo(andreStillingstittel)
     }
 
-    private fun meldingDelCv(aktørIder: List<String>, stillingsId: UUID, stillingstittel: String = "En fantastisk stilling") = """
+    @Test
+    fun `Etter å ha lagret CV_DELT uten å sende notifikasjonsmelding skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingDelCv(aktørIder = listOf(aktørId), stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+
+        assertThat(testRapid.inspektør.size).isEqualTo(1)
+        assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
+    }
+
+    @Test
+    fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
+        val aktørId = "2040897398605"
+        val stillingsId = UUID.randomUUID()
+        val melding = meldingDelCv(aktørIder = listOf(aktørId), stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(melding)
+
+        assertThat(testRapid.inspektør.size).isEqualTo(0)
+    }
+
+    private fun meldingDelCv(
+        aktørIder: List<String>,
+        stillingsId: UUID,
+        stillingstittel: String = "En fantastisk stilling",
+        sluttAvHendelseskjede: Boolean = false) = """
         {
           "stillingstittel": "$stillingstittel",
           "organisasjonsnummer": "312113341",
@@ -236,6 +263,7 @@ class HendelsesLytterTest {
           "stilling": {
             "stillingstittel": "$stillingstittel"
           }
+          ${if (sluttAvHendelseskjede) """ ""@slutt_av_hendelseskjede": true""" else ""}
         }
     """.trimIndent()
 

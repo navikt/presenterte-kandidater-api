@@ -9,6 +9,45 @@ import java.util.*
 
 class PresenterteKandidaterService(private val kandidatlisteRepository: KandidatlisteRepository) {
 
+    fun lagreNyCvDeltHendelse(organisasjonsnummer: String, stillingsId: UUID, stillingstittel: String, aktørIder: List<String>) {
+        val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
+
+        if (kandidatliste == null) {
+            kandidatlisteRepository.lagre(
+                Kandidatliste.ny(
+                    stillingId = stillingsId,
+                    tittel = stillingstittel,
+                    virksomhetsnummer = organisasjonsnummer
+                )
+            )
+        } else {
+            kandidatlisteRepository.oppdater(
+                kandidatliste.copy(
+                    tittel = stillingstittel,
+                    status = Kandidatliste.Status.ÅPEN,
+                    slettet = false
+                )
+            )
+        }
+
+        val kandidatlisteLagret = kandidatlisteRepository.hentKandidatliste(stillingsId)
+            ?: throw RuntimeException("Alvorlig feil - kandidatliste skal ikke kunne være null")
+
+        aktørIder.forEach {
+            val kandidat = kandidatlisteRepository.hentKandidat(it, kandidatlisteLagret.id!!)
+            if (kandidat == null) {
+
+                kandidatlisteRepository.lagre(Kandidat(
+                    aktørId = it,
+                    kandidatlisteId = kandidatlisteLagret.id,
+                    uuid = UUID.randomUUID(),
+                    arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+                    sistEndret = ZonedDateTime.now()
+                ))
+            }
+        }
+    }
+
     fun lagreCvDeltHendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
         val kandidatliste = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
 
