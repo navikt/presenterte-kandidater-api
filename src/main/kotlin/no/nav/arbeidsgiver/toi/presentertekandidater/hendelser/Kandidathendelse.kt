@@ -22,6 +22,5 @@ data class CvDeltData(
 )
 
 enum class Type(private val eventNamePostfix: String) {
-    ANNULLERT("kandidat.annullert"),
     SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE("kandidat.slettet-fra-arbeidsgivers-kandidatliste"),
 }

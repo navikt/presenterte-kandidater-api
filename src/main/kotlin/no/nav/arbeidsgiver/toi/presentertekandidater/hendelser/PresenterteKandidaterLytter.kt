@@ -38,7 +38,6 @@ class PresenterteKandidaterLytter(
     }
 
     private val cvSlettetCounter: Counter = Counter.builder("cvSlettet").register(prometheusRegistry)
-    private val annullertCounter: Counter = Counter.builder("cvAnnullert").register(prometheusRegistry)
 
     private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -59,12 +58,6 @@ class PresenterteKandidaterLytter(
                         kandidathendelse.stillingsId
                     )
                     cvSlettetCounter.increment()
-                    false
-                }
-
-                Type.ANNULLERT -> {
-                    presenterteKandidaterService.markerKandidatlisteSomSlettet(kandidathendelse.stillingsId)
-                    annullertCounter.increment()
                     false
                 }
             }

@@ -104,6 +104,7 @@ fun startApp(
         PresenterteKandidaterLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
+        SlettetStillingLytter(it, prometheusRegistry, presenterteKandidaterService)
         log("Application").info("Startet lytter")
     }.start()
 }
