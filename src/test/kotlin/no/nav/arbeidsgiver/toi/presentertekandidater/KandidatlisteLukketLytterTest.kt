@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
 import java.util.*
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KandidatlisteLukketLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val presenterteKandidaterService = PresenterteKandidaterService(repository)
     private lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
@@ -60,9 +60,74 @@ class KandidatlisteLukketLytterTest {
         assertThat(oppdatertKandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
     }
 
+    @Test
+    fun `Behandling av LukketKandidatliste-melding skal være idempotent`() {
+        val stillingsId = UUID.randomUUID()
+        val aktørId = "1122334455"
+        val organisasjonsnummer = "123"
+        val kandidatListe = repository.lagre(Kandidatliste.ny(stillingsId, "en stilling", organisasjonsnummer))
+        repository.lagre(
+            Kandidat(
+                uuid = UUID.randomUUID(),
+                aktørId = aktørId,
+                kandidatlisteId = kandidatListe.id!!,
+                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
+            )
+        )
+
+        testRapid.sendTestMessage(kandidatlisteLukket(stillingsId, organisasjonsnummer))
+        testRapid.sendTestMessage(kandidatlisteLukket(stillingsId, organisasjonsnummer))
+
+        val oppdatertKandidatliste = repository.hentKandidatliste(stillingsId)
+        assertThat(oppdatertKandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
+    }
+
+    @Test
+    fun `Skal legge til slutt_av_hendelseskjede satt til true`() {
+        val stillingsId = UUID.randomUUID()
+        val aktørId = "1122334455"
+        val organisasjonsnummer = "123"
+        val kandidatListe = repository.lagre(Kandidatliste.ny(stillingsId, "en stilling", organisasjonsnummer))
+        repository.lagre(
+            Kandidat(
+                uuid = UUID.randomUUID(),
+                aktørId = aktørId,
+                kandidatlisteId = kandidatListe.id!!,
+                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
+            )
+        )
+
+        testRapid.sendTestMessage(kandidatlisteLukket(stillingsId, organisasjonsnummer))
+
+        val meldingPublisertPåRapid = testRapid.inspektør.message(0)
+        assertTrue(meldingPublisertPåRapid["@slutt_av_hendelseskjede"].asBoolean())
+    }
+
+    @Test
+    fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
+        val stillingsId = UUID.randomUUID()
+        val aktørId = "1122334455"
+        val organisasjonsnummer = "123"
+        val kandidatListe = repository.lagre(Kandidatliste.ny(stillingsId, "en stilling", organisasjonsnummer))
+        repository.lagre(
+            Kandidat(
+                uuid = UUID.randomUUID(),
+                aktørId = aktørId,
+                kandidatlisteId = kandidatListe.id!!,
+                arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING
+            )
+        )
+
+        testRapid.sendTestMessage(kandidatlisteLukket(stillingsId, organisasjonsnummer, sluttkvittering = true))
+
+        assertThat(testRapid.inspektør.size).isEqualTo(0)
+    }
+
+
     private fun kandidatlisteLukket(
         stillingsId: UUID,
-        organisasjonsNummer: String
+        organisasjonsNummer: String,
+        sluttkvittering: Boolean = false
     ) = """
         {
           "aktørIderFikkJobben": [],
@@ -76,46 +141,7 @@ class KandidatlisteLukketLytterTest {
           "@id": "7fa7ab9a-d016-4ed2-9f9a-d1a1ad7018f1",
           "@opprettet": "2023-02-21T08:39:01.937854240",
           "system_read_count": 0
+          ${if (!sluttkvittering) "" else """, "@slutt_av_hendelseskjede": $sluttkvittering"""}
         }
     """.trimIndent()
-
-    /*
-        @Test
-    fun `test at lukket kandidatliste når ingen har fått jobben registreres med status LUKKET`() {
-        val stillingsId = UUID.randomUUID()
-        val aktørId = "1122334455"
-        val meldingOmOpprettelseAvKandidatliste =
-            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
-        var kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste?.status).isEqualTo(Kandidatliste.Status.ÅPEN)
-
-        val meldingOmKandidatlisteLukket =
-            meldingOmKandidathendelseKandidatlisteLukketIngenFikkJobben(aktørId, stillingsId)
-        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
-
-        kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
-    }
-
-    @Test
-    fun `test at lukket kandidatliste når noen fikk jobben registreres med status LUKKET`() {
-        val stillingsId = UUID.randomUUID()
-        val aktørId = "6655443322"
-        val meldingOmOpprettelseAvKandidatliste =
-            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
-        var kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste?.status).isEqualTo(Kandidatliste.Status.ÅPEN)
-
-        val meldingOmKandidatlisteLukket =
-            meldingOmKandidathendelseKandidatlisteLukketNoenFikkJobben(aktørId, stillingsId)
-        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
-
-        kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
-    }
-     */
 }

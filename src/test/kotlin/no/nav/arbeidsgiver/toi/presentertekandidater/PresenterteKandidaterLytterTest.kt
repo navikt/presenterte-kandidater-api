@@ -50,44 +50,6 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `test at lukket kandidatliste når ingen har fått jobben registreres med status LUKKET`() {
-        val stillingsId = UUID.randomUUID()
-        val aktørId = "1122334455"
-        val meldingOmOpprettelseAvKandidatliste =
-            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
-        var kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste?.status).isEqualTo(Kandidatliste.Status.ÅPEN)
-
-        val meldingOmKandidatlisteLukket =
-            meldingOmKandidathendelseKandidatlisteLukketIngenFikkJobben(aktørId, stillingsId)
-        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
-
-        kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
-    }
-
-    @Test
-    fun `test at lukket kandidatliste når noen fikk jobben registreres med status LUKKET`() {
-        val stillingsId = UUID.randomUUID()
-        val aktørId = "6655443322"
-        val meldingOmOpprettelseAvKandidatliste =
-            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
-        var kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste?.status).isEqualTo(Kandidatliste.Status.ÅPEN)
-
-        val meldingOmKandidatlisteLukket =
-            meldingOmKandidathendelseKandidatlisteLukketNoenFikkJobben(aktørId, stillingsId)
-        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
-
-        kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.status).isEqualTo(Kandidatliste.Status.LUKKET)
-    }
-
-    @Test
     fun `test at annullert kandidatliste registreres som slettet fra databasen`() {
         val stillingsId = UUID.randomUUID()
         val aktørId = "44556677"
@@ -155,18 +117,6 @@ class PresenterteKandidaterLytterTest {
         }
         assertThat(logWatcher.list).isNotEmpty
         assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Feil ved mottak av kandidathendelse. Dette må håndteres:")
-    }
-
-    @Test
-    fun `Etter å ha lagret CV_DELT uten å sende notifikasjonsmelding skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
-        val aktørId = "2040897398605"
-        val stillingsId = UUID.randomUUID()
-        val melding = meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(melding)
-
-        assertThat(testRapid.inspektør.size).isEqualTo(1)
-        assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
     }
 
     @Test

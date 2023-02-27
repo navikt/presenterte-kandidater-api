@@ -26,5 +26,7 @@ class KandidatlisteLukketLytter(
         val stillingsId = packet["stillingsId"].asText()
         presenterteKandidaterService.lukkKandidatliste(stillingsId.toUUID())
         kandidatlisteLukketCounter.increment()
+        packet["@slutt_av_hendelseskjede"] = true
+        context.publish(packet.toJson())
     }
 }
