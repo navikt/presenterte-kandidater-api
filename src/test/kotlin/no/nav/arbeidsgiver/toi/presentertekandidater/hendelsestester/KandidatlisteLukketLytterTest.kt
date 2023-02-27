@@ -1,42 +1,30 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.hendelsestester
 
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.read.ListAppender
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterLytter
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatlisteRepositoryMedLokalPostgres
+import no.nav.arbeidsgiver.toi.presentertekandidater.startLocalApplication
+import no.nav.arbeidsgiver.toi.presentertekandidater.testRapid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KandidatlisteLukketLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
     fun init() {
         startLocalApplication()
-        setUpLogWatcher()
     }
 
     @BeforeEach
     fun setUp() {
         testRapid.reset()
-    }
-
-    private fun setUpLogWatcher() {
-        logWatcher = ListAppender<ILoggingEvent>()
-        logWatcher.start()
-        val logger =
-            LoggerFactory.getLogger(PresenterteKandidaterLytter::class.java.name) as ch.qos.logback.classic.Logger
-        logger.addAppender(logWatcher)
     }
 
     @Test

@@ -1,9 +1,13 @@
-package no.nav.arbeidsgiver.toi.presentertekandidater
+package no.nav.arbeidsgiver.toi.presentertekandidater.hendelsestester
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatlisteRepositoryMedLokalPostgres
+import no.nav.arbeidsgiver.toi.presentertekandidater.startLocalApplication
+import no.nav.arbeidsgiver.toi.presentertekandidater.testRapid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -182,6 +186,23 @@ class CvDeltLytterTest {
         assertThat(testRapid.inspektør.size).isEqualTo(0)
     }
 
+    @Test
+    fun `Skal sette listen som ÅPEN og slettet=false når vi får melding for en liste som allerede eksisterer`() {
+        val aktørId = "2050897398605"
+        val stillingsId = UUID.randomUUID()
+        repository.lagre(lagGyldigKandidatliste(stillingsId).copy(status = Kandidatliste.Status.LUKKET, slettet = true))
+
+        val melding = meldingDelCv(aktørIder = listOf(aktørId), stillingsId = stillingsId)
+        testRapid.sendTestMessage(melding)
+
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+
+        // Verifiser kandidatliste
+        assertNotNull(kandidatliste)
+        assertThat(kandidatliste.slettet).isFalse
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+    }
+
     private fun meldingDelCv(
         aktørIder: List<String>,
         stillingsId: UUID,
@@ -230,4 +251,14 @@ class CvDeltLytterTest {
         }
     """.trimIndent()
 
+    private fun lagGyldigKandidatliste(stillingsId: UUID): Kandidatliste = Kandidatliste(
+        id = null,
+        uuid = UUID.randomUUID(),
+        stillingsId, "Tittel",
+        Kandidatliste.Status.ÅPEN,
+        false,
+        "",
+        ZonedDateTime.now(),
+        ZonedDateTime.now()
+    )
 }

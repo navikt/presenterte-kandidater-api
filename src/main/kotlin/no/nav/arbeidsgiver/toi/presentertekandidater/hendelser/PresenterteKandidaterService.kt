@@ -62,19 +62,4 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
             kandidatlisteRepository.slettKandidatFraKandidatliste(aktørId, kandidatliste.id!!)
         }
     }
-
-    private fun lagreKandidat(kandidathendelse: Kandidathendelse, kandidatlisteId: BigInteger) {
-        val kandidat = mapKandidathendelseTilNyKandidat(kandidathendelse, kandidatlisteId)
-        kandidatlisteRepository.lagre(kandidat)
-    }
-
-    private fun mapKandidathendelseTilNyKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {
-        return Kandidat(
-            aktørId = hendelse.aktørId,
-            kandidatlisteId = kandidatlisteId,
-            uuid = UUID.randomUUID(),
-            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
-            sistEndret = ZonedDateTime.now()
-        )
-    }
 }

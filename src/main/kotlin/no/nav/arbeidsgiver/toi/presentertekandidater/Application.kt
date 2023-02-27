@@ -101,10 +101,10 @@ fun startApp(
 
     log("ApplicationKt").info("Starter Kafka-lytting")
     rapidsConnection.also {
-        PresenterteKandidaterLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
         SlettetStillingLytter(it, prometheusRegistry, presenterteKandidaterService)
+        SlettFraArbeidsgiversKandidatlisteLytter(it, prometheusRegistry, presenterteKandidaterService)
         log("Application").info("Startet lytter")
     }.start()
 }
