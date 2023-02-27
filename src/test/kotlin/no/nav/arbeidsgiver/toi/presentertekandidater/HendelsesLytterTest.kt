@@ -102,10 +102,10 @@ class HendelsesLytterTest {
         assertNotNull(kandidatlisteEtterFørsteMelding.id)
         assertNotNull(kandidatlisteEtterFørsteMelding.uuid)
         assertThat(kandidatlisteEtterFørsteMelding.stillingId).isEqualTo(stillingsId)
-        assertThat(kandidatlisteEtterFørsteMelding.tittel).isEqualTo("Noen skal få denne jobben!")
+        assertThat(kandidatlisteEtterFørsteMelding.tittel).isEqualTo("En fantastisk stilling")
         assertThat(kandidatlisteEtterFørsteMelding.status).isEqualTo(Kandidatliste.Status.ÅPEN)
         assertThat(kandidatlisteEtterFørsteMelding.slettet).isFalse
-        assertThat(kandidatlisteEtterFørsteMelding.virksomhetsnummer).isEqualTo("912998827")
+        assertThat(kandidatlisteEtterFørsteMelding.virksomhetsnummer).isEqualTo("312113341")
         assertThat(kandidaterEtterFørsteMelding).hasSize(1)
 
         val kandidatEtterFørsteMelding = kandidaterEtterFørsteMelding.first()
@@ -125,10 +125,10 @@ class HendelsesLytterTest {
         assertThat(kandidatlisteEtterAndreMelding.id).isEqualTo(kandidatlisteEtterAndreMelding.id)
         assertThat(kandidatlisteEtterAndreMelding.uuid).isEqualTo(kandidatlisteEtterAndreMelding.uuid)
         assertThat(kandidatlisteEtterAndreMelding.stillingId).isEqualTo(stillingsId)
-        assertThat(kandidatlisteEtterAndreMelding.tittel).isEqualTo("Noen skal få denne jobben!")
+        assertThat(kandidatlisteEtterAndreMelding.tittel).isEqualTo("En fantastisk stilling")
         assertThat(kandidatlisteEtterAndreMelding.status).isEqualTo(Kandidatliste.Status.ÅPEN)
         assertThat(kandidatlisteEtterAndreMelding.slettet).isFalse
-        assertThat(kandidatlisteEtterAndreMelding.virksomhetsnummer).isEqualTo("912998827")
+        assertThat(kandidatlisteEtterAndreMelding.virksomhetsnummer).isEqualTo("312113341")
 
         assertThat(kandidaterEtterAndreMelding).hasSize(1)
         val kandidatEtterAndreMelding = kandidaterEtterAndreMelding.first()
@@ -149,15 +149,15 @@ class HendelsesLytterTest {
         assertThat(inspektør.size).isEqualTo(1)
         val notifikasjonsmeldingjJsonNode = inspektør.message(0)
         assertThat(notifikasjonsmeldingjJsonNode["@event_name"].asText()).isEqualTo("notifikasjon.cv-delt")
-        assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("$stillingsId-2022-11-09T10:37:45.108+01:00[Europe/Oslo]")
+        assertThat(notifikasjonsmeldingjJsonNode["notifikasjonsId"].asText()).isEqualTo("$stillingsId-2023-02-09T09:45:53.649+01:00[Europe/Oslo]")
         assertThat(notifikasjonsmeldingjJsonNode["stillingsId"].asText()).isEqualTo(stillingsId.toString())
-        assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("912998827")
+        assertThat(notifikasjonsmeldingjJsonNode["virksomhetsnummer"].asText()).isEqualTo("312113341")
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederFornavn"].asText()).isEqualTo("Veileder")
         assertThat(notifikasjonsmeldingjJsonNode["utførtAvVeilederEtternavn"].asText()).isEqualTo("Veiledersen")
-        assertThat(notifikasjonsmeldingjJsonNode["arbeidsgiversEpostadresser"].toList().map { it.asText() }).containsExactlyInAnyOrder("test@testepost.no", "m@m.no")
-        assertThat(notifikasjonsmeldingjJsonNode["meldingTilArbeidsgiver"].asText()).isEqualTo("meldingen \n inneholder linjeskift\noveralt")
-        assertThat(notifikasjonsmeldingjJsonNode["stillingstittel"].asText()).isEqualTo("stillingstittelen")
-        assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2022-11-09T10:37:45.108+01:00")
+        assertThat(notifikasjonsmeldingjJsonNode["arbeidsgiversEpostadresser"].toList().map { it.asText() }).containsExactlyInAnyOrder("hei@arbeidsgiversdomene.no", "enansatt@trygdeetaten.no")
+        assertThat(notifikasjonsmeldingjJsonNode["meldingTilArbeidsgiver"].asText()).isEqualTo("Hei, her er en\ngod kandidat som vil føre til at du kan selge varene dine med høyere avanse!")
+        assertThat(notifikasjonsmeldingjJsonNode["stillingstittel"].asText()).isEqualTo("En fantastisk stilling")
+        assertThat(notifikasjonsmeldingjJsonNode["tidspunktForHendelse"].asText()).isEqualTo("2023-02-09T09:45:53.649+01:00")
         assertThat(notifikasjonsmeldingjJsonNode["@slutt_av_hendelseskjede"]).isNull()
     }
 
@@ -198,22 +198,10 @@ class HendelsesLytterTest {
     }
 
     @Test
-    fun `Etter å ha lagret CV_DELT uten å sende notifikasjonsmelding skal det legges melding tilbake på rapid med slutt_av_hendelseskjede satt til true`() {
-        val aktørId = "2040897398605"
-        val stillingsId = UUID.randomUUID()
-        val melding = meldingDelCv(aktørIder = listOf(aktørId), stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(melding)
-
-        assertThat(testRapid.inspektør.size).isEqualTo(1)
-        assertThat(testRapid.inspektør.message(0)["@slutt_av_hendelseskjede"].asBoolean()).isTrue
-    }
-
-    @Test
     fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
         val aktørId = "2040897398605"
         val stillingsId = UUID.randomUUID()
-        val melding = meldingDelCv(aktørIder = listOf(aktørId), stillingsId = stillingsId)
+        val melding = meldingDelCv(aktørIder = listOf(aktørId), stillingsId = stillingsId, sluttAvHendelseskjede = true)
 
         testRapid.sendTestMessage(melding)
 
@@ -233,13 +221,13 @@ class HendelsesLytterTest {
           "stillingsId": "$stillingsId",
           "utførtAvNavIdent": "Z994633",
           "utførtAvNavKontorKode": "0313",
-          "utførtAvVeilederFornavn": "F_Z994633",
-          "utførtAvVeilederEtternavn": "E_Z994633",
+          "utførtAvVeilederFornavn": "Veileder",
+          "utførtAvVeilederEtternavn": "Veiledersen",
           "arbeidsgiversEpostadresser": [
             "hei@arbeidsgiversdomene.no",
             "enansatt@trygdeetaten.no"
           ],
-          "meldingTilArbeidsgiver": "Hei, her er en god kandidat som vil føre til at du kan selge varene dine med høyere avanse!",
+          "meldingTilArbeidsgiver": "Hei, her er en\ngod kandidat som vil føre til at du kan selge varene dine med høyere avanse!",
           "kandidater": {
             ${aktørIder.map {
                 """

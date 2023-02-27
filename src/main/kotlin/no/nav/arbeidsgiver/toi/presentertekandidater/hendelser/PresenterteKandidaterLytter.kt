@@ -25,7 +25,6 @@ class PresenterteKandidaterLytter(
             validate {
                 it.demandAny(
                     "@event_name", listOf(
-                        "kandidat.cv-delt-med-arbeidsgiver-via-rekrutteringsbistand",
                         "kandidat.annullert",
                         "kandidat.slettet-fra-arbeidsgivers-kandidatliste",
                         "kandidat.kandidatliste-lukket-noen-andre-fikk-jobben",
@@ -58,21 +57,6 @@ class PresenterteKandidaterLytter(
             secureLog.info("Mottok event ${kandidathendelse.type} for aktørid ${kandidathendelse.aktørId}")
 
             val harPublisertNyMeldingPåRapid = when (kandidathendelse.type) {
-                Type.CV_DELT_VIA_REKRUTTERINGSBISTAND -> {
-                    val stillingstittel = packet["stilling"]["stillingstittel"].asText()
-                    presenterteKandidaterService.lagreCvDeltHendelse(kandidathendelse, stillingstittel)
-                    cvDeltCounter.increment()
-
-                    val cvDeltData = hentUtCvDeltData(kandidathendelsePacket)
-
-                    val harSendtNotifikasjonsmelding = if (cvDeltData != null) {
-                        notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, cvDeltData)
-                        true
-                    } else {
-                        false
-                    }
-                    harSendtNotifikasjonsmelding
-                }
 
                 Type.SLETTET_FRA_ARBEIDSGIVERS_KANDIDATLISTE -> {
                     presenterteKandidaterService.slettKandidatFraKandidatliste(

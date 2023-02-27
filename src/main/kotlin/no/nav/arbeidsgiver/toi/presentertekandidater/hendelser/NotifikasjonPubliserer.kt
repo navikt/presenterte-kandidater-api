@@ -1,10 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
@@ -15,15 +13,15 @@ import java.util.*
 
 class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
 
-    fun publiserNotifikasjonForCvDelt(kandidathendelse: Kandidathendelse, cvDeltData: CvDeltData) {
-        val tidspunkt = kandidathendelse.tidspunkt.withZoneSameInstant(ZoneId.of("Europe/Oslo"))
-        val notifikasjonsId = "${kandidathendelse.stillingsId}-$tidspunkt"
+    fun publiserNotifikasjonForCvDelt(tidspunkt: ZonedDateTime, stillingsId: UUID, organisasjonsnummer: String, cvDeltData: CvDeltData) {
+        val tidspunkt = tidspunkt.withZoneSameInstant(ZoneId.of("Europe/Oslo"))
+        val notifikasjonsId = "$stillingsId-$tidspunkt"
 
         val melding = Notifikasjonsmelding(
             notifikasjonsId,
-            kandidathendelse.stillingsId,
+            stillingsId,
             tidspunkt,
-            kandidathendelse.organisasjonsnummer,
+            organisasjonsnummer,
             cvDeltData.utførtAvVeilederFornavn,
             cvDeltData.utførtAvVeilederEtternavn,
             cvDeltData.arbeidsgiversEpostadresser,

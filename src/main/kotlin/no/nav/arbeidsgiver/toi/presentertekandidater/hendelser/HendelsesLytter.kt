@@ -1,8 +1,12 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.RapidsConnection
@@ -17,7 +21,11 @@ class HendelsesLytter(
     prometheusRegistry: MeterRegistry,
     private val presenterteKandidaterService: PresenterteKandidaterService
 ) : River.PacketListener {
+
     private val cvDeltCounter: Counter = Counter.builder("cvDelt").register(prometheusRegistry)
+
+    private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     init {
         River(rapidsConnection).apply {
@@ -27,7 +35,15 @@ class HendelsesLytter(
                         "kandidat_v2.DelCvMedArbeidsgiver"
                     )
                 )
-                it.demandKey("stilling")
+                it.requireKey(
+                    "stilling",
+                    "stillingstittel",
+                    "organisasjonsnummer",
+                    "tidspunkt",
+                    "stillingsId",
+                    "utførtAvNavIdent",
+                    "utførtAvNavKontorKode",
+                    "kandidater")
                 it.rejectValue("@slutt_av_hendelseskjede", true)
             }
         }.register(this)
@@ -52,9 +68,25 @@ class HendelsesLytter(
             aktørIder = aktørIder
             )
 
-        // notifikasjonPubliserer.publiserNotifikasjonForCvDelt(kandidathendelse, cvDeltData)
+        val cvDeltData = hentUtCvDeltData(packet)
+
+        if (cvDeltData != null) {
+            notifikasjonPubliserer.publiserNotifikasjonForCvDelt(tidspunkt, stillingsId, organisasjonsnummer, cvDeltData)
+        } else {
+            packet["@slutt_av_hendelseskjede"] = true
+            context.publish(packet.toJson())
+        }
     }
 
     private fun JsonNode.asZonedDateTime() =
-        ZonedDateTime.parse(this.asText()).withZoneSameInstant(ZoneId.of("Europe/Oslo"))
+        ZonedDateTime.parse(this.asText())
+
+    private fun hentUtCvDeltData(kandidathendelsePacket: JsonMessage): CvDeltData? {
+        return try {
+            objectMapper.readValue(kandidathendelsePacket.toJson(), CvDeltData::class.java)
+        } catch (e: Exception) {
+            log.error("Kunne ikke hente CvDeltData fra kandidathendelseJson", e)
+            null
+        }
+    }
 }
