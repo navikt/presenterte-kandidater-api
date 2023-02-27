@@ -49,14 +49,14 @@ class CvDeltLytter(
             .map(MutableMap.MutableEntry<String, JsonNode>::key).toList()
         val stillingstittel = packet["stillingstittel"].asText()
 
-        cvDeltCounter.increment()
-
         presenterteKandidaterService.lagreCvDeltHendelse(
             organisasjonsnummer = organisasjonsnummer,
             stillingsId = stillingsId,
             stillingstittel = stillingstittel,
             aktørIder = aktørIder
             )
+
+        cvDeltCounter.increment()
 
         val cvDeltData = hentUtCvDeltData(packet)
 
@@ -84,3 +84,11 @@ class CvDeltLytter(
         }
     }
 }
+
+data class CvDeltData(
+    val utførtAvVeilederFornavn: String,
+    val utførtAvVeilederEtternavn: String,
+    val arbeidsgiversEpostadresser: List<String>,
+    val meldingTilArbeidsgiver: String,
+    val stillingstittel: String
+)
