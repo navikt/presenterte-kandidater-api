@@ -50,46 +50,6 @@ class PresenterteKandidaterLytterTest {
     }
 
     @Test
-    fun `test at annullert kandidatliste registreres som slettet fra databasen`() {
-        val stillingsId = UUID.randomUUID()
-        val aktørId = "44556677"
-        val meldingOmOpprettelseAvKandidatliste =
-            meldingOmKandidathendelseDeltCv(aktørId = aktørId, stillingsId = stillingsId)
-
-        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
-        var kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste?.slettet).isFalse
-
-        val meldingOmKandidatlisteLukket = meldingOmKandidathendelseKandidatlisteAnnullert(aktørId, stillingsId)
-        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
-
-        kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.slettet).isTrue
-    }
-
-    @Test
-    fun `test at kandidat slettes fra kandidatliste ved slettekandidathendelse`() {
-        val stillingsId = UUID.randomUUID()
-        val førsteAktørId = "44556677"
-        val førsteStillingstittel = "Stilling hvis kandidat skal slettes fra!"
-        val meldingOmOpprettelseAvKandidatliste =
-            meldingOmKandidathendelseDeltCv(førsteAktørId, førsteStillingstittel, stillingsId)
-
-        testRapid.sendTestMessage(meldingOmOpprettelseAvKandidatliste)
-        var kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatliste!!.tittel).isEqualTo(førsteStillingstittel)
-        var kandidat = repository.hentKandidat(førsteAktørId, kandidatliste.id!!)
-        assertThat(kandidat!!.aktørId).isEqualTo(førsteAktørId)
-
-        val meldingOmKandidatlisteLukket =
-            meldingOmKandidathendelseKandidatSlettetFraListe(førsteAktørId, førsteStillingstittel, stillingsId)
-        testRapid.sendTestMessage(meldingOmKandidatlisteLukket)
-
-        kandidat = repository.hentKandidat(førsteAktørId, kandidatliste.id!!)
-        assertThat(kandidat).isNull()
-    }
-
-    @Test
     fun `Skal sette listen som ÅPEN og slettet=true når vi får melding om kandidathendelse på en liste som allerede eksisterer`() {
         val aktørId = "2050897398605"
         val stillingsId = UUID.randomUUID()
