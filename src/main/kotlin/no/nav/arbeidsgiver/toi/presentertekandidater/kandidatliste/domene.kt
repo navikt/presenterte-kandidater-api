@@ -63,7 +63,7 @@ data class Kandidat(
     @JsonIgnore
     val kandidatlisteId: BigInteger,
     val arbeidsgiversVurdering: ArbeidsgiversVurdering,
-    val sistEndret: ZonedDateTime,
+    val sistEndret: ZonedDateTime = ZonedDateTime.now(),
 ) {
     companion object {
         fun fraDatabase(rs: ResultSet): Kandidat {

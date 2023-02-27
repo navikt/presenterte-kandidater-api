@@ -9,31 +9,42 @@ import java.util.*
 
 class PresenterteKandidaterService(private val kandidatlisteRepository: KandidatlisteRepository) {
 
-    fun lagreCvDeltHendelse(kandidathendelse: Kandidathendelse, stillingstittel: String) {
-        val kandidatliste = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
+    fun lagreCvDeltHendelse(organisasjonsnummer: String, stillingsId: UUID, stillingstittel: String, aktørIder: List<String>) {
+        val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
 
         if (kandidatliste == null) {
-            val nyKandidatliste = Kandidatliste.ny(
-                stillingId = kandidathendelse.stillingsId,
-                tittel = stillingstittel,
-                virksomhetsnummer = kandidathendelse.organisasjonsnummer
+            kandidatlisteRepository.lagre(
+                Kandidatliste.ny(
+                    stillingId = stillingsId,
+                    tittel = stillingstittel,
+                    virksomhetsnummer = organisasjonsnummer
+                )
             )
-            kandidatlisteRepository.lagre(nyKandidatliste)
         } else {
-            val oppdatertKandidatliste = kandidatliste.copy(
-                tittel = stillingstittel,
-                status = Kandidatliste.Status.ÅPEN,
-                slettet = false
+            kandidatlisteRepository.oppdater(
+                kandidatliste.copy(
+                    tittel = stillingstittel,
+                    status = Kandidatliste.Status.ÅPEN,
+                    slettet = false
+                )
             )
-            kandidatlisteRepository.oppdater(oppdatertKandidatliste)
         }
 
-        val kandidatlisteLagret = kandidatlisteRepository.hentKandidatliste(kandidathendelse.stillingsId)
+        val kandidatlisteLagret = kandidatlisteRepository.hentKandidatliste(stillingsId)
             ?: throw RuntimeException("Alvorlig feil - kandidatliste skal ikke kunne være null")
 
-        val kandidat = kandidatlisteRepository.hentKandidat(kandidathendelse.aktørId, kandidatlisteLagret.id!!)
-        if (kandidat == null) {
-            lagreKandidat(kandidathendelse, kandidatlisteLagret.id)
+        aktørIder.forEach {
+            val kandidat = kandidatlisteRepository.hentKandidat(it, kandidatlisteLagret.id!!)
+            if (kandidat == null) {
+
+                kandidatlisteRepository.lagre(Kandidat(
+                    aktørId = it,
+                    kandidatlisteId = kandidatlisteLagret.id,
+                    uuid = UUID.randomUUID(),
+                    arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+                    sistEndret = ZonedDateTime.now()
+                ))
+            }
         }
     }
 
@@ -50,20 +61,5 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
         if (kandidatliste != null) {
             kandidatlisteRepository.slettKandidatFraKandidatliste(aktørId, kandidatliste.id!!)
         }
-    }
-
-    private fun lagreKandidat(kandidathendelse: Kandidathendelse, kandidatlisteId: BigInteger) {
-        val kandidat = mapKandidathendelseTilNyKandidat(kandidathendelse, kandidatlisteId)
-        kandidatlisteRepository.lagre(kandidat)
-    }
-
-    private fun mapKandidathendelseTilNyKandidat(hendelse: Kandidathendelse, kandidatlisteId: BigInteger): Kandidat {
-        return Kandidat(
-            aktørId = hendelse.aktørId,
-            kandidatlisteId = kandidatlisteId,
-            uuid = UUID.randomUUID(),
-            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
-            sistEndret = ZonedDateTime.now()
-        )
     }
 }
