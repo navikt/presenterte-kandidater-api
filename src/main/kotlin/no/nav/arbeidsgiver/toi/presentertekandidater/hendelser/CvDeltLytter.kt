@@ -68,6 +68,10 @@ class CvDeltLytter(
         }
     }
 
+    override fun onError(problems: MessageProblems, context: MessageContext) {
+        log.error("feil ved lesing av hendelse: $problems")
+    }
+
     private fun JsonNode.asZonedDateTime() =
         ZonedDateTime.parse(this.asText())
 

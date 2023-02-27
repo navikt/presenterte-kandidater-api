@@ -2,6 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.helse.rapids_rivers.*
 
 class SlettFraArbeidsgiversKandidatlisteLytter(
@@ -32,5 +33,9 @@ class SlettFraArbeidsgiversKandidatlisteLytter(
 
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
+    }
+
+    override fun onError(problems: MessageProblems, context: MessageContext) {
+        log.error("feil ved lesing av hendelse: $problems")
     }
 }
