@@ -49,14 +49,14 @@ class CvDeltLytter(
             .map(MutableMap.MutableEntry<String, JsonNode>::key).toList()
         val stillingstittel = packet["stillingstittel"].asText()
 
-        cvDeltCounter.increment()
-
         presenterteKandidaterService.lagreCvDeltHendelse(
             organisasjonsnummer = organisasjonsnummer,
             stillingsId = stillingsId,
             stillingstittel = stillingstittel,
             aktørIder = aktørIder
             )
+
+        cvDeltCounter.increment()
 
         val cvDeltData = hentUtCvDeltData(packet)
 
