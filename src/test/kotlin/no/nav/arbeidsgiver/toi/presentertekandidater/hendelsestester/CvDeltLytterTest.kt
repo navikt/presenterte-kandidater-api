@@ -1,12 +1,16 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelsestester
 
-import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.PresenterteKandidaterService
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
+import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.CvDeltLytter
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatlisteRepositoryMedLokalPostgres
 import no.nav.arbeidsgiver.toi.presentertekandidater.startLocalApplication
 import no.nav.arbeidsgiver.toi.presentertekandidater.testRapid
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
@@ -14,16 +18,25 @@ import kotlin.test.assertNotNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CvDeltLytterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val presenterteKandidaterService = PresenterteKandidaterService(repository)
+    private lateinit var logWatcher: ListAppender<ILoggingEvent>
 
     @BeforeAll
     fun init() {
         startLocalApplication()
+        setUpLogWatcher()
     }
 
     @BeforeEach
     fun setUp() {
         testRapid.reset()
+    }
+
+    private fun setUpLogWatcher() {
+        logWatcher = ListAppender<ILoggingEvent>()
+        logWatcher.start()
+        val logger =
+            LoggerFactory.getLogger(CvDeltLytter::class.java) as ch.qos.logback.classic.Logger
+        logger.addAppender(logWatcher)
     }
 
     @Test
@@ -202,6 +215,46 @@ class CvDeltLytterTest {
         assertThat(kandidatliste.slettet).isFalse
         assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
     }
+
+    @Test
+    fun `Skal ikke kaste feil eller logge error eller warning når CvDelt-melding uten "stilling"-objekt ligger på rapid'en`() {
+        val melding = meldingDelCvUtenStillingObjekt()
+
+        testRapid.sendTestMessage(melding)
+
+        val warningsOgErrorsLogglinjer = logWatcher.list.filter { it.level == Level.ERROR || it.level == Level.WARN }
+        assertThat(warningsOgErrorsLogglinjer).isEmpty()
+    }
+
+    private fun meldingDelCvUtenStillingObjekt() =
+        """
+        {
+          "stillingstittel": "En tittel",
+          "organisasjonsnummer": "312113341",
+          "kandidatlisteId": "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
+          "tidspunkt": "2023-02-09T09:45:53.649+01:00",
+          "stillingsId": "1827cddd-736c-4926-ad2a-a657a1cefa1d",
+          "utførtAvNavIdent": "Z994633",
+          "utførtAvNavKontorKode": "0313",
+          "utførtAvVeilederFornavn": "Veileder",
+          "utførtAvVeilederEtternavn": "Veiledersen",
+          "arbeidsgiversEpostadresser": [
+            "hei@arbeidsgiversdomene.no",
+            "enansatt@trygdeetaten.no"
+          ],
+          "meldingTilArbeidsgiver": "Hei, her er en\ngod kandidat som vil føre til at du kan selge varene dine med høyere avanse!",
+          "kandidater": {
+              "2331033060641": {
+                "harHullICv": true,
+                "alder": 61,
+                "tilretteleggingsbehov": [],
+                "innsatsbehov": "BATT",
+                "hovedmål": "SKAFFEA"
+              }
+          },
+          "@event_name": "kandidat_v2.DelCvMedArbeidsgiver"
+        }
+    """
 
     private fun meldingDelCv(
         aktørIder: List<String>,

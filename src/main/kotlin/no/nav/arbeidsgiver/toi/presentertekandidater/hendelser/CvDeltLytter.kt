@@ -27,9 +27,9 @@ class CvDeltLytter(
         River(rapidsConnection).apply {
             validate {
                 it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
+                it.demandKey("stilling")
+                it.demandKey("stillingstittel")
                 it.requireKey(
-                    "stilling",
-                    "stillingstittel",
                     "organisasjonsnummer",
                     "tidspunkt",
                     "stillingsId",
