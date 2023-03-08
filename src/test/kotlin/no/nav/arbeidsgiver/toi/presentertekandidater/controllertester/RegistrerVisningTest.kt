@@ -114,6 +114,29 @@ class RegistrerVisningTest {
             renameDatabaseTabell("feil", "visning_kontaktinfo")
         }
     }
+
+    @Test
+    fun `Skal lage registrering av visning med publisert_melding lik false`() {
+        val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
+        val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
+        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
+        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+
+        val fødselsnummer = tilfeldigFødselsnummer()
+        lagreSamtykke(fødselsnummer)
+        val accessToken = hentToken(fødselsnummer)
+
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
+            .header("Authorization", "Bearer $accessToken")
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
+        assertThat(response.statusCode()).isEqualTo(200)
+        val databaseRader = hentDatabaseRader(kandidat.aktørId)
+        assertTrue(databaseRader.next())
+        assertThat(databaseRader.getBoolean("publisert_melding")).isFalse
+    }
 }
 
 private fun hentDatabaseRader(aktørId: String): ResultSet {
