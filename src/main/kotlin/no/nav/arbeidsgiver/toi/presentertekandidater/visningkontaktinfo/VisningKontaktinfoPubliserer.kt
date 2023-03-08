@@ -14,6 +14,23 @@ class VisningKontaktinfoPubliserer(
     private val visningKontaktinfoRepository: VisningKontaktinfoRepository
 ) {
 
+   init {
+        val antallMillisekunderIMinutt = 60000L
+        val tidTilFørsteKjøringMillisekunder = antallMillisekunderIMinutt
+        val tidMellomHverKjøringMillisekunder = 10000L
+
+        val jobb = object : TimerTask() {
+            override fun run() {
+                publiser()
+            }
+        }
+
+        Timer().scheduleAtFixedRate(jobb,
+            tidTilFørsteKjøringMillisekunder,
+            tidMellomHverKjøringMillisekunder
+        )
+    }
+
     fun publiser() {
         log.info("Skal publisere meldinger for visning av kontaktinfo")
         var antallMeldingerPublisert = 0
