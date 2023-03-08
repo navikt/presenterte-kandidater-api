@@ -17,7 +17,7 @@ class VisningKontaktinfoPubliserer(
    init {
         val antallMillisekunderIMinutt = 60000L
         val tidTilFørsteKjøringMillisekunder = antallMillisekunderIMinutt
-        val tidMellomHverKjøringMillisekunder = 10000L
+        val tidMellomHverKjøringMillisekunder = antallMillisekunderIMinutt
 
         val jobb = object : TimerTask() {
             override fun run() {
