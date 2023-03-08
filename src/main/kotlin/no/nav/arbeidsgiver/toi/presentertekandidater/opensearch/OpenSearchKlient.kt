@@ -68,7 +68,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
             }
 
             else -> {
-                log.error("hentCver fra OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                log.error("hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet: ${respons.statusCode} ${respons.responseMessage}")
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
             }
         }
