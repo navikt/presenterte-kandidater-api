@@ -16,6 +16,8 @@ class VisningKontaktinfoPubliserer(
 
     fun publiser() {
         log.info("Skal publisere meldinger for visning av kontaktinfo")
+        var antallMeldingerPublisert = 0
+
         visningKontaktinfoRepository.gjørOperasjonPåAlleUpubliserteVisninger { registrertVisning, index ->
             val melding = Melding(
                 stillingsId = registrertVisning.stillingsId,
@@ -25,7 +27,10 @@ class VisningKontaktinfoPubliserer(
 
             rapidsConnection.publish(melding.tilJsonMelding())
             visningKontaktinfoRepository.markerSomPublisert(registrertVisning)
+            antallMeldingerPublisert++
         }
+
+        log.info("Har publisert $antallMeldingerPublisert meldinger om vist kontaktinfo")
     }
 
     private data class Melding(

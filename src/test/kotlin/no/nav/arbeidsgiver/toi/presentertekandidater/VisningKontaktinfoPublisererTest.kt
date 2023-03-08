@@ -40,7 +40,6 @@ class VisningKontaktinfoPublisererTest {
         visningKontaktinfoPubliserer.publiser()
 
         val inspektør = rapid.inspektør
-
         assertThat(inspektør.size).isEqualTo(2)
         val førsteMelding = inspektør.message(0)
         assertThat(førsteMelding["@event_name"].asText()).isEqualTo("arbeidsgiversKandidatliste.VisningKontaktinfo")
