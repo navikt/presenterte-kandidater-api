@@ -116,7 +116,7 @@ class RegistrerVisningTest {
     }
 
     @Test
-    fun `Skal lage registrering av visning med publisert_melding lik false`() {
+    fun `Skal lagre registrering av visning med publisert_melding lik false`() {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
