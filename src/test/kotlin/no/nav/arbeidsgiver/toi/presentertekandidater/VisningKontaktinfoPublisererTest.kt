@@ -28,6 +28,7 @@ class VisningKontaktinfoPublisererTest {
     @BeforeEach
     fun setUp() {
         rapid.reset()
+        slettAllDataIDatabase()
     }
 
     @Test

@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo
 
+import java.sql.ResultSet
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
@@ -23,13 +24,7 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
 
         return generateSequence {
             if (resultSet.next()) {
-                RegistrertVisning(
-                    id = resultSet.getLong("id"),
-                    aktørId = resultSet.getString("aktør_id"),
-                    stillingsId = resultSet.getObject("stilling_id") as UUID,
-                    tidspunkt = resultSet.getTimestamp("tidspunkt").toInstant().atZone(ZoneId.of("Europe/Oslo")),
-                    publisertMelding = resultSet.getBoolean("publisert_melding")
-                )
+                RegistrertVisning.fraResultSet(resultSet)
             } else null
         }.toList()
     }
@@ -46,11 +41,55 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun gjørOperasjonPåAlleUpubliserteVisninger(operasjon: (RegistrertVisning, Int) -> Unit) {
+        val connection = dataSource.connection
+
+        connection.autoCommit = false
+
+        connection.let {
+            val resultSet = it.prepareStatement(
+                """
+                select * from visning_kontaktinfo
+                where publisert_melding is not true
+            """.trimIndent(),
+                ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY
+            ).also { stmt -> stmt.fetchSize = 100 }
+            .executeQuery()
+
+            resultSet.forEachRowIndexed { resultSetRow, index ->
+                val registrertVisning = RegistrertVisning.fraResultSet(resultSetRow)
+                operasjon(registrertVisning, index)
+            }
+        }
+
+        connection.commit()
+    }
+
+    private fun ResultSet.forEachRowIndexed(operation: (ResultSet, Int) -> Unit) {
+        var teller = 0
+
+        while (this.next()) {
+            operation(this, teller++)
+        }
+    }
+
     data class RegistrertVisning(
         val id: Long,
         val aktørId: String,
         val stillingsId: UUID,
         val tidspunkt: ZonedDateTime,
         val publisertMelding: Boolean
-    )
+    ) {
+        companion object {
+            fun fraResultSet(resultSet: ResultSet) =
+                RegistrertVisning(
+                    id = resultSet.getLong("id"),
+                    aktørId = resultSet.getString("aktør_id"),
+                    stillingsId = resultSet.getObject("stilling_id") as UUID,
+                    tidspunkt = resultSet.getTimestamp("tidspunkt").toInstant().atZone(ZoneId.of("Europe/Oslo")),
+                    publisertMelding = resultSet.getBoolean("publisert_melding")
+                )
+        }
+    }
 }
