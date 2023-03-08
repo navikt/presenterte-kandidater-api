@@ -1,0 +1,1 @@
+alter table visning_kontaktinfo add column publisert_melding boolean;

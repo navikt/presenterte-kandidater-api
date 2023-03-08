@@ -22,6 +22,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.konfigurerRoller
 import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkMetrikkJobb
 import no.nav.arbeidsgiver.toi.presentertekandidater.statistikk.StatistikkRepository
+import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoPubliserer
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
@@ -105,6 +106,7 @@ fun startApp(
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
         SlettetStillingLytter(it, prometheusRegistry, presenterteKandidaterService)
         SlettFraArbeidsgiversKandidatlisteLytter(it, prometheusRegistry, presenterteKandidaterService)
+        VisningKontaktinfoPubliserer(it, visningKontaktinfoRepository)
         log("Application").info("Startet lytter")
     }.start()
 }

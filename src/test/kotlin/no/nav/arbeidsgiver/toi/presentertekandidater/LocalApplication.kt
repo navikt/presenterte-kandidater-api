@@ -8,6 +8,8 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoPubliserer
+import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -66,6 +68,15 @@ fun samtykkeRepositoryMedLokalPostgres(): SamtykkeRepository {
         println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
     }
     return SamtykkeRepository(dataSource)
+}
+
+fun visningKontaktinfoRepositoryMedLokalPostgres(): VisningKontaktinfoRepository {
+    try {
+        slettAllDataIDatabase()
+    } catch (e: Exception) {
+        println("Trenger ikke slette fordi db-skjema ikke opprettet ennå")
+    }
+    return VisningKontaktinfoRepository(dataSource)
 }
 
 fun openSearchKlient() = OpenSearchKlient(envs)
