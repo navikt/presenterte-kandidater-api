@@ -64,6 +64,7 @@ class VisningKontaktinfoRepository(private val dataSource: DataSource) {
         }
 
         connection.commit()
+        connection.close()
     }
 
     private fun ResultSet.forEachRowIndexed(operation: (ResultSet, Int) -> Unit) {
