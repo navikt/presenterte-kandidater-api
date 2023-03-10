@@ -14,7 +14,7 @@ spec:
           for: 1s
           annotations:
             summary: Appen er nede
-            action: "https://logs.adeo.no/app/r/s/Gnw9k"
+            action: "https://logs.adeo.no/app/r/s/E1jkf"
           labels:
             namespace: toi
             severity: critical
@@ -24,7 +24,7 @@ spec:
           for: 1s
           annotations:
             summary: Appen har logget en error
-            action: "https://logs.adeo.no/app/r/s/Gnw9k"
+            action: "https://logs.adeo.no/app/r/s/E1jkf"
           labels:
             namespace: toi
             severity: critical
@@ -34,7 +34,7 @@ spec:
           for: 3m
           annotations:
             summary: Økning i warnings
-            action: "https://logs.adeo.no/app/r/s/Gnw9k"
+            action: "https://logs.adeo.no/app/r/s/E1jkf"
           labels:
             namespace: toi
             severity: warning
