@@ -1,30 +1,40 @@
-apiVersion: "nais.io/v1"
-kind: "Alert"
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
 metadata:
   name: presenterte-kandidater-api
   namespace: toi
   labels:
     team: toi
 spec:
-  receivers:
-    slack:
-      channel: 'inkludering-alerts-prod'
-  alerts:
-    - alert: 'presenterte-kandidater-api'
-      expr: sum(up{app="presenterte-kandidater-api", job="kubernetes-pods"}) == 0
-      for: 1s
-      description: "Appen er nede"
-      action: "https://logs.adeo.no/app/r/s/J1BAt"
+  groups:
+    - name: presenterte-kandidater-api
+      rules:
+        - alert: presenterte-kandidater-api
+          expr: sum(up{app="presenterte-kandidater-api", job="nais-system/monitoring-apps-tenant"}) == 0
+          for: 1s
+          annotations:
+            summary: Appen er nede
+            action: "https://logs.adeo.no/app/r/s/Gnw9k"
+          labels:
+            namespace: toi
+            severity: critical
 
-    - alert: 'presenterte-kandidater-api'
-      expr: sum(increase(logd_messages_total{log_app="presenterte-kandidater-api",log_level="Error"}[10m])) > 0
-      for: 10s
-      description: "Appen har logget en feil"
-      action: "https://logs.adeo.no/app/r/s/J1BAt"
+        - alert: presenterte-kandidater-api
+          expr: sum(increase(logd_messages_total{log_app="presenterte-kandidater-api",log_level="Error"}[10m])) > 0
+          for: 1s
+          annotations:
+            summary: Appen har logget en error
+            action: "https://logs.adeo.no/app/r/s/Gnw9k"
+          labels:
+            namespace: toi
+            severity: critical
 
-    - alert: 'presenterte-kandidater-api'
-      severity: warning
-      expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="presenterte-kandidater-api",log_level=~"Warning"}[5m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="presenterte-kandidater-api"}[5m]))) > 20
-      for: 5m
-      description: Økning i warnings
-      action: "https://logs.adeo.no/app/r/s/J1BAt"
+        - alert: presenterte-kandidater-api
+          expr: (100 * sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="presenterte-kandidater-api  ",log_level=~"Warning"}[5m])) / sum by (log_app, log_namespace) (rate(logd_messages_total{log_app="presenterte-kandidater-api  "}[5m]))) > 5
+          for: 3m
+          annotations:
+            summary: Økning i warnings
+            action: "https://logs.adeo.no/app/r/s/Gnw9k"
+          labels:
+            namespace: toi
+            severity: warning
