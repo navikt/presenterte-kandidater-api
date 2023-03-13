@@ -11,7 +11,7 @@ spec:
       channel: 'inkludering-alerts-prod'
   alerts:
     - alert: 'presenterte-kandidater-api'
-      expr: sum(up{app="presenterte-kandidater-api", job="kubernetes-pods"}) == 0
+      expr: kube_deployment_status_replicas_available{deployment="presenterte-kandidater-api"} == 0
       for: 1s
       description: "Appen er nede"
       action: "https://logs.adeo.no/app/r/s/J1BAt"
