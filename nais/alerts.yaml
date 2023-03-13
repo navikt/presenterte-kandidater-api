@@ -10,7 +10,7 @@ spec:
     - name: presenterte-kandidater-api
       rules:
         - alert: presenterte-kandidater-api
-          expr: sum(up{app="presenterte-kandidater-api", job="nais-system/monitoring-apps-tenant"}) == 0
+          expr: kube_deployment_status_replicas_available{deployment="presenterte-kandidater-api"} == 0
           for: 1s
           annotations:
             summary: Appen er nede
