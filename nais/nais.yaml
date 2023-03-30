@@ -67,6 +67,6 @@ spec:
     - name: KAFKA_RESET_POLICY
       value: "latest"
     - name: ALTINN_PROXY_URL
-      value: {{ altinn_proxy_url }}
+      value: http://altinn-rettigheter-proxy.arbeidsgiver.svc.cluster.local
     - name: ALTINN_PROXY_AUDIENCE
       value: {{ altinn_proxy_audience }}
