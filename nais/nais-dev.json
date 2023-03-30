@@ -7,5 +7,6 @@
     "gcp_db_tier": "db-f1-micro",
     "gcp_disk_autoresize": "false",
     "altinn_proxy_url": "https://altinn-rettigheter-proxy.dev.nav.no/altinn-rettigheter-proxy",
+    "altinn_proxy_host": "https://altinn-rettigheter-proxy.dev.nav.no",
     "altinn_proxy_audience": "dev-gcp:arbeidsgiver:altinn-rettigheter-proxy"
 }

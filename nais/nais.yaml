@@ -48,6 +48,8 @@ spec:
       rules:
         - application: altinn-rettigheter-proxy
           namespace: arbeidsgiver
+      external:
+        - host: {{ altinn_proxy_host }}
   kafka:
     pool: {{ kafka-pool }}
   gcp:
