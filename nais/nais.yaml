@@ -45,8 +45,9 @@ spec:
         - application: min-side-arbeidsgiver
           namespace: fager
     outbound:
-      external:
-        - host: {{ altinn_proxy_host }}
+      rules:
+        - application: altinn-rettigheter-proxy
+          namespace: arbeidsgiver
   kafka:
     pool: {{ kafka-pool }}
   gcp:
