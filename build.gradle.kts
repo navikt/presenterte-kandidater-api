@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.8.20"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     application
 }
@@ -57,5 +57,4 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.17.5")
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
     testImplementation("io.mockk:mockk:1.13.2")
-
 }
