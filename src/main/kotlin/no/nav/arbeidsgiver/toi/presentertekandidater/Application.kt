@@ -107,6 +107,7 @@ fun startApp(
         SlettetStillingLytter(it, prometheusRegistry, presenterteKandidaterService)
         SlettFraArbeidsgiversKandidatlisteLytter(it, prometheusRegistry, presenterteKandidaterService)
         VisningKontaktinfoPubliserer(it, visningKontaktinfoRepository)
+        OppdaterteKandidatlisteLytter(it, presenterteKandidaterService)
         log("Application").info("Startet lytter")
     }.start()
 }

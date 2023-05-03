@@ -38,15 +38,15 @@ class OppdaterteKandidatlisteLytterTest {
         testRapid.sendTestMessage(melding)
 
         val kandidatliste = repository.hentKandidatliste(stillingsId)
-        val kandidater = repository.hentKandidater(kandidatliste?.id!!)
         assertNotNull(kandidatliste)
         assertNotNull(kandidatliste.uuid)
         assertThat(kandidatliste.stillingId).isEqualTo(stillingsId)
-        assertThat(kandidatliste.tittel).isEqualTo("En fantastisk stilling")
+        assertThat(kandidatliste.tittel).isEqualTo(stillingstittel)
         assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
         assertThat(kandidatliste.slettet).isFalse
-        assertThat(kandidatliste.virksomhetsnummer).isEqualTo("312113341")
+        assertThat(kandidatliste.virksomhetsnummer).isEqualTo(virksomhetsnummer)
         assertNotNull(kandidatliste.id)
+        val kandidater = repository.hentKandidater(kandidatliste.id!!)
         assertThat(kandidater).hasSize(0)
     }
 
@@ -96,20 +96,6 @@ class OppdaterteKandidatlisteLytterTest {
               "service": "rekrutteringsbistand-stilling-api",
               "instance": "rekrutteringsbistand-stilling-api-6b994f9798-lh5l9",
               "image": "ghcr.io/navikt/rekrutteringsbistand-stilling-api/rekrutteringsbistand-stilling-api:0070a4190c776bee3f058d11e53959cdb5703085"
-            },
-            {
-              "id": "f8e84852-c2f6-45fe-a696-16e5d972b71a",
-              "time": "2023-05-03T14:17:30.149546789",
-              "service": "rekrutteringsbistand-statistikk-api",
-              "instance": "rekrutteringsbistand-statistikk-api-79dd96888b-m2d55",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-statistikk-api/rekrutteringsbistand-statistikk-api:a35ac026621601cb0c985be1bf23f52b33838f4f"
-            },
-            {
-              "id": "8092ffc5-699f-4e88-80f9-6c05156bf2c7",
-              "time": "2023-05-03T14:17:30.179323178",
-              "service": "rekrutteringsbistand-statistikk-api",
-              "instance": "rekrutteringsbistand-statistikk-api-79dd96888b-m2d55",
-              "image": "ghcr.io/navikt/rekrutteringsbistand-statistikk-api/rekrutteringsbistand-statistikk-api:a35ac026621601cb0c985be1bf23f52b33838f4f"
             }
           ],
           "@id": "8092ffc5-699f-4e88-80f9-6c05156bf2c7",
@@ -117,7 +103,7 @@ class OppdaterteKandidatlisteLytterTest {
           "system_read_count": 1,
           "stillingsinfo": {
             "stillingsinfoid": "98780f09-cb1e-4be2-adeb-e01dae01cbe2",
-            "stillingsid": "f4014d77-bd3e-4f5b-9cde-e86b24fd74b3",
+            "stillingsid": "$stillingsId",
             "eier": null,
             "notat": "Stopper",
             "stillingskategori": "STILLING"
@@ -135,7 +121,7 @@ class OppdaterteKandidatlisteLytterTest {
             "opprettet": "2023-05-03T14:17:30.135489548",
             "event_name": "kandidat_v2.OppdaterteKandidatliste"
           },
-          "@slutt_av_hendelseskjede": true
+          "@slutt_av_hendelseskjede": false
         }
     """.trimIndent()
 
