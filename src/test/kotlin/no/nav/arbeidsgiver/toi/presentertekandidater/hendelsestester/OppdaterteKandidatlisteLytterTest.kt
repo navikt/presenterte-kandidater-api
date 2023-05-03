@@ -73,9 +73,26 @@ class OppdaterteKandidatlisteLytterTest {
         assertThat(kandidater).hasSize(0)
     }
 
-    // Særlig aktuelt for status og stillingstittel
     @Test
-    fun `Når vi mottar melding om kandidatliste vi allerede har lagret skal vi oppdatere hvis opplysninger er endret`() {}
+    fun `Når vi mottar melding om kandidatliste vi allerede har lagret skal vi oppdatere stillingstittelen hvis den er endret`() {
+        val stillingsId = UUID.randomUUID()
+        val stillingstittel = "En stilling"
+        val virksomhetsnummer = "312113341"
+        repository.lagre(Kandidatliste.ny(stillingId = stillingsId, tittel = stillingstittel, virksomhetsnummer = virksomhetsnummer))
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertNotNull(kandidatliste)
+        assertThat(kandidatliste.tittel).isEqualTo(stillingstittel)
+
+        val oppdatertStillingstittel = "En oppdatert stillingstittel"
+        val melding = melding(stillingsId, oppdatertStillingstittel, virksomhetsnummer)
+        testRapid.sendTestMessage(melding)
+
+        val kandidatlisteMedOppdatertTittel = repository.hentKandidatliste(stillingsId)
+        assertThat(kandidatlisteMedOppdatertTittel!!.tittel).isEqualTo(oppdatertStillingstittel)
+    }
+
+    @Test
+    fun `Det er ingen sammenheng mellom antallKandidater i meldinga og antall kandiadter i arbeidsgivers kandidatliste`() {}
 
     @Test
     fun `Vi skal ikke behandle melding uten stillingsdata`() {}
@@ -145,14 +162,15 @@ class OppdaterteKandidatlisteLytterTest {
         }
     """.trimIndent()
 
-    private fun lagGyldigKandidatliste(stillingsId: UUID): Kandidatliste = Kandidatliste(
+    private fun lagGyldigKandidatliste(stillingsId: UUID, stillingstittel: String): Kandidatliste = Kandidatliste(
         id = null,
         uuid = UUID.randomUUID(),
-        stillingsId, "Tittel",
-        Kandidatliste.Status.ÅPEN,
-        false,
-        "",
-        ZonedDateTime.now(),
-        ZonedDateTime.now()
+        stillingId = stillingsId,
+        tittel = "Tittel",
+        status = Kandidatliste.Status.ÅPEN,
+        slettet = false,
+        virksomhetsnummer = "232",
+        sistEndret = ZonedDateTime.now(),
+        opprettet = ZonedDateTime.now()
     )
 }

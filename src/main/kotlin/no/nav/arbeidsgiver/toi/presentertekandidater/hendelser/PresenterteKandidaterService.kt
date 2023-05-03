@@ -47,10 +47,10 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
         }
     }
 
-    fun lagreOppdaterteKandidatlisteMelding(stillingsId: UUID, stillingstittel: String, virksomhetsnummer: String) {
-        val kandidatlisteFinnesAllerede = kandidatlisteRepository.hentKandidatliste(stillingsId) != null
+    fun lagreOppdatertKandidatlisteMelding(stillingsId: UUID, stillingstittel: String, virksomhetsnummer: String) {
+        val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
 
-        if (!kandidatlisteFinnesAllerede) {
+        if (kandidatliste == null) {
             kandidatlisteRepository.lagre(
                 Kandidatliste.ny(
                     stillingId = stillingsId,
@@ -58,6 +58,8 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
                     tittel = stillingstittel
                 )
             )
+        } else if (stillingstittel != kandidatliste.tittel) {
+            kandidatlisteRepository.oppdater(kandidatliste.copy(tittel = stillingstittel))
         }
     }
 

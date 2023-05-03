@@ -20,7 +20,7 @@ class OppdaterteKandidatlisteLytter(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        presenterteKandidaterService.lagreOppdaterteKandidatlisteMelding(
+        presenterteKandidaterService.lagreOppdatertKandidatlisteMelding(
             stillingsId = packet["stillingsId"].asText().toUUID(),
             stillingstittel = packet["stilling.stillingstittel"].asText(),
             virksomhetsnummer = packet["stilling.organisasjonsnummer"].asText()
