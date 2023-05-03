@@ -48,13 +48,17 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
     }
 
     fun lagreOppdaterteKandidatlisteMelding(stillingsId: UUID, stillingstittel: String, virksomhetsnummer: String) {
-        kandidatlisteRepository.lagre(
-            Kandidatliste.ny(
-                stillingId = stillingsId,
-                virksomhetsnummer = virksomhetsnummer,
-                tittel = stillingstittel
+        val kandidatlisteFinnesAllerede = kandidatlisteRepository.hentKandidatliste(stillingsId) != null
+
+        if (!kandidatlisteFinnesAllerede) {
+            kandidatlisteRepository.lagre(
+                Kandidatliste.ny(
+                    stillingId = stillingsId,
+                    virksomhetsnummer = virksomhetsnummer,
+                    tittel = stillingstittel
+                )
             )
-        )
+        }
     }
 
     fun markerKandidatlisteSomSlettet(stillingsId: UUID) {

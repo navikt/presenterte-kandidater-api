@@ -51,7 +51,27 @@ class OppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Behandling av meldinger skal være idempotent`() {}
+    fun `Behandling av meldinger skal være idempotent`() {
+        val stillingsId = UUID.randomUUID()
+        val stillingstittel = "En stilling"
+        val virksomhetsnummer = "312113341"
+        val melding = melding(stillingsId, stillingstittel, virksomhetsnummer)
+
+        testRapid.sendTestMessage(melding)
+        testRapid.sendTestMessage(melding)
+
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertNotNull(kandidatliste)
+        assertNotNull(kandidatliste.uuid)
+        assertThat(kandidatliste.stillingId).isEqualTo(stillingsId)
+        assertThat(kandidatliste.tittel).isEqualTo(stillingstittel)
+        assertThat(kandidatliste.status).isEqualTo(Kandidatliste.Status.ÅPEN)
+        assertThat(kandidatliste.slettet).isFalse
+        assertThat(kandidatliste.virksomhetsnummer).isEqualTo(virksomhetsnummer)
+        assertNotNull(kandidatliste.id)
+        val kandidater = repository.hentKandidater(kandidatliste.id!!)
+        assertThat(kandidater).hasSize(0)
+    }
 
     // Særlig aktuelt for status og stillingstittel
     @Test
