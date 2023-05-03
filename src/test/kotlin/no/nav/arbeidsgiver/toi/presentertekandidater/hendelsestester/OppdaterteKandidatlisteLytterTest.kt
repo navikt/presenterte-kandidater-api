@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -92,10 +91,30 @@ class OppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Det er ingen sammenheng mellom antallKandidater i meldinga og antall kandiadter i arbeidsgivers kandidatliste`() {}
+    fun `Det er ingen sammenheng mellom antallKandidater i meldinga og antall kandiadter i arbeidsgivers kandidatliste`() {
+        val stillingsId = UUID.randomUUID()
+        val stillingstittel = "En stilling"
+        val virksomhetsnummer = "312113341"
+        repository.lagre(Kandidatliste.ny(stillingId = stillingsId, tittel = stillingstittel, virksomhetsnummer = virksomhetsnummer))
+        val kandidatliste = repository.hentKandidatliste(stillingsId)
+        assertNotNull(kandidatliste)
+        assertThat(repository.hentKandidater(kandidatliste.id!!)).hasSize(0)
+
+        val melding = melding(stillingsId, stillingstittel, virksomhetsnummer, antallKandidater = 10)
+        testRapid.sendTestMessage(melding)
+
+        assertThat(repository.hentKandidater(kandidatliste.id!!)).hasSize(0)
+    }
 
     @Test
-    fun `Vi skal ikke behandle melding uten stillingsdata`() {}
+    fun `Vi skal ikke bry oss om melding uten stillingsdata`() {
+        val stillingsId = UUID.randomUUID()
+        val meldingUtenStillingsdata = meldingUtenStillingsdata(stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(meldingUtenStillingsdata)
+
+        assertThat(repository.hentKandidatliste(stillingsId)).isNull()
+    }
 
     @Test
     fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {}
@@ -103,9 +122,10 @@ class OppdaterteKandidatlisteLytterTest {
     private fun melding(
         stillingsId: UUID,
         stillingstittel: String = "En stilling",
-        virksomhetsnummer: String = "312113341") = """
+        virksomhetsnummer: String = "312113341",
+        antallKandidater: Int = 0) = """
         {
-          "antallKandidater": 0,
+          "antallKandidater": $antallKandidater,
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "773571f9-026a-49b9-83a0-948658dd4e1c",
           "tidspunkt": "2023-05-03T14:17:26.851+02:00",
@@ -162,15 +182,35 @@ class OppdaterteKandidatlisteLytterTest {
         }
     """.trimIndent()
 
-    private fun lagGyldigKandidatliste(stillingsId: UUID, stillingstittel: String): Kandidatliste = Kandidatliste(
-        id = null,
-        uuid = UUID.randomUUID(),
-        stillingId = stillingsId,
-        tittel = "Tittel",
-        status = Kandidatliste.Status.ÅPEN,
-        slettet = false,
-        virksomhetsnummer = "232",
-        sistEndret = ZonedDateTime.now(),
-        opprettet = ZonedDateTime.now()
-    )
+    private fun meldingUtenStillingsdata(
+        stillingsId: UUID = UUID.randomUUID()
+    ) = """
+        {
+          "antallKandidater": 0,
+          "organisasjonsnummer": "312113341",
+          "kandidatlisteId": "773571f9-026a-49b9-83a0-948658dd4e1c",
+          "tidspunkt": "2023-05-03T14:17:26.851+02:00",
+          "stillingsId": "$stillingsId",
+          "utførtAvNavIdent": "Z994241",
+          "@event_name": "kandidat_v2.OppdaterteKandidatliste",
+          "system_participating_services": [
+            {
+              "id": "a4a136f4-5465-49d4-ac53-73758c03e814",
+              "time": "2023-05-03T14:17:30.002826698",
+              "service": "rekrutteringsbistand-kandidat-api",
+              "instance": "rekrutteringsbistand-kandidat-api-8667847c9d-zrgxk",
+              "image": "ghcr.io/navikt/rekrutteringsbistand-kandidat-api/rekrutteringsbistand-kandidat-api:b0cd5126f43d3599f27e31c3d945119bef7d77e1"
+            }
+          ],
+          "@id": "8092ffc5-699f-4e88-80f9-6c05156bf2c7",
+          "@opprettet": "2023-05-03T14:17:30.179323178",
+          "system_read_count": 1,
+          "@forårsaket_av": {
+            "id": "f8e84852-c2f6-45fe-a696-16e5d972b71a",
+            "opprettet": "2023-05-03T14:17:30.135489548",
+            "event_name": "kandidat_v2.OppdaterteKandidatliste"
+          },
+          "@slutt_av_hendelseskjede": false
+        }
+    """.trimIndent()
 }
