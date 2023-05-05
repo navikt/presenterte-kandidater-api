@@ -3,6 +3,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -48,6 +49,7 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
     }
 
     fun lagreOppdatertKandidatlisteMelding(stillingsId: UUID, stillingstittel: String, virksomhetsnummer: String) {
+        log.info("Skal behandle OppdaterteKandidatliste-melding")
         val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
 
         if (kandidatliste == null) {
@@ -58,6 +60,7 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
                     tittel = stillingstittel
                 )
             )
+            log.info("Lagrer ny kandidatliste etter å ha mottatt OppdaterteKandidatliste-melding")
         } else if (stillingstittel != kandidatliste.tittel) {
             kandidatlisteRepository.oppdater(kandidatliste.copy(tittel = stillingstittel))
         }
