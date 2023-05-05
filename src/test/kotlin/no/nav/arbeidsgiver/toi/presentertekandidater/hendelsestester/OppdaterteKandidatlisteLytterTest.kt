@@ -91,7 +91,7 @@ class OppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Det er ingen sammenheng mellom antallKandidater i meldinga og antall kandiadter i arbeidsgivers kandidatliste`() {
+    fun `Det er ingen sammenheng mellom antallKandidater i meldinga og antall kandidater i arbeidsgivers kandidatliste`() {
         val stillingsId = UUID.randomUUID()
         val stillingstittel = "En stilling"
         val virksomhetsnummer = "312113341"
@@ -117,13 +117,33 @@ class OppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {}
+    fun `Ved mottak av slutt_av_hendelseskjede satt til true skal det ikke legges ut ny hendelse på rapid`() {
+        val stillingsId = UUID.randomUUID()
+        val meldingUtenStillingsdata = melding(stillingsId = stillingsId, sluttAvHendelseskjede = true)
+
+        testRapid.sendTestMessage(meldingUtenStillingsdata)
+
+        assertThat(repository.hentKandidatliste(stillingsId)).isNull()
+    }
+
+    @Test
+    fun `Ved mottak av melding skal vi publisere meldinga på nytt men med slutt_av_hendelseskjede til true`() {
+        val stillingsId = UUID.randomUUID()
+        val meldingUtenStillingsdata = melding(stillingsId = stillingsId)
+
+        testRapid.sendTestMessage(meldingUtenStillingsdata)
+
+        assertThat(testRapid.inspektør.size).isEqualTo(1)
+        val nyMeldingPåRapid = testRapid.inspektør.message(0)
+        assertThat(nyMeldingPåRapid["@slutt_av_hendelseskjede"].asBoolean()).isTrue
+    }
 
     private fun melding(
         stillingsId: UUID,
         stillingstittel: String = "En stilling",
         virksomhetsnummer: String = "312113341",
-        antallKandidater: Int = 0) = """
+        antallKandidater: Int = 0,
+        sluttAvHendelseskjede: Boolean = false) = """
         {
           "antallKandidater": $antallKandidater,
           "organisasjonsnummer": "312113341",
@@ -177,8 +197,8 @@ class OppdaterteKandidatlisteLytterTest {
             "id": "f8e84852-c2f6-45fe-a696-16e5d972b71a",
             "opprettet": "2023-05-03T14:17:30.135489548",
             "event_name": "kandidat_v2.OppdaterteKandidatliste"
-          },
-          "@slutt_av_hendelseskjede": false
+          }
+          ${if (sluttAvHendelseskjede) """ ", @slutt_av_hendelseskjede": true""" else ""}
         }
     """.trimIndent()
 

@@ -25,20 +25,7 @@ class OppdaterteKandidatlisteLytter(
             stillingstittel = packet["stilling.stillingstittel"].asText(),
             virksomhetsnummer = packet["stilling.organisasjonsnummer"].asText()
         )
+        packet["@slutt_av_hendelseskjede"] = true
+        context.publish(packet.toJson())
     }
 }
-
-/*
-// Definisjon av kandidatliste i appen:
-
-    @JsonIgnore
-    val id: BigInteger? = null,
-    val uuid: UUID,
-    val stillingId: UUID,
-    val tittel: String,
-    val status: Status,
-    val slettet: Boolean = false,
-    val virksomhetsnummer: String,
-    val sistEndret: ZonedDateTime,
-    val opprettet: ZonedDateTime,
- */
