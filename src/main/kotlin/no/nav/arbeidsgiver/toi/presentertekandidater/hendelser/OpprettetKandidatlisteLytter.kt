@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 import no.nav.helse.rapids_rivers.*
 
-class OppdaterteKandidatlisteLytter(
+class OpprettetKandidatlisteLytter(
     rapidsConnection: RapidsConnection,
     private val presenterteKandidaterService: PresenterteKandidaterService
 ) : River.PacketListener {
@@ -10,7 +10,7 @@ class OppdaterteKandidatlisteLytter(
     init {
         River(rapidsConnection).apply {
             validate {
-                it.demandValue("@event_name", "kandidat_v2.OppdaterteKandidatliste")
+                it.demandValue("@event_name", "kandidat_v2.OpprettetKandidatliste")
                 it.demandKey("stillingsId")
                 it.demandKey("stilling.stillingstittel")
                 it.demandKey("stilling.organisasjonsnummer")
@@ -20,7 +20,7 @@ class OppdaterteKandidatlisteLytter(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        presenterteKandidaterService.lagreOppdatertKandidatlisteMelding(
+        presenterteKandidaterService.lagreOpprettetKandidatlisteHendelse(
             stillingsId = packet["stillingsId"].asText().toUUID(),
             stillingstittel = packet["stilling.stillingstittel"].asText(),
             virksomhetsnummer = packet["stilling.organisasjonsnummer"].asText()

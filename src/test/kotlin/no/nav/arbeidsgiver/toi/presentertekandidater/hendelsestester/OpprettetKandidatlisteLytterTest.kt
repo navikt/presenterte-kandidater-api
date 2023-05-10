@@ -13,7 +13,7 @@ import java.util.*
 import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class OppdaterteKandidatlisteLytterTest {
+class OpprettetKandidatlisteLytterTest {
 
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
 
@@ -28,7 +28,7 @@ class OppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Skal lagre kandidatliste når vi mottar OppdaterteKandidatliste-melding med stillingsdata`() {
+    fun `Skal lagre kandidatliste når vi mottar OpprettetKandidatliste-melding med stillingsdata`() {
         val stillingsId = UUID.randomUUID()
         val stillingstittel = "En stilling"
         val virksomhetsnummer = "312113341"
@@ -73,40 +73,6 @@ class OppdaterteKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Når vi mottar melding om kandidatliste vi allerede har lagret skal vi oppdatere stillingstittelen hvis den er endret`() {
-        val stillingsId = UUID.randomUUID()
-        val stillingstittel = "En stilling"
-        val virksomhetsnummer = "312113341"
-        repository.lagre(Kandidatliste.ny(stillingId = stillingsId, tittel = stillingstittel, virksomhetsnummer = virksomhetsnummer))
-        val kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertNotNull(kandidatliste)
-        assertThat(kandidatliste.tittel).isEqualTo(stillingstittel)
-
-        val oppdatertStillingstittel = "En oppdatert stillingstittel"
-        val melding = melding(stillingsId, oppdatertStillingstittel, virksomhetsnummer)
-        testRapid.sendTestMessage(melding)
-
-        val kandidatlisteMedOppdatertTittel = repository.hentKandidatliste(stillingsId)
-        assertThat(kandidatlisteMedOppdatertTittel!!.tittel).isEqualTo(oppdatertStillingstittel)
-    }
-
-    @Test
-    fun `Det er ingen sammenheng mellom antallKandidater i meldinga og antall kandidater i arbeidsgivers kandidatliste`() {
-        val stillingsId = UUID.randomUUID()
-        val stillingstittel = "En stilling"
-        val virksomhetsnummer = "312113341"
-        repository.lagre(Kandidatliste.ny(stillingId = stillingsId, tittel = stillingstittel, virksomhetsnummer = virksomhetsnummer))
-        val kandidatliste = repository.hentKandidatliste(stillingsId)
-        assertNotNull(kandidatliste)
-        assertThat(repository.hentKandidater(kandidatliste.id!!)).hasSize(0)
-
-        val melding = melding(stillingsId, stillingstittel, virksomhetsnummer, antallKandidater = 10)
-        testRapid.sendTestMessage(melding)
-
-        assertThat(repository.hentKandidater(kandidatliste.id!!)).hasSize(0)
-    }
-
-    @Test
     fun `Vi skal ikke bry oss om melding uten stillingsdata`() {
         val stillingsId = UUID.randomUUID()
         val meldingUtenStillingsdata = meldingUtenStillingsdata(stillingsId = stillingsId)
@@ -138,6 +104,12 @@ class OppdaterteKandidatlisteLytterTest {
         assertThat(nyMeldingPåRapid["@slutt_av_hendelseskjede"].asBoolean()).isTrue
     }
 
+    @Test
+    fun `Skal ignorere melding uten virksomhetsnummer`() {}
+
+    @Test
+    fun `Skal ignorere melding som ikke har stillingskategori STILLING`() {}
+
     private fun melding(
         stillingsId: UUID,
         stillingstittel: String = "En stilling",
@@ -151,7 +123,7 @@ class OppdaterteKandidatlisteLytterTest {
           "tidspunkt": "2023-05-03T14:17:26.851+02:00",
           "stillingsId": "$stillingsId",
           "utførtAvNavIdent": "Z994241",
-          "@event_name": "kandidat_v2.OppdaterteKandidatliste",
+          "@event_name": "kandidat_v2.OpprettetKandidatliste",
           "system_participating_services": [
             {
               "id": "a4a136f4-5465-49d4-ac53-73758c03e814",
@@ -196,7 +168,7 @@ class OppdaterteKandidatlisteLytterTest {
           "@forårsaket_av": {
             "id": "f8e84852-c2f6-45fe-a696-16e5d972b71a",
             "opprettet": "2023-05-03T14:17:30.135489548",
-            "event_name": "kandidat_v2.OppdaterteKandidatliste"
+            "event_name": "kandidat_v2.OpprettetKandidatliste"
           }
           ${if (sluttAvHendelseskjede) """ ", @slutt_av_hendelseskjede": true""" else ""}
         }
@@ -212,7 +184,7 @@ class OppdaterteKandidatlisteLytterTest {
           "tidspunkt": "2023-05-03T14:17:26.851+02:00",
           "stillingsId": "$stillingsId",
           "utførtAvNavIdent": "Z994241",
-          "@event_name": "kandidat_v2.OppdaterteKandidatliste",
+          "@event_name": "kandidat_v2.OpprettetKandidatliste",
           "system_participating_services": [
             {
               "id": "a4a136f4-5465-49d4-ac53-73758c03e814",
@@ -228,7 +200,7 @@ class OppdaterteKandidatlisteLytterTest {
           "@forårsaket_av": {
             "id": "f8e84852-c2f6-45fe-a696-16e5d972b71a",
             "opprettet": "2023-05-03T14:17:30.135489548",
-            "event_name": "kandidat_v2.OppdaterteKandidatliste"
+            "event_name": "kandidat_v2.OpprettetKandidatliste"
           },
           "@slutt_av_hendelseskjede": false
         }
