@@ -14,6 +14,7 @@ class OpprettetKandidatlisteLytter(
                 it.demandKey("stillingsId")
                 it.demandKey("stilling.stillingstittel")
                 it.demandKey("stilling.organisasjonsnummer")
+                it.demandValue("stillingsinfo.stillingskategori", "STILLING")
                 it.rejectValue("@slutt_av_hendelseskjede", true)
             }
         }.register(this)

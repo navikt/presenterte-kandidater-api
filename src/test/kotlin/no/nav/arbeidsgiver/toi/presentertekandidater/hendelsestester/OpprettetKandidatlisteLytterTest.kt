@@ -105,16 +105,35 @@ class OpprettetKandidatlisteLytterTest {
     }
 
     @Test
-    fun `Skal ignorere melding uten virksomhetsnummer`() {}
+    fun `Skal ignorere melding uten virksomhetsnummer`() {
+        val stillingsId = UUID.randomUUID()
+        val melding = melding(stillingsId = stillingsId, virksomhetsnummer = null)
+
+        testRapid.sendTestMessage(melding)
+
+        assertThat(repository.hentKandidatliste(stillingsId)).isNull()
+    }
 
     @Test
-    fun `Skal ignorere melding som ikke har stillingskategori STILLING`() {}
+    fun `Skal ignorere melding som ikke har stillingskategori STILLING`() {
+        val stillingsIdFormidling = UUID.randomUUID()
+        val stillingsIdJobbmesse = UUID.randomUUID()
+        val meldingMedStillingskategoriFormidling = melding(stillingsId = stillingsIdFormidling, stillingskategori = "FORMIDLING")
+        val meldingMedStillingskategoriJobbmesse = melding(stillingsId = stillingsIdJobbmesse, stillingskategori = "JOBBMESSE")
+
+        testRapid.sendTestMessage(meldingMedStillingskategoriFormidling)
+        testRapid.sendTestMessage(meldingMedStillingskategoriJobbmesse)
+
+        assertThat(repository.hentKandidatliste(stillingsIdFormidling)).isNull()
+        assertThat(repository.hentKandidatliste(stillingsIdJobbmesse)).isNull()
+    }
 
     private fun melding(
         stillingsId: UUID,
         stillingstittel: String = "En stilling",
-        virksomhetsnummer: String = "312113341",
+        virksomhetsnummer: String? = "312113341",
         antallKandidater: Int = 0,
+        stillingskategori: String = "STILLING",
         sluttAvHendelseskjede: Boolean = false) = """
         {
           "antallKandidater": $antallKandidater,
@@ -155,14 +174,14 @@ class OpprettetKandidatlisteLytterTest {
             "stillingsid": "$stillingsId",
             "eier": null,
             "notat": "Stopper",
-            "stillingskategori": "STILLING"
+            "stillingskategori": "$stillingskategori"
           },
           "stilling": {
             "stillingstittel": "$stillingstittel",
             "erDirektemeldt": true,
             "stillingOpprettetTidspunkt": "2023-05-03T14:16:42.859069+02:00[Europe/Oslo]",
             "antallStillinger": 2,
-            "organisasjonsnummer": "$virksomhetsnummer",
+            "organisasjonsnummer": ${if (virksomhetsnummer != null) """ "$virksomhetsnummer"""" else null},
             "stillingensPubliseringstidspunkt": "2023-05-03T14:16:42.859069+02:00[Europe/Oslo]"
           },
           "@forårsaket_av": {
