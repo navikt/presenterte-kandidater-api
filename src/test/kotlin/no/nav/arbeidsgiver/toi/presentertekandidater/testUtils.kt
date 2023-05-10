@@ -17,12 +17,6 @@ fun startMockOAuth2Server() {
         harStartetMockOAuth2Server = true
     }
 }
-fun stopMockOAuth2Server() {
-    if(harStartetMockOAuth2Server) {
-        mockOAuth2Server.shutdown()
-        harStartetMockOAuth2Server = false
-    }
-}
 
 fun tilfeldigFødselsnummer(): String {
     fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }

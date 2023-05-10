@@ -3,7 +3,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
-import java.math.BigInteger
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -45,6 +44,20 @@ class PresenterteKandidaterService(private val kandidatlisteRepository: Kandidat
                     sistEndret = ZonedDateTime.now()
                 ))
             }
+        }
+    }
+
+    fun lagreOpprettetKandidatlisteHendelse(stillingsId: UUID, stillingstittel: String, virksomhetsnummer: String) {
+        val kandidatliste = kandidatlisteRepository.hentKandidatliste(stillingsId)
+
+        if (kandidatliste == null) {
+            kandidatlisteRepository.lagre(
+                Kandidatliste.ny(
+                    stillingId = stillingsId,
+                    virksomhetsnummer = virksomhetsnummer,
+                    tittel = stillingstittel
+                )
+            )
         }
     }
 
