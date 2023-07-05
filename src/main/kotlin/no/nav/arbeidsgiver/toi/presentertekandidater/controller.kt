@@ -13,6 +13,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
+import no.nav.helse.rapids_rivers.toUUID
 import java.util.*
 
 private val logger = log("controller")
@@ -31,6 +32,11 @@ fun startController(
             "/kandidatliste/{stillingId}",
             hentKandidatliste(kandidatlisteRepository, openSearchKlient),
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+        )
+        get(
+            "/kandidatliste/{stillingId}/vurdering",
+            hentKandidatlisteVurderinger(kandidatlisteRepository),
+            Rolle.VEILEDER
         )
         get("/samtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
         post("/samtykke", lagreSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
@@ -165,6 +171,21 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
                 }
 
             }
+        }
+    }
+private val hentKandidatlisteVurderinger: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
+    { repository ->
+        { context ->
+            val stillingId: String = context.pathParam("stillingId")
+            val kandidatliste = repository.hentKandidatliste(stillingId.toUUID()) ?: throw BadRequestResponse()
+            context.json(
+                repository.hentKandidater(kandidatliste.id!!).map {
+                    object {
+                        val aktørId = it.aktørId
+                        val vurdering = it.arbeidsgiversVurdering
+                    }
+                }
+            )
         }
     }
 

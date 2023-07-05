@@ -8,7 +8,9 @@ import io.javalin.http.Handler
 import io.javalin.http.UnauthorizedResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.TOKEN_X
+import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.AZURE_AD
 import no.nav.security.token.support.core.configuration.IssuerProperties
+import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import java.net.URL
@@ -35,7 +37,7 @@ class NavalinAccessManager(
         val issuerProperties = hentIssuerProperties(tokenUtsteder)
 
         val tokenClaims = if (issuerProperties != null) {
-            hentTokenClaims(context, issuerProperties)
+            hentTokenClaims(context, issuerProperties, tokenUtsteder)
         } else {
             lagTomJwtTokenClaims()
         }
@@ -50,9 +52,9 @@ class NavalinAccessManager(
 
     private fun lagTomJwtTokenClaims(): JwtTokenClaims = JwtTokenClaims(JWTClaimsSet.parse("{}"))
 
-    private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
+    private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties, tokenUtsteder: TokenUtsteder) =
         hentTokenValidationHandler(
-            issuerProperties
+            issuerProperties, tokenUtsteder
         ).getValidatedTokens(ctx.httpRequest).anyValidClaims.orElseGet { null }
 
     private val Context.httpRequest: HttpRequest
@@ -69,6 +71,7 @@ class NavalinAccessManager(
     private fun hentIssuerProperties(tokenUtsteder: TokenUtsteder): IssuerProperties? {
         return when (tokenUtsteder) {
             TOKEN_X -> lagIssuerPropertiesForTokenX(miljøvariabler)
+            AZURE_AD -> lagIssuerPropertiesForAzureAD(miljøvariabler)
             INGEN -> null
         }
     }
@@ -87,8 +90,16 @@ class NavalinAccessManager(
             envs["TOKEN_X_PRIVATE_JWK"]
         )
 
+    private fun lagIssuerPropertiesForAzureAD(envs: Map<String, String>) =
+        IssuerProperties(
+            URL(envs["AZURE_APP_WELL_KNOWN_URL"]),
+            listOf(envs["AZURE_APP_CLIENT_ID"]),
+            envs["AZURE_OPENID_CONFIG_ISSUER"]
+        )
+
     enum class TokenUtsteder {
         TOKEN_X,
+        AZURE_AD,
         INGEN
     }
 }

@@ -57,4 +57,5 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.17.5")
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
     testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("uk.org.webcompere:ModelAssert:1.0.0")
 }
