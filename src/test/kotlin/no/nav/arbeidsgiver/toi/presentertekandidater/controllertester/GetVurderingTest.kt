@@ -34,7 +34,7 @@ class GetVurderingTest {
     }
 
     @Test
-    fun `Skal oppdatere arbeidsgivers vurdering og returnere 200 OK`() {
+    fun `Skal hente arbeidsgivers vurdering og returnere 200 OK`() {
         val stillingId = settOppKandidatlisteMedToKandidater()
 
         //val fødselsnummer = tilfeldigFødselsnummer()
@@ -59,6 +59,26 @@ class GetVurderingTest {
                     "vurdering": "FÅTT_JOBBEN"
                 }
             ]
+        """.trimIndent())
+    }
+
+    @Test
+    fun `Skal hente tom liste og returnere 200 OK dersom stillingsid ikke finnes hos presenterte-kandidater-api`() {
+        val stillingId = UUID.randomUUID()
+
+        //val fødselsnummer = tilfeldigFødselsnummer()
+        //lagreSamtykke(fødselsnummer)
+        val accessToken = hentVeilederToken("A000000")
+
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidatliste/${stillingId}/vurdering"))
+            .header("Authorization", "Bearer $accessToken")
+            .GET()
+            .build()
+        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+
+        assertThat(response.statusCode()).isEqualTo(200)
+        assertJson(response.body()).isEqualTo("""
+            []
         """.trimIndent())
     }
 
