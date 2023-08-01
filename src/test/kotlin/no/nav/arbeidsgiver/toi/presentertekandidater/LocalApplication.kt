@@ -112,6 +112,9 @@ private val envs = mapOf(
     "TOKEN_X_PRIVATE_JWK" to Testdata.privateJwk,
     "TOKEN_X_CLIENT_ID" to "clientId",
     "TOKEN_X_ISSUER" to "tokenXissuer",
+    "AZURE_APP_WELL_KNOWN_URL" to "http://localhost:18300/default/.well-known/openid-configuration",
+    "AZURE_APP_CLIENT_ID" to "default",
+    "AZURE_OPENID_CONFIG_ISSUER" to "azuread",
     "NAIS_CLUSTER_NAME" to "local"
 )
 

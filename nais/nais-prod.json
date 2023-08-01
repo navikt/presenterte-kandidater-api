@@ -7,5 +7,7 @@
     "gcp_db_tier": "db-custom-1-3840",
     "gcp_disk_autoresize": "true",
     "altinn_proxy_url": "http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy",
-    "altinn_proxy_audience": "prod-gcp:arbeidsgiver:altinn-rettigheter-proxy"
+    "altinn_proxy_audience": "prod-gcp:arbeidsgiver:altinn-rettigheter-proxy",
+    "ad_gruppe_modia_generell_tilgang": "ea34edea-1e80-4759-a1d2-fbe696cf1709",
+    "ad_gruppe_modia_oppfølging": "b9bc6348-d25c-450d-85c2-044c0955fbe3"
 }

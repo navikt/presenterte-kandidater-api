@@ -38,12 +38,23 @@ spec:
     instance: kandidat
   tokenx:
     enabled: true
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: false
+      claims:
+        extra:
+          - NAVident
+        groups:
+          - id: {{ ad_gruppe_modia_generell_tilgang }}
+          - id: {{ ad_gruppe_modia_oppfølging }}
   accessPolicy:
     inbound:
       rules:
         - application: presenterte-kandidater
         - application: min-side-arbeidsgiver
           namespace: fager
+        - application: rekrutteringsbistand
     outbound:
       rules:
         - application: altinn-rettigheter-proxy

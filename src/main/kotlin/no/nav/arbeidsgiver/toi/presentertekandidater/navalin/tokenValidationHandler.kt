@@ -11,12 +11,13 @@ data class CachedHandler(
     val expires: LocalDateTime,
 )
 
-private val cache: HashMap<String, CachedHandler> = HashMap()
+private val cache: HashMap<NavalinAccessManager.TokenUtsteder, CachedHandler> = HashMap()
 
 fun hentTokenValidationHandler(
     issuerProperties: IssuerProperties,
+    tokenUtsteder: NavalinAccessManager.TokenUtsteder
 ): JwtTokenValidationHandler {
-    val cachedHandler = cache["tokendings"]
+    val cachedHandler = cache[tokenUtsteder]
 
     return if (cachedHandler != null && cachedHandler.expires.isAfter(LocalDateTime.now())) {
         cachedHandler.handler
@@ -28,7 +29,7 @@ fun hentTokenValidationHandler(
             MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
         )
 
-        cache["tokendings"] = CachedHandler(newHandler, expires);
+        cache[tokenUtsteder] = CachedHandler(newHandler, expires);
         newHandler
     }
 }

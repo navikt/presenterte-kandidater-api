@@ -10,6 +10,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.hentFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.AccessToken
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.TOKEN_X
+import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.AZURE_AD
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.RolleKonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
@@ -36,13 +37,18 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
         validerAutorisering = validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient)
     ),
     RolleKonfigurasjon(
+        rolle = Rolle.VEILEDER,
+        tokenUtsteder = AZURE_AD,
+        validerAutorisering = validerVeileder(altinnKlient)
+    ),
+    RolleKonfigurasjon(
         rolle = Rolle.UNPROTECTED,
         tokenUtsteder = INGEN
     )
 )
 
 enum class Rolle : RouteRole {
-    ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING, EKSTERN_ARBEIDSGIVER
+    ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING, EKSTERN_ARBEIDSGIVER, VEILEDER
 }
 
 val validerSamtykkeOgRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
@@ -84,6 +90,13 @@ val validerRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient) -> (Jwt
             } else {
                 context.setOrganisasjonerForRekruttering(organisasjoner)
             }
+        }
+    }
+
+val validerVeileder: (AltinnKlient) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
+    {
+        { jwtTokenClaims, context, accessToken ->
+            if(jwtTokenClaims.get("NAVident") == null) throw ForbiddenResponse()
         }
     }
 
