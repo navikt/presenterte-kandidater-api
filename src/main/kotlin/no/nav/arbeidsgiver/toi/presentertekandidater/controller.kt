@@ -177,9 +177,10 @@ private val hentKandidatlisteVurderinger: (kandidatlisteRepository: Kandidatlist
     { repository ->
         { context ->
             val stillingId: String = context.pathParam("stillingId")
-            val kandidatliste = repository.hentKandidatliste(stillingId.toUUID()) ?: throw BadRequestResponse()
+            val kandidatlisteId = repository.hentKandidatliste(stillingId.toUUID())?.id
             context.json(
-                repository.hentKandidater(kandidatliste.id!!).map {
+                if(kandidatlisteId==null) emptyList()
+                else repository.hentKandidater(kandidatlisteId).map {
                     object {
                         val aktørId = it.aktørId
                         val vurdering = it.arbeidsgiversVurdering
