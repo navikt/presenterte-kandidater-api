@@ -444,7 +444,7 @@ object Testdata {
             					"poststed": "Vega",
             					"mobiltelefon": "44887766",
             					"telefon": "22887766",
-            					"fodselsdato": "1975-09-19T23:00:00.000+00:00",
+            					"fodselsdato": "1975-09-19",
             					"etternavn": "Dal",
             					"epostadresse": "nei@nei.no",
             					"sprak": [
@@ -1014,7 +1014,7 @@ object Testdata {
             					"poststed": "Vega",
             					"mobiltelefon": "44887766",
             					"telefon": "22887766",
-            					"fodselsdato": "1975-09-19T23:00:00.000+00:00",
+            					"fodselsdato": "1975-09-19",
             					"etternavn": "Dal",
             					"epostadresse": "nei@nei.no",
             					"sprak": [
@@ -1182,7 +1182,7 @@ object Testdata {
             					"poststed": "Svolvær",
             					"mobiltelefon": null,
                                 "telefon": null,
-            					"fodselsdato": "1970-12-14T23:00:00.000+00:00",
+            					"fodselsdato": "1970-12-14",
             					"etternavn": "Vaktel",
             					"epostadresse": "hei@hei.no",
             					"sprak": [],

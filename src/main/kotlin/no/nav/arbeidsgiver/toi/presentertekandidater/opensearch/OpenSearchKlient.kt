@@ -20,6 +20,7 @@ import com.github.kittinunf.result.Result
 import no.nav.arbeidsgiver.toi.presentertekandidater.defaultObjectMapper
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
 
@@ -249,7 +250,7 @@ data class AnnenErfaring(
 private class AlderDeserializer : StdDeserializer<Int>(Int::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Int {
         return Period.between(
-            ctxt.readValue(parser, ZonedDateTime::class.java).toLocalDate(), ZonedDateTime.now().toLocalDate()
+            ctxt.readValue(parser, LocalDate::class.java), LocalDate.now()
         ).years
     }
 }
