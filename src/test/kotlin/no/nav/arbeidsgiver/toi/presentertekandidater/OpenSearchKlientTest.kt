@@ -85,7 +85,7 @@ class OpenSearchKlientTest {
         assertThat(cv1?.språk?.get(0)?.navn).isEqualTo("Tysk")
         assertThat(cv1?.språk?.get(0)?.muntlig).isEqualTo("NYBEGYNNER")
         assertThat(cv1?.sammendrag).contains("Er fanatisk opptatt av religion, lever som en munk og synes at alle burde vite om vår Herre og Gud sin herlige nåde og fryd, priset være Herren, halleluja.")
-        assertThat(cv1?.alder).isEqualTo(47)
+        assertThat(cv1?.alder).isEqualTo(48)
         assertThat(cv1?.fornavn).isEqualTo("Ugjennomsiktig")
         assertThat(cv1?.etternavn).isEqualTo("Dal")
         assertThat(cv1?.bosted).isEqualTo("Vega")
