@@ -22,14 +22,14 @@ spec:
     path: /internal/prometheus
     port: "9000"
   replicas:
-    min: 2
-    max: 4
+    min: {{ min_replicas }}
+    max: {{ max_replicas }}
   resources:
     limits:
       cpu: 3000m
       memory: 2048Mi
     requests:
-      cpu: 200m
+      cpu: {{ requested_cpu }}
       memory: 512Mi
   secureLogs:
     enabled: true

@@ -1,11 +1,12 @@
 {
-    "ingress": [
-        "https://presenterte-kandidater-api.intern.nav.no"
-    ],
+    "ingress": ["https://presenterte-kandidater-api.intern.nav.no"],
     "kafka-pool": "nav-prod",
     "kafka_consumer_group_id": "presenterte-kandidagter-api-rapidconsumer-1",
     "gcp_db_tier": "db-custom-1-3840",
     "gcp_disk_autoresize": "true",
+    "min_replicas": 2,
+    "max_replicas": 4,
+    "requested_cpu": "100m",
     "altinn_proxy_url": "http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy",
     "altinn_proxy_audience": "prod-gcp:arbeidsgiver:altinn-rettigheter-proxy",
     "ad_gruppe_modia_generell_tilgang": "ea34edea-1e80-4759-a1d2-fbe696cf1709",
