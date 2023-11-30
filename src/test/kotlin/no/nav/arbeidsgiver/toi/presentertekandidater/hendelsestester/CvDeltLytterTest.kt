@@ -262,7 +262,7 @@ class CvDeltLytterTest {
         stillingstittel: String = "En fantastisk stilling",
         sluttAvHendelseskjede: Boolean = false) = """
         {
-          "stillingstittel": "$stillingstittel",
+          "stillingstittel": "skal bort",
           "organisasjonsnummer": "312113341",
           "kandidatlisteId": "d5b5b4c1-0375-4719-9038-ab31fe27fb40",
           "tidspunkt": "2023-02-09T09:45:53.649+01:00",
