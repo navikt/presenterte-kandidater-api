@@ -13,7 +13,7 @@ import java.util.*
 
 class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
 
-    fun publiserNotifikasjonForCvDelt(tidspunkt: ZonedDateTime, stillingsId: UUID, organisasjonsnummer: String, cvDeltData: CvDeltData) {
+    fun publiserNotifikasjonForCvDelt(tidspunkt: ZonedDateTime, stillingsId: UUID, organisasjonsnummer: String, cvDeltData: CvDeltData, stillingstittel: String) {
         val tidspunkt = tidspunkt.withZoneSameInstant(ZoneId.of("Europe/Oslo"))
         val notifikasjonsId = "$stillingsId-$tidspunkt"
 
@@ -26,7 +26,7 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
             cvDeltData.utførtAvVeilederEtternavn,
             cvDeltData.arbeidsgiversEpostadresser,
             cvDeltData.meldingTilArbeidsgiver,
-            cvDeltData.stillingstittel
+            stillingstittel
         )
 
         rapidsConnection.publish(notifikasjonsId, melding.tilJsonMelding())

@@ -32,7 +32,7 @@ jobs:
   deploy-to-dev:
     name: Deploy til dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/kandidatliste-endepunkt'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/bruk-stillingstittel-beriket'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

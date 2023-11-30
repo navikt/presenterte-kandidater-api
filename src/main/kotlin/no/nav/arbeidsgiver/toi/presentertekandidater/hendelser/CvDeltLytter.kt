@@ -28,7 +28,7 @@ class CvDeltLytter(
             validate {
                 it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
                 it.demandKey("stilling")
-                it.demandKey("stillingstittel")
+                it.demandKey("stilling.stillingstittel")
                 it.requireKey(
                     "organisasjonsnummer",
                     "tidspunkt",
@@ -47,7 +47,7 @@ class CvDeltLytter(
         val stillingsId = packet["stillingsId"].asText().toUUID()
         val aktørIder = packet["kandidater"].fields().asSequence()
             .map(MutableMap.MutableEntry<String, JsonNode>::key).toList()
-        val stillingstittel = packet["stillingstittel"].asText()
+        val stillingstittel = packet["stilling.stillingstittel"].asText()
 
         presenterteKandidaterService.lagreCvDeltHendelse(
             organisasjonsnummer = organisasjonsnummer,
@@ -61,7 +61,7 @@ class CvDeltLytter(
         val cvDeltData = hentUtCvDeltData(packet)
 
         if (cvDeltData != null) {
-            notifikasjonPubliserer.publiserNotifikasjonForCvDelt(tidspunkt, stillingsId, organisasjonsnummer, cvDeltData)
+            notifikasjonPubliserer.publiserNotifikasjonForCvDelt(tidspunkt, stillingsId, organisasjonsnummer, cvDeltData, stillingstittel)
         } else {
             packet["@slutt_av_hendelseskjede"] = true
             context.publish(packet.toJson())
@@ -89,6 +89,5 @@ data class CvDeltData(
     val utførtAvVeilederFornavn: String,
     val utførtAvVeilederEtternavn: String,
     val arbeidsgiversEpostadresser: List<String>,
-    val meldingTilArbeidsgiver: String,
-    val stillingstittel: String
+    val meldingTilArbeidsgiver: String
 )
