@@ -46,8 +46,8 @@ spec:
         extra:
           - NAVident
         groups:
-          - id: {{ ad_gruppe_modia_generell_tilgang }}
-          - id: {{ ad_gruppe_modia_oppfølging }}
+          - id: {{ adGruppeArbeidsgiverrettet }}
+          - id: {{ adGruppeUtvikler }}
   accessPolicy:
     inbound:
       rules:
