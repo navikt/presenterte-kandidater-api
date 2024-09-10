@@ -31,7 +31,7 @@ jobs:
   deploy-to-dev:
     name: Deploy til dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/bruk-stillingstittel-beriket'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ansatt-dev'
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
