@@ -21,7 +21,7 @@ roller.
 
 I testene bruker vi _TestContainers_, som krever at Docker kjører på maskinen. Da kan du enten bruke Docker Desktop
 eller Colima. Hvis du bruker Colima, må du legge til følgende shell-variabler for at TestContainers skal finne
-Docker-instansen:
+Docker-instansen: 
 
 ```sh
 # ~/.zshrc
