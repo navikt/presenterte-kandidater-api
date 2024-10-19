@@ -9,6 +9,12 @@ application {
     mainClass.set("no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt")
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 repositories {
     mavenCentral()
 
