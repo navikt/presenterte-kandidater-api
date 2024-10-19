@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/baseimages/temurin:17
-COPY ./build/libs/presenterte-kandidater-api-all.jar app.jar
-
+FROM gcr.io/distroless/java17-debian12:nonroot
+ADD build/distributions/presenterte-kandidater-api.tar /
+ENTRYPOINT ["java", "-cp", "/presenterte-kandidater-api/lib/*", "no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt"]
 EXPOSE 9000
