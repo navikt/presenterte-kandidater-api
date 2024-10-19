@@ -50,7 +50,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Bygg jar med Gradle
-        run: ./gradlew shadowJar
+        run: ./gradlew build
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
@@ -63,7 +63,7 @@ jobs:
           CLUSTER: dev-gcp
           VAR: image=${{ steps.docker-build-push.outputs.image }}
           RESOURCE: nais/nais.yaml
-          VARS: nais/nais-dev.json
+          VARS: nais/dev-gcp.json
 
   deploy-to-prod:
     name: Deploy til prod
@@ -77,7 +77,7 @@ jobs:
           CLUSTER: prod-gcp
           VAR: image=${{ needs.deploy-to-dev.outputs.image }}
           RESOURCE: nais/nais.yaml
-          VARS: nais/nais-prod.json
+          VARS: nais/prod-gcp.json
 
   deploy-alerts:
     name: Deploy alerts to prod
