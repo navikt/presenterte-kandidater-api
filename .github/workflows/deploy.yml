@@ -31,7 +31,7 @@ jobs:
   deploy-to-dev:
     name: Deploy til dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/bruk-stillingstittel-beriket'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/trivy'
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
@@ -57,7 +57,7 @@ jobs:
         with:
           team: toi
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} 
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
