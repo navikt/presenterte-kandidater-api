@@ -4,7 +4,9 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
+import java.time.LocalDate
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 
@@ -584,7 +586,21 @@ object Testdata {
             }
         """
 
-    fun flereKandidaterFraES(aktørId1: String, aktørid2: String) =
+    data class AktørId(private val value: String) {
+        val asString = value
+    }
+
+    data class Fødselsdato(private val value: String) {
+        init {
+            LocalDate.parse(value)
+        }
+
+        val asString = value
+        val alder: Long = ChronoUnit.YEARS.between(LocalDate.parse(value), LocalDate.now())
+    }
+
+
+    fun flereKandidaterFraES(aktør1: Pair<AktørId, Fødselsdato>, aktør2: Pair<AktørId, Fødselsdato>) =
         """
             {
             	"took": 3,
@@ -608,7 +624,7 @@ object Testdata {
             				"_id": "PAM014lhcwy96",
             				"_score": 1.0,
             				"_source": {
-            					"aktorId": "$aktørId1",
+            					"aktorId": "${aktør1.first.asString}",
             					"kursObj": [
             						{
             							"fraDato": null,
@@ -1014,7 +1030,7 @@ object Testdata {
             					"poststed": "Vega",
             					"mobiltelefon": "44887766",
             					"telefon": "22887766",
-            					"fodselsdato": "1975-09-19",
+            					"fodselsdato": "${aktør1.second.asString}",
             					"etternavn": "Dal",
             					"epostadresse": "nei@nei.no",
             					"sprak": [
@@ -1155,7 +1171,7 @@ object Testdata {
             				"_id": "PAM019w4pxbus",
             				"_score": 1.0,
             				"_source": {
-            					"aktorId": "$aktørid2",
+            					"aktorId": "${aktør2.first.asString}",
                                 "kursObj": [
             						{
             							"fraDato": null,
@@ -1182,7 +1198,7 @@ object Testdata {
             					"poststed": "Svolvær",
             					"mobiltelefon": null,
                                 "telefon": null,
-            					"fodselsdato": "1970-12-14",
+            					"fodselsdato": "${aktør2.second.asString}",
             					"etternavn": "Vaktel",
             					"epostadresse": "hei@hei.no",
             					"sprak": [],
@@ -1254,38 +1270,6 @@ object Testdata {
             }
         """.trimIndent()
 
-    fun aktørIdFraOpenSearch(aktørId: String) = """
-        {
-        	"took": 1,
-        	"timed_out": false,
-        	"_shards": {
-        		"total": 3,
-        		"successful": 3,
-        		"skipped": 0,
-        		"failed": 0
-        	},
-        	"hits": {
-        		"total": {
-        			"value": 1,
-        			"relation": "eq"
-        		},
-        		"max_score": 10.977694,
-        		"hits": [
-        			{
-        				"_index": "veilederkandidat_os4",
-        				"_type": "_doc",
-        				"_id": "AF611502",
-        				"_score": 10.977694,
-        				"fields": {
-        					"aktorId": [
-        						"$aktørId"
-        					]
-        				}
-        			}
-        		]
-        	}
-        }
-    """.trimIndent()
 
     val privateJwk = """
         {
