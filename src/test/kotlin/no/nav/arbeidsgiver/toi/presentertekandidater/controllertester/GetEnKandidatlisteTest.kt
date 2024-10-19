@@ -59,7 +59,9 @@ class GetEnKandidatlisteTest {
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
 
-        val esRespons = Testdata.flereKandidaterFraES(aktørId1 = kandidat1.aktørId, aktørid2 = kandidat2.aktørId)
+        val aktør1 = Pair(Testdata.AktørId(kandidat1.aktørId), Testdata.Fødselsdato("1982-02-02"))
+        val aktør2 = Pair(Testdata.AktørId(kandidat2.aktørId), Testdata.Fødselsdato("1983-03-03"))
+        val esRespons = Testdata.flereKandidaterFraES(aktør1, aktør2)
         val esResponseCver = objectMapper.readTree(esRespons)["hits"]["hits"]
         stubHentingAvKandidater(
             requestBody = openSearchKlient.lagBodyForHentingAvCver(
@@ -136,7 +138,9 @@ class GetEnKandidatlisteTest {
         repository.lagre(kandidat1)
         repository.lagre(kandidat2)
 
-        val esRespons = Testdata.flereKandidaterFraES(aktørId1 = kandidat1.aktørId, aktørid2 = kandidat2.aktørId)
+        val aktør1 = Pair(Testdata.AktørId(kandidat1.aktørId), Testdata.Fødselsdato("1982-02-02"))
+        val aktør2 = Pair(Testdata.AktørId(kandidat2.aktørId), Testdata.Fødselsdato("1983-03-03"))
+        val esRespons = Testdata.flereKandidaterFraES(aktør1, aktør2)
         stubHentingAvKandidater(
             requestBody = openSearchKlient.lagBodyForHentingAvCver(
                 listOf(
