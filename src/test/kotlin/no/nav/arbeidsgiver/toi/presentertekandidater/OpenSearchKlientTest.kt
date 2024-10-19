@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.AktørId
+import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.Fødselsdato
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.enKandidatFraESMedMangeNullFelter
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFraES
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
@@ -31,11 +33,17 @@ class OpenSearchKlientTest {
     @Test
     fun `Responsen mappes korrekt når vi henter CV-er`() {
         val aktørId1 = "12345"
+        val fødselsdato1 = Fødselsdato("1975-09-19")
+        val aktør1 = Pair(AktørId(aktørId1), fødselsdato1)
+
         val aktørId2 = "67890"
+        val fødselsdato2 = Fødselsdato("1970-12-14")
+        val aktør2 = Pair(AktørId(aktørId2), fødselsdato2)
+
         val aktørIder = listOf(aktørId1, aktørId2)
 
         val openSearchRequestBody = openSearchKlient.lagBodyForHentingAvCver(aktørIder)
-        val openSearchResponseBody = flereKandidaterFraES(aktørIder[0], aktørIder[1])
+        val openSearchResponseBody = flereKandidaterFraES(aktør1, aktør2)
 
         stubHentingAvKandidater(
             requestBody = openSearchRequestBody,
@@ -85,7 +93,7 @@ class OpenSearchKlientTest {
         assertThat(cv1?.språk?.get(0)?.navn).isEqualTo("Tysk")
         assertThat(cv1?.språk?.get(0)?.muntlig).isEqualTo("NYBEGYNNER")
         assertThat(cv1?.sammendrag).contains("Er fanatisk opptatt av religion, lever som en munk og synes at alle burde vite om vår Herre og Gud sin herlige nåde og fryd, priset være Herren, halleluja.")
-        assertThat(cv1?.alder).isEqualTo(48)
+        assertThat(cv1?.alder!!.toLong()).isEqualTo(aktør1.second.alder)
         assertThat(cv1?.fornavn).isEqualTo("Ugjennomsiktig")
         assertThat(cv1?.etternavn).isEqualTo("Dal")
         assertThat(cv1?.bosted).isEqualTo("Vega")

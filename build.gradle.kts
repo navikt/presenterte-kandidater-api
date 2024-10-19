@@ -4,6 +4,12 @@ plugins {
     application
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 application {
     3
     mainClass.set("no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt")
