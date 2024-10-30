@@ -69,7 +69,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
             }
 
             else -> {
-                log.error("hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet: ${respons.statusCode} ${respons.responseMessage}")
+                log.error("hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet: ${respons.statusCode} ${respons.responseMessage}")  // TODO Are: Burde logge result.error i tilleg, fordi statusCode -1 og ingen responsMessage er forvirrende
                 throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
             }
         }
@@ -91,7 +91,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
             }
 
             else -> {
-                log.error("hentAntallKandidater mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}")
+                log.error("hentAntallKandidater mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}") // TODO Are: Burde logge result.error i tilleg, fordi statusCode -1 og ingen responsMessage er forvirrende
                 throw RuntimeException("hentAntallKandidater mot openSearch feilet")
             }
         }
