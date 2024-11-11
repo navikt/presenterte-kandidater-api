@@ -38,7 +38,8 @@ fun startController(
             hentKandidatlisteVurderinger(kandidatlisteRepository),
             Rolle.VEILEDER
         )
-        get("/samtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
+        get("/samtykke", hentSamtykkeGammel(samtykkeRepository), Rolle.ARBEIDSGIVER)
+        get("/hentsamtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
         post("/samtykke", lagreSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
         put(
             "/kandidat/{uuid}/vurdering",
@@ -99,7 +100,7 @@ private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: Kandidatli
         }
     }
 
-private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
+private val hentSamtykkeGammel: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
         val fødselsnummer = context.hentFødselsnummer()
         when (samtykkeRepository.harSamtykket(fødselsnummer)) {
@@ -109,7 +110,17 @@ private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) 
     }
 }
 
-private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
+private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
+    { context ->
+        data class Respons(val harSamtykket: Boolean)
+        val fødselsnummer = context.hentFødselsnummer()
+        val harSamtykket = samtykkeRepository.harSamtykket(fødselsnummer)
+        context.json(Respons(harSamtykket))
+        context.status(200)
+    }
+}
+
+    private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
         val fødselsnummer = context.hentFødselsnummer()
 
