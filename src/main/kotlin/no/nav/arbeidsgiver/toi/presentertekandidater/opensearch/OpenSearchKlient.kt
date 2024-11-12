@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
@@ -34,20 +32,8 @@ class OpenSearchKlient(envs: Map<String, String>) {
     private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    private fun post(body: String): Pair<Response, Result<String, FuelError>> {
-        val (_, response, result) = Fuel
-            .post(searchUrl)
-            .jsonBody(body)
-            .authentication()
-            .basic(username, password)
-            .responseString()
-
-        return Pair(response, result)
-    }
-
     private fun mapHentCver(aktørider: List<String>, body: String): Map<String, Cv?> {
         val responsJsonNode = objectMapper.readTree(body)
-
         val hits = responsJsonNode["hits"]["hits"]
         val cver = hits
             .map { it["_source"] }
@@ -60,19 +46,34 @@ class OpenSearchKlient(envs: Map<String, String>) {
     }
 
     fun hentCver(aktørIder: List<String>): Map<String, Cv?> {
-        val (respons, resultat) = post(lagBodyForHentingAvCver(aktørIder))
+        val (request, _, result) = Fuel
+            .post(searchUrl)
+            .jsonBody(lagBodyForHentingAvCver(aktørIder))
+            .authentication()
+            .basic(username, password)
+            .responseString()
 
-        return when (respons.statusCode) {
-            200 -> {
-                val data = resultat.get()
-                mapHentCver(aktørIder, data)
-            }
-
-            else -> {
-                log.error("hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet: ${respons.statusCode} ${respons.responseMessage}")  // TODO Are: Burde logge result.error i tilleg, fordi statusCode -1 og ingen responsMessage er forvirrende
-                throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
+        return when (result) {
+            is Result.Success -> mapHentCver(aktørIder, result.value)
+            is Result.Failure -> {
+                val error = result.error
+                val msg =
+                    "hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet. statuscode=[${error.response.statusCode}], responseMessage=[${error.response.responseMessage}], URL=[${request.url}], aktørID-er=[$aktørIder]"
+                throw RuntimeException(msg, result.error)
             }
         }
+
+//        return when (respons.statusCode) {
+//            200 -> {
+//                val data = resultat.get()
+//                mapHentCver(aktørIder, data)
+//            }
+//
+//            else -> {
+//                log.error("hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet: ${respons.statusCode} ${respons.responseMessage}")  // TODO Are: Burde logge result.error i tilleg, fordi statusCode -1 og ingen responsMessage er forvirrende
+//                throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
+//            }
+//        }
 
     }
 
@@ -96,23 +97,7 @@ class OpenSearchKlient(envs: Map<String, String>) {
             }
         }
     }
-
-    fun lagBodyForHentingAvAktørId(kandidatnr: String) = """
-            {
-                "query": {
-                    "term": {
-                        "kandidatnr": {
-                            "value": "$kandidatnr"
-                        }
-                    }
-                },
-                 "fields": [
-                     "aktorId"
-                 ],
-              "_source": false
-            }
-    """.trimIndent()
-
+    
     fun lagBodyForHentingAvCver(aktørIder: List<String>) = """
         {
             "size": 10000,
@@ -192,7 +177,7 @@ data class Cv(
     @JsonDeserialize(using = AndreErfaringerDeserializer::class)
     val andreErfaringer: List<AnnenErfaring>,
 
-)
+    )
 
 data class Arbeidserfaring(
     val fraDato: ZonedDateTime?,
@@ -279,7 +264,8 @@ private class AndreGodkjenningerDeserializer : StdDeserializer<List<AnnenGodkjen
         }.map {
             val alternativtNavn = somNullableString(it["alternativtNavn"])
             val sertifikatKodeNavn = somNullableString(it["sertifikatKodeNavn"])
-            val tittel: String = alternativtNavn ?: sertifikatKodeNavn ?: throw Exception("Skal ha sjekket at én av dem ikke er null")
+            val tittel: String =
+                alternativtNavn ?: sertifikatKodeNavn ?: throw Exception("Skal ha sjekket at én av dem ikke er null")
 
             AnnenGodkjenning(
                 tittel = tittel,
@@ -293,7 +279,7 @@ private class KursDeserializer : StdDeserializer<List<Kurs>>(List::class.java) {
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<Kurs> {
         return ctxt.readValue(parser, JsonNode::class.java)
             .filter { erString(it["tittel"]) }
-            .map { it.tilKlasse(Kurs::class.java)}
+            .map { it.tilKlasse(Kurs::class.java) }
     }
 }
 
@@ -301,7 +287,7 @@ private class AndreErfaringerDeserializer : StdDeserializer<List<AnnenErfaring>>
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<AnnenErfaring> {
         return ctxt.readValue(parser, JsonNode::class.java)
             .filter { erString(it["rolle"]) }
-            .map { it.tilKlasse(AnnenErfaring::class.java)}
+            .map { it.tilKlasse(AnnenErfaring::class.java) }
     }
 }
 
