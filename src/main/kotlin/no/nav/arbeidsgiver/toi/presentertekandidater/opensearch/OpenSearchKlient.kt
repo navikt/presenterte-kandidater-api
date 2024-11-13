@@ -16,7 +16,6 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
 import no.nav.arbeidsgiver.toi.presentertekandidater.defaultObjectMapper
-import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 import java.time.LocalDate
 import java.time.Period
@@ -58,46 +57,30 @@ class OpenSearchKlient(envs: Map<String, String>) {
             is Result.Failure -> {
                 val error = result.error
                 val msg =
-                    "hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet. statuscode=[${error.response.statusCode}], responseMessage=[${error.response.responseMessage}], URL=[${request.url}], aktørID-er=[$aktørIder]"
+                    "hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet. response.statusCode=[${error.response.statusCode}], responseMessage=[${error.response.responseMessage}], URL=[${request.url}], aktørID-er=[$aktørIder]"
                 throw RuntimeException(msg, result.error)
             }
         }
-
-//        return when (respons.statusCode) {
-//            200 -> {
-//                val data = resultat.get()
-//                mapHentCver(aktørIder, data)
-//            }
-//
-//            else -> {
-//                log.error("hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet: ${respons.statusCode} ${respons.responseMessage}")  // TODO Are: Burde logge result.error i tilleg, fordi statusCode -1 og ingen responsMessage er forvirrende
-//                throw RuntimeException("Kall mot elsaticsearch feilet for aktørIder $aktørIder")
-//            }
-//        }
-
     }
 
     fun hentAntallKandidater(): Long {
-        val (_, respons, result) = Fuel
+        val (request, _, result) = Fuel
             .get("$baseUrl/_count")
             .authentication()
             .basic(username, password)
             .responseString()
 
-        return when (respons.statusCode) {
-            200 -> {
-                val data = result.get()
-
-                objectMapper.readTree(data)["count"].asLong()
-            }
-
-            else -> {
-                log.error("hentAntallKandidater mot OpenSearch feilet: ${respons.statusCode} ${respons.responseMessage}") // TODO Are: Burde logge result.error i tilleg, fordi statusCode -1 og ingen responsMessage er forvirrende
-                throw RuntimeException("hentAntallKandidater mot openSearch feilet")
+        return when (result) {
+            is Result.Success -> objectMapper.readTree(result.value)["count"].asLong()
+            is Result.Failure -> {
+                val error = result.error
+                val msg =
+                    "hentAntallKandidater mot OpenSearch feilet. response.statusCode=[${error.response.statusCode}], responseMessage=[${error.response.responseMessage}], URL=[${request.url}]"
+                throw RuntimeException(msg, result.error)
             }
         }
     }
-    
+
     fun lagBodyForHentingAvCver(aktørIder: List<String>) = """
         {
             "size": 10000,
