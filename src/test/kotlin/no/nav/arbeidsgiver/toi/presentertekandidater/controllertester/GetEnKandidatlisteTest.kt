@@ -11,6 +11,8 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
 import kotlin.test.assertNull
@@ -210,7 +212,7 @@ class GetEnKandidatlisteTest {
     }
 
     @Test
-    fun `Skal ikke returnere en kandidatliste som er slettet`() {
+    fun `Skal returnere tom kandidatliste for en kandidatliste som er slettet`() {
         val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
         val virksomhetsnummer = "123456789"
@@ -227,6 +229,38 @@ class GetEnKandidatlisteTest {
             )
         )
 
+        val nå = Instant.now().atZone(ZoneId.of(("Europe/Oslo")))
+        val kandidatliste = repository.hentKandidatliste(stillingId)
+        val kandidat1 = Kandidat(
+            aktørId = "1234",
+            kandidatlisteId = kandidatliste?.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = nå
+        )
+        val kandidat2 = Kandidat(
+            aktørId = "666",
+            kandidatlisteId = kandidatliste.id!!,
+            uuid = UUID.randomUUID(),
+            arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
+            sistEndret = nå
+        )
+
+        repository.lagre(kandidat1)
+        repository.lagre(kandidat2)
+
+        val aktør1 = Pair(Testdata.AktørId(kandidat1.aktørId), Testdata.Fødselsdato("1982-02-02"))
+        val aktør2 = Pair(Testdata.AktørId(kandidat2.aktørId), Testdata.Fødselsdato("1983-03-03"))
+        val esRespons = Testdata.flereKandidaterFraES(aktør1, aktør2)
+        stubHentingAvKandidater(
+            requestBody = openSearchKlient.lagBodyForHentingAvCver(
+                listOf(
+                    kandidat1.aktørId,
+                    kandidat2.aktørId
+                )
+            ), responsBody = esRespons
+        )
+
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val (_, response) = fuel
@@ -234,7 +268,27 @@ class GetEnKandidatlisteTest {
             .authentication().bearer(hentToken(fødselsnummer))
             .response()
 
-        assertThat(response.statusCode).isEqualTo(404)
+        assertThat(response.statusCode).isEqualTo(200)
+
+        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
+        val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
+        val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
+
+        assertNull(kandidatlisteJson["id"])
+        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo(kandidatliste.tittel)
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue()))
+            .isEqualTo(kandidatliste.sistEndret)
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue()))
+            .isEqualTo(kandidatliste.opprettet)
+        assertThat(kandidatlisteJson["slettet"].asBoolean()).isTrue
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue())
+            .isEqualTo(kandidatliste.virksomhetsnummer)
+
+        assertThat(kandidaterJson).hasSize(0)
     }
 
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {

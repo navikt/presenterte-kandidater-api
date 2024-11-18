@@ -164,7 +164,7 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
 
             when {
                 kandidatliste == null -> context.status(404)
-                kandidatliste.slettet -> context.status(404)
+                kandidatliste.slettet -> context.json(KandidatlisteDto(kandidatliste, emptyList()))
                 else -> {
                     val kandidater = repository.hentKandidater(kandidatliste.id!!)
                     val cver = opensearchKlient.hentCver(kandidater.map { it.aktørId })
