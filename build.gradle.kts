@@ -10,7 +10,6 @@ kotlin {
 }
 
 application {
-    3
     mainClass.set("no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt")
 }
 
