@@ -1,16 +1,16 @@
 plugins {
     kotlin("jvm") version "1.9.25"
     application
+    id("com.github.ben-manes.versions") version "0.51.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
 }
 
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 application {
-    3
     mainClass.set("no.nav.arbeidsgiver.toi.presentertekandidater.ApplicationKt")
 }
 
@@ -43,7 +43,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
     implementation("org.flywaydb:flyway-core:9.8.1")
-    implementation("org.postgresql:postgresql:42.5.1")
+    implementation("org.postgresql:postgresql:42.7.4")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
