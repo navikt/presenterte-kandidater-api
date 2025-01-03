@@ -5,8 +5,8 @@ jobs:
   call-build-and-deploy:
     uses: navikt/toi-github-actions-workflows/.github/workflows/build-and-deploy.yaml@main
     with:
-      java-version: '17'
-      deploy-to-dev-if-branch-name-is: '200_ok_for_slettede_kandidatlister'
+      java-version: '21'
+      deploy-to-dev-if-branch-name-is: 'oppgrader-avhengigheter'
     permissions:
       contents: read
       id-token: write

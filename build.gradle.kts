@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.8.20"
+    kotlin("jvm") version "1.9.25"
     application
 }
 
@@ -30,7 +30,7 @@ tasks.test {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.javalin:javalin:4.1.1")
+    implementation("io.javalin:javalin:4.6.8")
     implementation("io.micrometer:micrometer-core:1.10.2")
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
 
@@ -47,7 +47,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
-    implementation("org.apache.kafka:kafka-clients:3.4.0")
+    implementation("org.apache.kafka:kafka-clients:3.9.0")
     implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
 
     implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
@@ -55,7 +55,7 @@ dependencies {
     implementation("no.nav.security:token-client-core:2.1.0")
 
     testImplementation(kotlin("test"))
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.0")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.1")
     testImplementation("org.assertj:assertj-core:3.23.1")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
     testImplementation("org.testcontainers:testcontainers:1.17.5")
