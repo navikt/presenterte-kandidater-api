@@ -9,8 +9,7 @@ val Any.log: Logger
 
 fun log(name: String): Logger = LoggerFactory.getLogger(name)
 
-val secureLog: Logger
-    get() = LoggerFactory.getLogger("secureLog")
+val secureLog: Logger = LoggerFactory.getLogger("secureLog")
 
 fun Map<String, String>.variable(felt: String) = this[felt] ?: error("$felt er ikke angitt")
 
