@@ -53,6 +53,7 @@ dependencies {
 
     implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
     testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
+    implementation("io.prometheus:simpleclient_common:0.16.0")
 
     implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
 

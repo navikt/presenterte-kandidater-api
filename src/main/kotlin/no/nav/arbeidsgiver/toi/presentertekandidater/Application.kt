@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.javalin.plugin.json.JavalinJackson
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.prometheus.client.exporter.common.TextFormat
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
@@ -89,10 +90,10 @@ fun startApp(
         registry = prometheusRegistry
     )
     javalin.get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
-    /*javalin.get(
+    javalin.get(
         "/internal/prometheus",
         { it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape()) }, Rolle.UNPROTECTED
-    )*/
+    )
 
 
     startController(javalin, kandidatlisteRepository, samtykkeRepository, visningKontaktinfoRepository, openSearchKlient)
