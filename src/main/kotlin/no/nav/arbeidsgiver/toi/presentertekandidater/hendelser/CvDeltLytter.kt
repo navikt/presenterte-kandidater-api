@@ -4,6 +4,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
@@ -25,23 +32,32 @@ class CvDeltLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition{
+                it.requireValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
+                it.requireKey("stilling")
+                it.requireKey("stilling.stillingstittel")
+                it.forbidValue("@slutt_av_hendelseskjede", true)
+
+            }
             validate {
-                it.demandValue("@event_name", "kandidat_v2.DelCvMedArbeidsgiver")
-                it.demandKey("stilling")
-                it.demandKey("stilling.stillingstittel")
                 it.requireKey(
                     "organisasjonsnummer",
                     "tidspunkt",
                     "stillingsId",
                     "utførtAvNavIdent",
                     "utførtAvNavKontorKode",
-                    "kandidater")
-                it.rejectValue("@slutt_av_hendelseskjede", true)
+                    "kandidater"
+                )
             }
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry
+    ) {
         val organisasjonsnummer = packet["organisasjonsnummer"].asText()
         val tidspunkt = packet["tidspunkt"].asZonedDateTime()
         val stillingsId = packet["stillingsId"].asText().toUUID()
@@ -54,22 +70,29 @@ class CvDeltLytter(
             stillingsId = stillingsId,
             stillingstittel = stillingstittel,
             aktørIder = aktørIder
-            )
+        )
 
         cvDeltCounter.increment()
 
         val cvDeltData = hentUtCvDeltData(packet)
 
         if (cvDeltData != null) {
-            notifikasjonPubliserer.publiserNotifikasjonForCvDelt(tidspunkt, stillingsId, organisasjonsnummer, cvDeltData, stillingstittel)
+            notifikasjonPubliserer.publiserNotifikasjonForCvDelt(
+                tidspunkt,
+                stillingsId,
+                organisasjonsnummer,
+                cvDeltData,
+                stillingstittel
+            )
         } else {
             packet["@slutt_av_hendelseskjede"] = true
             context.publish(packet.toJson())
         }
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext) {
+    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
         log.error("feil ved lesing av hendelse: $problems")
+        super.onError(problems, context, metadata)
     }
 
     private fun JsonNode.asZonedDateTime() =
