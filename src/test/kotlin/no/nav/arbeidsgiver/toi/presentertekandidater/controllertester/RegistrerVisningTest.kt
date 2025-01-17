@@ -5,7 +5,6 @@ import ch.qos.logback.core.read.ListAppender
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -36,8 +35,8 @@ class RegistrerVisningTest {
     private fun setUpLogWatcher() {
         logWatcher = ListAppender<ILoggingEvent>()
         logWatcher.start()
-        val logger =
-            LoggerFactory.getLogger("controller") as ch.qos.logback.classic.Logger
+        val logger: ch.qos.logback.classic.Logger =
+            no.nav.arbeidsgiver.toi.presentertekandidater.log as ch.qos.logback.classic.Logger
         logger.addAppender(logWatcher)
     }
 
@@ -52,10 +51,11 @@ class RegistrerVisningTest {
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
 
-        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
-            .header("Authorization", "Bearer $accessToken")
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build()
+        val request =
+            HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
+                .header("Authorization", "Bearer $accessToken")
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(200)
@@ -74,10 +74,11 @@ class RegistrerVisningTest {
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
 
-        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/registrerviskontaktinfo"))
-            .header("Authorization", "Bearer $accessToken")
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build()
+        val request =
+            HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${UUID.randomUUID()}/registrerviskontaktinfo"))
+                .header("Authorization", "Bearer $accessToken")
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(400)
@@ -86,7 +87,8 @@ class RegistrerVisningTest {
     @Test
     fun `Skal returnere 200 selv om registrering av visning feiler`() {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
-        val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
+        val kandidat =
+            kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
         val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
 
 
@@ -97,10 +99,11 @@ class RegistrerVisningTest {
             lagreSamtykke(fødselsnummer)
             val accessToken = hentToken(fødselsnummer)
 
-            val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
-                .header("Authorization", "Bearer $accessToken")
-                .POST(HttpRequest.BodyPublishers.noBody())
-                .build()
+            val request =
+                HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
+                    .header("Authorization", "Bearer $accessToken")
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build()
             val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
             assertThat(response.statusCode()).isEqualTo(200)
@@ -109,8 +112,7 @@ class RegistrerVisningTest {
             assertThat(logWatcher.list[logWatcher.list.size - 1].message).contains("Fikk ikke til å lagre visning av kontakinfo med kandidatuuid: ${kandidat.uuid}")
         } catch (e: Exception) {
             fail(e)
-        }
-        finally {
+        } finally {
             renameDatabaseTabell("feil", "visning_kontaktinfo")
         }
     }
@@ -126,10 +128,11 @@ class RegistrerVisningTest {
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
 
-        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
-            .header("Authorization", "Bearer $accessToken")
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build()
+        val request =
+            HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}/registrerviskontaktinfo"))
+                .header("Authorization", "Bearer $accessToken")
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(200)

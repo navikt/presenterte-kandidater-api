@@ -7,16 +7,21 @@ import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.InternalServerErrorResponse
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteMedAntallKandidater
+import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.toUUID
+import org.slf4j.Logger
 import java.util.*
 
-private val logger = log("controller")
+val log: Logger = log("no.nav.arbeidsgiver.toi.presentertekandidater.controller.kt")
 
 fun startController(
     javalin: Javalin,
@@ -47,19 +52,23 @@ fun startController(
             Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
         )
         delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
-        post("/kandidat/{uuid}/registrerviskontaktinfo", registrerVisningAvKontaktInfo(kandidatlisteRepository, visningKontaktinfoRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        post(
+            "/kandidat/{uuid}/registrerviskontaktinfo",
+            registrerVisningAvKontaktInfo(kandidatlisteRepository, visningKontaktinfoRepository),
+            Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+        )
         get(
             "/ekstern/antallkandidater",
             hentAntallKandidater(kandidatlisteRepository),
             Rolle.EKSTERN_ARBEIDSGIVER
         )
     }.exception(IllegalArgumentException::class.java) { e, ctx ->
-        logger.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input. Se SecureLog for stacktrace.")
-        secureLog.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
+        log.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input. Se SecureLog for stacktrace.")
+        secure(log).warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
     }.exception(Exception::class.java) { e, ctx ->
-        logger.error("Kall mot ${ctx.path()} førte til en ukjent feil. Se SecureLog for stacktrace.")
-        secureLog.error("Kall mot ${ctx.path()} førte til en ukjent feil.", e)
+        log.error("Kall mot ${ctx.path()} førte til en ukjent feil. Se SecureLog for stacktrace.")
+        secure(log).error("Kall mot ${ctx.path()} førte til en ukjent feil.", e)
         ctx.status(500)
     }
 }
@@ -69,14 +78,15 @@ private val registrerVisningAvKontaktInfo: (KandidatlisteRepository, VisningKont
         { context ->
             val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
             val kandidat = kandidatlisteRepository.hentKandidatMedUUID(kandidatUuid) ?: throw BadRequestResponse()
-            val kandidatliste = kandidatlisteRepository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw InternalServerErrorResponse()
+            val kandidatliste = kandidatlisteRepository.hentKandidatlisteTilKandidat(kandidatUuid)
+                ?: throw InternalServerErrorResponse()
             val lagringGikkBra = try {
                 visningKontakInfoRepository.registrerVisning(kandidat.aktørId, kandidatliste.stillingId)
             } catch (e: Exception) {
                 false
             }
-            if(!lagringGikkBra) {
-                logger.error("Fikk ikke til å lagre visning av kontakinfo med kandidatuuid: $kandidatUuid")
+            if (!lagringGikkBra) {
+                log.error("Fikk ikke til å lagre visning av kontakinfo med kandidatuuid: $kandidatUuid")
             }
             context.status(200)
         }
@@ -113,6 +123,7 @@ private val hentSamtykkeGammel: (samtykkeRepository: SamtykkeRepository) -> (Con
 private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
         data class Respons(val harSamtykket: Boolean)
+
         val fødselsnummer = context.hentFødselsnummer()
         val harSamtykket = samtykkeRepository.harSamtykket(fødselsnummer)
         context.json(Respons(harSamtykket))
@@ -120,7 +131,7 @@ private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) 
     }
 }
 
-    private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
+private val lagreSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
         val fødselsnummer = context.hentFødselsnummer()
 
@@ -190,7 +201,7 @@ private val hentKandidatlisteVurderinger: (kandidatlisteRepository: Kandidatlist
             val stillingId: String = context.pathParam("stillingId")
             val kandidatlisteId = repository.hentKandidatliste(stillingId.toUUID())?.id
             context.json(
-                if(kandidatlisteId==null) emptyList()
+                if (kandidatlisteId == null) emptyList()
                 else repository.hentKandidater(kandidatlisteId).map {
                     object {
                         val aktørId = it.aktørId
@@ -207,10 +218,8 @@ private val hentAntallKandidater: (kandidatlisteRepository: KandidatlisteReposit
             log("hentKandidaterForArbeidsgiver").info("Henter kandidater for arbeidsgiver.")
             val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
             context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
-            val antallKandidater = repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer).map {
-                it.antallKandidater
-            }.sum()
-
+            val antallKandidater =
+                repository.hentKandidatlisterSomIkkeErSlettetMedAntall(virksomhetsnummer).sumOf { it.antallKandidater }
             context.json(
                 object {
                     val antallKandidater = antallKandidater
@@ -257,8 +266,8 @@ fun Context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer: String) {
     val representererVirksomhet =
         virksomhetsnummer in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
     if (!representererVirksomhet) {
-        log.info("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet. Se virksomhetsnummer i SecureLog")
-        secureLog.info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
+        this@validerRekruttererRolleIOrganisasjon.log.info("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet. Se virksomhetsnummer i SecureLog")
+        secure(this@validerRekruttererRolleIOrganisasjon.log).info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
         throw ForbiddenResponse("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet")
     }
 }
