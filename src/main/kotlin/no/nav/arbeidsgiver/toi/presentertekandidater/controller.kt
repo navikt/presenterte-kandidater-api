@@ -21,7 +21,7 @@ import no.nav.helse.rapids_rivers.toUUID
 import org.slf4j.Logger
 import java.util.*
 
-val log: Logger = log("no.nav.arbeidsgiver.toi.presentertekandidater.controller.kt")
+val log: Logger = noClassLogger() // Er public bare fordi den brukes i en test
 
 fun startController(
     javalin: Javalin,
@@ -185,8 +185,7 @@ private val hentKandidatliste: (kandidatlisteRepository: KandidatlisteRepository
                     val antallCver = cver.filter { cv -> cv.value != null }.size
 
                     if (antallKandidater != antallCver) {
-                        log("hentKandidatliste")
-                            .info("Henter kandidater for stilling $stillingId. Listen har $antallKandidater kandidater, og OpenSearch returnerte $antallCver CV-er.")
+                        log.info("Henter kandidater for stilling $stillingId. Listen har $antallKandidater kandidater, og OpenSearch returnerte $antallCver CV-er.")
                     }
 
                     context.json(KandidatlisteDto(kandidatliste, kandidatDtoer))
@@ -215,7 +214,7 @@ private val hentKandidatlisteVurderinger: (kandidatlisteRepository: Kandidatlist
 private val hentAntallKandidater: (kandidatlisteRepository: KandidatlisteRepository) -> (Context) -> Unit =
     { repository ->
         { context ->
-            log("hentKandidaterForArbeidsgiver").info("Henter kandidater for arbeidsgiver.")
+            log.info("Henter kandidater for arbeidsgiver.")
             val virksomhetsnummer = context.queryParam("virksomhetsnummer") ?: throw BadRequestResponse()
             context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer)
             val antallKandidater =
@@ -230,7 +229,7 @@ private val hentAntallKandidater: (kandidatlisteRepository: KandidatlisteReposit
 
 private val hentOrganisasjoner: (Context) -> Unit =
     { context ->
-        log("hentOrganisasjoner").info("Henter organisasjoner for bruker med fnr på ${context.hentFødselsnummer().length} sifre")
+        log.info("Henter organisasjoner for bruker med fnr på ${context.hentFødselsnummer().length} sifre")
         context.json(
             context.hentOrganisasjoner()
         )

@@ -1,10 +1,12 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.navalin
 
-import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.arbeidsgiver.toi.presentertekandidater.noClassLogger
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import java.time.LocalDateTime
+
+private val log = noClassLogger()
 
 data class CachedHandler(
     val handler: JwtTokenValidationHandler,
@@ -23,13 +25,13 @@ fun hentTokenValidationHandler(
         cachedHandler.handler
     } else {
         val expires = LocalDateTime.now().plusHours(1)
-        log("hentTokenValidationHandler").info("Henter og cacher nye public keys for issuer tokendings til $expires")
+        log.info("Henter og cacher nye public keys for issuer tokendings til $expires")
 
         val newHandler = JwtTokenValidationHandler(
             MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
         )
 
-        cache[tokenUtsteder] = CachedHandler(newHandler, expires);
+        cache[tokenUtsteder] = CachedHandler(newHandler, expires)
         newHandler
     }
 }

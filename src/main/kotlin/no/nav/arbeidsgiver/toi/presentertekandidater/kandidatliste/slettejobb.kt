@@ -1,14 +1,14 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
-import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.arbeidsgiver.toi.presentertekandidater.noClassLogger
 import java.time.ZonedDateTime
 import java.util.*
 
 private const val antallMillisekunderIMinutt = 60000L
 private const val tidTilFørsteKjøring = antallMillisekunderIMinutt
 private const val tidMellomHverKjøring = antallMillisekunderIMinutt * 60
-private val log = log("no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.slettejobb.kt")
+private val log = noClassLogger()
 
 fun startPeriodiskSlettingAvKandidaterOgKandidatlister(repository: KandidatlisteRepository) {
     val jobb = object : TimerTask() {
