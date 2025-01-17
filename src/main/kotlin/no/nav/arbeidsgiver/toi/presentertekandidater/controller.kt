@@ -18,6 +18,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
+import org.slf4j.Logger
 import java.util.*
 
 val log: Logger = log("no.nav.arbeidsgiver.toi.presentertekandidater.controller.kt")
