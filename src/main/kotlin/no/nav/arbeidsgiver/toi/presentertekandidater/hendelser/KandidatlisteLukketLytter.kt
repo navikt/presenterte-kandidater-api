@@ -1,12 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
-import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
-import com.github.navikt.tbd_libs.rapids_and_rivers.River
-import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
@@ -22,31 +15,23 @@ class KandidatlisteLukketLytter(
 
     init {
         River(rapidsConnection).apply {
-            precondition{
-                it.requireValue("@event_name", "kandidat_v2.LukketKandidatliste")
-                it.forbidValue("@slutt_av_hendelseskjede", true)
-            }
             validate {
+                it.demandValue("@event_name", "kandidat_v2.LukketKandidatliste")
                 it.requireKey("stillingsId")
+                it.rejectValue("@slutt_av_hendelseskjede", true)
             }
         }.register(this)
     }
 
-    override fun onPacket(
-        packet: JsonMessage,
-        context: MessageContext,
-        metadata: MessageMetadata,
-        meterRegistry: MeterRegistry
-    ) {
-    val stillingsId = packet["stillingsId"].asText()
+    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        val stillingsId = packet["stillingsId"].asText()
         presenterteKandidaterService.lukkKandidatliste(stillingsId.toUUID())
         kandidatlisteLukketCounter.increment()
         packet["@slutt_av_hendelseskjede"] = true
         context.publish(packet.toJson())
     }
 
-    override fun onError(problems: MessageProblems, context: MessageContext, metadata: MessageMetadata) {
+    override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error("feil ved lesing av hendelse: $problems")
-        super.onError(problems, context, metadata)
     }
 }

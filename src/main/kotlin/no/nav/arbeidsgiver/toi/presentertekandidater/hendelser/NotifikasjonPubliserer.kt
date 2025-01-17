@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import no.nav.helse.rapids_rivers.RapidsConnection
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*

@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.statistikk
 
 import io.micrometer.core.instrument.Tags
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import org.slf4j.LoggerFactory

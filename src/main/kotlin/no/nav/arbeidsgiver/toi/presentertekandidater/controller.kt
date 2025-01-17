@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.BadRequestResponse
