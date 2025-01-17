@@ -1,3 +1,5 @@
+val ktorVersion = "2.3.13"
+
 plugins {
     kotlin("jvm") version "1.9.25"
     application
@@ -48,7 +50,10 @@ dependencies {
     implementation("no.nav.security:token-validation-core:2.1.8")
 
     implementation("org.apache.kafka:kafka-clients:3.9.0")
-    implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
+
+    implementation("com.github.navikt:rapids-and-rivers:2025010715371736260653.d465d681c420")
+    testImplementation("com.github.navikt.tbd-libs:rapids-and-rivers-test:2025.01.10-08.49-9e6f64ad")
+    implementation("io.prometheus:simpleclient_common:0.16.0")
 
     implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
 
@@ -63,4 +68,31 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
     testImplementation("io.mockk:mockk:1.13.2")
     testImplementation("uk.org.webcompere:ModelAssert:1.0.0")
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Tvinger bestemte versjoner av Ktor i hele prosjektet
+        force(
+            "io.ktor:ktor-client-core-jvm:${ktorVersion}",
+            "io.ktor:ktor-client-apache-jvm:${ktorVersion}",
+            "io.ktor:ktor-client-content-negotiation-jvm:${ktorVersion}",
+            "io.ktor:ktor-client-jackson-jvm:${ktorVersion}",
+            "io.ktor:ktor-client-json-jvm:${ktorVersion}",
+            "io.ktor:ktor-events-jvm:${ktorVersion}",
+            "io.ktor:ktor-http-cio-jvm:${ktorVersion}",
+            "io.ktor:ktor-http-jvm:${ktorVersion}",
+            "io.ktor:ktor-io-jvm:${ktorVersion}",
+            "io.ktor:ktor-network-jvm:${ktorVersion}",
+            "io.ktor:ktor-serialization-jackson-jvm:${ktorVersion}",
+            "io.ktor:ktor-serialization-jvm:${ktorVersion}",
+            "io.ktor:ktor-server-cio-jvm:${ktorVersion}",
+            "io.ktor:ktor-server-core-jvm:${ktorVersion}",
+            "io.ktor:ktor-server-host-common-jvm:${ktorVersion}",
+            "io.ktor:ktor-server-metrics-micrometer-jvm:${ktorVersion}",
+            "io.ktor:ktor-utils-jvm:${ktorVersion}",
+            "io.ktor:ktor-websocket-serialization-jvm:${ktorVersion}",
+            "io.ktor:ktor-websockets-jvm:${ktorVersion}"
+        )
+    }
 }

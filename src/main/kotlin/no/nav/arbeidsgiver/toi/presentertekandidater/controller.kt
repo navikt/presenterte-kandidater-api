@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.BadRequestResponse
@@ -17,8 +18,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
-import no.nav.helse.rapids_rivers.toUUID
-import org.slf4j.Logger
 import java.util.*
 
 val log: Logger = log("no.nav.arbeidsgiver.toi.presentertekandidater.controller.kt")
