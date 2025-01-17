@@ -5,10 +5,10 @@ import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.AltinnrettigheterProxy
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.ProxyConfig
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.error.exceptions.AltinnrettigheterProxyKlientException
 import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.ENKELTRETTIGHET_REKRUTTERING
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
-import no.nav.arbeidsgiver.toi.presentertekandidater.secureLog
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 import java.time.Duration
@@ -53,7 +53,7 @@ class AltinnKlient(
             }
         } catch (e: AltinnrettigheterProxyKlientException) {
             log.error("Kall mot AltinnProxy med filtrering på enkeltrettighet rekruttering feilet. Se SecureLog for stacktrace.")
-            secureLog.error("Kall mot AltinnProxy med filtrering på enkeltrettighet rekruttering feilet.", e)
+            secure(log).error("Kall mot AltinnProxy med filtrering på enkeltrettighet rekruttering feilet.", e)
             throw e
         }
     }
@@ -79,7 +79,7 @@ class AltinnKlient(
             }
         } catch (e: AltinnrettigheterProxyKlientException) {
             log.error("Kall mot AltinnProxy uten filtrering på enkeltrettighet feilet. Se SecureLog for stacktrace.")
-            secureLog.error("Kall mot AltinnProxy uten filtrering på enkeltrettighet feilet", e)
+            secure(log).error("Kall mot AltinnProxy uten filtrering på enkeltrettighet feilet", e)
             throw e
         }
 
