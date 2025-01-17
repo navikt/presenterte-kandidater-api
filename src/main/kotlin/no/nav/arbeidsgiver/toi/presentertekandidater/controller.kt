@@ -18,9 +18,10 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.toUUID
+import org.slf4j.Logger
 import java.util.*
 
-private val log = log("no.nav.arbeidsgiver.toi.presentertekandidater.controller.kt")
+val log: Logger = log("no.nav.arbeidsgiver.toi.presentertekandidater.controller.kt")
 
 fun startController(
     javalin: Javalin,
