@@ -12,10 +12,10 @@ import io.prometheus.client.exporter.common.TextFormat
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
-import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.startPeriodiskSlettingAvKandidaterOgKandidatlister
 import no.nav.arbeidsgiver.toi.presentertekandidater.konfigurasjon.Databasekonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.startJavalin
+import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
@@ -29,6 +29,8 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import org.flywaydb.core.Flyway
 import java.util.*
 import javax.sql.DataSource
+
+private val logger = noClassLogger()
 
 val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -96,11 +98,17 @@ fun startApp(
     )
 
 
-    startController(javalin, kandidatlisteRepository, samtykkeRepository, visningKontaktinfoRepository, openSearchKlient)
+    startController(
+        javalin,
+        kandidatlisteRepository,
+        samtykkeRepository,
+        visningKontaktinfoRepository,
+        openSearchKlient
+    )
     startPeriodiskSlettingAvKandidaterOgKandidatlister(kandidatlisteRepository)
     statistikkMetrikkJobb.start()
 
-    log("ApplicationKt").info("Starter Kafka-lytting")
+    logger.info("Starter Kafka-lytting")
     rapidsConnection.also {
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
@@ -108,7 +116,7 @@ fun startApp(
         SlettFraArbeidsgiversKandidatlisteLytter(it, prometheusRegistry, presenterteKandidaterService)
         VisningKontaktinfoPubliserer(it, visningKontaktinfoRepository)
         OpprettetKandidatlisteLytter(it, presenterteKandidaterService)
-        log("Application").info("Startet lytter")
+        logger.info("Startet lytter")
     }.start()
 }
 

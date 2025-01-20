@@ -8,7 +8,26 @@ import org.slf4j.MarkerFactory
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
 
-fun log(name: String): Logger = LoggerFactory.getLogger(name)
+/**
+ * Convenience for å slippe å skrive eksplistt navn på Logger når Logger opprettes. Ment å tilsvare Java-måten, hvor
+ * Loggernavnet pleier å være pakkenavn+klassenavn på den loggende koden.
+ * Brukes til å logging fra Kotlin-kode hvor vi ikke er inne i en klasse, typisk i en "top level function".
+ * Kalles fra den filen du ønsker å logg i slik:
+ *```
+ * import no.nav.yada.noClassLogger
+ * private val log: Logger = noClassLogger()
+ * fun myTopLevelFunction() {
+ *      log.info("yada yada yada")
+ *      ...
+ * }
+ *```
+ *
+ *@return En Logger hvor navnet er sammensatt av pakkenavnet og filnavnet til den kallende koden
+ */
+fun noClassLogger(): Logger {
+    val callerClassName = Throwable().stackTrace[1].className
+    return LoggerFactory.getLogger(callerClassName)
+}
 
 /**
  * Styrer logging til [secureLog](https://doc.nais.io/observability/logs/#secure-logs), forutsatt riktig konfigurasjon av Logback.
