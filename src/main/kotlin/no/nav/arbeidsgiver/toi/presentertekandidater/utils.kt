@@ -14,8 +14,13 @@ val Any.log: Logger
  * Brukes til å logging fra Kotlin-kode hvor vi ikke er inne i en klasse, typisk i en "top level function".
  * Kalles fra den filen du ønsker å logg i slik:
  *```
- * val log: Logger = noClassLogger()
- * ...
+ * import no.nav.yada.noClassLogger
+ * private val log: Logger = noClassLogger()
+ * fun myTopLevelFunction() {
+ *      log.info("yada yada yada")
+ *      ...
+ * }
+ *```
  *
  *@return En Logger hvor navnet er sammensatt av pakkenavnet og filnavnet til den kallende koden
  */
