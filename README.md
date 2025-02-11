@@ -19,8 +19,12 @@ roller.
 
 # Utvikling
 
-I testene bruker vi _TestContainers_, som krever at Docker kjører på maskinen. Da kan du enten bruke Docker Desktop
-eller Colima. Hvis du bruker Colima, må du legge til følgende shell-variabler for at TestContainers skal finne
+## Testcontainers
+
+I testene bruker vi _TestContainers_, som krever at Docker kjører på utviklermaskinen.
+
+### Mac
+Hvis du bruker Colima, må du legge til følgende shell-variabler for at TestContainers skal finne
 Docker-instansen: 
 
 ```sh
@@ -45,4 +49,4 @@ colima start
 
 ### For folk utenfor Nav
 * IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
-
+* 
