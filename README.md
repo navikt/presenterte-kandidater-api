@@ -49,4 +49,3 @@ colima start
 
 ### For folk utenfor Nav
 * IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
-* 
