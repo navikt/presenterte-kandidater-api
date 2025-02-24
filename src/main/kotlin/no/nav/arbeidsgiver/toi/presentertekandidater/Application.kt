@@ -1,5 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.core.util.StatusPrinter
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -27,6 +29,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningK
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import org.flywaydb.core.Flyway
+import org.slf4j.LoggerFactory
 import java.util.*
 import javax.sql.DataSource
 
@@ -109,6 +112,13 @@ fun startApp(
     statistikkMetrikkJobb.start()
 
     logger.info("Starter Kafka-lytting")
+
+
+    // TODO Are: Print Logback's internal status messages, including information about which configuration file was loaded.
+    val context: LoggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+    StatusPrinter.print(context)
+
+
     rapidsConnection.also {
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
