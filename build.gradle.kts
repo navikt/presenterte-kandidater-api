@@ -24,6 +24,27 @@ repositories {
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
+
+
+// TODO Are: Funker dette?
+tasks.jar {
+//    archiveBaseName.set("my-app")
+//    archiveClassifier.set("")
+//    archiveVersion.set("1.0.0")
+//
+//    // Remove logback.xml *only* from rapids-and-rivers dependency
+    from({
+        configurations.runtimeClasspath.get()
+            .filter { it.name.contains("rapids-and-rivers") }
+            .map { zipTree(it) }
+    }) {
+        exclude("logback.xml")
+    }
+}
+
+
+
+
 tasks.test {
     useJUnitPlatform()
 }
