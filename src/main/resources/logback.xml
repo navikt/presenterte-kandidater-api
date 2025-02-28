@@ -1,5 +1,5 @@
-<configuration>
-    <!-- TODO Are: log detailed information about the Logback initialization process. -->
+<configuration debug="true">
+    <!-- Log detailed information about the Logback initialization process. -->
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 
     <appender name="appLog" class="ch.qos.logback.core.ConsoleAppender">

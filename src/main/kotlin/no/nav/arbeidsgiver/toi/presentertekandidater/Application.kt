@@ -39,6 +39,9 @@ val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(Jav
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 fun main() {
+    // Print Logback's internal status messages, including information about which configuration file was loaded. Requires <configuration debug="true"> in the logback.xml file.
+    StatusPrinter.print(LoggerFactory.getILoggerFactory() as LoggerContext)
+
     val env = System.getenv()
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
@@ -112,12 +115,6 @@ fun startApp(
     statistikkMetrikkJobb.start()
 
     logger.info("Starter Kafka-lytting")
-
-
-    // TODO Are: Print Logback's internal status messages, including information about which configuration file was loaded.
-    val context: LoggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
-    StatusPrinter.print(context)
-
 
     rapidsConnection.also {
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
