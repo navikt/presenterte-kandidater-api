@@ -1,7 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import ch.qos.logback.classic.LoggerContext
-import ch.qos.logback.core.util.StatusPrinter
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -29,7 +27,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningK
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import org.flywaydb.core.Flyway
-import org.slf4j.LoggerFactory
 import java.util.*
 import javax.sql.DataSource
 
@@ -39,9 +36,6 @@ val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(Jav
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 fun main() {
-    // Print Logback's internal status messages, including information about which configuration file was loaded. Requires <configuration debug="true"> in the logback.xml file.
-    StatusPrinter.print(LoggerFactory.getILoggerFactory() as LoggerContext)
-
     val env = System.getenv()
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
