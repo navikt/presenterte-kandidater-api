@@ -24,30 +24,6 @@ repositories {
     maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
-
-// TODO Are: Funker dette?
-tasks.jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    // Step 1: Find the rapids-and-rivers JAR(s) in the runtime classpath
-    val rapidsAndRiversJars = configurations.runtimeClasspath.get()
-        .filter { it.name.contains("rapids-and-rivers") }
-
-    // Step 2: Remove the rapids-and-rivers JAR(s) from the final JAR
-    exclude(rapidsAndRiversJars.map { it.name })
-
-    // Step 3: Re-add rapids-and-rivers manually, but exclude logback.xml
-    from({
-        rapidsAndRiversJars.map { zipTree(it) }
-    }) {
-        exclude("logback.xml")
-        exclude("META-INF/**/logback.xml")
-    }
-}
-
-
-
-
 tasks.test {
     useJUnitPlatform()
 }
