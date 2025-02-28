@@ -25,21 +25,20 @@ repositories {
 }
 
 
-
 // TODO Are: Funker dette?
 tasks.jar {
-//    archiveBaseName.set("my-app")
-//    archiveClassifier.set("")
-//    archiveVersion.set("1.0.0")
-//
-//    // Remove logback.xml *only* from rapids-and-rivers dependency
-    from({
+    // Add a copy of the rapids-and-rivers dependency where the file logback.xml is removed
+    val sourcePath: () -> List<FileTree> = {
         configurations.runtimeClasspath.get()
-            .filter { it.name.contains("rapids-and-rivers") }
+            .filter { file -> file.name.contains("rapids-and-rivers-") }
             .map { zipTree(it) }
-    }) {
+    }
+    from(sourcePath) {
         exclude("logback.xml")
     }
+
+    // Remove the orginal version that contains the unwanted logback.xml file
+    exclude("rapids-and-rivers-*.jar")
 }
 
 
