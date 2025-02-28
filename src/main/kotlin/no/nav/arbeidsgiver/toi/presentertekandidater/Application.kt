@@ -109,6 +109,7 @@ fun startApp(
     statistikkMetrikkJobb.start()
 
     logger.info("Starter Kafka-lytting")
+
     rapidsConnection.also {
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
