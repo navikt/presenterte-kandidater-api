@@ -27,20 +27,21 @@ repositories {
 
 // TODO Are: Funker dette?
 tasks.jar {
-    // Ensure rapids-and-rivers is removed from the default dependency inclusion
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    val rapidsAndRiversFiles: List<FileTree> = configurations.runtimeClasspath.get().filter { file -> file.name.contains("rapids-and-rivers") }.map { zipTree(it) }
-    // Add rapids-and-rivers contents to classpath except for logback.xml
-    from(rapidsAndRiversFiles) {
+    // Step 1: Find the rapids-and-rivers JAR(s) in the runtime classpath
+    val rapidsAndRiversJars = configurations.runtimeClasspath.get()
+        .filter { it.name.contains("rapids-and-rivers") }
+
+    // Step 2: Remove the rapids-and-rivers JAR(s) from the final JAR
+    exclude(rapidsAndRiversJars.map { it.name })
+
+    // Step 3: Re-add rapids-and-rivers manually, but exclude logback.xml
+    from({
+        rapidsAndRiversJars.map { zipTree(it) }
+    }) {
         exclude("logback.xml")
-    }
-
-    // Remove the original rapids-and-rivers JAR from the classpath
-    configurations.runtimeClasspath.get().forEach { file ->
-        if (file.name.contains("rapids-and-rivers")) {
-            exclude(file.name)
-        }
+        exclude("META-INF/**/logback.xml")
     }
 }
 
