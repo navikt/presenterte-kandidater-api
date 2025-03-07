@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java21-debian12:nonroot
+FROM gcr.io/distroless/java21:nonroot
 ADD build/distributions/presenterte-kandidater-api.tar /
 
 # Asume that logback.xml is located in the project/app root dir.
