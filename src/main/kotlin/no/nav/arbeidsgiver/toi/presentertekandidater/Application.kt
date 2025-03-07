@@ -9,6 +9,7 @@ import io.javalin.plugin.json.JavalinJackson
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.prometheus.client.exporter.common.TextFormat
+import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
@@ -36,14 +37,15 @@ val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(Jav
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 fun main() {
+    logger.info("Starter app.")
+    secure(logger).info("Starter app. Dette er ment å logges til Securelogs. Hvis du ser dette i den ordinære apploggen er noe galt, og sensitive data kan havne i feil logg.")
+
     val env = System.getenv()
     val tokendingsKlient = TokendingsKlient(env)
     val altinnKlient = AltinnKlient(env, tokendingsKlient)
-
+    val openSearchKlient = OpenSearchKlient(env)
     val databasekonfigurasjon = Databasekonfigurasjon(env)
     val dataSource = databasekonfigurasjon.lagDatasource()
-
-    val openSearchKlient = OpenSearchKlient(env)
 
     lateinit var rapidIsAlive: () -> Boolean
     val rapidsConnection = RapidApplication.create(env, configure = { _, kafkaRapid ->
