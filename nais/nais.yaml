@@ -79,3 +79,9 @@ spec:
       value: {{ altinn_proxy_url }}
     - name: ALTINN_PROXY_AUDIENCE
       value: {{ altinn_proxy_audience }}
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+      enabled: true
