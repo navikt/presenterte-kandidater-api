@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.altinn
 
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import java.time.Duration
 import java.time.ZonedDateTime
 

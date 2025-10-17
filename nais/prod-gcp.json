@@ -7,8 +7,8 @@
     "min_replicas": 2,
     "max_replicas": 4,
     "requested_cpu": "100m",
-    "altinn_proxy_url": "http://altinn-rettigheter-proxy.arbeidsgiver/altinn-rettigheter-proxy",
-    "altinn_proxy_audience": "prod-gcp:arbeidsgiver:altinn-rettigheter-proxy",
+    "altinn_proxy_url": "http://arbeidsgiver-altinn-tilganger.fager",
+    "altinn_proxy_audience": "prod-gcp:fager:arbeidsgiver-altinn-tilganger",
     "adGruppeArbeidsgiverrettet": "46c8e3b2-0469-4740-983f-d8cd2b6e4fee",
     "adGruppeUtvikler": "41080368-439f-4128-858a-afbef876431e"
 }

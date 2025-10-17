@@ -39,9 +39,9 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 403 hvis du ikke har samtykket Deprekert`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
             .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")
@@ -53,9 +53,9 @@ class SamtykkeTest {
     @Test
     fun `Skal lagre samtykke på innlogget bruker`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
@@ -71,9 +71,9 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 200 OK selv om samtykke allerede finnes`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
         val fødselsnummer = tilfeldigFødselsnummer()
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/samtykke"))
@@ -114,9 +114,9 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 200 OK men false hvis du ikke har samtykket`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val request = HttpRequest.newBuilder(URI("http://localhost:9000/hentsamtykke"))
             .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")

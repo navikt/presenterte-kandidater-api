@@ -1,6 +1,8 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgangerResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
@@ -1290,12 +1292,20 @@ object Testdata {
     fun lagAltinnOrganisasjon(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnReportee =
         AltinnReportee(
             name = navn,
-            type = "dummy",
             parentOrganizationNumber = "dummy",
             organizationNumber = orgNummer,
-            organizationForm = "dummy",
-            status = "dummy",
-            socialSecurityNumber = ""
+            organizationForm = "dummy"
+        )
+
+    fun lagAltinnTilgang(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang =
+        AltinnTilgang(
+            orgnr = orgNummer,
+            altinn3Tilganger = setOf("ressursid"),
+            altinn2Tilganger = setOf("servicecode:serviceedition"),
+            underenheter = emptyList(),
+            navn = navn,
+            organisasjonsform = "dummy",
+            erSlettet = false,
         )
 
     fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(

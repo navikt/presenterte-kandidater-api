@@ -4,8 +4,9 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 
@@ -27,10 +28,11 @@ class GetOrganisasjonerTest {
     @Test
     fun `Returnerer 200 og liste over alle organisasjoner der bruker har en rolle`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgang("Et Navn", "123456789")
         )
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
@@ -46,8 +48,8 @@ class GetOrganisasjonerTest {
 
     @Test
     fun `Returnerer 200 og tom liste hvis bruker ikke har rolle i noen organisasjoner`() {
-        val organisasjoner = emptyList<AltinnReportee>()
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        val organisasjoner = emptyList<AltinnTilgang>()
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val (_, respons, result) = fuel
             .get("http://localhost:9000/organisasjoner")
@@ -63,10 +65,10 @@ class GetOrganisasjonerTest {
     @Test
     fun `Skal bruke cache i Altinn-klient`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgang("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         val (_, respons1, result1) = fuel
@@ -88,6 +90,6 @@ class GetOrganisasjonerTest {
         Assertions.assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
         wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(1, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
+        wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
     }
 }

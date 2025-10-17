@@ -4,9 +4,10 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
@@ -56,10 +57,10 @@ class GetKandidatlisterTest {
     @Test
     fun `Svarer 400 Bad Request hvis URL-en ikke inneholder virksomhetsnummer`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgang("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val endepunkt = "http://localhost:9000/kandidatlister"
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -82,9 +83,9 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
 
@@ -107,9 +108,9 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -155,8 +156,8 @@ class GetKandidatlisterTest {
         repository.lagre(kandidatlisteOpprettet1UkeSiden)
         repository.lagre(kandidatlisteOpprettet1ÅrSiden)
         repository.lagre(kandidatlisteOpprettet1MånedSiden)
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer))
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -191,9 +192,9 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummerManHarRettighetTil),
+            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummerManHarRettighetTil),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -210,10 +211,10 @@ class GetKandidatlisterTest {
     @Test
     fun `Skal bruke Altinn-cache`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", "123456789"),
-            Testdata.lagAltinnOrganisasjon("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgang("Et Navn", "987654321"),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
@@ -231,13 +232,13 @@ class GetKandidatlisterTest {
         assertThat(respons2.statusCode).isEqualTo(200)
 
         wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(1, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
+        wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
     }
 
     @Test
     fun `Bruker ikke cache når Altinn returnerer tom liste av organisasjoner`() {
-        val tomListeAvOrganisasjoner = listOf<AltinnReportee>()
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, tomListeAvOrganisasjoner)
+        val tomListeAvOrganisasjoner = listOf<AltinnTilgang>()
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, tomListeAvOrganisasjoner)
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
@@ -253,7 +254,7 @@ class GetKandidatlisterTest {
             .responseObject<List<AltinnReportee>>()
 
         wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
-        wiremockServer.verify(2, WireMock.getRequestedFor(WireMock.urlEqualTo(altinnProxyUrlFiltrertPåRekruttering)))
+        wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
     }
 
     @Test
@@ -269,9 +270,9 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnOrganisasjon("Et Navn", virksomhetsnummer),
+            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)

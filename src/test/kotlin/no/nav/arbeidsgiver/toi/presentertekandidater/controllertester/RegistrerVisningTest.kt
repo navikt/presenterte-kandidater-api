@@ -44,8 +44,8 @@ class RegistrerVisningTest {
     fun `Skal oppdatere registrering av visning og returnere 200 OK`() {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", kandidatliste.virksomhetsnummer))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -67,8 +67,8 @@ class RegistrerVisningTest {
 
     @Test
     fun `Skal returnere 400 om man prøver registrere visning av kandidat som ikke finnes`() {
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", tilfeldigVirksomhetsnummer()))
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", tilfeldigVirksomhetsnummer()))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -89,12 +89,12 @@ class RegistrerVisningTest {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat =
             kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!, aktørId = "987"))
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
+        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", kandidatliste.virksomhetsnummer))
 
 
         try {
             renameDatabaseTabell("visning_kontaktinfo", "feil")
-            stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+            stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
             val fødselsnummer = tilfeldigFødselsnummer()
             lagreSamtykke(fødselsnummer)
             val accessToken = hentToken(fødselsnummer)
@@ -121,8 +121,8 @@ class RegistrerVisningTest {
     fun `Skal lagre registrering av visning med publisert_melding lik false`() {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
-        val organisasjoner = listOf(Testdata.lagAltinnOrganisasjon("Et Navn", kandidatliste.virksomhetsnummer))
-        stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", kandidatliste.virksomhetsnummer))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
