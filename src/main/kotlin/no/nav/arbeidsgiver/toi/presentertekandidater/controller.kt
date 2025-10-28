@@ -258,17 +258,15 @@ fun Context.setFødselsnummer(fødselsnummer: String) = attribute("fødselsnumme
 fun Context.setOrganisasjonerForRekruttering(altinnReportee: List<AltinnReportee>) =
     attribute("organisasjonerForRekruttering", altinnReportee)
 
-fun Context.setOrganisasjonerForRekruttering(): List<AltinnReportee> =
+fun Context.hentOrganisasjonerForRekruttering(): List<AltinnReportee> =
     attribute("organisasjonerForRekruttering") ?: error("Context har ikke organisasjoner for rekruttering.")
 
 fun Context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer: String) {
     val representererVirksomhet =
-        virksomhetsnummer in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
+        virksomhetsnummer in this.hentOrganisasjonerForRekruttering().map { it.organizationNumber }
     if (!representererVirksomhet) {
         this@validerRekruttererRolleIOrganisasjon.log.info("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet. Se virksomhetsnummer i SecureLog")
         secure(this@validerRekruttererRolleIOrganisasjon.log).info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
         throw ForbiddenResponse("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet")
     }
 }
-
-
