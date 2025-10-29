@@ -102,7 +102,7 @@ class AltinnKlient(
             secure(log).warn(
                 "Mottok ${response.statusCode()}-respons fra arbeidsgiver-altinn-tilganger: ${response.body()}"
             )
-            throw IllegalStateException("Klarte ikke hente Altinn-tilganger, statuskode: ${response.statusCode()}")
+            throw AltinnServiceException("Klarte ikke hente Altinn-tilganger, statuskode: ${response.statusCode()}")
         }
 
         val altinnTilganger: AltinnTilgangerResponse = mapper.readValue(response.body())
@@ -132,7 +132,7 @@ class AltinnKlient(
                     log.warn("Mottok ${respons.statusCode()} statuskode fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
                 } else if (altinnIsError) {
                     log.warn("Mottok isError=true og tom tilgangsliste fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
-                    sisteException = AltinnException("Mottok isError=true og tom tilgangsliste")
+                    sisteException = AltinnTilgangException("Mottok isError=true og tom tilgangsliste")
                 } else {
                     return respons.also {
                         if (forsøk > 1) {
@@ -160,7 +160,7 @@ class AltinnKlient(
         }
         log.error("Klarte ikke hente Altinn-tilganger etter $maksForsøk forsøk")
         if (sisteException is AltinnException) throw sisteException
-        else throw IllegalStateException("Klarte ikke hente Altinn-tilganger", sisteException)
+        else throw AltinnServiceException("Klarte ikke hente Altinn-tilganger", sisteException)
     }
 
     /**

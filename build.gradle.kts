@@ -59,6 +59,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.1")
     testImplementation("org.assertj:assertj-core:3.23.1")
+    testImplementation("org.mockito:mockito-core:5.20.0")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
     testImplementation("org.testcontainers:testcontainers:1.17.5")
     testImplementation("org.testcontainers:postgresql:1.17.5")
