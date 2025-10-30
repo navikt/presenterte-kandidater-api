@@ -209,6 +209,16 @@ class GetKandidatlisterTest {
     }
 
     @Test
+    fun `Returnerer 503 når Altinn feiler`() {
+        stubHttpStatus500FraAltinnProxy(wiremockServer)
+        val (_, response) = fuel
+            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
+            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
+            .response()
+        assertThat(response.statusCode).isEqualTo(503)
+    }
+
+    @Test
     fun `Skal bruke Altinn-cache`() {
         val organisasjoner = listOf(
             Testdata.lagAltinnTilgang("Et Navn", "123456789"),

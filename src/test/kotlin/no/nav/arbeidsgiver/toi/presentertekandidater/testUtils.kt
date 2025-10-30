@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgangerResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
@@ -113,6 +112,21 @@ fun stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(
             .willReturn(
                 WireMock.ok(organisasjonerJson)
                     .withHeader("Content-Type", "application/json")
+            )
+    )
+}
+
+fun stubHttpStatus500FraAltinnProxy(wiremockServer: WireMockServer) {
+    val exchangeToken = "exchangeToken"
+    stubVekslingAvTokenX(wiremockServer, exchangeToken)
+
+    wiremockServer.stubFor(
+        WireMock.get(altinnProxyUrl)
+            .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))
+            .willReturn(
+                WireMock.serverError()
+                    .withStatus(500)
+                    .withStatusMessage("Noe gikk galt")
             )
     )
 }
