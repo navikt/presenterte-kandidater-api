@@ -184,6 +184,10 @@ class AltinnKlient(
 
         return altinnTilganger.hierarki.flatMap { flatUtHierarki(it) }
     }
+
+    fun tømCache() {
+        cache.tømCache()
+    }
 }
 
 data class AltinnTilgangRequest(

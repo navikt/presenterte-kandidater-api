@@ -48,6 +48,7 @@ class AltinnKlientTest {
     @BeforeEach
     fun reset() {
         wireMockServer.resetAll()
+        altinnKlient.tømCache()
     }
 
     @Test

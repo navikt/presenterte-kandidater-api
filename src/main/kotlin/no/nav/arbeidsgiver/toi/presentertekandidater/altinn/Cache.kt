@@ -42,4 +42,8 @@ class Cache(private val levetid: Duration) {
         INGEN,
         ENKELTRETTIGHET_REKRUTTERING
     }
+
+    fun tømCache() {
+        cache.clear()
+    }
 }
