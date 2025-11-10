@@ -39,7 +39,7 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 403 hvis du ikke har samtykket Deprekert`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
@@ -53,7 +53,7 @@ class SamtykkeTest {
     @Test
     fun `Skal lagre samtykke på innlogget bruker`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
@@ -71,7 +71,7 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 200 OK selv om samtykke allerede finnes`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -114,7 +114,7 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 200 OK men false hvis du ikke har samtykket`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 

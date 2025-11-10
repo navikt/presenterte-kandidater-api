@@ -1297,16 +1297,37 @@ object Testdata {
             organizationForm = "dummy"
         )
 
-    fun lagAltinnTilgang(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang =
+    fun lagAltinnTilgangUtenRekrutteringsrettighet(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang =
         AltinnTilgang(
             orgnr = orgNummer,
-            altinn3Tilganger = setOf("ressursid"),
             altinn2Tilganger = setOf("servicecode:serviceedition"),
+            altinn3Tilganger = setOf("ressursid"),
             underenheter = emptyList(),
             navn = navn,
             organisasjonsform = "dummy",
             erSlettet = false,
         )
+
+    fun lagAltinnTilgangMedRekrutteringsrettighet(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang {
+        val underenhet = AltinnTilgang(
+            orgnr = orgNummer,
+            altinn2Tilganger = setOf("5078:1"),
+            altinn3Tilganger = emptySet(),
+            underenheter = emptyList(),
+            navn = navn,
+            organisasjonsform = "dummy",
+            erSlettet = false,
+        )
+        return AltinnTilgang(
+            orgnr = orgNummer,
+            altinn2Tilganger = emptySet(),
+            altinn3Tilganger = emptySet(),
+            underenheter = listOf(underenhet),
+            navn = navn,
+            organisasjonsform = "dummy",
+            erSlettet = false,
+        )
+    }
 
     fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
         stillingId = uuid,

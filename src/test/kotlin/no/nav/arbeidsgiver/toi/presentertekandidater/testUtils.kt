@@ -96,10 +96,15 @@ fun stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(
             it.orgnr to listOf(it.altinn3Tilganger, it.altinn2Tilganger).flatten().toSet()
         },
         tilgangTilOrgNr = altinnTilganger.flatMap { tilgang ->
-            listOf(
-                tilgang.altinn2Tilganger to tilgang.orgnr,
-                tilgang.altinn3Tilganger to tilgang.orgnr
-            )
+            fun flatUtTilganger(tilgang: AltinnTilgang): List<Pair<List<String>, String>> {
+                val nåværendeTilgang = listOf(
+                    tilgang.altinn2Tilganger.toList() to tilgang.orgnr,
+                    tilgang.altinn3Tilganger.toList() to tilgang.orgnr
+                )
+                val underenhetTilganger = tilgang.underenheter.flatMap { flatUtTilganger(it) }
+                return nåværendeTilgang + underenhetTilganger
+            }
+            flatUtTilganger(tilgang)
         }.flatMap { (tilganger, orgnr) ->
             tilganger.map { it to orgnr }
         }.groupBy({ it.first }, { it.second }).mapValues { it.value.toSet() }

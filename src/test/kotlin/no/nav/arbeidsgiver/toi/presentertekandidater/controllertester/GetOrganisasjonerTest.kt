@@ -28,8 +28,8 @@ class GetOrganisasjonerTest {
     @Test
     fun `Returnerer 200 og liste over alle organisasjoner der bruker har en rolle`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
-            Testdata.lagAltinnTilgang("Et Navn", "123456789")
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "123456789")
         )
 
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
@@ -65,8 +65,8 @@ class GetOrganisasjonerTest {
     @Test
     fun `Skal bruke cache i Altinn-klient`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
-            Testdata.lagAltinnTilgang("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "987654321"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 

@@ -41,7 +41,7 @@ class DeleteKandidatTest {
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer))
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -74,7 +74,7 @@ class DeleteKandidatTest {
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummerManHarRettighetTil))
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummerManHarRettighetTil))
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -107,7 +107,7 @@ class DeleteKandidatTest {
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer))
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val (_, response) = fuel
@@ -124,7 +124,7 @@ class DeleteKandidatTest {
         val virksomhetsnummer = "987654321"
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer))
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val kandidatUuidSomIkkeFinnes = UUID.randomUUID()

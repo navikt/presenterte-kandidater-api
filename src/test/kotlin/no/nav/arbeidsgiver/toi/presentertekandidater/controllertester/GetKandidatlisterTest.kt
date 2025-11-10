@@ -57,8 +57,8 @@ class GetKandidatlisterTest {
     @Test
     fun `Svarer 400 Bad Request hvis URL-en ikke inneholder virksomhetsnummer`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
-            Testdata.lagAltinnTilgang("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", "987654321"),
         )
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val endepunkt = "http://localhost:9000/kandidatlister"
@@ -83,7 +83,7 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer),
         )
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
@@ -108,7 +108,7 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer),
         )
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
@@ -156,7 +156,7 @@ class GetKandidatlisterTest {
         repository.lagre(kandidatlisteOpprettet1UkeSiden)
         repository.lagre(kandidatlisteOpprettet1ÅrSiden)
         repository.lagre(kandidatlisteOpprettet1MånedSiden)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer))
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -192,7 +192,7 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummerManHarRettighetTil),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummerManHarRettighetTil),
         )
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 
@@ -221,8 +221,8 @@ class GetKandidatlisterTest {
     @Test
     fun `Skal bruke Altinn-cache`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", "123456789"),
-            Testdata.lagAltinnTilgang("Et Navn", "987654321"),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", "123456789"),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", "987654321"),
         )
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -280,7 +280,7 @@ class GetKandidatlisterTest {
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgang("Et Navn", virksomhetsnummer),
+            Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer),
         )
         stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
 

@@ -45,7 +45,7 @@ class AltinnKlient(
         val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
 
         val altinnTilganger = hentAltinnTilganger(exchangeToken, altinn2Tilganger, altinn3Tilganger)
-        val organisasjoner = mapAltinnTilgangTilAltinnReportee(altinnTilganger)
+        val organisasjoner = mapAltinnTilgangTilAltinnReportee(altinnTilganger, kunUnderenheter = true)
 
         return organisasjoner.also {
             if (it.isEmpty()) {
@@ -66,7 +66,7 @@ class AltinnKlient(
         val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
 
         val altinnTilganger = hentAltinnTilganger(exchangeToken)
-        val organisasjoner = mapAltinnTilgangTilAltinnReportee(altinnTilganger)
+        val organisasjoner = mapAltinnTilgangTilAltinnReportee(altinnTilganger, kunUnderenheter = false)
 
         return organisasjoner.also {
             if (it.isEmpty()) {
@@ -168,9 +168,13 @@ class AltinnKlient(
      * Bevarer relasjonen mellom underenheter og overordnet enhet ved å sette parentOrganizationNumber for underenheter.
      *
      * @param altinnTilganger Responsen fra arbeidsgiver-altinn-tilganger API.
-     * @return Liste av AltinnReportee-objekter som inneholder alle organisasjoner i responsen fra arbeidsgiver-altinn-tilganger API.
+     * @param kunUnderenheter Hvis true, returneres kun underenheter (overordnede enheter ekskluderes).
+     * @return En liste av AltinnReportee-objekter som representerer organisasjonene brukeren har tilgang til, filtrert basert på `kunUnderenheter`-flagget.
      */
-    private fun mapAltinnTilgangTilAltinnReportee(altinnTilganger: AltinnTilgangerResponse): List<AltinnReportee> {
+    private fun mapAltinnTilgangTilAltinnReportee(
+        altinnTilganger: AltinnTilgangerResponse,
+        kunUnderenheter: Boolean
+    ): List<AltinnReportee> {
         fun flatUtHierarki(tilgang: AltinnTilgang, parentOrgnr: String? = null): List<AltinnReportee> {
             val nåværendeOrganisasjon = AltinnReportee(
                 name = tilgang.navn,
@@ -182,7 +186,13 @@ class AltinnKlient(
             return listOf(nåværendeOrganisasjon) + underenheter
         }
 
-        return altinnTilganger.hierarki.flatMap { flatUtHierarki(it) }
+        return if (kunUnderenheter) {
+            altinnTilganger.hierarki.flatMap { tilgang ->
+                tilgang.underenheter.flatMap { flatUtHierarki(it, tilgang.orgnr) }
+            }
+        } else {
+            altinnTilganger.hierarki.flatMap { flatUtHierarki(it) }
+        }
     }
 
     fun tømCache() {

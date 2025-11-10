@@ -63,16 +63,27 @@ class AltinnKlientTest {
                         "navn": "TESTORGANISASJON AS",
                         "altinn2Tilganger": ["5078:1"],
                         "altinn3Tilganger": [],
-                        "underenheter": [],
+                        "underenheter": [
+                            {
+                                "orgnr": "999888778",
+                                "navn": "UNDERENHET AV TESTORGANISASJON AS",
+                                "altinn2Tilganger": ["5078:1"],
+                                "altinn3Tilganger": [],
+                                "underenheter": [],
+                                "organisasjonsform": "AS",
+                                "erSlettet": false
+                            }
+                        ],
                         "organisasjonsform": "AS",
                         "erSlettet": false
                     }
                 ],
                 "orgNrTilTilganger": {
-                    "999888777": ["5078:1"]
+                    "999888777": ["5078:1"],
+                    "999888778": ["5078:1"]
                 },
                 "tilgangTilOrgNr": {
-                    "5078:1": ["999888777"]
+                    "5078:1": ["999888777", "999888778"]
                 }
             }
         """.trimIndent()
@@ -88,7 +99,7 @@ class AltinnKlientTest {
         )
 
         val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
-        Assertions.assertEquals(1, organisasjoner.size)
+        Assertions.assertEquals(2, organisasjoner.size)
         Assertions.assertEquals("TESTORGANISASJON AS", organisasjoner[0].name)
         Assertions.assertEquals("999888777", organisasjoner[0].organizationNumber)
         wireMockServer.verify(
@@ -98,8 +109,8 @@ class AltinnKlientTest {
         val organisasjonerMedRekrutteringsrettighet =
             altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn("12345678901", accessToken)
         Assertions.assertEquals(1, organisasjonerMedRekrutteringsrettighet.size)
-        Assertions.assertEquals("TESTORGANISASJON AS", organisasjonerMedRekrutteringsrettighet[0].name)
-        Assertions.assertEquals("999888777", organisasjonerMedRekrutteringsrettighet[0].organizationNumber)
+        Assertions.assertEquals("UNDERENHET AV TESTORGANISASJON AS", organisasjonerMedRekrutteringsrettighet[0].name)
+        Assertions.assertEquals("999888778", organisasjonerMedRekrutteringsrettighet[0].organizationNumber)
         wireMockServer.verify(
             2, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
         )
@@ -259,4 +270,167 @@ class AltinnKlientTest {
             6, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
         )
     }
+
+    @Test
+    fun `Skal mappe underenheter til sin overordnede enhet`() {
+        val accessToken = "test-token"
+        val overenhetOrgnr = "999888777"
+        val underenhetOrgnr = "999888778"
+        val altinnResponseJson = """
+            {
+                "isError": false,
+                "hierarki": [
+                    {
+                        "orgnr": "$overenhetOrgnr",
+                        "navn": "TESTORGANISASJON AS",
+                        "altinn2Tilganger": [],
+                        "altinn3Tilganger": [],
+                        "underenheter": [
+                            {
+                                "orgnr": "$underenhetOrgnr",
+                                "navn": "UNDERENHET AV TESTORGANISASJON AS",
+                                "altinn2Tilganger": ["5078:1"],
+                                "altinn3Tilganger": [],
+                                "underenheter": [],
+                                "organisasjonsform": "AS",
+                                "erSlettet": false
+                            }
+                        ],
+                        "organisasjonsform": "AS",
+                        "erSlettet": false
+                    }
+                ],
+                "orgNrTilTilganger": {
+                    "$underenhetOrgnr": ["5078:1"]
+                },
+                "tilgangTilOrgNr": {
+                    "5078:1": ["$underenhetOrgnr"]
+                }
+            }
+        """.trimIndent()
+
+        wireMockServer.stubFor(
+            WireMock.post("/altinn-tilganger")
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(altinnResponseJson)
+                )
+        )
+
+        val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+        Assertions.assertEquals(2, organisasjoner.size)
+        Assertions.assertEquals(overenhetOrgnr, organisasjoner[0].organizationNumber)
+        Assertions.assertNull(organisasjoner[0].parentOrganizationNumber)
+        Assertions.assertEquals(underenhetOrgnr, organisasjoner[1].organizationNumber)
+        Assertions.assertEquals(overenhetOrgnr, organisasjoner[1].parentOrganizationNumber)
+
+        // Rekrutteringsrettighet mangler på overenhet, dermed skal kun underenheten med
+        val organisasjonerMedRekrutteringsrettighet =
+            altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn("12345678901", accessToken)
+        Assertions.assertEquals(1, organisasjonerMedRekrutteringsrettighet.size)
+        Assertions.assertEquals(underenhetOrgnr, organisasjonerMedRekrutteringsrettighet[0].organizationNumber)
+        Assertions.assertEquals(overenhetOrgnr, organisasjonerMedRekrutteringsrettighet[0].parentOrganizationNumber)
+    }
+
+    @Test
+    fun `hentOrganisasjonerMedRettighetRekrutteringFraAltinn skal kun returnere underenheter`() {
+        val altinnResponseJson = """
+        {
+            "isError": false,
+            "hierarki": [
+                {
+                    "orgnr": "111111111",
+                    "navn": "OVERENHET MED RETTIGHET",
+                    "altinn2Tilganger": ["5078:1"],
+                    "altinn3Tilganger": [],
+                    "underenheter": [
+                        {
+                            "orgnr": "111111112",
+                            "navn": "UNDERENHET MED RETTIGHET",
+                            "altinn2Tilganger": ["5078:1"],
+                            "altinn3Tilganger": [],
+                            "underenheter": [],
+                            "organisasjonsform": "AS",
+                            "erSlettet": false
+                        }
+                    ],
+                    "organisasjonsform": "AS",
+                    "erSlettet": false
+                },
+                {
+                    "orgnr": "222222222",
+                    "navn": "UTEN RETTIGHET",
+                    "altinn2Tilganger": [],
+                    "altinn3Tilganger": [],
+                    "underenheter": [],
+                    "organisasjonsform": "AS",
+                    "erSlettet": false
+                }
+            ],
+            "orgNrTilTilganger": {
+                "111111111": ["5078:1"],
+                "222222222": []
+            },
+            "tilgangTilOrgNr": {
+                "5078:1": ["111111111"]
+            }
+        }
+    """.trimIndent()
+
+        wireMockServer.stubFor(
+            WireMock.post("/altinn-tilganger")
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withBody(altinnResponseJson)
+                )
+        )
+
+        val result = altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn("12345678901", "token")
+        Assertions.assertEquals(1, result.size)
+        Assertions.assertEquals("111111112", result[0].organizationNumber)
+    }
+
+    @Test
+    fun `Skal ha separate cacher for ulike filter`() {
+        val altinnResponseJson = """
+        {
+            "isError": false,
+            "hierarki": [
+                {
+                    "orgnr": "999888777",
+                    "navn": "TEST AS",
+                    "altinn2Tilganger": ["5078:1"],
+                    "altinn3Tilganger": [],
+                    "underenheter": [],
+                    "organisasjonsform": "AS",
+                    "erSlettet": false
+                }
+            ],
+            "orgNrTilTilganger": {
+                "999888777": ["5078:1"]
+            },
+            "tilgangTilOrgNr": {
+                "5078:1": ["999888777"]
+            }
+        }
+    """.trimIndent()
+
+        wireMockServer.stubFor(
+            WireMock.post("/altinn-tilganger")
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withBody(altinnResponseJson)
+                )
+        )
+
+        altinnKlient.hentOrganisasjoner("12345678901", "token")
+        altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn("12345678901", "token")
+
+        wireMockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger")))
+    }
+
 }
