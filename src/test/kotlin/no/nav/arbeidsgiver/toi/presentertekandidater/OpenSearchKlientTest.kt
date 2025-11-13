@@ -174,7 +174,7 @@ class OpenSearchKlientTest {
         """.trimIndent()
 
         wiremockServer.stubFor(
-            get("/veilederkandidat_current/_count")
+            get("/kandidater/_count")
                 .withBasicAuth("gunnar", "xyz")
                 .willReturn(ok(forventetRespons))
         )
@@ -186,7 +186,7 @@ class OpenSearchKlientTest {
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(
-            post("/veilederkandidat_current/_search")
+            post("/kandidater/_search")
                 .withBasicAuth("gunnar", "xyz")
                 .withRequestBody(containing(requestBody))
                 .willReturn(ok(responsBody))

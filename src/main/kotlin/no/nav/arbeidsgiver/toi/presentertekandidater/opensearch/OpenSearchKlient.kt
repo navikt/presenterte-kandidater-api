@@ -22,7 +22,7 @@ import java.time.Period
 import java.time.ZonedDateTime
 
 class OpenSearchKlient(envs: Map<String, String>) {
-    private val baseUrl = envs.variable("OPEN_SEARCH_URI") + "/veilederkandidat_current"
+    private val baseUrl = envs.variable("OPEN_SEARCH_URI") + "/kandidater"
     private val searchUrl = "${baseUrl}/_search"
 
     private val username = envs.variable("OPEN_SEARCH_USERNAME")

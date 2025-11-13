@@ -315,7 +315,7 @@ class GetEnKandidatlisteTest {
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {
         wiremockServer.stubFor(
-            WireMock.post("/veilederkandidat_current/_search")
+            WireMock.post("/kandidater/_search")
                 .withBasicAuth("gunnar", "xyz")
                 .withRequestBody(WireMock.containing(requestBody))
                 .willReturn(WireMock.ok(responsBody))
