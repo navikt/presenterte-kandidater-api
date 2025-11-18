@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgangerResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
@@ -1308,13 +1307,17 @@ object Testdata {
             erSlettet = false,
         )
 
-    fun lagAltinnTilgangMedRekrutteringsrettighet(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang {
+    fun lagAltinnTilgangMedRekrutteringsrettighet(
+        navn: String = "bedriftsnavn",
+        underenhetOrgNummer: String = "123456789",
+        orgNummer: String = "999888777"
+    ): AltinnTilgang {
         val underenhet = AltinnTilgang(
-            orgnr = orgNummer,
+            orgnr = underenhetOrgNummer,
             altinn2Tilganger = setOf("5078:1"),
             altinn3Tilganger = emptySet(),
             underenheter = emptyList(),
-            navn = navn,
+            navn = "$navn - underenhet",
             organisasjonsform = "dummy",
             erSlettet = false,
         )

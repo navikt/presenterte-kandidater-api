@@ -126,7 +126,7 @@ fun stubHttpStatus500FraAltinnProxy(wiremockServer: WireMockServer) {
     stubVekslingAvTokenX(wiremockServer, exchangeToken)
 
     wiremockServer.stubFor(
-        WireMock.get(altinnProxyUrl)
+        WireMock.post(altinnProxyUrl)
             .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))
             .willReturn(
                 WireMock.serverError()
