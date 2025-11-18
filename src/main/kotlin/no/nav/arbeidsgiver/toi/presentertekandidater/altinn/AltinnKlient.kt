@@ -142,17 +142,12 @@ class AltinnKlient(
                 }
             } catch (e: InterruptedException) {
                 sisteException = e
-                log.warn(
-                    "Nettverksfeil ved kall mot Altinn: ${e.message}, prøver igjen (forsøk $forsøk av $maksForsøk)",
-                    e
-                )
+                log.error("Avbrutt ved kall til Altinn: ${e.message}", e)
                 Thread.currentThread().interrupt()
+                break
             } catch (e: IOException) {
                 sisteException = e
-                log.warn(
-                    "Nettverksfeil ved kall mot Altinn: ${e.message}, prøver igjen (forsøk $forsøk av $maksForsøk)",
-                    e
-                )
+                log.warn("Nettverksfeil ved kall mot Altinn: ${e.message}, prøver igjen (forsøk $forsøk av $maksForsøk)", e)
             }
             if (forsøk < maksForsøk) {
                 Thread.sleep(500L) // Vent litt før nytt forsøk
