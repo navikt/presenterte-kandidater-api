@@ -49,9 +49,12 @@ class AltinnKlient(
 
         return organisasjoner.also {
             if (it.isEmpty()) {
-                log.info("Innlogget person representerer ingen organisasjoner")
+                //TODO: Rydd i loggmeldingene etter testing
+//                log.info("Innlogget person representerer ingen organisasjoner")
+                secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner med rekrutteringsrettighet")
             } else {
-                log.info("Innlogget person representerer ${it.size} organisasjoner")
+//                log.info("Innlogget person representerer ${it.size} organisasjoner")
+                secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner med rekrutteringsrettighet (${it.joinToString { it.organizationNumber }})")
                 cache.leggICache(fnr, it, ENKELTRETTIGHET_REKRUTTERING)
             }
         }
@@ -70,9 +73,11 @@ class AltinnKlient(
 
         return organisasjoner.also {
             if (it.isEmpty()) {
-                log.info("Innlogget person representerer ingen organisasjoner")
+//                log.info("Innlogget person representerer ingen organisasjoner")
+                secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner i Altinn")
             } else {
-                log.info("Innlogget person representerer ${it.size} organisasjoner")
+//                log.info("Innlogget person representerer ${it.size} organisasjoner")
+                secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner i Altinn (${it.joinToString { it.organizationNumber }})")
                 cache.leggICache(fnr, it, INGEN)
             }
         }

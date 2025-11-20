@@ -1,5 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.altinn
 
+import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import java.time.Duration
 import java.time.ZonedDateTime
 
@@ -24,6 +26,7 @@ class Cache(private val levetid: Duration) {
             cache.remove(nøkkel)
             null
         } else {
+            secure(log).info("Hentet organisasjoner med filtrering ${filtrering.name} fra cache for bruker med fnr $fødselsnummer")
             cachetOrganisasjoner.organisasjoner
         }
     }
