@@ -7,7 +7,6 @@
     "min_replicas": 1,
     "max_replicas": 1,
     "requested_cpu": "50m",
-    "altinn_proxy_url": "http://arbeidsgiver-altinn-tilganger.fager",
     "altinn_proxy_audience": "dev-gcp:fager:arbeidsgiver-altinn-tilganger",
     "adGruppeArbeidsgiverrettet": "52bc2af7-38d1-468b-b68d-0f3a4de45af2",
     "adGruppeUtvikler": "a1749d9a-52e0-4116-bb9f-935c38f6c74a"
