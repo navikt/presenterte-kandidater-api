@@ -80,27 +80,27 @@ class SecureLogLogger private constructor(private val l: Logger) {
     private val m: Marker = MarkerFactory.getMarker(markerName)
 
     fun info(msg: String) {
-        l.info(m, msg)
+        l.info(m, "[tmp-mainversjon] $msg")
     }
 
     fun info(msg: String, t: Throwable) {
-        l.info(m, msg, t)
+        l.info(m, "[tmp-mainversjon] $msg", t)
     }
 
     fun warn(msg: String) {
-        l.warn(m, msg)
+        l.warn(m, "[tmp-mainversjon] $msg")
     }
 
     fun warn(msg: String, t: Throwable) {
-        l.warn(m, msg, t)
+        l.warn(m, "[tmp-mainversjon] msg", t)
     }
 
     fun error(msg: String) {
-        l.error(m, msg)
+        l.error(m, "[tmp-mainversjon] $msg")
     }
 
     fun error(msg: String, t: Throwable) {
-        l.error(m, msg, t)
+        l.error(m, "[tmp-mainversjon] $msg", t)
     }
 
     companion object {

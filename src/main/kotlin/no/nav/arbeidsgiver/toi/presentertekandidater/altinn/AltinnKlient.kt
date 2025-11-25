@@ -45,9 +45,9 @@ class AltinnKlient(
                 filtrerPåAktiveOrganisasjoner = true
             ).also {
                 if (it.isEmpty()) {
-                    log.info("Innlogget person representerer ingen organisasjoner")
+                    secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner med rekrutteringsrettighet")
                 } else {
-                    log.info("Innlogget person representerer ${it.size} organisasjoner")
+                    secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner med rekrutteringsrettighet (${it.joinToString { it.organizationNumber.toString() }})")
                     cache.leggICache(fnr, it, ENKELTRETTIGHET_REKRUTTERING)
                 }
             }
@@ -71,9 +71,9 @@ class AltinnKlient(
                 filtrerPåAktiveOrganisasjoner = true
             ).also {
                 if (it.isEmpty()) {
-                    log.info("Innlogget person representerer ingen organisasjoner")
+                    secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner")
                 } else {
-                    log.info("Innlogget person representerer ${it.size} organisasjoner")
+                    secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner (${it.joinToString { it.organizationNumber.toString() }})")
                     cache.leggICache(fnr, it, INGEN)
                 }
             }
