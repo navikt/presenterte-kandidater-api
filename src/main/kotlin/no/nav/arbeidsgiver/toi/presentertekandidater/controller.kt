@@ -236,15 +236,13 @@ private val hentOrganisasjoner: (Context) -> Unit =
     }
 
 
-data class KandidatDto(
+private data class KandidatDto(
     val kandidat: Kandidat, val cv: Cv?,
 )
 
-data class KandidatlisteDto(
+private data class KandidatlisteDto(
     val kandidatliste: Kandidatliste, val kandidater: List<KandidatDto>,
 )
-
-typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
 
 fun Context.hentOrganisasjoner(): List<AltinnReportee> =
     attribute("organisasjoner") ?: error("Context har ikke organisasjoner")
