@@ -28,6 +28,8 @@ class SlettFraArbeidsgiversKandidatlisteLytter(
         val stillingsId = packet["stillingsId"].asText().toUUID()
         val aktørId = packet["aktørId"].asText()
 
+        log.info("Mottatt hendelse om å slette kandidat fra kandidatliste til stilling: $stillingsId")
+
         presenterteKandidaterService.slettKandidatFraKandidatliste(aktørId, stillingsId)
         cvSlettetCounter.increment()
 
