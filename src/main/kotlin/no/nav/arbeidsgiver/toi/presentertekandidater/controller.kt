@@ -229,22 +229,20 @@ private val hentAntallKandidater: (kandidatlisteRepository: KandidatlisteReposit
 
 private val hentOrganisasjoner: (Context) -> Unit =
     { context ->
-        log.info("Henter organisasjoner for bruker med fnr på ${context.hentFødselsnummer().length} sifre")
+        log.info("Henter organisasjoner for bruker")
         context.json(
             context.hentOrganisasjoner()
         )
     }
 
 
-data class KandidatDto(
+private data class KandidatDto(
     val kandidat: Kandidat, val cv: Cv?,
 )
 
-data class KandidatlisteDto(
+private data class KandidatlisteDto(
     val kandidatliste: Kandidatliste, val kandidater: List<KandidatDto>,
 )
-
-typealias KandidatlisterDto = List<KandidatlisteMedAntallKandidater>
 
 fun Context.hentOrganisasjoner(): List<AltinnReportee> =
     attribute("organisasjoner") ?: error("Context har ikke organisasjoner")

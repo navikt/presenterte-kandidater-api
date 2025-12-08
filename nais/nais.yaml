@@ -35,7 +35,7 @@ spec:
     enabled: true
   openSearch:
     access: read
-    instance: kandidat
+    instance: toi-kandidat
   tokenx:
     enabled: true
   azure:
