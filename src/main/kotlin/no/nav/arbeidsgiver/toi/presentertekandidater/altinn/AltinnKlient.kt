@@ -45,7 +45,14 @@ class AltinnKlient(
         val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
 
         val altinnTilganger = hentAltinnTilganger(exchangeToken, altinn2Tilganger, altinn3Tilganger)
+
+        // Forsikre at vi kun inkluderer organisasjoner hvor brukeren har riktig rettighet
+        val orgnrMedTilgang = altinnTilganger.tilgangTilOrgNr.filter { tilgang ->
+            tilgang.key in altinn2Tilganger || tilgang.key in altinn3Tilganger
+        }.values.flatten().toSet()
+
         val organisasjoner = mapAltinnTilgangTilAltinnReportee(altinnTilganger, kunUnderenheter = true)
+            .filter { orgnrMedTilgang.contains(it.organizationNumber) }
 
         return organisasjoner.also {
             if (it.isEmpty()) {

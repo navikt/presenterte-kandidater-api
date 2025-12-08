@@ -371,10 +371,82 @@ class AltinnKlientTest {
             ],
             "orgNrTilTilganger": {
                 "111111111": ["5078:1"],
+                "111111112": ["5078:1"],
                 "222222222": []
             },
             "tilgangTilOrgNr": {
-                "5078:1": ["111111111"]
+                "5078:1": ["111111111", "111111112"]
+            }
+        }
+    """.trimIndent()
+
+        wireMockServer.stubFor(
+            WireMock.post("/altinn-tilganger")
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withBody(altinnResponseJson)
+                )
+        )
+
+        val result = altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn("12345678901", "token")
+        Assertions.assertEquals(1, result.size)
+        Assertions.assertEquals("111111112", result[0].organizationNumber)
+    }
+
+    @Test
+    fun `hentOrganisasjonerMedRettighetRekrutteringFraAltinn skal kun returnere organisasjoner med rekrutteringsrettighet`() {
+        val altinnResponseJson = """
+        {
+            "isError": false,
+            "hierarki": [
+                {
+                    "orgnr": "111111111",
+                    "navn": "OVERENHET MED RETTIGHET",
+                    "altinn2Tilganger": ["5078:1"],
+                    "altinn3Tilganger": [],
+                    "underenheter": [
+                        {
+                            "orgnr": "111111112",
+                            "navn": "UNDERENHET MED RETTIGHET",
+                            "altinn2Tilganger": ["5078:1"],
+                            "altinn3Tilganger": [],
+                            "underenheter": [],
+                            "organisasjonsform": "AS",
+                            "erSlettet": false
+                        }
+                    ],
+                    "organisasjonsform": "AS",
+                    "erSlettet": false
+                },
+                {
+                    "orgnr": "222222222",
+                    "navn": "OVERENHET UTEN RETTIGHET",
+                    "altinn2Tilganger": [],
+                    "altinn3Tilganger": [],
+                    "underenheter": [
+                                            {
+                            "orgnr": "222222221",
+                            "navn": "UNDERENHET UTEN RETTIGHET",
+                            "altinn2Tilganger": [],
+                            "altinn3Tilganger": [],
+                            "underenheter": [],
+                            "organisasjonsform": "AS",
+                            "erSlettet": false
+                        }
+                    ],
+                    "organisasjonsform": "AS",
+                    "erSlettet": false
+                }
+            ],
+            "orgNrTilTilganger": {
+                "111111111": ["5078:1"],
+                "111111112": ["5078:1"],
+                "222222222": [],
+                "222222221": []
+            },
+            "tilgangTilOrgNr": {
+                "5078:1": ["111111111", 111111112]
             }
         }
     """.trimIndent()
