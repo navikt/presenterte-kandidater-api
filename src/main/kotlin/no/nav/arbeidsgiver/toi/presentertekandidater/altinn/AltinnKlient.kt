@@ -31,8 +31,8 @@ class AltinnKlient(
 
     private val altinnProxyUrl = envs.variable("ALTINN_PROXY_URL")
     private val scope = envs.variable("ALTINN_PROXY_AUDIENCE")
-    private val altinn2Tilganger = listOf("5078:1") // Rekrutteringsrettighet Altinn2. TODO: Erstattes av altinn3-rettighet
-    private val altinn3Tilganger = emptyList<String>() // TODO: Legg til Altinn3-rettighet når den er klar
+    private val altinn2Tilganger = emptyList<String>()
+    private val altinn3Tilganger = listOf("nav_rekruttering_kandidater")
     private val cacheLevetid = Duration.ofMinutes(15)
     private val cache = Cache(levetid = cacheLevetid)
 

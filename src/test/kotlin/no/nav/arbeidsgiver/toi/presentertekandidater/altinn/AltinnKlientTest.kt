@@ -61,14 +61,14 @@ class AltinnKlientTest {
                     {
                         "orgnr": "999888777",
                         "navn": "TESTORGANISASJON AS",
-                        "altinn2Tilganger": ["5078:1"],
-                        "altinn3Tilganger": [],
+                        "altinn2Tilganger": [],
+                        "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                         "underenheter": [
                             {
                                 "orgnr": "999888778",
                                 "navn": "UNDERENHET AV TESTORGANISASJON AS",
-                                "altinn2Tilganger": ["5078:1"],
-                                "altinn3Tilganger": [],
+                                "altinn2Tilganger": [],
+                                "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                                 "underenheter": [],
                                 "organisasjonsform": "AS",
                                 "erSlettet": false
@@ -79,11 +79,11 @@ class AltinnKlientTest {
                     }
                 ],
                 "orgNrTilTilganger": {
-                    "999888777": ["5078:1"],
-                    "999888778": ["5078:1"]
+                    "999888777": ["nav_rekruttering_kandidater"],
+                    "999888778": ["nav_rekruttering_kandidater"]
                 },
                 "tilgangTilOrgNr": {
-                    "5078:1": ["999888777", "999888778"]
+                    "nav_rekruttering_kandidater": ["999888777", "999888778"]
                 }
             }
         """.trimIndent()
@@ -289,8 +289,8 @@ class AltinnKlientTest {
                             {
                                 "orgnr": "$underenhetOrgnr",
                                 "navn": "UNDERENHET AV TESTORGANISASJON AS",
-                                "altinn2Tilganger": ["5078:1"],
-                                "altinn3Tilganger": [],
+                                "altinn2Tilganger": [],
+                                "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                                 "underenheter": [],
                                 "organisasjonsform": "AS",
                                 "erSlettet": false
@@ -301,10 +301,10 @@ class AltinnKlientTest {
                     }
                 ],
                 "orgNrTilTilganger": {
-                    "$underenhetOrgnr": ["5078:1"]
+                    "$underenhetOrgnr": ["nav_rekruttering_kandidater"]
                 },
                 "tilgangTilOrgNr": {
-                    "5078:1": ["$underenhetOrgnr"]
+                    "nav_rekruttering_kandidater": ["$underenhetOrgnr"]
                 }
             }
         """.trimIndent()
@@ -343,14 +343,14 @@ class AltinnKlientTest {
                 {
                     "orgnr": "111111111",
                     "navn": "OVERENHET MED RETTIGHET",
-                    "altinn2Tilganger": ["5078:1"],
-                    "altinn3Tilganger": [],
+                    "altinn2Tilganger": [],
+                    "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                     "underenheter": [
                         {
                             "orgnr": "111111112",
                             "navn": "UNDERENHET MED RETTIGHET",
-                            "altinn2Tilganger": ["5078:1"],
-                            "altinn3Tilganger": [],
+                            "altinn2Tilganger": [],
+                            "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                             "underenheter": [],
                             "organisasjonsform": "AS",
                             "erSlettet": false
@@ -370,12 +370,12 @@ class AltinnKlientTest {
                 }
             ],
             "orgNrTilTilganger": {
-                "111111111": ["5078:1"],
-                "111111112": ["5078:1"],
+                "111111111": ["nav_rekruttering_kandidater"],
+                "111111112": ["nav_rekruttering_kandidater"],
                 "222222222": []
             },
             "tilgangTilOrgNr": {
-                "5078:1": ["111111111", "111111112"]
+                "nav_rekruttering_kandidater": ["111111111", "111111112"]
             }
         }
     """.trimIndent()
@@ -403,14 +403,14 @@ class AltinnKlientTest {
                 {
                     "orgnr": "111111111",
                     "navn": "OVERENHET MED RETTIGHET",
-                    "altinn2Tilganger": ["5078:1"],
-                    "altinn3Tilganger": [],
+                    "altinn2Tilganger": [],
+                    "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                     "underenheter": [
                         {
                             "orgnr": "111111112",
                             "navn": "UNDERENHET MED RETTIGHET",
-                            "altinn2Tilganger": ["5078:1"],
-                            "altinn3Tilganger": [],
+                            "altinn2Tilganger": [],
+                            "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                             "underenheter": [],
                             "organisasjonsform": "AS",
                             "erSlettet": false
@@ -440,13 +440,13 @@ class AltinnKlientTest {
                 }
             ],
             "orgNrTilTilganger": {
-                "111111111": ["5078:1"],
-                "111111112": ["5078:1"],
+                "111111111": ["nav_rekruttering_kandidater"],
+                "111111112": ["nav_rekruttering_kandidater"],
                 "222222222": [],
                 "222222221": []
             },
             "tilgangTilOrgNr": {
-                "5078:1": ["111111111", 111111112]
+                "nav_rekruttering_kandidater": ["111111111", 111111112]
             }
         }
     """.trimIndent()
@@ -474,18 +474,18 @@ class AltinnKlientTest {
                 {
                     "orgnr": "999888777",
                     "navn": "TEST AS",
-                    "altinn2Tilganger": ["5078:1"],
-                    "altinn3Tilganger": [],
+                    "altinn2Tilganger": [],
+                    "altinn3Tilganger": ["nav_rekruttering_kandidater"],
                     "underenheter": [],
                     "organisasjonsform": "AS",
                     "erSlettet": false
                 }
             ],
             "orgNrTilTilganger": {
-                "999888777": ["5078:1"]
+                "999888777": ["nav_rekruttering_kandidater"]
             },
             "tilgangTilOrgNr": {
-                "5078:1": ["999888777"]
+                "nav_rekruttering_kandidater": ["999888777"]
             }
         }
     """.trimIndent()

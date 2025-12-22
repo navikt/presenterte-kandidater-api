@@ -1314,8 +1314,8 @@ object Testdata {
     ): AltinnTilgang {
         val underenhet = AltinnTilgang(
             orgnr = underenhetOrgNummer,
-            altinn2Tilganger = setOf("5078:1"),
-            altinn3Tilganger = emptySet(),
+            altinn2Tilganger = emptySet(),
+            altinn3Tilganger = setOf("nav_rekruttering_kandidater"),
             underenheter = emptyList(),
             navn = "$navn - underenhet",
             organisasjonsform = "dummy",
