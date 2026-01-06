@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java21:nonroot
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21
 ADD build/distributions/presenterte-kandidater-api.tar /
 
 # Asume that logback.xml is located in the project/app root dir.
