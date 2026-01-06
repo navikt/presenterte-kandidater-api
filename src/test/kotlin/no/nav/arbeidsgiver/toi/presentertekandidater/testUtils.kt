@@ -82,7 +82,7 @@ fun stubHentingAvTilgangerFraAltinnProxy(wiremockServer: WireMockServer, altinnT
     )
 }
 
-fun stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(
+fun stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(
     wiremockServer: WireMockServer,
     altinnTilganger: List<AltinnTilgang>
 ) {

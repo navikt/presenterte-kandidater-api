@@ -15,7 +15,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.RolleKonfigurasjon
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.setFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjoner
-import no.nav.arbeidsgiver.toi.presentertekandidater.setOrganisasjonerForRekruttering
+import no.nav.arbeidsgiver.toi.presentertekandidater.setRepresenterteOrganisasjonerMedRettighetKandidater
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import org.eclipse.jetty.http.HttpStatus
 
@@ -27,14 +27,14 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
         validerAutorisering = hentRepresenterteOrganisasjoner(altinnKlient)
     ),
     RolleKonfigurasjon(
-        rolle = Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING,
+        rolle = Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER,
         tokenUtsteder = TOKEN_X,
-        validerAutorisering = validerSamtykkeOgRolleRekruttering(altinnKlient, samtykkeRepository)
+        validerAutorisering = validerSamtykkeOgRolleKandidater(altinnKlient, samtykkeRepository)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.EKSTERN_ARBEIDSGIVER,
         tokenUtsteder = TOKEN_X,
-        validerAutorisering = validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient)
+        validerAutorisering = validerRepresentererOrganisasjonMedRolleKandidater(altinnKlient)
     ),
     RolleKonfigurasjon(
         rolle = Rolle.VEILEDER,
@@ -48,13 +48,13 @@ fun konfigurerRoller(altinnKlient: AltinnKlient, samtykkeRepository: SamtykkeRep
 )
 
 enum class Rolle : RouteRole {
-    ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_REKRUTTERING, EKSTERN_ARBEIDSGIVER, VEILEDER
+    ARBEIDSGIVER, UNPROTECTED, ARBEIDSGIVER_MED_ROLLE_KANDIDATER, EKSTERN_ARBEIDSGIVER, VEILEDER
 }
 
-val validerSamtykkeOgRolleRekruttering: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
+val validerSamtykkeOgRolleKandidater: (AltinnKlient, SamtykkeRepository) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient, samtykkeRepository ->
         { jwtTokenClaims, context, accessToken ->
-            validerRepresentererOrganisasjonMedRolleRekruttering(altinnKlient)(
+            validerRepresentererOrganisasjonMedRolleKandidater(altinnKlient)(
                 jwtTokenClaims,
                 context,
                 accessToken
@@ -76,19 +76,19 @@ val validerSamtykke: (SamtykkeRepository) -> (JwtTokenClaims, Context, AccessTok
         }
     }
 
-val validerRepresentererOrganisasjonMedRolleRekruttering: (AltinnKlient) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
+val validerRepresentererOrganisasjonMedRolleKandidater: (AltinnKlient) -> (JwtTokenClaims, Context, AccessToken) -> Unit =
     { altinnKlient ->
         { jwtTokenClaims, context, accessToken ->
             settFødselsnummerPåKontekst(jwtTokenClaims, context)
             val fnr = context.hentFødselsnummer()
 
             val organisasjoner =
-                altinnKlient.hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr, accessToken)
+                altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn(fnr, accessToken)
 
             if (organisasjoner.isEmpty()) {
                 throw UnauthorizedResponse()
             } else {
-                context.setOrganisasjonerForRekruttering(organisasjoner)
+                context.setRepresenterteOrganisasjonerMedRettighetKandidater(organisasjoner)
             }
         }
     }

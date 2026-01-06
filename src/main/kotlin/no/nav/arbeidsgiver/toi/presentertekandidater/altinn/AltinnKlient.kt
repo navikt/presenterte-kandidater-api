@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.http.HttpCode
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.ENKELTRETTIGHET_REKRUTTERING
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.NAV_REKRUTTERING_KANDIDATER
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
@@ -36,10 +36,10 @@ class AltinnKlient(
     private val cacheLevetid = Duration.ofMinutes(15)
     private val cache = Cache(levetid = cacheLevetid)
 
-    fun hentOrganisasjonerMedRettighetRekrutteringFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
-        log.info("Skal hente organisasjoner hvor innlogget person har rekrutteringsrettighet")
+    fun hentOrganisasjonerMedRettighetKandidaterFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
+        log.info("Skal hente organisasjoner hvor innlogget person har rettighet nav_rekruttering_kandidater")
 
-        val cachetOrganisasjoner = cache.hentFraCache(fnr, ENKELTRETTIGHET_REKRUTTERING)
+        val cachetOrganisasjoner = cache.hentFraCache(fnr, NAV_REKRUTTERING_KANDIDATER)
         if (cachetOrganisasjoner != null) return cachetOrganisasjoner
 
         val exchangeToken = tokendingsKlient.veksleInnToken(accessToken, scope)
@@ -58,11 +58,11 @@ class AltinnKlient(
             if (it.isEmpty()) {
                 //TODO: Rydd i loggmeldingene etter testing
 //                log.info("Innlogget person representerer ingen organisasjoner")
-                secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner med rekrutteringsrettighet")
+                secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner med rettighet nav_rekruttering_kandidater")
             } else {
 //                log.info("Innlogget person representerer ${it.size} organisasjoner")
-                secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner med rekrutteringsrettighet (${it.joinToString { it.organizationNumber }})")
-                cache.leggICache(fnr, it, ENKELTRETTIGHET_REKRUTTERING)
+                secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner med rettighet nav_rekruttering_kandidater (${it.joinToString { it.organizationNumber }})")
+                cache.leggICache(fnr, it, NAV_REKRUTTERING_KANDIDATER)
             }
         }
     }

@@ -1296,7 +1296,7 @@ object Testdata {
             organizationForm = "dummy"
         )
 
-    fun lagAltinnTilgangUtenRekrutteringsrettighet(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang =
+    fun lagAltinnTilgangUtenRettighetKandidater(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang =
         AltinnTilgang(
             orgnr = orgNummer,
             altinn2Tilganger = setOf("servicecode:serviceedition"),
@@ -1307,7 +1307,7 @@ object Testdata {
             erSlettet = false,
         )
 
-    fun lagAltinnTilgangMedRekrutteringsrettighet(
+    fun lagAltinnTilgangMedRettighetKandidater(
         navn: String = "bedriftsnavn",
         underenhetOrgNummer: String = "123456789",
         orgNummer: String = "999888777"

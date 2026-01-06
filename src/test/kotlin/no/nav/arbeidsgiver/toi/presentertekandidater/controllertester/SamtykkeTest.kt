@@ -9,7 +9,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
-import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SamtykkeTest {
@@ -39,7 +38,7 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 403 hvis du ikke har samtykket Deprekert`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRettighetKandidater("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
@@ -53,7 +52,7 @@ class SamtykkeTest {
     @Test
     fun `Skal lagre samtykke på innlogget bruker`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRettighetKandidater("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
@@ -71,7 +70,7 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 200 OK selv om samtykke allerede finnes`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRettighetKandidater("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
         val fødselsnummer = tilfeldigFødselsnummer()
@@ -114,7 +113,7 @@ class SamtykkeTest {
     @Test
     fun `Skal returnere 200 OK men false hvis du ikke har samtykket`() {
         val organisasjoner = listOf(
-            Testdata.lagAltinnTilgangUtenRekrutteringsrettighet("Et Navn", "111111111"),
+            Testdata.lagAltinnTilgangUtenRettighetKandidater("Et Navn", "111111111"),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 

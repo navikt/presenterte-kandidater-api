@@ -43,7 +43,7 @@ class Cache(private val levetid: Duration) {
 
     enum class AltinnFiltrering {
         INGEN,
-        ENKELTRETTIGHET_REKRUTTERING
+        NAV_REKRUTTERING_KANDIDATER
     }
 
     fun tømCache() {

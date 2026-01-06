@@ -41,8 +41,8 @@ class DeleteKandidatTest {
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -74,8 +74,8 @@ class DeleteKandidatTest {
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummerManHarRettighetTil))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummerManHarRettighetTil))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -107,8 +107,8 @@ class DeleteKandidatTest {
             sistEndret = ZonedDateTime.now()
         )
         repository.lagre(kandidat)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
 
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
@@ -124,8 +124,8 @@ class DeleteKandidatTest {
         val virksomhetsnummer = "987654321"
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRekrutteringsrettighet("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåRekruttering(wiremockServer, organisasjoner)
+        val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
+        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
 
         val kandidatUuidSomIkkeFinnes = UUID.randomUUID()
 
