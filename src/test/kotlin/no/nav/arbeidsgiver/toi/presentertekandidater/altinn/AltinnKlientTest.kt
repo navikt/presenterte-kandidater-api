@@ -117,6 +117,71 @@ class AltinnKlientTest {
     }
 
     @Test
+    fun `Skal godta rekrutteringsrettigheten i Altinn2`() {
+        val accessToken = "test-token"
+        val altinnResponseJson = """
+            {
+                "isError": false,
+                "hierarki": [
+                    {
+                        "orgnr": "999888777",
+                        "navn": "TESTORGANISASJON AS",
+                        "altinn2Tilganger": [],
+                        "altinn3Tilganger": [],
+                        "underenheter": [
+                            {
+                                "orgnr": "999888778",
+                                "navn": "UNDERENHET AV TESTORGANISASJON AS",
+                                "altinn2Tilganger": ["5078:1"],
+                                "altinn3Tilganger": [],
+                                "underenheter": [],
+                                "organisasjonsform": "AS",
+                                "erSlettet": false
+                            }
+                        ],
+                        "organisasjonsform": "AS",
+                        "erSlettet": false
+                    }
+                ],
+                "orgNrTilTilganger": {
+                    "999888777": [],
+                    "999888778": ["5078:1"]
+                },
+                "tilgangTilOrgNr": {
+                    "5078:1": ["999888778"]
+                }
+            }
+        """.trimIndent()
+
+        wireMockServer.stubFor(
+            WireMock.post("/altinn-tilganger")
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(altinnResponseJson)
+                )
+        )
+
+        val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+        Assertions.assertEquals(2, organisasjoner.size)
+        Assertions.assertEquals("TESTORGANISASJON AS", organisasjoner[0].name)
+        Assertions.assertEquals("999888777", organisasjoner[0].organizationNumber)
+        wireMockServer.verify(
+            1, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
+        )
+
+        val organisasjonerMedRettighetKandidater =
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+        Assertions.assertEquals(1, organisasjonerMedRettighetKandidater.size)
+        Assertions.assertEquals("UNDERENHET AV TESTORGANISASJON AS", organisasjonerMedRettighetKandidater[0].name)
+        Assertions.assertEquals("999888778", organisasjonerMedRettighetKandidater[0].organizationNumber)
+        wireMockServer.verify(
+            2, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
+        )
+    }
+
+    @Test
     fun `Skal kaste AltinnServiceException ved http 401 fra Altinn`() {
         val accessToken = "test-token"
 
