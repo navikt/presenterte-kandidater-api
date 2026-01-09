@@ -50,39 +50,7 @@ const val tokenXWiremockUrl = "/token-x-token-endpoint"
 
 const val altinnProxyUrl = "/altinn-proxy-url"
 
-//TODO: Denne er nå prikk lik som stubHentingAvtilgangerFraAltinnProxyFiltrertPåRekruttering. Enten slå dem sammen, eller endre oppførselen
-fun stubHentingAvTilgangerFraAltinnProxy(wiremockServer: WireMockServer, altinnTilganger: List<AltinnTilgang>) {
-    val exchangeToken = "exchangeToken"
-    stubVekslingAvTokenX(wiremockServer, exchangeToken)
-
-    val altinnTilgangerResponse = AltinnTilgangerResponse(
-        isError = false,
-        hierarki = altinnTilganger,
-        orgNrTilTilganger = altinnTilganger.associate {
-            it.orgnr to listOf(it.altinn3Tilganger, it.altinn2Tilganger).flatten().toSet()
-        },
-        tilgangTilOrgNr = altinnTilganger.flatMap { tilgang ->
-            listOf(
-                tilgang.altinn2Tilganger to tilgang.orgnr,
-                tilgang.altinn3Tilganger to tilgang.orgnr
-            )
-        }.flatMap { (tilganger, orgnr) ->
-            tilganger.map { it to orgnr }
-        }.groupBy({ it.first }, { it.second }).mapValues { it.value.toSet() }
-    )
-
-    val organisasjonerJson = objectMapper.writeValueAsString(altinnTilgangerResponse)
-    wiremockServer.stubFor(
-        WireMock.post(altinnProxyUrl)
-            .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))
-            .willReturn(
-                WireMock.ok(organisasjonerJson)
-                    .withHeader("Content-Type", "application/json")
-            )
-    )
-}
-
-fun stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(
+fun stubHentingAvTilgangerFraAltinnProxy(
     wiremockServer: WireMockServer,
     altinnTilganger: List<AltinnTilgang>
 ) {

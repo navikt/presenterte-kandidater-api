@@ -42,7 +42,7 @@ class DeleteKandidatTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -75,7 +75,7 @@ class DeleteKandidatTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummerManHarRettighetTil))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -108,7 +108,7 @@ class DeleteKandidatTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val (_, response) = fuel
             .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
@@ -125,7 +125,7 @@ class DeleteKandidatTest {
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val kandidatUuidSomIkkeFinnes = UUID.randomUUID()
 

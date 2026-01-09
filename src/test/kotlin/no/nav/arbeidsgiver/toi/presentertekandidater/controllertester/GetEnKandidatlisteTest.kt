@@ -38,7 +38,7 @@ class GetEnKandidatlisteTest {
         val organisasjoner = listOf(
             Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
 
@@ -117,7 +117,7 @@ class GetEnKandidatlisteTest {
         val organisasjoner = listOf(
             Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
 
@@ -168,7 +168,7 @@ class GetEnKandidatlisteTest {
         val stillingId = UUID.fromString("4bd2c240-92d2-4166-ac54-ba3d21bfbc07")
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
         val nå = ZonedDateTime.now()
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(
+        stubHentingAvTilgangerFraAltinnProxy(
             wiremockServer,
             listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummerManRepresenterer))
         )
@@ -219,7 +219,7 @@ class GetEnKandidatlisteTest {
         val organisasjoner = listOf(
             Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer),
         )
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         repository.lagre(
             kandidatliste().copy(

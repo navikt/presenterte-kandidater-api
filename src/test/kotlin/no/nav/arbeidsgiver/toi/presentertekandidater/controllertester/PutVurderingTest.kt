@@ -40,7 +40,7 @@ class PutVurderingTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -78,7 +78,7 @@ class PutVurderingTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         val accessToken = hentToken(fødselsnummer)
@@ -112,7 +112,7 @@ class PutVurderingTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val body = """
             {
@@ -137,7 +137,7 @@ class PutVurderingTest {
     @Test
     fun `Kall med ukjent verdi i vurderingsfeltet skal returnere 400`() {
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", "53987549"))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "NY"
@@ -158,7 +158,7 @@ class PutVurderingTest {
     @Test
     fun `Gir 400 hvis kandidat ikke eksisterer`() {
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", "221133445"))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "FÅTT_JOBBEN"
@@ -197,7 +197,7 @@ class PutVurderingTest {
         )
         repository.lagre(kandidat)
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", innloggetBrukersVirksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
         val body = """
             {
               "arbeidsgiversVurdering": "FÅTT_JOBBEN"

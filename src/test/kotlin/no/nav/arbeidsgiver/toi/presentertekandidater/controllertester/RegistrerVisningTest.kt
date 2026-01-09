@@ -45,7 +45,7 @@ class RegistrerVisningTest {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", kandidatliste.virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -68,7 +68,7 @@ class RegistrerVisningTest {
     @Test
     fun `Skal returnere 400 om man prøver registrere visning av kandidat som ikke finnes`() {
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", tilfeldigVirksomhetsnummer()))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
@@ -94,7 +94,7 @@ class RegistrerVisningTest {
 
         try {
             renameDatabaseTabell("visning_kontaktinfo", "feil")
-            stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+            stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
             val fødselsnummer = tilfeldigFødselsnummer()
             lagreSamtykke(fødselsnummer)
             val accessToken = hentToken(fødselsnummer)
@@ -122,7 +122,7 @@ class RegistrerVisningTest {
         val kandidatliste = kandidatlisteRepository.lagre(Testdata.kandidatliste())
         val kandidat = kandidatlisteRepository.lagre(Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!))
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", kandidatliste.virksomhetsnummer))
-        stubHentingAvTilgangerFraAltinnProxyFiltrertPåKandidater(wiremockServer, organisasjoner)
+        stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
