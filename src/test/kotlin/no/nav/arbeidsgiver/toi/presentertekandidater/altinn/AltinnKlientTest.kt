@@ -391,7 +391,7 @@ class AltinnKlientTest {
         Assertions.assertEquals(underenhetOrgnr, organisasjoner[1].organizationNumber)
         Assertions.assertEquals(overenhetOrgnr, organisasjoner[1].parentOrganizationNumber)
 
-        //Rrettighet nav_rekruttering_kandidater mangler på overenhet, dermed skal kun underenheten med
+        // Rettighet nav_rekruttering_kandidater mangler på overenhet, dermed skal kun underenheten med
         val organisasjonerMedRettighetKandidater =
             altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
         Assertions.assertEquals(1, organisasjonerMedRettighetKandidater.size)
@@ -490,7 +490,7 @@ class AltinnKlientTest {
                     "altinn2Tilganger": [],
                     "altinn3Tilganger": [],
                     "underenheter": [
-                                            {
+                        {
                             "orgnr": "222222221",
                             "navn": "UNDERENHET UTEN RETTIGHET",
                             "altinn2Tilganger": [],
@@ -511,7 +511,7 @@ class AltinnKlientTest {
                 "222222221": []
             },
             "tilgangTilOrgNr": {
-                "nav_rekruttering_kandidater": ["111111111", 111111112]
+                "nav_rekruttering_kandidater": ["111111111", "111111112"]
             }
         }
     """.trimIndent()
