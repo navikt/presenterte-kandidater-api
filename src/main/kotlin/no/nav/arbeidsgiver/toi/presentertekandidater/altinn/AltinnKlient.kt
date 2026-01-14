@@ -37,7 +37,7 @@ class AltinnKlient(
     private val cache = Cache(levetid = cacheLevetid)
 
     fun hentOrganisasjonerMedRettighetKandidaterFraAltinn(fnr: String, accessToken: String): List<AltinnReportee> {
-        log.info("Skal hente organisasjoner hvor innlogget person har rettighet nav_rekruttering_kandidater")
+        log.info("Skal hente organisasjoner hvor innlogget person har rettighet nav_rekruttering_kandidater eller Rekruttering (5078:1)")
 
         val cachetOrganisasjoner = cache.hentFraCache(fnr, NAV_REKRUTTERING_KANDIDATER)
         if (cachetOrganisasjoner != null) return cachetOrganisasjoner
@@ -141,9 +141,9 @@ class AltinnKlient(
                 val altinnIsError = altinnTilganger?.isError == true && altinnTilganger.hierarki.isEmpty()
 
                 if (respons.statusCode() in 500..504) {
-                    log.warn("Mottok ${respons.statusCode()} statuskode fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
+                    log.info("Mottok ${respons.statusCode()} statuskode fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
                 } else if (altinnIsError) {
-                    log.warn("Mottok isError=true og tom tilgangsliste fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
+                    log.info("Mottok isError=true og tom tilgangsliste fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
                     sisteException = AltinnTilgangException("Mottok isError=true og tom tilgangsliste")
                 } else {
                     return respons.also {
