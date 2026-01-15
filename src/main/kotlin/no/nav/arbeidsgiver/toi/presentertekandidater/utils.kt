@@ -30,7 +30,7 @@ fun noClassLogger(): Logger {
 }
 
 /**
- * Styrer logging til [secureLog](https://doc.nais.io/observability/logs/#secure-logs), forutsatt riktig konfigurasjon av Logback.
+ * Styrer logging til [team-logs](https://doc.nais.io/observability/logging/#team-logs), forutsatt riktig konfigurasjon av Logback.
  *
  * Brukes ved å dekorere en hvilken som helst, vanlig org.slf4j.Logger slik:
  * ```
@@ -39,25 +39,25 @@ fun noClassLogger(): Logger {
  * secure(log).info(msg)
  * ```
  *
- * For at dette skal virke må appens fil `logback.xml` bruke appendere med filtere slik at logging events som har en marker med navn `SECURE_LOG` styres til riktig loggfil:
+ * For at dette skal virke må appens fil `logback.xml` bruke appendere med filtere slik at logging events som har en marker med navn `TEAM_LOGS` styres til riktig loggfil:
  * ```
  * <configuration>
  *     <appender name="appLog" ...>
  *         ...
  *         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
  *             <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
- *                 <marker>SECURE_LOG</marker>
+ *                 <marker>TEAM_LOGS</marker>
  *             </evaluator>
  *             <OnMismatch>NEUTRAL</OnMismatch>
  *             <OnMatch>DENY</OnMatch>
  *         </filter>
  *     </appender>
  *
- *     <appender name="secureLog" ...>
+ *     <appender name="team-logs" ...>
  *         ...
  *         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
  *             <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
- *                 <marker>SECURE_LOG</marker>
+ *                 <marker>TEAM_LOGS</marker>
  *             </evaluator>
  *             <OnMismatch>DENY</OnMismatch>
  *             <OnMatch>NEUTRAL</OnMatch>
@@ -66,8 +66,12 @@ fun noClassLogger(): Logger {
  *
  *     <root ...>
  *         <appender-ref ref="appLog"/>
- *         <appender-ref ref="secureLog"/>
+ *         <appender-ref ref="team-logs"/>
  *     </root>
+ *
+ *     <logger name="team-logs-logger" level="INFO" additivity="false">
+ *          <appender-ref ref="team-logs" />
+ *     </logger>
  * </configuration>
  * ```
  * Se [offisiell Logback-dokumentasjon](https://logback.qos.ch/manual/filters.html#evaluatorFilter)
@@ -75,7 +79,7 @@ fun noClassLogger(): Logger {
  */
 class SecureLogLogger private constructor(private val l: Logger) {
 
-    val markerName: String = "SECURE_LOG"
+    val markerName: String = "TEAM_LOGS"
 
     private val m: Marker = MarkerFactory.getMarker(markerName)
 

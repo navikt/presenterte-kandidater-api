@@ -10,7 +10,10 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.prometheus.client.exporter.common.TextFormat
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnException
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnServiceException
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgangException
 import no.nav.arbeidsgiver.toi.presentertekandidater.hendelser.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.startPeriodiskSlettingAvKandidaterOgKandidatlister
@@ -98,7 +101,31 @@ fun startApp(
         "/internal/prometheus",
         { it.contentType(TextFormat.CONTENT_TYPE_004).result(prometheusRegistry.scrape()) }, Rolle.UNPROTECTED
     )
+    javalin.exception(AltinnException::class.java) { e, ctx ->
+        when (e) {
+            is AltinnServiceException -> {
+                logger.error("Feil ved kall mot Altinn. Se securelogs for stacktrace.")
+                secure(logger).error("Feil ved kall mot Altinn", e)
+                ctx.status(503).json(
+                    mapOf(
+                        "feilkode" to "ALTINN_FEIL",
+                        "feilmelding" to "Kall mot Altinn feilet"
+                    )
+                )
+            }
 
+            is AltinnTilgangException -> {
+                logger.error("Feil ved kall mot Altinn. Se securelogs for stacktrace.")
+                secure(logger).error("Feil ved kall mot Altinn", e)
+                ctx.status(403).json(
+                    mapOf(
+                        "feilkode" to "ALTINN_FEIL",
+                        "feilmelding" to "Kall mot Altinn feilet"
+                    )
+                )
+            }
+        }
+    }
 
     startController(
         javalin,

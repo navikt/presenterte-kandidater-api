@@ -2,7 +2,8 @@ package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgangerResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.http.objectMapper
@@ -47,19 +48,39 @@ fun hentUgyldigToken(): String {
 
 const val tokenXWiremockUrl = "/token-x-token-endpoint"
 
-const val altinnProxyUrl =
-    "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
+const val altinnProxyUrl = "/altinn-proxy-url"
 
-const val altinnProxyUrlFiltrertPåRekruttering =
-    "/altinn-proxy-url/v2/organisasjoner?top=500&skip=0&serviceCode=5078&serviceEdition=1&filter=Type+ne+%27Person%27+and+Status+eq+%27Active%27"
-
-fun stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer: WireMockServer, organisasjoner: List<AltinnReportee>) {
+fun stubHentingAvTilgangerFraAltinnProxy(
+    wiremockServer: WireMockServer,
+    altinnTilganger: List<AltinnTilgang>
+) {
     val exchangeToken = "exchangeToken"
     stubVekslingAvTokenX(wiremockServer, exchangeToken)
 
-    val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
+    val altinnTilgangerResponse = AltinnTilgangerResponse(
+        isError = false,
+        hierarki = altinnTilganger,
+        orgNrTilTilganger = altinnTilganger.associate {
+            it.orgnr to listOf(it.altinn3Tilganger, it.altinn2Tilganger).flatten().toSet()
+        },
+        tilgangTilOrgNr = altinnTilganger.flatMap { tilgang ->
+            fun flatUtTilganger(tilgang: AltinnTilgang): List<Pair<List<String>, String>> {
+                val nåværendeTilgang = listOf(
+                    tilgang.altinn2Tilganger.toList() to tilgang.orgnr,
+                    tilgang.altinn3Tilganger.toList() to tilgang.orgnr
+                )
+                val underenhetTilganger = tilgang.underenheter.flatMap { flatUtTilganger(it) }
+                return nåværendeTilgang + underenhetTilganger
+            }
+            flatUtTilganger(tilgang)
+        }.flatMap { (tilganger, orgnr) ->
+            tilganger.map { it to orgnr }
+        }.groupBy({ it.first }, { it.second }).mapValues { it.value.toSet() }
+    )
+
+    val organisasjonerJson = objectMapper.writeValueAsString(altinnTilgangerResponse)
     wiremockServer.stubFor(
-        WireMock.get(altinnProxyUrl)
+        WireMock.post(altinnProxyUrl)
             .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))
             .willReturn(
                 WireMock.ok(organisasjonerJson)
@@ -68,20 +89,17 @@ fun stubHentingAvOrganisasjonerFraAltinnProxy(wiremockServer: WireMockServer, or
     )
 }
 
-fun stubHentingAvOrganisasjonerFraAltinnProxyFiltrertPåRekruttering(
-    wiremockServer: WireMockServer,
-    organisasjoner: List<AltinnReportee>,
-) {
+fun stubHttpStatus500FraAltinnProxy(wiremockServer: WireMockServer) {
     val exchangeToken = "exchangeToken"
     stubVekslingAvTokenX(wiremockServer, exchangeToken)
 
-    val organisasjonerJson = objectMapper.writeValueAsString(organisasjoner)
     wiremockServer.stubFor(
-        WireMock.get(altinnProxyUrlFiltrertPåRekruttering)
+        WireMock.post(altinnProxyUrl)
             .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))
             .willReturn(
-                WireMock.ok(organisasjonerJson)
-                    .withHeader("Content-Type", "application/json")
+                WireMock.serverError()
+                    .withStatus(500)
+                    .withStatusMessage("Noe gikk galt")
             )
     )
 }

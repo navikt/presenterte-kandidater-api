@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.altinn
 
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
+import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import java.time.Duration
 import java.time.ZonedDateTime
 
@@ -41,6 +42,10 @@ class Cache(private val levetid: Duration) {
 
     enum class AltinnFiltrering {
         INGEN,
-        ENKELTRETTIGHET_REKRUTTERING
+        NAV_REKRUTTERING_KANDIDATER
+    }
+
+    fun tømCache() {
+        cache.clear()
     }
 }

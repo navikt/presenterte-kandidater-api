@@ -1,6 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import java.math.BigInteger
@@ -1290,13 +1291,46 @@ object Testdata {
     fun lagAltinnOrganisasjon(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnReportee =
         AltinnReportee(
             name = navn,
-            type = "dummy",
             parentOrganizationNumber = "dummy",
             organizationNumber = orgNummer,
-            organizationForm = "dummy",
-            status = "dummy",
-            socialSecurityNumber = ""
+            organizationForm = "dummy"
         )
+
+    fun lagAltinnTilgangUtenRettighetKandidater(navn: String = "bedriftsnavn", orgNummer: String = "123456789"): AltinnTilgang =
+        AltinnTilgang(
+            orgnr = orgNummer,
+            altinn2Tilganger = setOf("servicecode:serviceedition"),
+            altinn3Tilganger = setOf("ressursid"),
+            underenheter = emptyList(),
+            navn = navn,
+            organisasjonsform = "dummy",
+            erSlettet = false,
+        )
+
+    fun lagAltinnTilgangMedRettighetKandidater(
+        navn: String = "bedriftsnavn",
+        underenhetOrgNummer: String = "123456789",
+        orgNummer: String = "999888777"
+    ): AltinnTilgang {
+        val underenhet = AltinnTilgang(
+            orgnr = underenhetOrgNummer,
+            altinn2Tilganger = emptySet(),
+            altinn3Tilganger = setOf("nav_rekruttering_kandidater"),
+            underenheter = emptyList(),
+            navn = "$navn - underenhet",
+            organisasjonsform = "dummy",
+            erSlettet = false,
+        )
+        return AltinnTilgang(
+            orgnr = orgNummer,
+            altinn2Tilganger = emptySet(),
+            altinn3Tilganger = emptySet(),
+            underenheter = listOf(underenhet),
+            navn = navn,
+            organisasjonsform = "dummy",
+            erSlettet = false,
+        )
+    }
 
     fun kandidatliste(uuid: UUID = UUID.randomUUID()) = Kandidatliste(
         stillingId = uuid,

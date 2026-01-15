@@ -54,13 +54,12 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:3.9.0")
     implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
 
-    implementation("no.nav.arbeidsgiver:altinn-rettigheter-proxy-klient:3.1.0")
-
     implementation("no.nav.security:token-client-core:2.1.0")
 
     testImplementation(kotlin("test"))
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.1")
     testImplementation("org.assertj:assertj-core:3.23.1")
+    testImplementation("org.mockito:mockito-core:5.20.0")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
     testImplementation("org.testcontainers:testcontainers:1.17.5")
     testImplementation("org.testcontainers:postgresql:1.17.5")
