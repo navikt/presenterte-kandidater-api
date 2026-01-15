@@ -56,12 +56,10 @@ class AltinnKlient(
 
         return organisasjoner.also {
             if (it.isEmpty()) {
-                //TODO: Rydd i loggmeldingene etter testing
-//                log.info("Innlogget person representerer ingen organisasjoner")
-                secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner med rettighet nav_rekruttering_kandidater")
+                log.info("Innlogget person representerer ingen organisasjoner med rettighet nav_rekruttering_kandidater eller Rekruttering (5078:1)")
             } else {
-//                log.info("Innlogget person representerer ${it.size} organisasjoner")
-                secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner med rettighet nav_rekruttering_kandidater (${it.joinToString { it.organizationNumber }})")
+                log.info("Innlogget person representerer ${it.size} organisasjoner med rettighet nav_rekruttering_kandidater eller Rekruttering (5078:1)")
+                secure(log).info("Innlogget person representerer ${it.size} organisasjoner med rettighet nav_rekruttering_kandidater eller Rekruttering (5078:1). Orgnr: ${it.joinToString { it.organizationNumber }}")
                 cache.leggICache(fnr, it, NAV_REKRUTTERING_KANDIDATER)
             }
         }
@@ -80,11 +78,10 @@ class AltinnKlient(
 
         return organisasjoner.also {
             if (it.isEmpty()) {
-//                log.info("Innlogget person representerer ingen organisasjoner")
-                secure(log).info("Innlogget person (fnr=$fnr) representerer ingen organisasjoner i Altinn")
+                log.info("Innlogget person representerer ingen organisasjoner i Altinn")
             } else {
-//                log.info("Innlogget person representerer ${it.size} organisasjoner")
-                secure(log).info("Innlogget person (fnr=$fnr) representerer ${it.size} organisasjoner i Altinn (${it.joinToString { it.organizationNumber }})")
+                log.info("Innlogget person representerer ${it.size} organisasjoner i Altinn")
+                secure(log).info("Innlogget person representerer ${it.size} organisasjoner i Altinn. Orgnr: ${it.joinToString { it.organizationNumber }}")
                 cache.leggICache(fnr, it, INGEN)
             }
         }

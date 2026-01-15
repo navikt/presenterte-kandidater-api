@@ -26,7 +26,6 @@ class Cache(private val levetid: Duration) {
             cache.remove(nøkkel)
             null
         } else {
-            secure(log).info("Hentet organisasjoner med filtrering ${filtrering.name} fra cache for bruker med fnr $fødselsnummer")
             cachetOrganisasjoner.organisasjoner
         }
     }
