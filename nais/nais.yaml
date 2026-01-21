@@ -31,8 +31,6 @@ spec:
     requests:
       cpu: {{ requested_cpu }}
       memory: 512Mi
-  secureLogs:
-    enabled: true
   openSearch:
     access: read
     instance: toi-kandidat
@@ -57,8 +55,10 @@ spec:
         - application: rekrutteringsbistand
     outbound:
       rules:
-        - application: altinn-rettigheter-proxy
-          namespace: arbeidsgiver
+        - application: arbeidsgiver-altinn-tilganger
+          namespace: fager
+        - application: logging
+          namespace: nais-system
   kafka:
     pool: {{ kafka-pool }}
   gcp:
@@ -76,7 +76,7 @@ spec:
     - name: KAFKA_RESET_POLICY
       value: "latest"
     - name: ALTINN_PROXY_URL
-      value: {{ altinn_proxy_url }}
+      value: http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger
     - name: ALTINN_PROXY_AUDIENCE
       value: {{ altinn_proxy_audience }}
   observability:

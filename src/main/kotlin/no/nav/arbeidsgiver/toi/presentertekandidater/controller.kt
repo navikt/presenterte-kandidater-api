@@ -6,8 +6,8 @@ import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.InternalServerErrorResponse
-import no.nav.arbeidsgiver.altinnrettigheter.proxy.klient.model.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteMedAntallKandidater
@@ -32,11 +32,11 @@ fun startController(
 ) {
     javalin.routes {
         get("/organisasjoner", hentOrganisasjoner, Rolle.ARBEIDSGIVER)
-        get("/kandidatlister", hentKandidatlister(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        get("/kandidatlister", hentKandidatlister(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER)
         get(
             "/kandidatliste/{stillingId}",
             hentKandidatliste(kandidatlisteRepository, openSearchKlient),
-            Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+            Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER
         )
         get(
             "/kandidatliste/{stillingId}/vurdering",
@@ -49,13 +49,13 @@ fun startController(
         put(
             "/kandidat/{uuid}/vurdering",
             oppdaterArbeidsgiversVurdering(kandidatlisteRepository),
-            Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+            Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER
         )
-        delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING)
+        delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER)
         post(
             "/kandidat/{uuid}/registrerviskontaktinfo",
             registrerVisningAvKontaktInfo(kandidatlisteRepository, visningKontaktinfoRepository),
-            Rolle.ARBEIDSGIVER_MED_ROLLE_REKRUTTERING
+            Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER
         )
         get(
             "/ekstern/antallkandidater",
@@ -253,20 +253,18 @@ fun Context.hentFødselsnummer(): String =
     attribute("fødselsnummer") ?: error("Context har ikke fødselsnummer")
 
 fun Context.setFødselsnummer(fødselsnummer: String) = attribute("fødselsnummer", fødselsnummer)
-fun Context.setOrganisasjonerForRekruttering(altinnReportee: List<AltinnReportee>) =
-    attribute("organisasjonerForRekruttering", altinnReportee)
+fun Context.setRepresenterteOrganisasjonerMedRettighetKandidater(altinnReportee: List<AltinnReportee>) =
+    attribute("representerteOrganisasjonerMedRettighetKandidater", altinnReportee)
 
-fun Context.setOrganisasjonerForRekruttering(): List<AltinnReportee> =
-    attribute("organisasjonerForRekruttering") ?: error("Context har ikke organisasjoner for rekruttering.")
+fun Context.hentRepresenterteOrganisasjonerMedRettighetKandidater(): List<AltinnReportee> =
+    attribute("representerteOrganisasjonerMedRettighetKandidater") ?: error("Context har ikke organisasjoner for kandidater.")
 
 fun Context.validerRekruttererRolleIOrganisasjon(virksomhetsnummer: String) {
     val representererVirksomhet =
-        virksomhetsnummer in this.setOrganisasjonerForRekruttering().map { it.organizationNumber }
+        virksomhetsnummer in this.hentRepresenterteOrganisasjonerMedRettighetKandidater().map { it.organizationNumber }
     if (!representererVirksomhet) {
-        this@validerRekruttererRolleIOrganisasjon.log.info("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet. Se virksomhetsnummer i SecureLog")
-        secure(this@validerRekruttererRolleIOrganisasjon.log).info("Bruker har ikke enkeltrettighet Rekruttering for virksomheten ${virksomhetsnummer}")
-        throw ForbiddenResponse("Bruker har ikke enkeltrettighet Rekruttering for angitt virksomhet")
+        this@validerRekruttererRolleIOrganisasjon.log.info("Bruker har ikke enkeltrettighet nav_rekruttering_kandidater for angitt virksomhet. Se virksomhetsnummer i SecureLog")
+        secure(this@validerRekruttererRolleIOrganisasjon.log).info("Bruker har ikke enkeltrettighet nav_rekruttering_kandidater for virksomheten ${virksomhetsnummer}")
+        throw ForbiddenResponse("Bruker har ikke enkeltrettighet nav_rekruttering_kandidater for angitt virksomhet")
     }
 }
-
-

@@ -2,7 +2,7 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.altinn
 
 
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.ENKELTRETTIGHET_REKRUTTERING
+import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.NAV_REKRUTTERING_KANDIDATER
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.tilfeldigFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.tilfeldigVirksomhetsnummer
@@ -19,8 +19,8 @@ class CacheTest {
     val cache = Cache(cacheLevetid)
 
     @Test
-    fun `Caching fungerer med filtrering på enkeltrettighet rekruttering`() {
-        val filtrering = ENKELTRETTIGHET_REKRUTTERING
+    fun `Caching fungerer med filtrering på rettighet nav_rekruttering_kandidater`() {
+        val filtrering = NAV_REKRUTTERING_KANDIDATER
         val fødselsnummer = tilfeldigFødselsnummer()
         val organisasjoner = listOf(
             Testdata.lagAltinnOrganisasjon(orgNummer = tilfeldigVirksomhetsnummer()),
@@ -57,7 +57,7 @@ class CacheTest {
             cache.leggICache(fødselsnummer, emptyList(), INGEN)
         }
         assertThrows<IllegalArgumentException> {
-            cache.leggICache(fødselsnummer, emptyList(), ENKELTRETTIGHET_REKRUTTERING)
+            cache.leggICache(fødselsnummer, emptyList(), NAV_REKRUTTERING_KANDIDATER)
         }
     }
 
@@ -67,7 +67,7 @@ class CacheTest {
         val organisasjonerUtenFiltrering = Testdata.lagAltinnOrganisasjon(orgNummer = tilfeldigVirksomhetsnummer())
         cache.leggICache(fødselsnummer, listOf(organisasjonerUtenFiltrering), INGEN)
 
-        val fraCache = cache.hentFraCache(fødselsnummer, ENKELTRETTIGHET_REKRUTTERING)
+        val fraCache = cache.hentFraCache(fødselsnummer, NAV_REKRUTTERING_KANDIDATER)
 
         assertNull(fraCache)
     }
