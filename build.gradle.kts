@@ -43,7 +43,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
-    implementation("ch.qos.logback:logback-classic:1.4.4")
+    implementation("ch.qos.logback:logback-classic:1.5.26")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
     implementation("org.flywaydb:flyway-core:9.8.1")
@@ -57,7 +57,7 @@ dependencies {
     implementation("no.nav.security:token-client-core:2.1.0")
 
     testImplementation(kotlin("test"))
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.1")
+    testImplementation("org.wiremock:wiremock-standalone:3.13.2")
     testImplementation("org.assertj:assertj-core:3.23.1")
     testImplementation("org.mockito:mockito-core:5.20.0")
     testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
