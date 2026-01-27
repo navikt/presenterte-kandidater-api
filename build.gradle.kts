@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
+    kotlin("jvm") version "2.1.0"
     application
     id("com.github.ben-manes.versions") version "0.51.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
 }
@@ -47,21 +47,21 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
     implementation("org.flywaydb:flyway-core:9.8.1")
-    implementation("org.postgresql:postgresql:42.7.4")
+    implementation("org.postgresql:postgresql:42.7.7")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
-    implementation("org.apache.kafka:kafka-clients:3.9.0")
+    implementation("org.apache.kafka:kafka-clients:3.9.1")
     implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
 
-    implementation("no.nav.security:token-client-core:2.1.0")
+    implementation("no.nav.security:token-client-core:5.0.30")
 
     testImplementation(kotlin("test"))
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
     testImplementation("org.assertj:assertj-core:3.23.1")
     testImplementation("org.mockito:mockito-core:5.20.0")
-    testImplementation("no.nav.security:mock-oauth2-server:0.5.6")
-    testImplementation("org.testcontainers:testcontainers:1.17.5")
+    testImplementation("no.nav.security:mock-oauth2-server:3.0.1")
+    testImplementation("org.testcontainers:testcontainers:2.0.3")
     testImplementation("org.testcontainers:postgresql:1.17.5")
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
     testImplementation("io.mockk:mockk:1.13.2")
