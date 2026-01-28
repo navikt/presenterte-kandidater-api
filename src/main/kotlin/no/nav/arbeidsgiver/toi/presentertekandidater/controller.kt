@@ -10,7 +10,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.s
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteMedAntallKandidater
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.KandidatlisteRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
@@ -120,10 +119,9 @@ private val hentSamtykkeGammel: (samtykkeRepository: SamtykkeRepository) -> (Con
     }
 }
 
+data class Respons(val harSamtykket: Boolean)
 private val hentSamtykke: (samtykkeRepository: SamtykkeRepository) -> (Context) -> Unit = { samtykkeRepository ->
     { context ->
-        data class Respons(val harSamtykket: Boolean)
-
         val fødselsnummer = context.hentFødselsnummer()
         val harSamtykket = samtykkeRepository.harSamtykket(fødselsnummer)
         context.json(Respons(harSamtykket))
