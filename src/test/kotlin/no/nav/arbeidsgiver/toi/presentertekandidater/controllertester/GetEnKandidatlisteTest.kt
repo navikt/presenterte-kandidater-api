@@ -300,6 +300,7 @@ class GetEnKandidatlisteTest {
                 .equals(fraDatabasen.arbeidsgiversVurdering.name)
         )
         assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
+        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["opprettet"].textValue()) != null)
     }
 
     private fun assertCv(fraRespons: JsonNode, openSearchCvRespons: JsonNode) {
