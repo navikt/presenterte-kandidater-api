@@ -229,6 +229,7 @@ data class Filter(
     val inkluderSlettede: Boolean
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AltinnTilgang(
     val orgnr: String,
     val altinn3Tilganger: Set<String>,
