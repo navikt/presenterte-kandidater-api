@@ -1,5 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.altinn
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -246,6 +247,7 @@ data class AltinnTilgang(
  * - `orgNrTilTilganger`: En liste over tilganger per organisasjonsnummer.
  * - `tilgangTilOrgNr`: En liste over organisasjonsnummer per tilgang.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AltinnTilgangerResponse(
     @JsonProperty("isError")
     val isError: Boolean,
