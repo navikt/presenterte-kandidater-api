@@ -41,6 +41,9 @@ Før du kjører testene må du også huske å starte Colima med:
 colima start
 ```
 
+## Kode generert av GitHub Copilot
+Dette repoet bruker GitHub Copilot til å generere kode.
+
 ## Henvendelser
 
 ### For Nav-ansatte
