@@ -34,7 +34,8 @@ testing {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.javalin:javalin:4.6.8")
+    implementation("io.javalin:javalin:6.7.0")
+    implementation("io.javalin:javalin-micrometer:6.7.0")
     implementation("io.micrometer:micrometer-core:1.10.2")
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
 

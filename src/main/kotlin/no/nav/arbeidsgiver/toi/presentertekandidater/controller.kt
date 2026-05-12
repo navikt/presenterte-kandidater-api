@@ -1,7 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
 import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
@@ -29,39 +28,39 @@ fun startController(
     visningKontaktinfoRepository: VisningKontaktinfoRepository,
     openSearchKlient: OpenSearchKlient
 ) {
-    javalin.routes {
-        get("/organisasjoner", hentOrganisasjoner, Rolle.ARBEIDSGIVER)
-        get("/kandidatlister", hentKandidatlister(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER)
-        get(
+    javalin
+        .get("/organisasjoner", hentOrganisasjoner, Rolle.ARBEIDSGIVER)
+        .get("/kandidatlister", hentKandidatlister(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER)
+        .get(
             "/kandidatliste/{stillingId}",
             hentKandidatliste(kandidatlisteRepository, openSearchKlient),
             Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER
         )
-        get(
+        .get(
             "/kandidatliste/{stillingId}/vurdering",
             hentKandidatlisteVurderinger(kandidatlisteRepository),
             Rolle.VEILEDER
         )
-        get("/samtykke", hentSamtykkeGammel(samtykkeRepository), Rolle.ARBEIDSGIVER)
-        get("/hentsamtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
-        post("/samtykke", lagreSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
-        put(
+        .get("/samtykke", hentSamtykkeGammel(samtykkeRepository), Rolle.ARBEIDSGIVER)
+        .get("/hentsamtykke", hentSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
+        .post("/samtykke", lagreSamtykke(samtykkeRepository), Rolle.ARBEIDSGIVER)
+        .put(
             "/kandidat/{uuid}/vurdering",
             oppdaterArbeidsgiversVurdering(kandidatlisteRepository),
             Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER
         )
-        delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER)
-        post(
+        .delete("/kandidat/{uuid}", slettKandidat(kandidatlisteRepository), Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER)
+        .post(
             "/kandidat/{uuid}/registrerviskontaktinfo",
             registrerVisningAvKontaktInfo(kandidatlisteRepository, visningKontaktinfoRepository),
             Rolle.ARBEIDSGIVER_MED_ROLLE_KANDIDATER
         )
-        get(
+        .get(
             "/ekstern/antallkandidater",
             hentAntallKandidater(kandidatlisteRepository),
             Rolle.EKSTERN_ARBEIDSGIVER
         )
-    }.exception(IllegalArgumentException::class.java) { e, ctx ->
+    .exception(IllegalArgumentException::class.java) { e, ctx ->
         log.warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input. Se SecureLog for stacktrace.")
         secure(log).warn("Kall mot ${ctx.path()} feiler på grunn av ugyldig input.", e)
         ctx.status(400)
