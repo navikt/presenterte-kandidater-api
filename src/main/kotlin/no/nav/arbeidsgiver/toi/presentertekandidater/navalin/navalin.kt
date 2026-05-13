@@ -27,9 +27,9 @@ fun startJavalin(
         config.jsonMapper(jsonMapper)
         config.registerPlugin(MicrometerPlugin { it.registry = registry })
     }.beforeMatched { ctx ->
-        val roles = ctx.routeRoles()
-        if (roles.isNotEmpty()) {
-            accessManager.manage(ctx, roles)
+        val roller = ctx.routeRoles()
+        if (roller.isNotEmpty()) {
+            accessManager.manage(ctx, roller)
         }
     }.start(port)
 }
