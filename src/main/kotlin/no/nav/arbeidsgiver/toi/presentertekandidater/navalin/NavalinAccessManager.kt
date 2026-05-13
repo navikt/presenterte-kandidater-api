@@ -1,16 +1,13 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.navalin
 
 import com.nimbusds.jwt.JWTClaimsSet
-import io.javalin.core.security.AccessManager
-import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
-import io.javalin.http.Handler
 import io.javalin.http.UnauthorizedResponse
+import io.javalin.security.RouteRole
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.TOKEN_X
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.AZURE_AD
 import no.nav.security.token.support.core.configuration.IssuerProperties
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import java.net.URL
@@ -18,15 +15,14 @@ import java.net.URL
 class NavalinAccessManager(
     private val rolleKonfigurasjoner: List<RolleKonfigurasjon>,
     private val miljøvariabler: Map<String, String>,
-) : AccessManager {
+) {
 
-    override fun manage(handler: Handler, ctx: Context, routeRoles: MutableSet<RouteRole>) {
+    fun manage(ctx: Context, routeRoles: Set<RouteRole>) {
         require(routeRoles.size == 1) { "Støtter kun bruk av en rolle per endepunkt." }
         val rollekonfigurasjon = rolleKonfigurasjoner.find { routeRoles.contains(it.rolle) }
             ?: error("Bruker ukonfigurert rolle på endepunktet.")
 
         kanAutentisereOgAutorisere(ctx, rollekonfigurasjon.tokenUtsteder, rollekonfigurasjon.validerAutorisering)
-        handler.handle(ctx)
     }
 
     private fun kanAutentisereOgAutorisere(
@@ -77,7 +73,7 @@ class NavalinAccessManager(
     }
 
     private fun hentAccessTokenFraHeader(context: Context): String {
-        val accessTokenMedBearerPrefix = context.httpRequest.getHeader("Authorization")?.toString()
+        val accessTokenMedBearerPrefix = context.httpRequest.getHeader("Authorization")
             ?: throw IllegalStateException("Prøvde å hente ut access token men Authorization header finnes ikke")
 
         return accessTokenMedBearerPrefix.replace("Bearer ", "")

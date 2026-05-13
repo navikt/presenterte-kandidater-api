@@ -1,11 +1,11 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.navalin
 
 import io.javalin.Javalin
-import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
-import io.javalin.plugin.json.JavalinJackson
-import io.javalin.plugin.json.JsonMapper
-import io.javalin.plugin.metrics.MicrometerPlugin
+import io.javalin.json.JavalinJackson
+import io.javalin.json.JsonMapper
+import io.javalin.micrometer.MicrometerPlugin
+import io.javalin.security.RouteRole
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
@@ -20,11 +20,17 @@ fun startJavalin(
 ): Javalin {
     require(rollekonfigurasjoner.isNotEmpty()) { "Støtter ikke opprettelse av Javalin uten rollekonfigurasjon" }
 
-    return Javalin.create {
-        it.accessManager(NavalinAccessManager(rollekonfigurasjoner, miljøvariabler))
-        it.defaultContentType = defaultContentType
-        it.jsonMapper(jsonMapper)
-        it.registerPlugin(MicrometerPlugin(registry))
+    val accessManager = NavalinAccessManager(rollekonfigurasjoner, miljøvariabler)
+
+    return Javalin.create { config ->
+        config.http.defaultContentType = defaultContentType
+        config.jsonMapper(jsonMapper)
+        config.registerPlugin(MicrometerPlugin { it.registry = registry })
+    }.beforeMatched { ctx ->
+        val roller = ctx.routeRoles()
+        if (roller.isNotEmpty()) {
+            accessManager.manage(ctx, roller)
+        }
     }.start(port)
 }
 

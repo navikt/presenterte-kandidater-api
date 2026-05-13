@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.javalin.http.HttpCode
+import io.javalin.http.HttpStatus
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.NAV_REKRUTTERING_KANDIDATER
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.INGEN
@@ -108,7 +108,7 @@ class AltinnKlient(
 
         val response = hentAltinnTilgangerMedRetry(httpKlient, request, maksForsøk = 3)
 
-        if (response.statusCode() != HttpCode.OK.status) {
+        if (response.statusCode() != HttpStatus.OK.code) {
             secure(log).warn(
                 "Mottok ${response.statusCode()}-respons fra arbeidsgiver-altinn-tilganger: ${response.body()}"
             )

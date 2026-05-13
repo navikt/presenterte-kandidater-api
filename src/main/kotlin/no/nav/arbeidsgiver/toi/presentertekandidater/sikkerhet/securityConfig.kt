@@ -1,10 +1,10 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
-import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.HttpResponseException
 import io.javalin.http.UnauthorizedResponse
+import io.javalin.security.RouteRole
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.hentFødselsnummer
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.AccessToken
