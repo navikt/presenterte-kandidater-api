@@ -47,22 +47,23 @@ fun startJavalin(
         config.jsonMapper(jsonMapper)
         config.registerPlugin(MicrometerPlugin { it.registry = registry })
 
-        config.routes.beforeMatched { ctx ->
-            val roller = ctx.routeRoles()
-            if (roller.isNotEmpty()) {
-                accessManager.manage(ctx, roller)
+        config.routes.apply {
+            beforeMatched { ctx ->
+                val roller = ctx.routeRoles()
+                if (roller.isNotEmpty()) {
+                    accessManager.manage(ctx, roller)
+                }
             }
+            internalApi(rapidIsAlive, registry)
+            exceptionHandling()
+            startController(
+                this,
+                kandidatlisteRepository,
+                samtykkeRepository,
+                visningKontaktinfoRepository,
+                openSearchKlient
+            )
         }
-
-        config.routes.internalApi(rapidIsAlive, registry)
-        config.routes.exceptionHandling()
-        startController(
-            config.routes,
-            kandidatlisteRepository,
-            samtykkeRepository,
-            visningKontaktinfoRepository,
-            openSearchKlient
-        )
     }.start(port)
 }
 
