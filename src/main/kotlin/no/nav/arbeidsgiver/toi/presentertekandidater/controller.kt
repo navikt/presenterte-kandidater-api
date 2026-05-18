@@ -5,6 +5,7 @@ import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
 import io.javalin.http.InternalServerErrorResponse
+import io.javalin.router.JavalinDefaultRoutingApi
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
@@ -22,7 +23,7 @@ import java.util.*
 val log: Logger = noClassLogger() // Er public bare fordi den brukes i en test
 
 fun startController(
-    javalin: Javalin,
+    javalin: JavalinDefaultRoutingApi,
     kandidatlisteRepository: KandidatlisteRepository,
     samtykkeRepository: SamtykkeRepository,
     visningKontaktinfoRepository: VisningKontaktinfoRepository,
