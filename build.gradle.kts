@@ -41,7 +41,7 @@ dependencies {
 
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
     implementation("ch.qos.logback:logback-classic:1.5.38")
