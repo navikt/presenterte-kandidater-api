@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.1.0"
     application
-    id("com.github.ben-manes.versions") version "0.51.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
+    id("com.github.ben-manes.versions") version "0.64.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
 }
 
 kotlin {
@@ -34,25 +34,25 @@ testing {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.javalin:javalin:7.2.2")
-    implementation("io.javalin:javalin-micrometer:7.2.2")
+    implementation("io.javalin:javalin:7.2.3")
+    implementation("io.javalin:javalin-micrometer:7.2.3")
     implementation("io.micrometer:micrometer-core:1.10.2")
     implementation("io.micrometer:micrometer-registry-prometheus:1.10.2")
 
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
-    implementation("ch.qos.logback:logback-classic:1.5.26")
+    implementation("ch.qos.logback:logback-classic:1.5.38")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
-    implementation("org.flywaydb:flyway-core:9.8.1")
-    implementation("org.postgresql:postgresql:42.7.7")
+    implementation("org.flywaydb:flyway-core:9.8.3")
+    implementation("org.postgresql:postgresql:42.7.13")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
-    implementation("org.apache.kafka:kafka-clients:3.9.1")
+    implementation("org.apache.kafka:kafka-clients:3.9.2")
     implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
 
     implementation("no.nav.security:token-client-core:5.0.30")
