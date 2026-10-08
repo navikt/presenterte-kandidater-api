@@ -1,4 +1,6 @@
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21
+ARG BASE_IMAGE_DIGEST_PINNED_REF
+FROM ${BASE_IMAGE_DIGEST_PINNED_REF}
+
 ADD build/distributions/presenterte-kandidater-api.tar /
 
 # Asume that logback.xml is located in the project/app root dir.
