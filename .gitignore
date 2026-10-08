@@ -4,3 +4,7 @@ build
 .classpath
 .project
 .settings/
+.kotlin/
+
+# https://mise.jdx.dev/
+mise.toml
