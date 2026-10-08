@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.4.21"
     application
-    id("com.github.ben-manes.versions") version "0.64.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
+    id("io.github.ben-manes.versions") version "0.65.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
 }
 
 kotlin {
@@ -26,7 +26,7 @@ repositories {
 
 testing {
     suites {
-        val test by getting(JvmTestSuite::class) {
+        getByName<JvmTestSuite>("test") {
             useJUnitJupiter()
         }
     }
