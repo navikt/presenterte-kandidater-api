@@ -48,7 +48,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
     implementation("org.flywaydb:flyway-core:9.8.3")
-    implementation("org.postgresql:postgresql:42.7.13")
+    implementation("org.postgresql:postgresql:42.7.14")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
