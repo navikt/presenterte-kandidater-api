@@ -48,11 +48,11 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
     implementation("org.flywaydb:flyway-core:9.8.3")
-    implementation("org.postgresql:postgresql:42.7.13")
+    implementation("org.postgresql:postgresql:42.7.14")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
-    implementation("org.apache.kafka:kafka-clients:3.9.2")
+    implementation("org.apache.kafka:kafka-clients:4.3.1")
     implementation("com.github.navikt:rapids-and-rivers:2023041310341681374880.67ced5ad4dda")
 
     implementation("no.nav.security:token-client-core:5.0.30")
