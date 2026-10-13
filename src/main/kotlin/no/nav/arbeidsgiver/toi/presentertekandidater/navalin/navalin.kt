@@ -7,8 +7,8 @@ import io.javalin.json.JsonMapper
 import io.javalin.micrometer.MicrometerPlugin
 import io.javalin.router.JavalinDefaultRoutingApi
 import io.javalin.security.RouteRole
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import io.prometheus.client.exporter.common.TextFormat
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.prometheus.metrics.expositionformats.PrometheusTextFormatWriter
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnException
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnServiceException
@@ -74,7 +74,7 @@ private fun JavalinDefaultRoutingApi.internalApi(
     get("/isalive", { it.status(if (rapidIsAlive()) 200 else 500) }, Rolle.UNPROTECTED)
     get(
         "/internal/prometheus",
-        { it.contentType(TextFormat.CONTENT_TYPE_004).result(registry.scrape()) }, Rolle.UNPROTECTED
+        { it.contentType(PrometheusTextFormatWriter.CONTENT_TYPE).result(registry.scrape()) }, Rolle.UNPROTECTED
     )
 }
 

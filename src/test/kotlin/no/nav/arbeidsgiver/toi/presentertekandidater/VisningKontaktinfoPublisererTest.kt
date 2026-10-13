@@ -1,7 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoPubliserer
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.BeforeAll
@@ -42,16 +42,16 @@ class VisningKontaktinfoPublisererTest {
         val inspektør = rapid.inspektør
         assertThat(inspektør.size).isEqualTo(2)
         val førsteMelding = inspektør.message(0)
-        assertThat(førsteMelding["@event_name"].asText()).isEqualTo("arbeidsgiversKandidatliste.VisningKontaktinfo")
-        assertThat(førsteMelding["aktørId"].asText()).isEqualTo("123")
-        assertThat(førsteMelding["stillingsId"].asText()).isEqualTo(stillingsId.toString())
-        assertThat(ZonedDateTime.parse(førsteMelding["tidspunkt"].asText())).isCloseTo(ZonedDateTime.now(), within(1, ChronoUnit.SECONDS))
+        assertThat(førsteMelding["@event_name"].asString()).isEqualTo("arbeidsgiversKandidatliste.VisningKontaktinfo")
+        assertThat(førsteMelding["aktørId"].asString()).isEqualTo("123")
+        assertThat(førsteMelding["stillingsId"].asString()).isEqualTo(stillingsId.toString())
+        assertThat(ZonedDateTime.parse(førsteMelding["tidspunkt"].asString())).isCloseTo(ZonedDateTime.now(), within(1, ChronoUnit.SECONDS))
 
         val andreMelding = inspektør.message(1)
-        assertThat(andreMelding["@event_name"].asText()).isEqualTo("arbeidsgiversKandidatliste.VisningKontaktinfo")
-        assertThat(andreMelding["aktørId"].asText()).isEqualTo("234")
-        assertThat(andreMelding["stillingsId"].asText()).isEqualTo(stillingsId.toString())
-        assertThat(ZonedDateTime.parse(andreMelding["tidspunkt"].asText())).isCloseTo(ZonedDateTime.now(), within(1, ChronoUnit.SECONDS))
+        assertThat(andreMelding["@event_name"].asString()).isEqualTo("arbeidsgiversKandidatliste.VisningKontaktinfo")
+        assertThat(andreMelding["aktørId"].asString()).isEqualTo("234")
+        assertThat(andreMelding["stillingsId"].asString()).isEqualTo(stillingsId.toString())
+        assertThat(ZonedDateTime.parse(andreMelding["tidspunkt"].asString())).isCloseTo(ZonedDateTime.now(), within(1, ChronoUnit.SECONDS))
     }
 
     @Test
