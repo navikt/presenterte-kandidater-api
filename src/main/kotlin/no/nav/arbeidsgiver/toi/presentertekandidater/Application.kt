@@ -102,7 +102,12 @@ fun startApp(
 
     logger.info("Starter Kafka-lytting")
 
+    val konsumerUtløptSamtykkeMeldinger = envs["KONSUMER_UTLOPT_SAMTYKKE"].equals("true", ignoreCase = true)
     rapidsConnection.also {
+        if (konsumerUtløptSamtykkeMeldinger) {
+            TrukketSamtykkeLytter(it, prometheusRegistry, presenterteKandidaterService)
+            UtløptSamtykkeLytter(it, prometheusRegistry, presenterteKandidaterService)
+        }
         CvDeltLytter(it, NotifikasjonPubliserer(it), prometheusRegistry, presenterteKandidaterService)
         KandidatlisteLukketLytter(it, prometheusRegistry, presenterteKandidaterService)
         SlettetStillingLytter(it, prometheusRegistry, presenterteKandidaterService)
