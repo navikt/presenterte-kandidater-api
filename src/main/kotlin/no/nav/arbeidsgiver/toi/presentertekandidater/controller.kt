@@ -1,6 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import io.javalin.Javalin
+import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.ForbiddenResponse
@@ -16,9 +16,8 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.Rolle
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
-import no.nav.helse.rapids_rivers.toUUID
 import org.slf4j.Logger
-import java.util.*
+import java.util.UUID
 
 val log: Logger = noClassLogger() // Er public bare fordi den brukes i en test
 
