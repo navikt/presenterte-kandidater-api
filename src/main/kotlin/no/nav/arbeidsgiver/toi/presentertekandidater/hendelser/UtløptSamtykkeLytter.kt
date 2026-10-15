@@ -19,11 +19,13 @@ class UtløptSamtykkeLytter(
 
     init {
         River(rapidsConnection).apply {
+            precondition {
+                it.requireValue("@event_name", "samtykke-til-deling-av-cv-utlopt")
+                it.forbidValue("@slutt_av_hendelseskjede", true)
+            }
             validate {
-                it.demandValue("@event_name", "samtykke-til-deling-av-cv-utlopt")
                 it.requireKey("stillingsId")
-                it.requireKey("aktørId") // Blir dette populert av en annen rapid tjeneste?
-                it.rejectValue("@slutt_av_hendelseskjede", true)
+                it.requireKey("aktørId")
             }
         }.register(this)
     }
