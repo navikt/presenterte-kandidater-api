@@ -78,6 +78,8 @@ spec:
       value: http://arbeidsgiver-altinn-tilganger.fager/altinn-tilganger
     - name: ALTINN_PROXY_AUDIENCE
       value: {{ altinn_proxy_audience }}
+    - name: KONSUMER_UTLOPT_SAMTYKKE
+      value: "{{ konsumer_utlopt_samtykke }}"
   observability:
     logging:
       destinations:

@@ -114,7 +114,8 @@ private val envs = mapOf(
     "AZURE_APP_WELL_KNOWN_URL" to "http://localhost:18300/default/.well-known/openid-configuration",
     "AZURE_APP_CLIENT_ID" to "default",
     "AZURE_OPENID_CONFIG_ISSUER" to "azuread",
-    "NAIS_CLUSTER_NAME" to "local"
+    "NAIS_CLUSTER_NAME" to "local",
+    "KONSUMER_UTLOPT_SAMTYKKE" to "true"
 )
 
 private var harStartetApplikasjonen = false
