@@ -32,34 +32,41 @@ testing {
     }
 }
 
+val javalinVersion = "7.2.3"
+val micrometerVersion = "1.17.0"
+val fuelVersion = "2.3.1"
+val flywayVersion = "13.10.3"
+val rapidsAndRiversVersion = "2026091610031789545782"
+
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.javalin:javalin:7.2.3")
-    implementation("io.javalin:javalin-micrometer:7.2.3")
-    implementation("io.micrometer:micrometer-core:1.17.0")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.17.0")
+    implementation("io.javalin:javalin:$javalinVersion")
+    implementation("io.javalin:javalin-micrometer:$javalinVersion")
+    implementation("io.micrometer:micrometer-core:$micrometerVersion")
+    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
     implementation("io.prometheus:prometheus-metrics-exposition-textformats:1.7.0")
 
-    implementation("com.github.kittinunf.fuel:fuel:2.3.1")
-    implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
+    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
+    implementation("com.github.kittinunf.fuel:fuel-jackson:$fuelVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
     implementation("ch.qos.logback:logback-classic:1.5.38")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
-    implementation("org.flywaydb:flyway-core:9.8.3")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("org.postgresql:postgresql:42.7.14")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("no.nav.security:token-validation-core:2.1.8")
 
     implementation("org.apache.kafka:kafka-clients:4.3.1")
-    implementation("com.github.navikt:rapids-and-rivers:2026091610031789545782")
+    implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
 
     implementation("no.nav.security:token-client-core:5.0.30")
 
     testImplementation(kotlin("test"))
-    testImplementation("com.github.navikt.rapids-and-rivers:rapids-and-rivers-test:2026091610031789545782")
+    testImplementation("com.github.navikt.rapids-and-rivers:rapids-and-rivers-test:$rapidsAndRiversVersion")
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.mockito:mockito-core:5.24.0")
