@@ -1,9 +1,9 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import com.fasterxml.jackson.annotation.JsonAlias
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.jackson.responseObject
-import com.github.kittinunf.result.Result
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.nimbusds.jose.JOSEException
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -13,6 +13,14 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import java.io.IOException
+import java.net.URI
+import java.net.URLEncoder
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
+import java.nio.charset.StandardCharsets.UTF_8
+import java.time.Duration
 import java.util.*
 
 
@@ -21,6 +29,13 @@ class TokendingsKlient(envs: Map<String, String>) {
     private val privateJwk = envs.variable("TOKEN_X_PRIVATE_JWK")
     private val clientId = envs.variable("TOKEN_X_CLIENT_ID")
     private val issuer = envs.variable("TOKEN_X_ISSUER")
+    private val timeout = Duration.ofSeconds(15)
+    private val httpClient = HttpClient.newBuilder()
+        .connectTimeout(timeout)
+        .followRedirects(HttpClient.Redirect.NEVER)
+        .build()
+    private val objectMapper = jacksonObjectMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun veksleInnToken(accessToken: String, scope: String): String {
         val formData = listOf(
@@ -39,18 +54,37 @@ class TokendingsKlient(envs: Map<String, String>) {
             "subject_token" to accessToken,
         )
 
-        val (_, _, result) = Fuel.post(tokenDingsExchangeUrl, formData).responseObject<ExchangeToken>()
-
-        when (result) {
-            is Result.Failure -> {
-                throw RuntimeException("Kunne ikke veksle inn token hos TokenX", result.error)
-            }
-
-            is Result.Success -> {
-                log.info("Vekslet inn token hos TokenX")
-                return result.get().accessToken
-            }
+        val body = formData.joinToString("&") { (key, value) ->
+            "${URLEncoder.encode(key, UTF_8)}=${URLEncoder.encode(requireNotNull(value), UTF_8)}"
         }
+        val request = HttpRequest.newBuilder(URI(tokenDingsExchangeUrl))
+            .timeout(timeout)
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .POST(HttpRequest.BodyPublishers.ofString(body, UTF_8))
+            .build()
+        val feilmelding = "Kunne ikke veksle inn token hos TokenX"
+        val response = try {
+            httpClient.send(request, BodyHandlers.ofString(UTF_8))
+        } catch (e: InterruptedException) {
+            // InterruptedException nullstiller interrupt-status. Gjenopprett avbruddssignalet
+            // slik at annen kode kan oppdage det selv om vi kaster RuntimeException.
+            Thread.currentThread().interrupt()
+            throw RuntimeException(feilmelding, e)
+        } catch (e: IOException) {
+            throw RuntimeException(feilmelding, e)
+        }
+
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException(feilmelding)
+        }
+
+        val exchangeToken = try {
+            objectMapper.readValue<ExchangeToken>(response.body())
+        } catch (e: IOException) {
+            throw RuntimeException(feilmelding, e)
+        }
+        log.info("Vekslet inn token hos TokenX")
+        return exchangeToken.accessToken
     }
 
     fun getClientAssertion(properties: TokenXProperties): String? {
