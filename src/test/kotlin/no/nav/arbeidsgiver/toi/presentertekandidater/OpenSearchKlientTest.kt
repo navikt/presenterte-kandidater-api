@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.ZonedDateTime
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -56,10 +57,12 @@ class OpenSearchKlientTest {
 
         val cv1 = kandidaterMedCv[aktørId1]
         val cv2 = kandidaterMedCv[aktørId2]
-        assertThat(cv1?.aktørId).isEqualTo(aktørId1)
-        assertThat(cv2?.aktørId).isEqualTo(aktørId2)
-        assertThat(cv1?.kompetanse).hasSize(22)
-        assertThat(cv1?.kompetanse).containsAll(
+        assertNotNull(cv1)
+        assertNotNull(cv2)
+        assertThat(cv1.aktørId).isEqualTo(aktørId1)
+        assertThat(cv2.aktørId).isEqualTo(aktørId2)
+        assertThat(cv1.kompetanse).hasSize(22)
+        assertThat(cv1.kompetanse).containsAll(
             listOf(
                 "Fallskjermsertifikat",
                 "Trenerarbeid",
@@ -85,44 +88,44 @@ class OpenSearchKlientTest {
                 "Kodegjennomgang"
             )
         )
-        assertThat(cv1?.arbeidserfaring).hasSize(3)
-        assertThat(cv1?.arbeidserfaring?.get(0)?.arbeidsgiver).isEqualTo("Knowit Objectnet")
-        assertThat(cv1?.utdanning).hasSize(3)
-        assertThat(cv1?.utdanning?.get(0)?.utdannelsessted).isEqualTo("Universitetet i Oslo")
-        assertThat(cv1?.språk).hasSize(5)
-        assertThat(cv1?.språk?.get(0)?.navn).isEqualTo("Tysk")
-        assertThat(cv1?.språk?.get(0)?.muntlig).isEqualTo("NYBEGYNNER")
-        assertThat(cv1?.sammendrag).contains("Er fanatisk opptatt av religion, lever som en munk og synes at alle burde vite om vår Herre og Gud sin herlige nåde og fryd, priset være Herren, halleluja.")
-        assertThat(cv1?.alder!!.toLong()).isEqualTo(aktør1.second.alder)
-        assertThat(cv1?.fornavn).isEqualTo("Ugjennomsiktig")
-        assertThat(cv1?.etternavn).isEqualTo("Dal")
-        assertThat(cv1?.bosted).isEqualTo("Vega")
-        assertThat(cv1?.mobiltelefonnummer).isEqualTo("44887766")
-        assertThat(cv1?.førerkort?.first()?.førerkortKodeKlasse).isEqualTo("B - Personbil")
-        assertThat(cv1?.fagdokumentasjon).isEmpty()
-        assertThat(cv2?.fagdokumentasjon?.size).isEqualTo(1)
-        assertThat(cv2?.fagdokumentasjon?.first()).isEqualTo("Fagbrevtittel")
-        assertThat(cv1?.godkjenninger).isEmpty()
-        assertThat(cv2?.godkjenninger?.size).isEqualTo(1)
-        assertThat(cv2?.godkjenninger?.first()).isEqualTo("NS-EN 1418 Gassbeskyttet buesveising Metode 114")
-        assertThat(cv1?.andreGodkjenninger).hasSize(0)
-        assertThat(cv2?.andreGodkjenninger).hasSize(2)
-        assertThat(cv2?.andreGodkjenninger?.first()?.tittel).isEqualTo("Førstehjelpsinstruktør")
-        assertThat(cv2?.andreGodkjenninger?.first()?.dato).isEqualTo("2019-03-01")
-        assertThat(cv2?.andreGodkjenninger?.get(1)?.tittel).isEqualTo("Ambulansekjøring")
-        assertNull(cv2?.andreGodkjenninger?.get(1)?.dato)
-        assertThat(cv1?.kurs).hasSize(2)
-        assertThat(cv1?.kurs?.get(0)?.tittel).isEqualTo("Sanitet nivå 2")
-        assertThat(cv1?.kurs?.get(0)?.omfangEnhet).isEqualTo("DAG")
-        assertThat(cv1?.kurs?.get(0)?.omfangVerdi).isEqualTo(10)
-        assertThat(cv1?.kurs?.get(0)?.tilDato).isEqualTo(ZonedDateTime.parse("2018-01-31T23:00:00.000+00:00"))
-        assertThat(cv2?.kurs).hasSize(1)
-        assertThat(cv1?.andreErfaringer).hasSize(2)
-        assertThat(cv1?.andreErfaringer?.get(0)?.rolle).isEqualTo("Millitærtjeneste")
-        assertThat(cv1?.andreErfaringer?.get(0)?.beskrivelse).isEqualTo("Grensejeger i finnmark")
-        assertThat(cv1?.andreErfaringer?.get(0)?.fraDato).isEqualTo(ZonedDateTime.parse("2015-02-28T23:00:00.000+00:00"))
-        assertThat(cv1?.andreErfaringer?.get(0)?.tilDato).isEqualTo(ZonedDateTime.parse("2016-02-29T23:00:00.000+00:00"))
-        assertThat(cv2?.andreErfaringer).hasSize(1)
+        assertThat(cv1.arbeidserfaring).hasSize(3)
+        assertThat(cv1.arbeidserfaring.get(0).arbeidsgiver).isEqualTo("Knowit Objectnet")
+        assertThat(cv1.utdanning).hasSize(3)
+        assertThat(cv1.utdanning.get(0).utdannelsessted).isEqualTo("Universitetet i Oslo")
+        assertThat(cv1.språk).hasSize(5)
+        assertThat(cv1.språk.get(0).navn).isEqualTo("Tysk")
+        assertThat(cv1.språk.get(0).muntlig).isEqualTo("NYBEGYNNER")
+        assertThat(cv1.sammendrag).contains("Er fanatisk opptatt av religion, lever som en munk og synes at alle burde vite om vår Herre og Gud sin herlige nåde og fryd, priset være Herren, halleluja.")
+        assertThat(cv1.alder.toLong()).isEqualTo(aktør1.second.alder)
+        assertThat(cv1.fornavn).isEqualTo("Ugjennomsiktig")
+        assertThat(cv1.etternavn).isEqualTo("Dal")
+        assertThat(cv1.bosted).isEqualTo("Vega")
+        assertThat(cv1.mobiltelefonnummer).isEqualTo("44887766")
+        assertThat(cv1.førerkort.first().førerkortKodeKlasse).isEqualTo("B - Personbil")
+        assertThat(cv1.fagdokumentasjon).isEmpty()
+        assertThat(cv2.fagdokumentasjon.size).isEqualTo(1)
+        assertThat(cv2.fagdokumentasjon.first()).isEqualTo("Fagbrevtittel")
+        assertThat(cv1.godkjenninger).isEmpty()
+        assertThat(cv2.godkjenninger.size).isEqualTo(1)
+        assertThat(cv2.godkjenninger.first()).isEqualTo("NS-EN 1418 Gassbeskyttet buesveising Metode 114")
+        assertThat(cv1.andreGodkjenninger).hasSize(0)
+        assertThat(cv2.andreGodkjenninger).hasSize(2)
+        assertThat(cv2.andreGodkjenninger.first().tittel).isEqualTo("Førstehjelpsinstruktør")
+        assertThat(cv2.andreGodkjenninger.first().dato).isEqualTo("2019-03-01")
+        assertThat(cv2.andreGodkjenninger.get(1).tittel).isEqualTo("Ambulansekjøring")
+        assertNull(cv2.andreGodkjenninger.get(1).dato)
+        assertThat(cv1.kurs).hasSize(2)
+        assertThat(cv1.kurs.get(0).tittel).isEqualTo("Sanitet nivå 2")
+        assertThat(cv1.kurs.get(0).omfangEnhet).isEqualTo("DAG")
+        assertThat(cv1.kurs.get(0).omfangVerdi).isEqualTo(10)
+        assertThat(cv1.kurs.get(0).tilDato).isEqualTo(ZonedDateTime.parse("2018-01-31T23:00:00.000+00:00"))
+        assertThat(cv2.kurs).hasSize(1)
+        assertThat(cv1.andreErfaringer).hasSize(2)
+        assertThat(cv1.andreErfaringer.get(0).rolle).isEqualTo("Millitærtjeneste")
+        assertThat(cv1.andreErfaringer.get(0).beskrivelse).isEqualTo("Grensejeger i finnmark")
+        assertThat(cv1.andreErfaringer.get(0).fraDato).isEqualTo(ZonedDateTime.parse("2015-02-28T23:00:00.000+00:00"))
+        assertThat(cv1.andreErfaringer.get(0).tilDato).isEqualTo(ZonedDateTime.parse("2016-02-29T23:00:00.000+00:00"))
+        assertThat(cv2.andreErfaringer).hasSize(1)
     }
 
     @Test

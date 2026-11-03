@@ -62,7 +62,7 @@ internal class KandidatlisteRepositoryTest {
         )
         repository.lagre(kandidat)
 
-        repository.hentKandidat(kandidat.aktørId, lagretKandidatliste.id!!).apply {
+        repository.hentKandidat(kandidat.aktørId, lagretKandidatliste.id).apply {
             assertThat(this?.aktørId).isEqualTo(kandidat.aktørId)
             assertThat(this?.kandidatlisteId).isEqualTo(kandidat.kandidatlisteId)
             assertThat(this?.uuid).isEqualTo(uuid)
@@ -85,7 +85,7 @@ internal class KandidatlisteRepositoryTest {
             ),
             Kandidat(
                 aktørId = "2234567891012",
-                kandidatlisteId = lagretKandidatliste.id!!,
+                kandidatlisteId = lagretKandidatliste.id,
                 uuid = UUID.randomUUID(),
                 arbeidsgiversVurdering = TIL_VURDERING,
                 sistEndret = ZonedDateTime.now()
@@ -252,7 +252,7 @@ internal class KandidatlisteRepositoryTest {
 
         val (aktørId1, aktørId2) = listOf("123", "321")
         val førsteKandidat = lagKandidat(lagretKandidatliste?.id!!, aktørId1).copy(arbeidsgiversVurdering = AKTUELL)
-        val andreKandidat = lagKandidat(lagretKandidatliste.id!!, aktørId2).copy(arbeidsgiversVurdering = AKTUELL)
+        val andreKandidat = lagKandidat(lagretKandidatliste.id, aktørId2).copy(arbeidsgiversVurdering = AKTUELL)
         repository.lagre(førsteKandidat)
         repository.lagre(andreKandidat)
 

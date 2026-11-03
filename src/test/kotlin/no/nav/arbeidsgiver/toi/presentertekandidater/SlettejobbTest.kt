@@ -54,11 +54,11 @@ class SlettejobbTest {
         val kandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
         repository.lagre(kandidat)
         settOpprettetTidspunkt(kandidat.aktørId, seksMånederSiden)
-        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
+        assertEquals(1, repository.hentKandidater(kandidatliste.id).size)
 
         slettKandidaterOgKandidatlister(repository)
 
-        assertEquals(0, repository.hentKandidater(kandidatliste.id!!).size)
+        assertEquals(0, repository.hentKandidater(kandidatliste.id).size)
     }
 
     @Test
@@ -70,11 +70,11 @@ class SlettejobbTest {
         val kandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
         repository.lagre(kandidat)
         settOpprettetTidspunkt(kandidat.aktørId, seksMånederSiden.plusDays(1))
-        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
+        assertEquals(1, repository.hentKandidater(kandidatliste.id).size)
 
         slettKandidaterOgKandidatlister(repository)
 
-        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
+        assertEquals(1, repository.hentKandidater(kandidatliste.id).size)
     }
 
     @Test
@@ -85,12 +85,12 @@ class SlettejobbTest {
         repository.lagre(kandidatliste)
         kandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)!!
 
-        var nyKandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
+        val nyKandidat = Testdata.lagKandidatTilKandidatliste(kandidatliste.id!!)
         repository.lagre(nyKandidat)
 
         slettKandidaterOgKandidatlister(repository)
 
-        assertEquals(1, repository.hentKandidater(kandidatliste.id!!).size)
+        assertEquals(1, repository.hentKandidater(kandidatliste.id).size)
         assertNotNull(repository.hentKandidatliste(kandidatliste.stillingId))
     }
 

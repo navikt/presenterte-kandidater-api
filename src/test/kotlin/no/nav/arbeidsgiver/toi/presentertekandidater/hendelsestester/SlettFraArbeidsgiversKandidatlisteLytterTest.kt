@@ -45,7 +45,7 @@ class SlettFraArbeidsgiversKandidatlisteLytterTest {
             slettFraArbeidsgiversKandidatliste(aktørId = aktørId, kandidatlisteId = UUID.randomUUID().toString(), stillingsId.toString())
         testRapid.sendTestMessage(meldingOmSlettFraArbeidsgiversKandidatliste)
 
-        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id!!)
+        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id)
         assertThat(kandidat).isNull()
     }
 
@@ -92,7 +92,7 @@ class SlettFraArbeidsgiversKandidatlisteLytterTest {
             slettFraArbeidsgiversKandidatliste(aktørId = aktørId, kandidatlisteId = UUID.randomUUID().toString(), stillingsId.toString(), sluttkvittering = true)
         testRapid.sendTestMessage(meldingOmSlettFraArbeidsgiversKandidatliste)
 
-        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id!!)
+        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id)
         assertThat(kandidat).isNotNull
 
         assertThat(testRapid.inspektør.size).isEqualTo(0)

@@ -45,7 +45,7 @@ class OpprettetKandidatlisteLytterTest {
         assertThat(kandidatliste.slettet).isFalse
         assertThat(kandidatliste.virksomhetsnummer).isEqualTo(virksomhetsnummer)
         assertNotNull(kandidatliste.id)
-        val kandidater = repository.hentKandidater(kandidatliste.id!!)
+        val kandidater = repository.hentKandidater(kandidatliste.id)
         assertThat(kandidater).hasSize(0)
     }
 
@@ -68,7 +68,7 @@ class OpprettetKandidatlisteLytterTest {
         assertThat(kandidatliste.slettet).isFalse
         assertThat(kandidatliste.virksomhetsnummer).isEqualTo(virksomhetsnummer)
         assertNotNull(kandidatliste.id)
-        val kandidater = repository.hentKandidater(kandidatliste.id!!)
+        val kandidater = repository.hentKandidater(kandidatliste.id)
         assertThat(kandidater).hasSize(0)
     }
 

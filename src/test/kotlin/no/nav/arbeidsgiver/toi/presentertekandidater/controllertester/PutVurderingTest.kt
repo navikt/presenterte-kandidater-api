@@ -58,7 +58,7 @@ class PutVurderingTest {
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(200)
-        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
+        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL)
         assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
     }
@@ -129,7 +129,7 @@ class PutVurderingTest {
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(400)
-        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id!!)
+        val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
         assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
     }

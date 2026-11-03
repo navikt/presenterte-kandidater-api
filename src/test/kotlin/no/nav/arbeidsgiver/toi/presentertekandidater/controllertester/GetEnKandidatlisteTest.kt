@@ -54,7 +54,7 @@ class GetEnKandidatlisteTest {
         )
         val kandidat2 = Kandidat(
             aktørId = "666",
-            kandidatlisteId = kandidatliste.id!!,
+            kandidatlisteId = kandidatliste.id,
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
             sistEndret = nå
@@ -133,7 +133,7 @@ class GetEnKandidatlisteTest {
         )
         val kandidat2 = Kandidat(
             aktørId = "666",
-            kandidatlisteId = kandidatliste.id!!,
+            kandidatlisteId = kandidatliste.id,
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
             sistEndret = nå
@@ -191,7 +191,7 @@ class GetEnKandidatlisteTest {
         )
         val kandidat2 = Kandidat(
             aktørId = "666",
-            kandidatlisteId = kandidatliste.id!!,
+            kandidatlisteId = kandidatliste.id,
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
             sistEndret = nå
@@ -242,7 +242,7 @@ class GetEnKandidatlisteTest {
         )
         val kandidat2 = Kandidat(
             aktørId = "666",
-            kandidatlisteId = kandidatliste.id!!,
+            kandidatlisteId = kandidatliste.id,
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
             sistEndret = nå

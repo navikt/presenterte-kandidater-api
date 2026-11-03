@@ -46,7 +46,7 @@ class UtløptSamtykkeLytterTest {
             trekkSamtykkeTilDelingAvCV(aktørId = aktørId, stillingsId.toString())
         testRapid.sendTestMessage(meldingOmTrukketSamtykke)
 
-        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id!!)
+        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id)
         assertThat(kandidat).isNull()
     }
 
@@ -91,7 +91,7 @@ class UtløptSamtykkeLytterTest {
             trekkSamtykkeTilDelingAvCV(aktørId = aktørId, stillingsId.toString(), sluttkvittering = true)
         testRapid.sendTestMessage(meldingOmSlettFraArbeidsgiversKandidatliste)
 
-        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id!!)
+        val kandidat = repository.hentKandidat(aktørId, kandidatListe.id)
         assertThat(kandidat).isNotNull
 
         assertThat(testRapid.inspektør.size).isEqualTo(0)
