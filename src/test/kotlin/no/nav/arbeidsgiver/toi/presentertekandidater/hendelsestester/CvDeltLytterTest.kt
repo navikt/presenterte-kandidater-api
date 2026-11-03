@@ -217,7 +217,7 @@ class CvDeltLytterTest {
     }
 
     @Test
-    fun `Skal ikke kaste feil eller logge error eller warning når CvDelt-melding uten "stilling"-objekt ligger på rapid'en`() {
+    fun `Skal ikke kaste feil eller logge error eller warning når CvDelt-melding uten stilling-objekt ligger på rapiden`() {
         val melding = meldingDelCvUtenStillingObjekt()
 
         testRapid.sendTestMessage(melding)
