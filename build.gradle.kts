@@ -60,8 +60,6 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:4.3.1")
     implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
 
-    implementation("no.nav.security:token-client-core:5.0.30")
-
     testImplementation(kotlin("test"))
     testImplementation("com.github.navikt.rapids-and-rivers:rapids-and-rivers-test:$rapidsAndRiversVersion")
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
