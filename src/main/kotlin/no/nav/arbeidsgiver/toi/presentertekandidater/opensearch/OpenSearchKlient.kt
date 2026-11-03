@@ -11,15 +11,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.kittinunf.result.Result
 import no.nav.arbeidsgiver.toi.presentertekandidater.defaultObjectMapper
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import java.io.IOException
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
+import java.time.Duration
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
+import java.util.Base64
 
 class OpenSearchKlient(envs: Map<String, String>) {
     private val baseUrl = envs.variable("OPEN_SEARCH_URI") + "/kandidater"
@@ -27,6 +30,13 @@ class OpenSearchKlient(envs: Map<String, String>) {
 
     private val username = envs.variable("OPEN_SEARCH_USERNAME")
     private val password = envs.variable("OPEN_SEARCH_PASSWORD")
+    private val authorization = "Basic " + Base64.getEncoder()
+        .encodeToString("$username:$password".toByteArray(Charsets.UTF_8))
+    private val timeout = Duration.ofSeconds(15)
+    private val httpClient = HttpClient.newBuilder()
+        .connectTimeout(timeout)
+        .followRedirects(HttpClient.Redirect.NEVER)
+        .build()
 
     private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -45,40 +55,55 @@ class OpenSearchKlient(envs: Map<String, String>) {
     }
 
     fun hentCver(aktørIder: List<String>): Map<String, Cv?> {
-        val (request, _, result) = Fuel
-            .post(searchUrl)
-            .jsonBody(lagBodyForHentingAvCver(aktørIder))
-            .authentication()
-            .basic(username, password)
-            .responseString()
-
-        return when (result) {
-            is Result.Success -> mapHentCver(aktørIder, result.value)
-            is Result.Failure -> {
-                val error = result.error
-                val msg =
-                    "hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet. response.statusCode=[${error.response.statusCode}], responseMessage=[${error.response.responseMessage}], URL=[${request.url}], aktørID-er=[$aktørIder]"
-                throw RuntimeException(msg, result.error)
-            }
+        val request = HttpRequest.newBuilder(URI(searchUrl))
+            .timeout(timeout)
+            .header("Authorization", authorization)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(lagBodyForHentingAvCver(aktørIder), Charsets.UTF_8))
+            .build()
+        val feilmelding =
+            "hentCver fra OpenSearch for ${aktørIder.size} CV-er feilet. URL=[${request.uri()}], aktørID-er=[$aktørIder]"
+        val response = try {
+            httpClient.send(request, BodyHandlers.ofString(Charsets.UTF_8))
+        } catch (e: InterruptedException) {
+            // InterruptedException nullstiller interrupt-status. Gjenopprett avbruddssignalet
+            // slik at annen kode kan oppdage det selv om vi kaster RuntimeException.
+            Thread.currentThread().interrupt()
+            throw RuntimeException(feilmelding, e)
+        } catch (e: IOException) {
+            throw RuntimeException(feilmelding, e)
         }
+
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("$feilmelding, response.statusCode=[${response.statusCode()}]")
+        }
+
+        return mapHentCver(aktørIder, response.body())
     }
 
     fun hentAntallKandidater(): Long {
-        val (request, _, result) = Fuel
-            .get("$baseUrl/_count")
-            .authentication()
-            .basic(username, password)
-            .responseString()
-
-        return when (result) {
-            is Result.Success -> objectMapper.readTree(result.value)["count"].asLong()
-            is Result.Failure -> {
-                val error = result.error
-                val msg =
-                    "hentAntallKandidater mot OpenSearch feilet. response.statusCode=[${error.response.statusCode}], responseMessage=[${error.response.responseMessage}], URL=[${request.url}]"
-                throw RuntimeException(msg, result.error)
-            }
+        val request = HttpRequest.newBuilder(URI("$baseUrl/_count"))
+            .timeout(timeout)
+            .header("Authorization", authorization)
+            .GET()
+            .build()
+        val feilmelding = "hentAntallKandidater mot OpenSearch feilet. URL=[${request.uri()}]"
+        val response = try {
+            httpClient.send(request, BodyHandlers.ofString(Charsets.UTF_8))
+        } catch (e: InterruptedException) {
+            // InterruptedException nullstiller interrupt-status. Gjenopprett avbruddssignalet
+            // slik at annen kode kan oppdage det selv om vi kaster RuntimeException.
+            Thread.currentThread().interrupt()
+            throw RuntimeException(feilmelding, e)
+        } catch (e: IOException) {
+            throw RuntimeException(feilmelding, e)
         }
+
+        if (response.statusCode() !in 200..299) {
+            throw RuntimeException("$feilmelding, response.statusCode=[${response.statusCode()}]")
+        }
+
+        return objectMapper.readTree(response.body())["count"].asLong()
     }
 
     fun lagBodyForHentingAvCver(aktørIder: List<String>) = """
