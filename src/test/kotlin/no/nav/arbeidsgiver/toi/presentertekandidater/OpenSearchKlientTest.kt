@@ -8,9 +8,13 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.flereKandidaterFra
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.Cv
 import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.time.ZonedDateTime
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -29,6 +33,92 @@ class OpenSearchKlientTest {
         )
 
         openSearchKlient = OpenSearchKlient(miljøvariabler)
+    }
+
+    @AfterEach
+    fun afterEach() {
+        wiremockServer.resetAll()
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [404, 500])
+    fun `hentCver kaster exception uten passord i feilmeldingen ved HTTP-feil`(statuskode: Int) {
+        wiremockServer.stubFor(
+            post("/kandidater/_search")
+                .willReturn(aResponse().withStatus(statuskode))
+        )
+
+        val exception = assertThrows<RuntimeException> {
+            openSearchKlient.hentCver(listOf("12345"))
+        }
+
+        assertThat(exception.message)
+            .contains("hentCver", "response.statusCode=[$statuskode]")
+            .doesNotContain("xyz")
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = [404, 500])
+    fun `hentAntallKandidater kaster exception uten passord i feilmeldingen ved HTTP-feil`(statuskode: Int) {
+        wiremockServer.stubFor(
+            get("/kandidater/_count")
+                .willReturn(aResponse().withStatus(statuskode))
+        )
+
+        val exception = assertThrows<RuntimeException> {
+            openSearchKlient.hentAntallKandidater()
+        }
+
+        assertThat(exception.message)
+            .contains("hentAntallKandidater", "response.statusCode=[$statuskode]")
+            .doesNotContain("xyz")
+    }
+
+    @Test
+    fun `hentCver sender JSON med forventet Content-Type og body`() {
+        wiremockServer.stubFor(
+            post("/kandidater/_search")
+                .willReturn(ok(Testdata.ingenTreffKandidatOpensearchJson))
+        )
+
+        openSearchKlient.hentCver(listOf("12345", "67890"))
+
+        wiremockServer.verify(
+            1, postRequestedFor(urlEqualTo("/kandidater/_search"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withRequestBody(equalToJson("""
+                    {
+                        "size": 10000,
+                        "query": {
+                            "terms": {
+                                "aktorId": ["12345", "67890"]
+                            }
+                        },
+                        "_source": [
+                            "aktorId",
+                            "poststed",
+                            "mobiltelefon",
+                            "telefon",
+                            "epostadresse",
+                            "fornavn",
+                            "etternavn",
+                            "fodselsdato",
+                            "alder",
+                            "kompetanseObj",
+                            "yrkeserfaring",
+                            "beskrivelse",
+                            "utdanning",
+                            "sprak",
+                            "forerkort",
+                            "fagdokumentasjon",
+                            "godkjenninger",
+                            "sertifikatObj",
+                            "kursObj",
+                            "annenerfaringObj"
+                        ]
+                    }
+                """.trimIndent()))
+        )
     }
 
     @Test
