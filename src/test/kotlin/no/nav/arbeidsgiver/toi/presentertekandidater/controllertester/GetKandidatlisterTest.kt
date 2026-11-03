@@ -1,17 +1,17 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.jackson.responseObject
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
-import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -20,7 +20,7 @@ import kotlin.test.assertNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetKandidatlisterTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val fuel = FuelManager()
+    private val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
@@ -36,22 +36,22 @@ class GetKandidatlisterTest {
     @Test
     fun `Svarer 401 Unauthorized hvis forespørselen ikke inneholder et token`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
-        val (_, response) = fuel
-            .get(endepunkt)
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(401)
+        assertThat(response.statusCode()).isEqualTo(401)
     }
 
     @Test
     fun `Svarer 401 Unauthorized hvis forespørselens token er ugyldig`() {
         val endepunkt = "http://localhost:9000/kandidatlister"
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentUgyldigToken())
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentUgyldigToken()}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(401)
+        assertThat(response.statusCode()).isEqualTo(401)
     }
 
     @Test
@@ -64,12 +64,12 @@ class GetKandidatlisterTest {
         val endepunkt = "http://localhost:9000/kandidatlister"
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode()).isEqualTo(400)
     }
 
     @Test
@@ -89,12 +89,12 @@ class GetKandidatlisterTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
 
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(451)
+        assertThat(response.statusCode()).isEqualTo(451)
     }
 
     @Test
@@ -114,15 +114,15 @@ class GetKandidatlisterTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
-            defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+            defaultObjectMapper.readTree(response.body())
         val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
         val antallKandidater = kandidatlisteMedKandidaterJson[0]["antallKandidater"]
         assertThat(antallKandidater.asInt()).isZero()
@@ -161,14 +161,14 @@ class GetKandidatlisterTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
         val kandidatlisterMedKandidaterJson =
-            defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+            defaultObjectMapper.readTree(response.body())
         val opprettetDatoFørsteListe =
             ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].textValue())
         val opprettetDatoAndreListe =
@@ -198,24 +198,24 @@ class GetKandidatlisterTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(403)
-        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        assertThat(response.statusCode()).isEqualTo(403)
+        val jsonbody = response.body()
         assertThat(jsonbody.isEmpty())
     }
 
     @Test
     fun `Returnerer 503 når Altinn feiler`() {
         stubHttpStatus500FraAltinnProxy(wiremockServer)
-        val (_, response) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
-            .response()
-        assertThat(response.statusCode).isEqualTo(503)
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321"))
+            .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
+        assertThat(response.statusCode()).isEqualTo(503)
     }
 
     @Test
@@ -229,17 +229,14 @@ class GetKandidatlisterTest {
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
 
-        val (_, respons1, _) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
-        assertThat(respons1.statusCode).isEqualTo(200)
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321"))
+            .header("Authorization", "Bearer $accessToken")
+            .build()
+        val respons1 = httpClient.send(request, BodyHandlers.ofString())
+        assertThat(respons1.statusCode()).isEqualTo(200)
 
-        val (_, respons2, _) = fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
-        assertThat(respons2.statusCode).isEqualTo(200)
+        val respons2 = httpClient.send(request, BodyHandlers.ofString())
+        assertThat(respons2.statusCode()).isEqualTo(200)
 
         wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
@@ -253,15 +250,12 @@ class GetKandidatlisterTest {
         lagreSamtykke(fødselsnummer)
         val accessToken = hentToken(fødselsnummer)
 
-        fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321"))
+            .header("Authorization", "Bearer $accessToken")
+            .build()
+        httpClient.send(request, BodyHandlers.ofString())
 
-        fuel
-            .get("http://localhost:9000/kandidatlister?virksomhetsnummer=987654321")
-            .authentication().bearer(accessToken)
-            .responseObject<List<AltinnReportee>>()
+        httpClient.send(request, BodyHandlers.ofString())
 
         wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
         wiremockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo(altinnProxyUrl)))
@@ -286,15 +280,15 @@ class GetKandidatlisterTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
 
         val kandidatlisteMedKandidaterJson =
-            defaultObjectMapper.readTree(response.body().asString("application/json;charset=utf-8"))
+            defaultObjectMapper.readTree(response.body())
         assertThat(kandidatlisteMedKandidaterJson).isEmpty()
     }
 }

@@ -1,18 +1,20 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.jackson.responseObject
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetOrganisasjonerTest {
-    private val fuel = FuelManager()
+    private val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
@@ -34,13 +36,13 @@ class GetOrganisasjonerTest {
 
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
-        val (_, respons, result) = fuel
-            .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
-            .responseObject<List<AltinnReportee>>()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/organisasjoner"))
+            .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")
+            .build()
+        val respons = httpClient.send(request, BodyHandlers.ofString())
 
-        Assertions.assertThat(respons.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons = result.get()
+        Assertions.assertThat(respons.statusCode()).isEqualTo(200)
+        val organisasjonerFraRespons = defaultObjectMapper.readValue<List<AltinnReportee>>(respons.body())
         Assertions.assertThat(organisasjonerFraRespons).hasSize(2)
         Assertions.assertThat(organisasjoner[0]).isEqualTo(organisasjoner[0])
         Assertions.assertThat(organisasjoner[1]).isEqualTo(organisasjoner[1])
@@ -51,13 +53,13 @@ class GetOrganisasjonerTest {
         val organisasjoner = emptyList<AltinnTilgang>()
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
-        val (_, respons, result) = fuel
-            .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
-            .responseObject<List<AltinnReportee>>()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/organisasjoner"))
+            .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")
+            .build()
+        val respons = httpClient.send(request, BodyHandlers.ofString())
 
-        Assertions.assertThat(respons.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons = result.get()
+        Assertions.assertThat(respons.statusCode()).isEqualTo(200)
+        val organisasjonerFraRespons = defaultObjectMapper.readValue<List<AltinnReportee>>(respons.body())
         Assertions.assertThat(organisasjonerFraRespons).hasSize(0)
     }
 
@@ -71,22 +73,22 @@ class GetOrganisasjonerTest {
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
         val fødselsnummer = tilfeldigFødselsnummer()
-        val (_, respons1, result1) = fuel
-            .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(hentToken(fødselsnummer))
-            .responseObject<List<AltinnReportee>>()
+        val request1 = HttpRequest.newBuilder(URI("http://localhost:9000/organisasjoner"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val respons1 = httpClient.send(request1, BodyHandlers.ofString())
 
-        Assertions.assertThat(respons1.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons1 = result1.get()
+        Assertions.assertThat(respons1.statusCode()).isEqualTo(200)
+        val organisasjonerFraRespons1 = defaultObjectMapper.readValue<List<AltinnReportee>>(respons1.body())
         Assertions.assertThat(organisasjonerFraRespons1).hasSize(organisasjoner.size)
 
-        val (_, respons2, result2) = fuel
-            .get("http://localhost:9000/organisasjoner")
-            .authentication().bearer(hentToken(fødselsnummer))
-            .responseObject<List<AltinnReportee>>()
+        val request2 = HttpRequest.newBuilder(URI("http://localhost:9000/organisasjoner"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val respons2 = httpClient.send(request2, BodyHandlers.ofString())
 
-        Assertions.assertThat(respons2.statusCode).isEqualTo(200)
-        val organisasjonerFraRespons2 = result2.get()
+        Assertions.assertThat(respons2.statusCode()).isEqualTo(200)
+        val organisasjonerFraRespons2 = defaultObjectMapper.readValue<List<AltinnReportee>>(respons2.body())
         Assertions.assertThat(organisasjonerFraRespons2).hasSize(organisasjoner.size)
 
         wiremockServer.verify(1, WireMock.postRequestedFor(WireMock.urlEqualTo(tokenXWiremockUrl)))
