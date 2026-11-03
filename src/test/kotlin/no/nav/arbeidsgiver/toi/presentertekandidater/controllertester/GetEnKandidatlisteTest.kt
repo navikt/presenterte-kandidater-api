@@ -1,8 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
@@ -14,13 +12,17 @@ import org.junit.jupiter.api.*
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetEnKandidatlisteTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val fuel = FuelManager()
+    private val httpClient = HttpClient.newHttpClient()
     private val openSearchKlient = openSearchKlient()
     private val wiremockServer = hentWiremock()
 
@@ -76,14 +78,14 @@ class GetEnKandidatlisteTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
 
-        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        val jsonbody = response.body()
         val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
@@ -153,12 +155,12 @@ class GetEnKandidatlisteTest {
         )
 
         val fødselsnummer = tilfeldigFødselsnummer()
-        val (_, response, _) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(451)
+        assertThat(response.statusCode()).isEqualTo(451)
     }
 
     @Test
@@ -200,14 +202,14 @@ class GetEnKandidatlisteTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(403)
+        assertThat(response.statusCode()).isEqualTo(403)
 
-        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        val jsonbody = response.body()
         assertThat(jsonbody.isEmpty())
     }
 
@@ -263,14 +265,14 @@ class GetEnKandidatlisteTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .get(endepunkt)
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI(endepunkt))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
 
-        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        val jsonbody = response.body()
         val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]

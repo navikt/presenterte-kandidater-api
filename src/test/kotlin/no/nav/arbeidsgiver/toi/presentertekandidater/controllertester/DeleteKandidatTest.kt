@@ -1,13 +1,15 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.extensions.authentication
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.ZonedDateTime
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -15,7 +17,7 @@ import kotlin.test.assertNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DeleteKandidatTest {
     private val repository = kandidatlisteRepositoryMedLokalPostgres()
-    private val fuel = FuelManager()
+    private val httpClient = HttpClient.newHttpClient()
     private val wiremockServer = hentWiremock()
 
     @BeforeAll
@@ -46,12 +48,13 @@ class DeleteKandidatTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .DELETE()
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(response.statusCode()).isEqualTo(200)
         assertNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
     }
 
@@ -79,13 +82,14 @@ class DeleteKandidatTest {
 
         val fødselsnummer = tilfeldigFødselsnummer()
         lagreSamtykke(fødselsnummer)
-        val (_, response) = fuel
-            .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .DELETE()
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(403)
-        val jsonbody = response.body().asString("application/json;charset=utf-8")
+        assertThat(response.statusCode()).isEqualTo(403)
+        val jsonbody = response.body()
         assertThat(jsonbody.isEmpty())
     }
 
@@ -110,12 +114,13 @@ class DeleteKandidatTest {
         val organisasjoner = listOf(Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer))
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
-        val (_, response) = fuel
-            .delete("http://localhost:9000/kandidat/${kandidat.uuid}")
-            .authentication().bearer(hentToken(tilfeldigFødselsnummer()))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidat.uuid}"))
+            .header("Authorization", "Bearer ${hentToken(tilfeldigFødselsnummer())}")
+            .DELETE()
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(451)
+        assertThat(response.statusCode()).isEqualTo(451)
         assertNotNull(repository.hentKandidat(kandidat.aktørId, kandidat.kandidatlisteId))
     }
 
@@ -129,11 +134,12 @@ class DeleteKandidatTest {
 
         val kandidatUuidSomIkkeFinnes = UUID.randomUUID()
 
-        val (_, response) = fuel
-            .delete("http://localhost:9000/kandidat/${kandidatUuidSomIkkeFinnes}")
-            .authentication().bearer(hentToken(fødselsnummer))
-            .response()
+        val request = HttpRequest.newBuilder(URI("http://localhost:9000/kandidat/${kandidatUuidSomIkkeFinnes}"))
+            .header("Authorization", "Bearer ${hentToken(fødselsnummer)}")
+            .DELETE()
+            .build()
+        val response = httpClient.send(request, BodyHandlers.ofString())
 
-        assertThat(response.statusCode).isEqualTo(400)
+        assertThat(response.statusCode()).isEqualTo(400)
     }
 }
