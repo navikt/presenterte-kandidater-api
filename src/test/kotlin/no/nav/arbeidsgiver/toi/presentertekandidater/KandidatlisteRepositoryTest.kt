@@ -13,6 +13,7 @@ import java.math.BigInteger
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.test.assertNotNull
 
@@ -132,7 +133,8 @@ internal class KandidatlisteRepositoryTest {
         assertThat(kandidater[0].kandidatlisteId).isEqualTo(lagretKandidatliste.id)
         assertThat(kandidater[0].uuid).isEqualTo(kandidat.uuid)
         assertThat(kandidater[0].arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
-        assertThat(kandidater[0].sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
+        assertThat(kandidater[0].sistEndret.truncatedTo(ChronoUnit.SECONDS))
+            .isEqualTo(kandidat.sistEndret.truncatedTo(ChronoUnit.SECONDS))
     }
 
     @Test
@@ -213,11 +215,11 @@ internal class KandidatlisteRepositoryTest {
         val lagretKandidatliste = repository.hentKandidatliste(kandidatliste.stillingId)
 
         assertNotNull(lagretKandidatliste)
-        assertThat(lagretKandidatliste.sistEndret).isEqualToIgnoringSeconds(
-            Instant.now().atZone(ZoneId.of(("Europe/Oslo")))
+        assertThat(lagretKandidatliste.sistEndret.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
+            Instant.now().atZone(ZoneId.of(("Europe/Oslo"))).truncatedTo(ChronoUnit.MINUTES)
         )
-        assertThat(lagretKandidatliste.opprettet).isEqualToIgnoringSeconds(
-            Instant.now().atZone(ZoneId.of(("Europe/Oslo")))
+        assertThat(lagretKandidatliste.opprettet.truncatedTo(ChronoUnit.MINUTES)).isEqualTo(
+            Instant.now().atZone(ZoneId.of(("Europe/Oslo"))).truncatedTo(ChronoUnit.MINUTES)
         )
     }
 

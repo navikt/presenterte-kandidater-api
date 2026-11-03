@@ -29,11 +29,11 @@ class StatistikkMetrikkJobb(
     private val kandidatVurderinger = mutableMapOf<String, AtomicLong>()
 
     init {
-        Kandidat.ArbeidsgiversVurdering.values().asSequence().forEach { v ->
+        Kandidat.ArbeidsgiversVurdering.entries.asSequence().forEach { v ->
             kandidatVurderinger[v.name] = meterRegistry.gauge(
                 "antall_kandidatvurderinger",
                 Tags.of("vurdering", v.name), AtomicLong(0)
-            ) as AtomicLong
+            )
         }
     }
 
@@ -49,7 +49,7 @@ class StatistikkMetrikkJobb(
             if (!executor.awaitTermination(2L, TimeUnit.SECONDS)) {
                 executor.shutdownNow()
             }
-        } catch (ie: InterruptedException) {
+        } catch (_: InterruptedException) {
             executor.shutdownNow()
             Thread.currentThread().interrupt()
         }

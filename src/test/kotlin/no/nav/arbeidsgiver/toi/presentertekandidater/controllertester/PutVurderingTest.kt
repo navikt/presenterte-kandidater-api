@@ -12,6 +12,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -60,7 +61,8 @@ class PutVurderingTest {
         assertThat(response.statusCode()).isEqualTo(200)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(Kandidat.ArbeidsgiversVurdering.IKKE_AKTUELL)
-        assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringSeconds(ZonedDateTime.now())
+        assertThat(kandidatFraDatabasen.sistEndret.truncatedTo(ChronoUnit.MINUTES))
+            .isEqualTo(ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES))
     }
 
     @Test
@@ -131,7 +133,8 @@ class PutVurderingTest {
         assertThat(response.statusCode()).isEqualTo(400)
         val kandidatFraDatabasen = repository.hentKandidat(kandidat.aktørId, kandidatliste.id)
         assertThat(kandidatFraDatabasen!!.arbeidsgiversVurdering).isEqualTo(kandidat.arbeidsgiversVurdering)
-        assertThat(kandidatFraDatabasen.sistEndret).isEqualToIgnoringNanos(kandidat.sistEndret)
+        assertThat(kandidatFraDatabasen.sistEndret.truncatedTo(ChronoUnit.SECONDS))
+            .isEqualTo(kandidat.sistEndret.truncatedTo(ChronoUnit.SECONDS))
     }
 
     @Test

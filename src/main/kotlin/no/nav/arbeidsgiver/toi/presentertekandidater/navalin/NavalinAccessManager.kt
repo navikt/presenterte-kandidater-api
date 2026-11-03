@@ -10,7 +10,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManage
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import java.net.URL
+import java.net.URI
 
 class NavalinAccessManager(
     private val rolleKonfigurasjoner: List<RolleKonfigurasjon>,
@@ -81,14 +81,14 @@ class NavalinAccessManager(
 
     private fun lagIssuerPropertiesForTokenX(envs: Map<String, String>) =
         IssuerProperties(
-            URL(envs["TOKEN_X_WELL_KNOWN_URL"]),
+            URI(envs["TOKEN_X_WELL_KNOWN_URL"]).toURL(),
             listOf(envs["TOKEN_X_CLIENT_ID"]),
             envs["TOKEN_X_PRIVATE_JWK"]
         )
 
     private fun lagIssuerPropertiesForAzureAD(envs: Map<String, String>) =
         IssuerProperties(
-            URL(envs["AZURE_APP_WELL_KNOWN_URL"]),
+            URI(envs["AZURE_APP_WELL_KNOWN_URL"]).toURL(),
             listOf(envs["AZURE_APP_CLIENT_ID"]),
             envs["AZURE_OPENID_CONFIG_ISSUER"]
         )
