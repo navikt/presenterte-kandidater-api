@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgangerResponse
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.security.mock.oauth2.http.objectMapper
 import kotlin.random.Random
 
 private var harStartetMockOAuth2Server = false
@@ -21,7 +20,7 @@ fun startMockOAuth2Server() {
 
 fun tilfeldigFødselsnummer(): String {
     fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
-    fun Int.tilÅrstallMedToTegn() = this.toString().let { it.substring(2) }
+    fun Int.tilÅrstallMedToTegn() = this.toString().substring(2)
     val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
     val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
     val tilfeldigÅr = Random.nextInt(1910, 2010).tilÅrstallMedToTegn()
@@ -78,7 +77,7 @@ fun stubHentingAvTilgangerFraAltinnProxy(
         }.groupBy({ it.first }, { it.second }).mapValues { it.value.toSet() }
     )
 
-    val organisasjonerJson = objectMapper.writeValueAsString(altinnTilgangerResponse)
+    val organisasjonerJson = defaultObjectMapper.writeValueAsString(altinnTilgangerResponse)
     wiremockServer.stubFor(
         WireMock.post(altinnProxyUrl)
             .withHeader("Authorization", WireMock.containing("Bearer $exchangeToken"))

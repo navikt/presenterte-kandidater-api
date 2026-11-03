@@ -6,7 +6,6 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
-import no.nav.security.mock.oauth2.http.objectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
 import java.time.Instant
@@ -66,7 +65,7 @@ class GetEnKandidatlisteTest {
         val aktør1 = Pair(Testdata.AktørId(kandidat1.aktørId), Testdata.Fødselsdato("1982-02-02"))
         val aktør2 = Pair(Testdata.AktørId(kandidat2.aktørId), Testdata.Fødselsdato("1983-03-03"))
         val esRespons = Testdata.flereKandidaterFraES(aktør1, aktør2)
-        val esResponseCver = objectMapper.readTree(esRespons)["hits"]["hits"]
+        val esResponseCver = defaultObjectMapper.readTree(esRespons)["hits"]["hits"]
         stubHentingAvKandidater(
             requestBody = openSearchKlient.lagBodyForHentingAvCver(
                 listOf(
