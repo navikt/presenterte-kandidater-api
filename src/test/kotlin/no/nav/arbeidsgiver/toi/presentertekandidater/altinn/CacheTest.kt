@@ -35,7 +35,7 @@ class CacheTest {
     }
 
     @Test
-    fun `Caching fungerer med filtrering "ingen"`() {
+    fun `Caching fungerer med filtrering 'ingen'`() {
         val filtrering = INGEN
         val fødselsnummer = tilfeldigFødselsnummer()
         val organisasjoner = listOf(
