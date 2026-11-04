@@ -2,8 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.altinn
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.http.HttpStatus
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltrering.NAV_REKRUTTERING_KANDIDATER
@@ -11,6 +9,9 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.Cache.AltinnFiltreri
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import tools.jackson.core.JacksonException
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
@@ -24,7 +25,7 @@ class AltinnKlient(
     private val tokendingsKlient: TokendingsKlient,
 ) {
     companion object {
-        val mapper = jacksonObjectMapper()
+        val mapper = jacksonMapperBuilder().build()
         val httpKlient: HttpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build()
@@ -158,6 +159,9 @@ class AltinnKlient(
             } catch (e: IOException) {
                 sisteException = e
                 log.warn("Nettverksfeil ved kall mot Altinn: ${e.message}, prøver igjen (forsøk $forsøk av $maksForsøk)", e)
+            } catch (e: JacksonException) {
+                sisteException = e
+                log.warn("Ugyldig JSON fra Altinn, prøver igjen (forsøk $forsøk av $maksForsøk)")
             }
             if (forsøk < maksForsøk) {
                 Thread.sleep(500L) // Vent litt før nytt forsøk

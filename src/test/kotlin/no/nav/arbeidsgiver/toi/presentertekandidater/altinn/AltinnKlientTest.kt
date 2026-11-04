@@ -240,6 +240,28 @@ class AltinnKlientTest {
     }
 
     @Test
+    fun `Skal prøve på nytt når Altinn svarer med ugyldig JSON`() {
+        wireMockServer.stubFor(
+            WireMock.post("/altinn-tilganger")
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("ugyldig JSON")
+                )
+        )
+
+        assertThrows<AltinnServiceException> {
+            altinnKlient.hentOrganisasjoner("12345678901", "test-token")
+        }
+
+        wireMockServer.verify(
+            3,
+            WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
+        )
+    }
+
+    @Test
     fun `Skal ikke returnere organisasjoner når Altinn ikke returnerer noen tilganger`() {
         val accessToken = "test-token"
         val altinnResponseJson = """
