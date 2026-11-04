@@ -102,9 +102,13 @@ class GetKandidatlisterTest {
         val stillingId = UUID.randomUUID()
         val virksomhetsnummer = "323534343"
         val endepunkt = "http://localhost:9000/kandidatlister?virksomhetsnummer=$virksomhetsnummer"
+        val vintertid = ZonedDateTime.parse("2024-01-15T12:30:00+01:00[Europe/Oslo]")
+        val sommertid = ZonedDateTime.parse("2024-07-15T12:30:00+02:00[Europe/Oslo]")
         val kandidatliste = kandidatliste().copy(
             virksomhetsnummer = virksomhetsnummer,
-            stillingId = stillingId
+            stillingId = stillingId,
+            sistEndret = vintertid,
+            opprettet = sommertid
         )
         repository.lagre(kandidatliste)
         val organisasjoner = listOf(
@@ -123,8 +127,17 @@ class GetKandidatlisterTest {
 
         val kandidatlisteMedKandidaterJson =
             defaultObjectMapper.readTree(response.body())
+        assertThat(kandidatlisteMedKandidaterJson[0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("kandidatliste", "antallKandidater")
         val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
         val antallKandidater = kandidatlisteMedKandidaterJson[0]["antallKandidater"]
+        assertThat(kandidatlisteJson.fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder(
+                "uuid", "stillingId", "tittel", "status", "slettet",
+                "virksomhetsnummer", "sistEndret", "opprettet"
+            )
+        assertThat(kandidatlisteJson["sistEndret"].asText()).isEqualTo("2024-01-15T12:30:00+01:00")
+        assertThat(kandidatlisteJson["opprettet"].asText()).isEqualTo("2024-07-15T12:30:00+02:00")
         assertThat(antallKandidater.asInt()).isZero()
         assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
         assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)

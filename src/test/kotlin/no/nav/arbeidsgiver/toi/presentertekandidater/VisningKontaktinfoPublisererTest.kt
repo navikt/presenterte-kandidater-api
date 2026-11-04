@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.time.OffsetDateTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -52,6 +53,41 @@ class VisningKontaktinfoPublisererTest {
         assertThat(andreMelding["aktørId"].asString()).isEqualTo("234")
         assertThat(andreMelding["stillingsId"].asString()).isEqualTo(stillingsId.toString())
         assertThat(ZonedDateTime.parse(andreMelding["tidspunkt"].asString())).isCloseTo(ZonedDateTime.now(), within(1, ChronoUnit.SECONDS))
+    }
+
+    @Test
+    fun `Publiserer visning av kontaktinfo med fast JSON og datoformat`() {
+        val stillingsId = UUID.fromString("1827cddd-736c-4926-ad2a-a657a1cefa1d")
+        val aktørId = "123"
+        visningKontaktinfoRepository.registrerVisning(aktørId, stillingsId)
+        dataSource.connection.use { connection ->
+            connection.prepareStatement(
+                "update visning_kontaktinfo set tidspunkt = ? where aktør_id = ? and stilling_id = ?"
+            ).use { statement ->
+                statement.setObject(1, OffsetDateTime.parse("2024-07-15T12:30:00+02:00"))
+                statement.setString(2, aktørId)
+                statement.setObject(3, stillingsId)
+                statement.executeUpdate()
+            }
+        }
+
+        visningKontaktinfoPubliserer.publiser()
+
+        val inspektør = rapid.inspektør
+        assertThat(inspektør.size).isEqualTo(1)
+        assertThat(inspektør.key(0)).isNull()
+        val actual = defaultObjectMapper.readTree(inspektør.message(0).toString())
+        val expected = defaultObjectMapper.readTree(
+            """
+            {
+              "stillingsId": "$stillingsId",
+              "tidspunkt": "2024-07-15T12:30:00+02:00",
+              "aktørId": "$aktørId",
+              "@event_name": "arbeidsgiversKandidatliste.VisningKontaktinfo"
+            }
+            """.trimIndent()
+        )
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test

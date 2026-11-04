@@ -34,14 +34,22 @@ class GetEnKandidatlisteTest {
     fun `Skal returnere en kandidatliste og kandidater med CV`() {
         val stillingId = UUID.randomUUID()
         val endepunkt = "http://localhost:9000/kandidatliste/$stillingId"
-        val nå = ZonedDateTime.now()
+        val vintertid = ZonedDateTime.parse("2024-01-15T12:30:00+01:00[Europe/Oslo]")
+        val sommertid = ZonedDateTime.parse("2024-07-15T12:30:00+02:00[Europe/Oslo]")
         val virksomhetsnummer = "111111111"
         val organisasjoner = listOf(
             Testdata.lagAltinnTilgangMedRettighetKandidater("Et Navn", virksomhetsnummer),
         )
         stubHentingAvTilgangerFraAltinnProxy(wiremockServer, organisasjoner)
 
-        repository.lagre(kandidatliste().copy(stillingId = stillingId, virksomhetsnummer = virksomhetsnummer))
+        repository.lagre(
+            kandidatliste().copy(
+                stillingId = stillingId,
+                virksomhetsnummer = virksomhetsnummer,
+                sistEndret = vintertid,
+                opprettet = sommertid
+            )
+        )
 
         val kandidatliste = repository.hentKandidatliste(stillingId)
         val kandidat1 = Kandidat(
@@ -49,14 +57,14 @@ class GetEnKandidatlisteTest {
             kandidatlisteId = kandidatliste?.id!!,
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
-            sistEndret = nå
+            sistEndret = vintertid
         )
         val kandidat2 = Kandidat(
             aktørId = "666",
             kandidatlisteId = kandidatliste.id,
             uuid = UUID.randomUUID(),
             arbeidsgiversVurdering = Kandidat.ArbeidsgiversVurdering.TIL_VURDERING,
-            sistEndret = nå
+            sistEndret = sommertid
         )
 
         repository.lagre(kandidat1)
@@ -89,6 +97,16 @@ class GetEnKandidatlisteTest {
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
+        assertThat(kandidatlisteMedKandidaterJson.fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("kandidatliste", "kandidater")
+        assertThat(kandidatlisteJson.fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder(
+                "uuid", "stillingId", "tittel", "status", "slettet",
+                "virksomhetsnummer", "sistEndret", "opprettet"
+            )
+        assertThat(kandidatlisteJson["sistEndret"].asText()).isEqualTo("2024-01-15T12:30:00+01:00")
+        assertThat(kandidatlisteJson["opprettet"].asText()).isEqualTo("2024-07-15T12:30:00+02:00")
+
         assertNull(kandidatlisteJson["id"])
         assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
         assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo(kandidatliste.tittel)
@@ -103,6 +121,36 @@ class GetEnKandidatlisteTest {
             .isEqualTo(kandidatliste.virksomhetsnummer)
 
         assertThat(kandidaterJson).hasSize(2)
+        assertThat(kandidaterJson[0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("kandidat", "cv")
+        assertThat(kandidaterJson[0]["kandidat"].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("uuid", "arbeidsgiversVurdering", "sistEndret", "opprettet")
+        assertThat(kandidaterJson[0]["kandidat"]["sistEndret"].asText())
+            .isEqualTo("2024-01-15T12:30:00+01:00")
+        assertThat(kandidaterJson[1]["kandidat"]["sistEndret"].asText())
+            .isEqualTo("2024-07-15T12:30:00+02:00")
+        val cvJson = kandidaterJson[0]["cv"]
+        assertThat(cvJson.fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder(
+                "fornavn", "etternavn", "bosted", "mobiltelefonnummer", "telefonnummer", "epost",
+                "alder", "kompetanse", "arbeidserfaring", "sammendrag", "utdanning", "språk",
+                "førerkort", "fagdokumentasjon", "godkjenninger", "andreGodkjenninger", "kurs",
+                "andreErfaringer"
+            )
+        assertThat(cvJson["arbeidserfaring"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("fraDato", "tilDato", "arbeidsgiver", "sted", "stillingstittel", "beskrivelse")
+        assertThat(cvJson["utdanning"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("utdanningsretning", "beskrivelse", "utdannelsessted", "fra", "til")
+        assertThat(cvJson["språk"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("navn", "muntlig", "skriftlig")
+        assertThat(cvJson["førerkort"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("førerkortKodeKlasse")
+        assertThat(kandidaterJson[1]["cv"]["andreGodkjenninger"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("tittel", "dato")
+        assertThat(cvJson["kurs"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("tittel", "omfangVerdi", "omfangEnhet", "tilDato")
+        assertThat(cvJson["andreErfaringer"][0].fieldNames().asSequence().toSet())
+            .containsExactlyInAnyOrder("rolle", "beskrivelse", "fraDato", "tilDato")
         assertKandidat(kandidaterJson[0], kandidat1)
         assertKandidat(kandidaterJson[1], kandidat2)
         assertCv(kandidaterJson[0]["cv"], esResponseCver[0])
