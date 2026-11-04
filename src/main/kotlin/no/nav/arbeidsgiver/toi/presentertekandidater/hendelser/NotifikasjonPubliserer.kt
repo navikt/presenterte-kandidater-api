@@ -1,12 +1,10 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import tools.jackson.databind.node.ObjectNode
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
@@ -44,9 +42,7 @@ class NotifikasjonPubliserer(val rapidsConnection: RapidsConnection) {
         val meldingTilArbeidsgiver: String,
         val stillingstittel: String
     ) {
-        private val objectMapper = jacksonObjectMapper()
-            .registerModule(JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        private val objectMapper = jacksonMapperBuilder().build()
 
         fun tilJsonMelding() = objectMapper.valueToTree<ObjectNode>(this).apply {
             put("@event_name", "notifikasjon.cv-delt")
