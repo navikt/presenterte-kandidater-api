@@ -1,9 +1,6 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet
 
 import com.fasterxml.jackson.annotation.JsonAlias
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.nimbusds.jose.JOSEException
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -13,6 +10,10 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.readValue
 import java.io.IOException
 import java.net.URI
 import java.net.URLEncoder
@@ -34,8 +35,9 @@ class TokendingsKlient(envs: Map<String, String>) {
         .connectTimeout(timeout)
         .followRedirects(HttpClient.Redirect.NEVER)
         .build()
-    private val objectMapper = jacksonObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper = jacksonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .build()
 
     fun veksleInnToken(accessToken: String, scope: String): String {
         val formData = listOf(
@@ -81,6 +83,8 @@ class TokendingsKlient(envs: Map<String, String>) {
         val exchangeToken = try {
             objectMapper.readValue<ExchangeToken>(response.body())
         } catch (e: IOException) {
+            throw RuntimeException(feilmelding, e)
+        } catch (e: JacksonException) {
             throw RuntimeException(feilmelding, e)
         }
         log.info("Vekslet inn token hos TokenX")
