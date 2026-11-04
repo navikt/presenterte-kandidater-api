@@ -48,6 +48,9 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
+    implementation(platform("tools.jackson:jackson-bom:3.1.2"))
+    implementation("tools.jackson.module:jackson-module-kotlin")
+
     implementation("ch.qos.logback:logback-classic:1.5.38")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
