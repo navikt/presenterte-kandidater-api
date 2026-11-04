@@ -1,8 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.hendelser
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
@@ -13,6 +10,8 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.log
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.time.ZonedDateTime
 
 class CvDeltLytter(
@@ -24,8 +23,9 @@ class CvDeltLytter(
 
     private val cvDeltCounter: Counter = Counter.builder("cvDelt").register(prometheusRegistry)
 
-    private val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper = jacksonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .build()
 
     init {
         River(rapidsConnection).apply {
