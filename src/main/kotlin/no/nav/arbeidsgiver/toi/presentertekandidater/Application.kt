@@ -1,12 +1,7 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
-import io.javalin.json.JavalinJackson
+import io.javalin.json.JavalinJackson3
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.arbeidsgiver.toi.presentertekandidater.SecureLogLogger.Companion.secure
@@ -26,13 +21,26 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningK
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.RapidApplication
 import org.flywaydb.core.Flyway
-import java.util.*
+import tools.jackson.databind.cfg.DateTimeFeature
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import java.util.TimeZone
 import javax.sql.DataSource
 
 private val logger = noClassLogger()
 
-val defaultObjectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
-    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+val defaultObjectMapper: JsonMapper = jacksonMapperBuilder()
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .disable(DateTimeFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
+    .defaultTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
+    .accessorNaming(
+        DefaultAccessorNamingStrategy.Provider()
+            .withFirstCharAcceptance(true, true)
+    )
+    .build()
 
 fun main() {
     logger.info("Starter app.")
@@ -82,12 +90,7 @@ fun startApp(
 
     val javalin = startJavalin(
         rollekonfigurasjoner = rollekonfigurasjon,
-        jsonMapper = JavalinJackson(
-            jacksonObjectMapper().registerModule(JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE)
-                .setTimeZone(TimeZone.getTimeZone("Europe/Oslo"))
-        ),
+        jsonMapper = JavalinJackson3(defaultObjectMapper),
         miljøvariabler = envs,
         rapidIsAlive = rapidIsAlive,
         registry = prometheusRegistry,

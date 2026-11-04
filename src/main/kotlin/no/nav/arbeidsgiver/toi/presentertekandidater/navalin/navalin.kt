@@ -2,7 +2,6 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.navalin
 
 import io.javalin.Javalin
 import io.javalin.http.Context
-import io.javalin.json.JavalinJackson
 import io.javalin.json.JsonMapper
 import io.javalin.micrometer.MicrometerPlugin
 import io.javalin.router.JavalinDefaultRoutingApi
@@ -30,7 +29,7 @@ fun startJavalin(
     rollekonfigurasjoner: List<RolleKonfigurasjon>,
     miljøvariabler: Map<String, String>,
     defaultContentType: String = "application/json",
-    jsonMapper: JsonMapper = JavalinJackson(),
+    jsonMapper: JsonMapper,
     registry: PrometheusMeterRegistry,
     rapidIsAlive: () -> Boolean,
     kandidatlisteRepository: KandidatlisteRepository,

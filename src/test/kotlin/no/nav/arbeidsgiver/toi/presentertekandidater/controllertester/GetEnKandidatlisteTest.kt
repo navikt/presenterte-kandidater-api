@@ -1,6 +1,5 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.Testdata.kandidatliste
@@ -17,6 +16,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
 import kotlin.test.assertNull
+import tools.jackson.databind.JsonNode
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetEnKandidatlisteTest {
@@ -97,59 +97,59 @@ class GetEnKandidatlisteTest {
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
-        assertThat(kandidatlisteMedKandidaterJson.fieldNames().asSequence().toSet())
+        assertThat(kandidatlisteMedKandidaterJson.propertyNames().toSet())
             .containsExactlyInAnyOrder("kandidatliste", "kandidater")
-        assertThat(kandidatlisteJson.fieldNames().asSequence().toSet())
+        assertThat(kandidatlisteJson.propertyNames().toSet())
             .containsExactlyInAnyOrder(
                 "uuid", "stillingId", "tittel", "status", "slettet",
                 "virksomhetsnummer", "sistEndret", "opprettet"
             )
-        assertThat(kandidatlisteJson["sistEndret"].asText()).isEqualTo("2024-01-15T12:30:00+01:00")
-        assertThat(kandidatlisteJson["opprettet"].asText()).isEqualTo("2024-07-15T12:30:00+02:00")
+        assertThat(kandidatlisteJson["sistEndret"].asString()).isEqualTo("2024-01-15T12:30:00+01:00")
+        assertThat(kandidatlisteJson["opprettet"].asString()).isEqualTo("2024-07-15T12:30:00+02:00")
 
         assertNull(kandidatlisteJson["id"])
-        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
-        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo(kandidatliste.tittel)
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue()))
+        assertThat(kandidatlisteJson["status"].asString()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].asString()).isEqualTo(kandidatliste.tittel)
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].asString()))
             .isEqualTo(kandidatliste.sistEndret)
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue()))
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].asString()))
             .isEqualTo(kandidatliste.opprettet)
         assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
-        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
-        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
-        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue())
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].asString())).isEqualTo(stillingId)
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].asString())).isEqualTo(kandidatliste.uuid)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].asString())
             .isEqualTo(kandidatliste.virksomhetsnummer)
 
         assertThat(kandidaterJson).hasSize(2)
-        assertThat(kandidaterJson[0].fieldNames().asSequence().toSet())
+        assertThat(kandidaterJson[0].propertyNames().toSet())
             .containsExactlyInAnyOrder("kandidat", "cv")
-        assertThat(kandidaterJson[0]["kandidat"].fieldNames().asSequence().toSet())
+        assertThat(kandidaterJson[0]["kandidat"].propertyNames().toSet())
             .containsExactlyInAnyOrder("uuid", "arbeidsgiversVurdering", "sistEndret", "opprettet")
-        assertThat(kandidaterJson[0]["kandidat"]["sistEndret"].asText())
+        assertThat(kandidaterJson[0]["kandidat"]["sistEndret"].asString())
             .isEqualTo("2024-01-15T12:30:00+01:00")
-        assertThat(kandidaterJson[1]["kandidat"]["sistEndret"].asText())
+        assertThat(kandidaterJson[1]["kandidat"]["sistEndret"].asString())
             .isEqualTo("2024-07-15T12:30:00+02:00")
         val cvJson = kandidaterJson[0]["cv"]
-        assertThat(cvJson.fieldNames().asSequence().toSet())
+        assertThat(cvJson.propertyNames().toSet())
             .containsExactlyInAnyOrder(
                 "fornavn", "etternavn", "bosted", "mobiltelefonnummer", "telefonnummer", "epost",
                 "alder", "kompetanse", "arbeidserfaring", "sammendrag", "utdanning", "språk",
                 "førerkort", "fagdokumentasjon", "godkjenninger", "andreGodkjenninger", "kurs",
                 "andreErfaringer"
             )
-        assertThat(cvJson["arbeidserfaring"][0].fieldNames().asSequence().toSet())
+        assertThat(cvJson["arbeidserfaring"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("fraDato", "tilDato", "arbeidsgiver", "sted", "stillingstittel", "beskrivelse")
-        assertThat(cvJson["utdanning"][0].fieldNames().asSequence().toSet())
+        assertThat(cvJson["utdanning"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("utdanningsretning", "beskrivelse", "utdannelsessted", "fra", "til")
-        assertThat(cvJson["språk"][0].fieldNames().asSequence().toSet())
+        assertThat(cvJson["språk"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("navn", "muntlig", "skriftlig")
-        assertThat(cvJson["førerkort"][0].fieldNames().asSequence().toSet())
+        assertThat(cvJson["førerkort"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("førerkortKodeKlasse")
-        assertThat(kandidaterJson[1]["cv"]["andreGodkjenninger"][0].fieldNames().asSequence().toSet())
+        assertThat(kandidaterJson[1]["cv"]["andreGodkjenninger"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("tittel", "dato")
-        assertThat(cvJson["kurs"][0].fieldNames().asSequence().toSet())
+        assertThat(cvJson["kurs"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("tittel", "omfangVerdi", "omfangEnhet", "tilDato")
-        assertThat(cvJson["andreErfaringer"][0].fieldNames().asSequence().toSet())
+        assertThat(cvJson["andreErfaringer"][0].propertyNames().toSet())
             .containsExactlyInAnyOrder("rolle", "beskrivelse", "fraDato", "tilDato")
         assertKandidat(kandidaterJson[0], kandidat1)
         assertKandidat(kandidaterJson[1], kandidat2)
@@ -325,16 +325,16 @@ class GetEnKandidatlisteTest {
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
         assertNull(kandidatlisteJson["id"])
-        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
-        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo(kandidatliste.tittel)
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue()))
+        assertThat(kandidatlisteJson["status"].asString()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].asString()).isEqualTo(kandidatliste.tittel)
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].asString()))
             .isEqualTo(kandidatliste.sistEndret)
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue()))
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].asString()))
             .isEqualTo(kandidatliste.opprettet)
         assertThat(kandidatlisteJson["slettet"].asBoolean()).isTrue
-        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
-        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
-        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue())
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].asString())).isEqualTo(stillingId)
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].asString())).isEqualTo(kandidatliste.uuid)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].asString())
             .isEqualTo(kandidatliste.virksomhetsnummer)
 
         assertThat(kandidaterJson).hasSize(0)
@@ -343,24 +343,24 @@ class GetEnKandidatlisteTest {
     private fun assertKandidat(fraRespons: JsonNode, fraDatabasen: Kandidat) {
         assertThat(fraRespons["kandidat"]).isNotEmpty
         assertNull(fraRespons["kandidat"]["id"])
-        assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].textValue())).isEqualTo(fraDatabasen.uuid)
+        assertThat(UUID.fromString(fraRespons["kandidat"]["uuid"].asString())).isEqualTo(fraDatabasen.uuid)
         assertThat(
-            fraRespons["kandidat"]["arbeidsgiversVurdering"].textValue()
+            fraRespons["kandidat"]["arbeidsgiversVurdering"].asString()
                 .equals(fraDatabasen.arbeidsgiversVurdering.name)
         )
-        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].textValue()) == fraDatabasen.sistEndret)
-        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["opprettet"].textValue()) != null)
+        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["sistEndret"].asString()) == fraDatabasen.sistEndret)
+        assertThat(ZonedDateTime.parse(fraRespons["kandidat"]["opprettet"].asString()) != null)
     }
 
     private fun assertCv(fraRespons: JsonNode, openSearchCvRespons: JsonNode) {
         val openSearchCv = openSearchCvRespons["_source"]
-        assertThat(fraRespons["mobiltelefonnummer"].asText()).isEqualTo(openSearchCv["mobiltelefon"].asText())
-        assertThat(fraRespons["telefonnummer"].asText()).isEqualTo(openSearchCv["telefon"].asText())
-        assertThat(fraRespons["epost"].asText()).isEqualTo(openSearchCv["epostadresse"].asText())
-        assertThat(fraRespons["fornavn"].asText()).isEqualTo(openSearchCv["fornavn"].asText())
-        assertThat(fraRespons["etternavn"].asText()).isEqualTo(openSearchCv["etternavn"].asText())
-        assertThat(fraRespons["sammendrag"].asText()).isEqualTo(openSearchCv["beskrivelse"].asText())
-        assertThat(fraRespons["bosted"].asText()).isEqualTo(openSearchCv["poststed"].asText())
+        assertThat(fraRespons["mobiltelefonnummer"].asString()).isEqualTo(openSearchCv["mobiltelefon"].asString())
+        assertThat(fraRespons["telefonnummer"].asString()).isEqualTo(openSearchCv["telefon"].asString())
+        assertThat(fraRespons["epost"].asString()).isEqualTo(openSearchCv["epostadresse"].asString())
+        assertThat(fraRespons["fornavn"].asString()).isEqualTo(openSearchCv["fornavn"].asString())
+        assertThat(fraRespons["etternavn"].asString()).isEqualTo(openSearchCv["etternavn"].asString())
+        assertThat(fraRespons["sammendrag"].asString()).isEqualTo(openSearchCv["beskrivelse"].asString())
+        assertThat(fraRespons["bosted"].asString()).isEqualTo(openSearchCv["poststed"].asString())
     }
 
     private fun stubHentingAvKandidater(requestBody: String, responsBody: String) {

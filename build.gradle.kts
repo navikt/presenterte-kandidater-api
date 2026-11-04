@@ -32,7 +32,7 @@ testing {
     }
 }
 
-val javalinVersion = "7.2.3"
+val javalinVersion = "7.2.4"
 val micrometerVersion = "1.17.0"
 val flywayVersion = "13.10.3"
 val rapidsAndRiversVersion = "2026091610031789545782"
@@ -44,9 +44,6 @@ dependencies {
     implementation("io.micrometer:micrometer-core:$micrometerVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
     implementation("io.prometheus:prometheus-metrics-exposition-textformats:1.7.0")
-
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
 
     implementation(platform("tools.jackson:jackson-bom:3.1.2"))
     implementation("tools.jackson.module:jackson-module-kotlin")

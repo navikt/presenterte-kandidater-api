@@ -96,7 +96,7 @@ private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: Kandidatli
             val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
             val jsonBody = defaultObjectMapper.readTree(context.body())
             val arbeidsgiversVurdering =
-                Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asText())
+                Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asString())
 
             val kandidatliste = repository.hentKandidatlisteTilKandidat(kandidatUuid) ?: throw BadRequestResponse()
             context.validerRekruttererRolleIOrganisasjon(kandidatliste.virksomhetsnummer)

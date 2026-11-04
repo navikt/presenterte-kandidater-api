@@ -1,12 +1,12 @@
 package no.nav.arbeidsgiver.toi.presentertekandidater.controllertester
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.tomakehurst.wiremock.client.WireMock
 import no.nav.arbeidsgiver.toi.presentertekandidater.*
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnReportee
 import no.nav.arbeidsgiver.toi.presentertekandidater.altinn.AltinnTilgang
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
+import tools.jackson.module.kotlin.readValue
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

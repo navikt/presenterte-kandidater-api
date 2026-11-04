@@ -34,8 +34,8 @@ class TrukketSamtykkeLytter(
     private val samtykkeTrukketCounter: Counter = Counter.builder("samtykkeTrukket").register(prometheusRegistry)
 
     override fun onPacket(packet: JsonMessage, context: MessageContext, metadata: MessageMetadata, meterRegistry: MeterRegistry) {
-        val stillingsId = packet["stillingsId"].asText().toUUID()
-        val aktørId = packet["aktørId"].asText()
+        val stillingsId = packet["stillingsId"].asString().toUUID()
+        val aktørId = packet["aktørId"].asString()
 
         presenterteKandidaterService.slettKandidatFraKandidatliste(aktørId, stillingsId)
         cvSlettetCounter.increment()

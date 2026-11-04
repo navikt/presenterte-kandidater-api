@@ -127,30 +127,30 @@ class GetKandidatlisterTest {
 
         val kandidatlisteMedKandidaterJson =
             defaultObjectMapper.readTree(response.body())
-        assertThat(kandidatlisteMedKandidaterJson[0].fieldNames().asSequence().toSet())
+        assertThat(kandidatlisteMedKandidaterJson[0].propertyNames().toSet())
             .containsExactlyInAnyOrder("kandidatliste", "antallKandidater")
         val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
         val antallKandidater = kandidatlisteMedKandidaterJson[0]["antallKandidater"]
-        assertThat(kandidatlisteJson.fieldNames().asSequence().toSet())
+        assertThat(kandidatlisteJson.propertyNames().toSet())
             .containsExactlyInAnyOrder(
                 "uuid", "stillingId", "tittel", "status", "slettet",
                 "virksomhetsnummer", "sistEndret", "opprettet"
             )
-        assertThat(kandidatlisteJson["sistEndret"].asText()).isEqualTo("2024-01-15T12:30:00+01:00")
-        assertThat(kandidatlisteJson["opprettet"].asText()).isEqualTo("2024-07-15T12:30:00+02:00")
+        assertThat(kandidatlisteJson["sistEndret"].asString()).isEqualTo("2024-01-15T12:30:00+01:00")
+        assertThat(kandidatlisteJson["opprettet"].asString()).isEqualTo("2024-07-15T12:30:00+02:00")
         assertThat(antallKandidater.asInt()).isZero()
-        assertThat(UUID.fromString(kandidatlisteJson["uuid"].textValue())).isEqualTo(kandidatliste.uuid)
-        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].textValue())).isEqualTo(stillingId)
-        assertThat(kandidatlisteJson["virksomhetsnummer"].textValue()).isEqualTo(virksomhetsnummer)
+        assertThat(UUID.fromString(kandidatlisteJson["uuid"].asString())).isEqualTo(kandidatliste.uuid)
+        assertThat(UUID.fromString(kandidatlisteJson["stillingId"].asString())).isEqualTo(stillingId)
+        assertThat(kandidatlisteJson["virksomhetsnummer"].asString()).isEqualTo(virksomhetsnummer)
         assertThat(kandidatlisteJson["slettet"].asBoolean()).isFalse
-        assertThat(kandidatlisteJson["status"].textValue()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
-        assertThat(kandidatlisteJson["tittel"].textValue()).isEqualTo("Tittel")
+        assertThat(kandidatlisteJson["status"].asString()).isEqualTo(Kandidatliste.Status.ÅPEN.toString())
+        assertThat(kandidatlisteJson["tittel"].asString()).isEqualTo("Tittel")
         assertNull(kandidatlisteJson["id"])
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].textValue())).isCloseTo(
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["sistEndret"].asString())).isCloseTo(
             kandidatliste.sistEndret,
             Assertions.within(3, ChronoUnit.SECONDS)
         )
-        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].textValue())).isCloseTo(
+        assertThat(ZonedDateTime.parse(kandidatlisteJson["opprettet"].asString())).isCloseTo(
             kandidatliste.opprettet,
             Assertions.within(3, ChronoUnit.SECONDS)
         )
@@ -183,11 +183,11 @@ class GetKandidatlisterTest {
         val kandidatlisterMedKandidaterJson =
             defaultObjectMapper.readTree(response.body())
         val opprettetDatoFørsteListe =
-            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].textValue())
+            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].asString())
         val opprettetDatoAndreListe =
-            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[1]["kandidatliste"]["opprettet"].textValue())
+            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[1]["kandidatliste"]["opprettet"].asString())
         val opprettetDatoTredjeListe =
-            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[2]["kandidatliste"]["opprettet"].textValue())
+            ZonedDateTime.parse(kandidatlisterMedKandidaterJson[2]["kandidatliste"]["opprettet"].asString())
         assertThat(opprettetDatoFørsteListe).isAfter(opprettetDatoAndreListe)
         assertThat(opprettetDatoAndreListe).isAfter(opprettetDatoTredjeListe)
     }
