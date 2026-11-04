@@ -2,17 +2,14 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.opensearch
 
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.nav.arbeidsgiver.toi.presentertekandidater.defaultObjectMapper
 import no.nav.arbeidsgiver.toi.presentertekandidater.variable
+import tools.jackson.core.JsonParser
+import tools.jackson.databind.DeserializationContext
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.annotation.JsonDeserialize
+import tools.jackson.databind.deser.std.StdDeserializer
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
@@ -22,7 +19,11 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
-import java.util.Base64
+import java.util.*
+
+private val openSearchObjectMapper = jacksonMapperBuilder()
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .build()
 
 class OpenSearchKlient(envs: Map<String, String>) {
     private val baseUrl = envs.variable("OPEN_SEARCH_URI") + "/kandidater"
@@ -38,14 +39,13 @@ class OpenSearchKlient(envs: Map<String, String>) {
         .followRedirects(HttpClient.Redirect.NEVER)
         .build()
 
-    private val objectMapper: ObjectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val objectMapper = openSearchObjectMapper
 
     private fun mapHentCver(aktørider: List<String>, body: String): Map<String, Cv?> {
         val responsJsonNode = objectMapper.readTree(body)
         val hits = responsJsonNode["hits"]["hits"]
         val cver = hits
-            .map { it["_source"] }
+            .values().map { it["_source"] }
             .map { json ->
                 val cvJson = objectMapper.writeValueAsString(json)
                 objectMapper.readValue(cvJson, Cv::class.java)
@@ -255,7 +255,8 @@ private abstract class TilStringlisteDeserializer(val felt: String) : StdDeseria
     class GodkjenningerDeserializer : TilStringlisteDeserializer("tittel")
 
     override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): List<String> {
-        return ctxt.readValue(parser, JsonNode::class.java).mapNotNull { it[felt]?.textValue() }
+        return ctxt.readValue(parser, JsonNode::class.java)
+            .mapNotNull { it[felt]?.takeIf(JsonNode::isString)?.asString() }
     }
 }
 
@@ -301,12 +302,12 @@ private class AndreErfaringerDeserializer : StdDeserializer<List<AnnenErfaring>>
 
 fun somNullableString(jsonNode: JsonNode?): String? =
     if (erString(jsonNode)) {
-        jsonNode?.asText()
+        jsonNode?.asString()
     } else {
         null
     }
 
-fun erString(jsonNode: JsonNode?) = jsonNode != null && !jsonNode.isNull && jsonNode.asText().isNotEmpty()
+fun erString(jsonNode: JsonNode?) = jsonNode != null && !jsonNode.isNull && jsonNode.asString().isNotEmpty()
 
 fun <T> JsonNode.tilKlasse(type: Class<T>) =
-    defaultObjectMapper.readValue(defaultObjectMapper.writeValueAsString(this), type)
+    openSearchObjectMapper.readValue(openSearchObjectMapper.writeValueAsString(this), type)
