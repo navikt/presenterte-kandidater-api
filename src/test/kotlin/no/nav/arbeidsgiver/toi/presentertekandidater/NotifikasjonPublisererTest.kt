@@ -31,8 +31,8 @@ class NotifikasjonPublisererTest {
         )
 
         assertThat(rapid.inspektør.key(0)).isEqualTo(notifikasjonsId)
-        val actual = defaultObjectMapper.readTree(rapid.inspektør.message(0).toString())
-        val expected = defaultObjectMapper.readTree(
+        val actual = json(rapid.inspektør.message(0).toString())
+        val expected = json(
             """
             {
               "notifikasjonsId": "$notifikasjonsId",
@@ -46,7 +46,7 @@ class NotifikasjonPublisererTest {
               "stillingstittel": "Utvikler",
               "@event_name": "notifikasjon.cv-delt"
             }
-            """.trimIndent()
+            """
         )
         assertThat(actual).isEqualTo(expected)
     }

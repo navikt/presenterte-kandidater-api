@@ -94,7 +94,7 @@ private val oppdaterArbeidsgiversVurdering: (kandidatlisteRepository: Kandidatli
     { repository ->
         { context ->
             val kandidatUuid = UUID.fromString(context.pathParam("uuid"))
-            val jsonBody = defaultObjectMapper.readTree(context.body())
+            val jsonBody = json(context.body())
             val arbeidsgiversVurdering =
                 Kandidat.ArbeidsgiversVurdering.fraString(jsonBody["arbeidsgiversVurdering"].asString())
 

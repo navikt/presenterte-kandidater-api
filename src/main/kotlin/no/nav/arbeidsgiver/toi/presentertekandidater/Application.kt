@@ -21,12 +21,12 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningK
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
 import no.nav.helse.rapids_rivers.RapidApplication
 import org.flywaydb.core.Flyway
-import tools.jackson.databind.cfg.DateTimeFeature
 import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.cfg.DateTimeFeature
 import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.jacksonMapperBuilder
-import java.util.TimeZone
+import java.util.*
 import javax.sql.DataSource
 
 private val logger = noClassLogger()

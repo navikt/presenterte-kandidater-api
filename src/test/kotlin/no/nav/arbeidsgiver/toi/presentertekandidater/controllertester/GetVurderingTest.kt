@@ -8,7 +8,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import uk.org.webcompere.modelassert.json.JsonAssertions.assertJson
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -46,7 +45,7 @@ class GetVurderingTest {
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(200)
-        assertJson(response.body()).isEqualTo("""
+        assertThat(json(response.body())).isEqualTo(json("""
             [
                 {
                     "aktørId": "3498943",
@@ -57,7 +56,7 @@ class GetVurderingTest {
                     "vurdering": "FÅTT_JOBBEN"
                 }
             ]
-        """.trimIndent())
+        """))
     }
 
     @Test
@@ -73,9 +72,7 @@ class GetVurderingTest {
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(200)
-        assertJson(response.body()).isEqualTo("""
-            []
-        """.trimIndent())
+        assertThat(json(response.body())).isEqualTo(json("[]"))
     }
 
     @Test
@@ -113,7 +110,7 @@ class GetVurderingTest {
         val response2 = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(response2.statusCode())
-        assertJson(response.body()).isEqualTo(response2.body())
+        assertThat(json(response.body())).isEqualTo(json(response2.body()))
     }
 
     private fun settOppKandidatlisteMedToKandidater(): UUID? {

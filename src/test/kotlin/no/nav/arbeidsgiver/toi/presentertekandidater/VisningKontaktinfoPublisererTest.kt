@@ -76,8 +76,8 @@ class VisningKontaktinfoPublisererTest {
         val inspektør = rapid.inspektør
         assertThat(inspektør.size).isEqualTo(1)
         assertThat(inspektør.key(0)).isNull()
-        val actual = defaultObjectMapper.readTree(inspektør.message(0).toString())
-        val expected = defaultObjectMapper.readTree(
+        val actual = json(inspektør.message(0).toString())
+        val expected = json(
             """
             {
               "stillingsId": "$stillingsId",
@@ -85,7 +85,7 @@ class VisningKontaktinfoPublisererTest {
               "aktørId": "$aktørId",
               "@event_name": "arbeidsgiversKandidatliste.VisningKontaktinfo"
             }
-            """.trimIndent()
+            """
         )
         assertThat(actual).isEqualTo(expected)
     }

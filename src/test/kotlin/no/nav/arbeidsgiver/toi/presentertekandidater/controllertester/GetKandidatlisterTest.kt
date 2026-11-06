@@ -125,8 +125,7 @@ class GetKandidatlisterTest {
 
         assertThat(response.statusCode()).isEqualTo(200)
 
-        val kandidatlisteMedKandidaterJson =
-            defaultObjectMapper.readTree(response.body())
+        val kandidatlisteMedKandidaterJson = json(response.body())
         assertThat(kandidatlisteMedKandidaterJson[0].propertyNames().toSet())
             .containsExactlyInAnyOrder("kandidatliste", "antallKandidater")
         val kandidatlisteJson = kandidatlisteMedKandidaterJson[0]["kandidatliste"]
@@ -180,8 +179,7 @@ class GetKandidatlisterTest {
         val response = httpClient.send(request, BodyHandlers.ofString())
 
         assertThat(response.statusCode()).isEqualTo(200)
-        val kandidatlisterMedKandidaterJson =
-            defaultObjectMapper.readTree(response.body())
+        val kandidatlisterMedKandidaterJson = json(response.body())
         val opprettetDatoFørsteListe =
             ZonedDateTime.parse(kandidatlisterMedKandidaterJson[0]["kandidatliste"]["opprettet"].asString())
         val opprettetDatoAndreListe =
@@ -300,8 +298,7 @@ class GetKandidatlisterTest {
 
         assertThat(response.statusCode()).isEqualTo(200)
 
-        val kandidatlisteMedKandidaterJson =
-            defaultObjectMapper.readTree(response.body())
+        val kandidatlisteMedKandidaterJson = json(response.body())
         assertThat(kandidatlisteMedKandidaterJson).isEmpty()
     }
 }

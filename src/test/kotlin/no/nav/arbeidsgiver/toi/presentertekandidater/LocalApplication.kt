@@ -10,14 +10,14 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.opensearch.OpenSearchKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.samtykke.SamtykkeRepository
 import no.nav.arbeidsgiver.toi.presentertekandidater.sikkerhet.TokendingsKlient
 import no.nav.arbeidsgiver.toi.presentertekandidater.visningkontaktinfo.VisningKontaktinfoRepository
-import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
 fun main() {
     startLocalApplication()
 }
 
-val lokalPostgres: PostgreSQLContainer<*>
+val lokalPostgres: PostgreSQLContainer
     get() {
         val postgres = PostgreSQLContainer(DockerImageName.parse("postgres:14.4-alpine"))
             .withDatabaseName("dbname")
@@ -137,6 +137,5 @@ fun startLocalApplication() {
         harStartetApplikasjonen = true
     }
 }
-
 
 

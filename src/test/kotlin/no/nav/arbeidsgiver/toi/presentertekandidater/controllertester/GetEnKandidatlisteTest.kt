@@ -7,6 +7,7 @@ import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidat
 import no.nav.arbeidsgiver.toi.presentertekandidater.kandidatliste.Kandidatliste
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.*
+import tools.jackson.databind.JsonNode
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -16,7 +17,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
 import kotlin.test.assertNull
-import tools.jackson.databind.JsonNode
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GetEnKandidatlisteTest {
@@ -73,7 +73,7 @@ class GetEnKandidatlisteTest {
         val aktør1 = Pair(Testdata.AktørId(kandidat1.aktørId), Testdata.Fødselsdato("1982-02-02"))
         val aktør2 = Pair(Testdata.AktørId(kandidat2.aktørId), Testdata.Fødselsdato("1983-03-03"))
         val esRespons = Testdata.flereKandidaterFraES(aktør1, aktør2)
-        val esResponseCver = defaultObjectMapper.readTree(esRespons)["hits"]["hits"]
+        val esResponseCver = json(esRespons)["hits"]["hits"]
         stubHentingAvKandidater(
             requestBody = openSearchKlient.lagBodyForHentingAvCver(
                 listOf(
@@ -93,7 +93,7 @@ class GetEnKandidatlisteTest {
         assertThat(response.statusCode()).isEqualTo(200)
 
         val jsonbody = response.body()
-        val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
+        val kandidatlisteMedKandidaterJson = json(jsonbody)
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
@@ -320,7 +320,7 @@ class GetEnKandidatlisteTest {
         assertThat(response.statusCode()).isEqualTo(200)
 
         val jsonbody = response.body()
-        val kandidatlisteMedKandidaterJson = defaultObjectMapper.readTree(jsonbody)
+        val kandidatlisteMedKandidaterJson = json(jsonbody)
         val kandidatlisteJson = kandidatlisteMedKandidaterJson["kandidatliste"]
         val kandidaterJson = kandidatlisteMedKandidaterJson["kandidater"]
 
