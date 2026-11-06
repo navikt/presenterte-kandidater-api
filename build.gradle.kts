@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.4.21"
     application
-    id("io.github.ben-manes.versions") version "0.65.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
+    id("io.github.ben-manes.versions") version "0.67.0" // Gir oversikt over nyere dependencies med "./gradlew dependencyUpdates"
 }
 
 kotlin {
@@ -33,9 +33,9 @@ testing {
 }
 
 val javalinVersion = "7.2.4"
-val micrometerVersion = "1.17.0"
-val flywayVersion = "13.10.3"
-val rapidsAndRiversVersion = "2026091610031789545782"
+val micrometerVersion = "1.17.2"
+val flywayVersion = "13.12.1"
+val rapidsAndRiversVersion = "2026110308421793691732"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -43,21 +43,21 @@ dependencies {
     implementation("io.javalin:javalin-micrometer:$javalinVersion")
     implementation("io.micrometer:micrometer-core:$micrometerVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
-    implementation("io.prometheus:prometheus-metrics-exposition-textformats:1.7.0")
+    implementation("io.prometheus:prometheus-metrics-exposition-textformats:1.10.0")
 
-    implementation(platform("tools.jackson:jackson-bom:3.1.2"))
+    implementation(platform("tools.jackson:jackson-bom:3.2.4"))
     implementation("tools.jackson.module:jackson-module-kotlin")
 
-    implementation("ch.qos.logback:logback-classic:1.5.38")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
+    implementation("ch.qos.logback:logback-classic:1.6.6")
+    implementation("net.logstash.logback:logstash-logback-encoder:9.0")
 
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("org.postgresql:postgresql:42.7.14")
-    implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("no.nav.security:token-validation-core:2.1.8")
+    implementation("com.zaxxer:HikariCP:7.1.0")
+    implementation("no.nav.security:token-validation-core:2.1.9")
 
-    implementation("org.apache.kafka:kafka-clients:4.3.1")
+    implementation("org.apache.kafka:kafka-clients:4.4.0")
     implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")
 
     testImplementation(kotlin("test"))
@@ -65,10 +65,9 @@ dependencies {
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.mockito:mockito-core:5.24.0")
-    testImplementation("no.nav.security:mock-oauth2-server:3.0.3")
+    testImplementation("no.nav.security:mock-oauth2-server:6.1.4")
     testImplementation("org.testcontainers:testcontainers:2.0.5")
-    testImplementation("org.testcontainers:postgresql:1.21.4")
-    testImplementation("org.testcontainers:junit-jupiter:1.21.4")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.5")
     testImplementation("io.mockk:mockk:1.14.11")
-    testImplementation("uk.org.webcompere:ModelAssert:1.0.0")
 }

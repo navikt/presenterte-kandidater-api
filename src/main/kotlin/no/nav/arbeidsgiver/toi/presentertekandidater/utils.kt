@@ -4,6 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
 import org.slf4j.MarkerFactory
+import tools.jackson.databind.JsonNode
 
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
@@ -112,4 +113,9 @@ class SecureLogLogger private constructor(private val l: Logger) {
     }
 }
 
+
 fun Map<String, String>.variable(felt: String) = this[felt] ?: error("$felt er ikke angitt")
+
+
+fun json(s: String): JsonNode =
+    defaultObjectMapper.readTree(s.trimIndent())
