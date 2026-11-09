@@ -53,7 +53,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("org.postgresql:postgresql:42.7.14")
     implementation("com.zaxxer:HikariCP:7.1.0")
-    implementation("no.nav.security:token-validation-core:2.1.9")
+    implementation("no.nav.security:token-validation-core:7.0.1")
 
     implementation("org.apache.kafka:kafka-clients:4.4.0")
     implementation("com.github.navikt:rapids-and-rivers:$rapidsAndRiversVersion")

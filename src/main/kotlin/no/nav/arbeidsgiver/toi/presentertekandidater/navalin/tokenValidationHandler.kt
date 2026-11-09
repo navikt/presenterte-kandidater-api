@@ -28,7 +28,7 @@ fun hentTokenValidationHandler(
         log.info("Henter og cacher nye public keys for issuer tokendings til $expires")
 
         val newHandler = JwtTokenValidationHandler(
-            MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
+            MultiIssuerConfiguration(mapOf(tokenUtsteder.name to issuerProperties))
         )
 
         cache[tokenUtsteder] = CachedHandler(newHandler, expires)

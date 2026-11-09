@@ -2,11 +2,13 @@ package no.nav.arbeidsgiver.toi.presentertekandidater.navalin
 
 import com.nimbusds.jwt.JWTClaimsSet
 import io.javalin.http.Context
+import io.javalin.http.Header
 import io.javalin.http.UnauthorizedResponse
 import io.javalin.security.RouteRole
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.INGEN
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.TOKEN_X
 import no.nav.arbeidsgiver.toi.presentertekandidater.navalin.NavalinAccessManager.TokenUtsteder.AZURE_AD
+import no.nav.arbeidsgiver.toi.presentertekandidater.variable
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
@@ -51,17 +53,11 @@ class NavalinAccessManager(
     private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties, tokenUtsteder: TokenUtsteder) =
         hentTokenValidationHandler(
             issuerProperties, tokenUtsteder
-        ).getValidatedTokens(ctx.httpRequest).anyValidClaims.orElseGet { null }
+        ).getValidatedTokens(ctx.httpRequest).anyValidClaims
 
     private val Context.httpRequest: HttpRequest
         get() = object : HttpRequest {
-            override fun getHeader(headerName: String?) = headerMap()[headerName]
-            override fun getCookies() = cookieMap().map { (name, value) ->
-                object : HttpRequest.NameValue {
-                    override fun getName() = name
-                    override fun getValue() = value
-                }
-            }.toTypedArray()
+            override fun getHeader(headerName: String) = headerMap()[headerName]
         }
 
     private fun hentIssuerProperties(tokenUtsteder: TokenUtsteder): IssuerProperties? {
@@ -73,7 +69,7 @@ class NavalinAccessManager(
     }
 
     private fun hentAccessTokenFraHeader(context: Context): String {
-        val accessTokenMedBearerPrefix = context.httpRequest.getHeader("Authorization")
+        val accessTokenMedBearerPrefix = context.header(Header.AUTHORIZATION)
             ?: throw IllegalStateException("Prøvde å hente ut access token men Authorization header finnes ikke")
 
         return accessTokenMedBearerPrefix.replace("Bearer ", "")
@@ -81,16 +77,14 @@ class NavalinAccessManager(
 
     private fun lagIssuerPropertiesForTokenX(envs: Map<String, String>) =
         IssuerProperties(
-            URI(envs["TOKEN_X_WELL_KNOWN_URL"]).toURL(),
-            listOf(envs["TOKEN_X_CLIENT_ID"]),
-            envs["TOKEN_X_PRIVATE_JWK"]
+            URI(envs.variable("TOKEN_X_WELL_KNOWN_URL")).toURL(),
+            listOf(envs.variable("TOKEN_X_CLIENT_ID")),
         )
 
     private fun lagIssuerPropertiesForAzureAD(envs: Map<String, String>) =
         IssuerProperties(
-            URI(envs["AZURE_APP_WELL_KNOWN_URL"]).toURL(),
-            listOf(envs["AZURE_APP_CLIENT_ID"]),
-            envs["AZURE_OPENID_CONFIG_ISSUER"]
+            URI(envs.variable("AZURE_APP_WELL_KNOWN_URL")).toURL(),
+            listOf(envs.variable("AZURE_APP_CLIENT_ID")),
         )
 
     enum class TokenUtsteder {
