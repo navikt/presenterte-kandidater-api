@@ -4,6 +4,8 @@
     "kafka_consumer_group_id": "presenterte-kandidagter-api-rapidconsumer-1",
     "gcp_db_tier": "db-custom-1-3840",
     "gcp_disk_autoresize": "true",
+    "gcp_db_point_in_time_recovery": true,
+    "gcp_db_query_string_length": 4500,
     "min_replicas": 2,
     "max_replicas": 4,
     "requested_cpu": "100m",

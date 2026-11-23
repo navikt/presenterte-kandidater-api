@@ -65,6 +65,9 @@ spec:
       - type: POSTGRES_18
         tier: {{ gcp_db_tier }}
         diskAutoresize: {{ gcp_disk_autoresize }}
+        pointInTimeRecovery: {{ gcp_db_point_in_time_recovery }}
+        insights:
+          queryStringLength: {{ gcp_db_query_string_length }}
         databases:
           - name: presenterte-kandidater-db
   env:
