@@ -17,7 +17,7 @@ Markedskontakter og arbeidsgivere får informasjon samme dag som endringen rulle
 ## Avklaringer før vi starter
 
 - [x] Tomme kandidatlister skal også markeres som slettet etter 90 dager (avklart 23.11.2026). Begge reglene i `slettejobb.kt` bruker samme terskel.
-- [ ] Velg dato for utrulling. Datoen erstatter «xx.xx.xx» i alle tekstene under.
+- [x] Dato for utrulling: torsdag 26. november 2026.
 - [ ] Vilkårene arbeidsgiver godtar i `presenterte-kandidater` (`app/samtykke/page.tsx`), sier at CV-ene slettes etter seks måneder. Samtykket lagres uten versjon (`V3__samtykke.sql`: bare fødselsnummer og tidspunkt), så arbeidsgivere som har godtatt, blir ikke bedt om å godta på nytt. Avklar med jurist eller personvernombud om det er greit at infoboksen er nok informasjon, eller om eksisterende samtykker må fornyes.
 
 Frontenden for «Min side – arbeidsgiver» er [`navikt/presenterte-kandidater`](https://github.com/navikt/presenterte-kandidater). Den kaller `presenterte-kandidater-api` gjennom `app/api/presenterte-kandidater-api/`.
@@ -26,8 +26,8 @@ Frontenden for «Min side – arbeidsgiver» er [`navikt/presenterte-kandidater`
 
 ### Før utrulling
 
-- [ ] Gi Petter Ravik (NKS Nordland Mo) beskjed om datoen. Han vet at endringen kommer, men ikke når. Infoboksen viser til arbeidsgivertelefonen, så NKS må vite om endringen før arbeidsgiverne ser den.
-- [ ] Gi brukerstøtte beskjed om datoen.
+- [ ] Gi Petter Ravik (NKS Nordland Mo) beskjed om at endringen kommer torsdag 26. november. Han vet at endringen kommer, men ikke når. Infoboksen viser til arbeidsgivertelefonen, så NKS må vite om endringen før arbeidsgiverne ser den.
+- [ ] Gi brukerstøtte beskjed om at endringen kommer torsdag 26. november.
 
 ### Kode i `presenterte-kandidater-api`
 
@@ -44,7 +44,7 @@ Frontenden for «Min side – arbeidsgiver» er [`navikt/presenterte-kandidater`
 
 Repoet har bare én tekst om seks måneder. Tester, mocks og README nevner ikke tiden.
 
-Endringene ligger på branchen `kortere-cv-tilgang-91-dager` (navnet er beholdt selv om terskelen nå er 90 dager). Branchen deployes til dev via `deploy-dev-branch` i `.github/workflows/workflow.yaml`. Sett den tilbake før merge til `main`.
+Endringene ligger i [PR #142](https://github.com/navikt/presenterte-kandidater/pull/142), på branchen `kortere-cv-tilgang-91-dager` (navnet er beholdt selv om terskelen nå er 90 dager). Branchen deployes til dev via `deploy-dev-branch` i `.github/workflows/workflow.yaml`. Sett den tilbake før merge til `main`.
 
 - [x] Endre vilkårsteksten i `app/samtykke/page.tsx` (linje 134) fra «CV-ene slettes automatisk seks måneder etter at de er mottatt.» til «CV-ene slettes automatisk 90 dager etter at de er mottatt.»
 - [x] Legg inn infoboks med Aksel `InfoCard` (`data-color="info"`) øverst i `app/Kandidatlister.tsx`, over «Aktive rekrutteringsprosesser». Komponenten ligger i `app/components/EndretVisningstidInfo.tsx`. `Alert` er utfaset i Aksel. Setningen «Endringen gjelder fra xx.xx.xx.» er tatt ut, siden boksen sier «nå». Tekst:
@@ -58,7 +58,7 @@ Endringene ligger på branchen `kortere-cv-tilgang-91-dager` (navnet er beholdt 
   > Dersom den nye tilgjengelighetsperioden medfører utfordringer for dere, kan dere kontakte arbeidsgivertelefonen på 55 55 33 36.
 
 - [x] Kjør eslint, prettier, `tsc` og Playwright. Alt er grønt. Infoboksen trenger `[overflow-wrap:anywhere]`, ellers kuttes lange ord ved 200 % tekststørrelse på mobil (WCAG 1.4.4).
-- [ ] Fjern `EndretVisningstidInfo` seks uker etter utrulling (eget Trello-kort).
+- [ ] Fjern `EndretVisningstidInfo` torsdag 7. januar 2027, seks uker etter utrulling (eget Trello-kort).
 
 ### Utrulling
 
@@ -74,11 +74,11 @@ Endringene ligger på branchen `kortere-cv-tilgang-91-dager` (navnet er beholdt 
 
   > **Tilgangen til CV-er for arbeidsgivere er redusert fra seks til tre måneder**
   >
-  > Tilgangen til oversendte CV-er til arbeidsgivere er redusert fra seks til tre måneder fra i dag xx.xx.xx. Bakgrunn er at det er gjort en ny vurdering hva som er tilstrekkelig tid for arbeidsgiver å ha tilgang til CV-en for rekrutteringsoppdraget i henhold til GDPR.
+  > Tilgangen til oversendte CV-er til arbeidsgivere er redusert fra seks til tre måneder fra i dag 26.11.26. Bakgrunn er at det er gjort en ny vurdering hva som er tilstrekkelig tid for arbeidsgiver å ha tilgang til CV-en for rekrutteringsoppdraget i henhold til GDPR.
 
 - [ ] Per Erik skriver og poster nyhet i Teams-kanalen Markedsnettverket i Nav og merker alle.
 
 ### Etter utrulling
 
 - [ ] Lag et Trello-kort for å fjerne infoboksen fra `app/Kandidatlister.tsx` i `presenterte-kandidater`. Vilkårsteksten skal stå.
-- [ ] Per Erik legger inn en påminnelse i Outlook seks uker etter utrullingsdatoen, så infoboksen fjernes da.
+- [ ] Per Erik legger inn en påminnelse i Outlook torsdag 7. januar 2027, seks uker etter utrulling, så infoboksen fjernes da.
