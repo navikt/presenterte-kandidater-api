@@ -98,7 +98,7 @@ class AltinnKlientTest {
                 )
         )
 
-        val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+        val organisasjoner = altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         Assertions.assertEquals(2, organisasjoner.size)
         Assertions.assertEquals("TESTORGANISASJON AS", organisasjoner[0].name)
         Assertions.assertEquals("999888777", organisasjoner[0].organizationNumber)
@@ -107,7 +107,7 @@ class AltinnKlientTest {
         )
 
         val organisasjonerMedRettighetKandidater =
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         Assertions.assertEquals(1, organisasjonerMedRettighetKandidater.size)
         Assertions.assertEquals("UNDERENHET AV TESTORGANISASJON AS", organisasjonerMedRettighetKandidater[0].name)
         Assertions.assertEquals("999888778", organisasjonerMedRettighetKandidater[0].organizationNumber)
@@ -163,7 +163,7 @@ class AltinnKlientTest {
                 )
         )
 
-        val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+        val organisasjoner = altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         Assertions.assertEquals(2, organisasjoner.size)
         Assertions.assertEquals("TESTORGANISASJON AS", organisasjoner[0].name)
         Assertions.assertEquals("999888777", organisasjoner[0].organizationNumber)
@@ -172,7 +172,7 @@ class AltinnKlientTest {
         )
 
         val organisasjonerMedRettighetKandidater =
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         Assertions.assertEquals(1, organisasjonerMedRettighetKandidater.size)
         Assertions.assertEquals("UNDERENHET AV TESTORGANISASJON AS", organisasjonerMedRettighetKandidater[0].name)
         Assertions.assertEquals("999888778", organisasjonerMedRettighetKandidater[0].organizationNumber)
@@ -196,11 +196,11 @@ class AltinnKlientTest {
         )
 
         assertThrows<AltinnServiceException> {
-            altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+            altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         }
 
         assertThrows<AltinnServiceException> {
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         }
     }
 
@@ -220,7 +220,7 @@ class AltinnKlientTest {
 
         // Sjekk at AltinnKlient prøver på nytt 3 ganger før den kaster exception ved `hentOrganisasjoner`
         assertThrows<AltinnServiceException> {
-            altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+            altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         }
 
         wireMockServer.verify(
@@ -230,7 +230,7 @@ class AltinnKlientTest {
 
         // Sjekk at AltinnKlient prøver på nytt nye 3 ganger før den kaster exception ved `hentOrganisasjonerMedRettighetKandidaterFraAltinn`
         assertThrows<AltinnServiceException> {
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         }
 
         wireMockServer.verify(
@@ -252,7 +252,7 @@ class AltinnKlientTest {
         )
 
         assertThrows<AltinnServiceException> {
-            altinnKlient.hentOrganisasjoner("12345678901", "test-token")
+            altinnKlient.hentOrganisasjoner("00000000001", "test-token")
         }
 
         wireMockServer.verify(
@@ -283,11 +283,11 @@ class AltinnKlientTest {
                 )
         )
 
-        val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+        val organisasjoner = altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         Assertions.assertTrue(organisasjoner.isEmpty())
 
         val organisasjonerMedRettighetKandidater =
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         Assertions.assertTrue(organisasjonerMedRettighetKandidater.isEmpty())
     }
 
@@ -315,7 +315,7 @@ class AltinnKlientTest {
 
         // Verifiser at det ble prøvd på nytt 3 ganger og deretter kastet exception
         assertThrows<AltinnException> {
-            altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+            altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         }
         wireMockServer.verify(
             3, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
@@ -323,7 +323,7 @@ class AltinnKlientTest {
 
         // Verifiser at det ble prøvd på nytt 3 ganger og deretter kastet exception
         assertThrows<AltinnException> {
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         }
         wireMockServer.verify(
             6, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
@@ -343,7 +343,7 @@ class AltinnKlientTest {
 
         // Verifiser at det ble prøvd på nytt 3 ganger og deretter kastet exception
         assertThrows<AltinnException> {
-            altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+            altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         }
         wireMockServer.verify(
             3, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
@@ -351,7 +351,7 @@ class AltinnKlientTest {
 
         // Verifiser at det ble prøvd på nytt 3 ganger og deretter kastet exception
         assertThrows<AltinnException> {
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         }
         wireMockServer.verify(
             6, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger"))
@@ -406,7 +406,7 @@ class AltinnKlientTest {
                 )
         )
 
-        val organisasjoner = altinnKlient.hentOrganisasjoner("12345678901", accessToken)
+        val organisasjoner = altinnKlient.hentOrganisasjoner("00000000001", accessToken)
         Assertions.assertEquals(2, organisasjoner.size)
         Assertions.assertEquals(overenhetOrgnr, organisasjoner[0].organizationNumber)
         Assertions.assertNull(organisasjoner[0].parentOrganizationNumber)
@@ -415,7 +415,7 @@ class AltinnKlientTest {
 
         // Rettighet nav_rekruttering_kandidater mangler på overenhet, dermed skal kun underenheten med
         val organisasjonerMedRettighetKandidater =
-            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", accessToken)
+            altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", accessToken)
         Assertions.assertEquals(1, organisasjonerMedRettighetKandidater.size)
         Assertions.assertEquals(underenhetOrgnr, organisasjonerMedRettighetKandidater[0].organizationNumber)
         Assertions.assertEquals(overenhetOrgnr, organisasjonerMedRettighetKandidater[0].parentOrganizationNumber)
@@ -476,7 +476,7 @@ class AltinnKlientTest {
                 )
         )
 
-        val result = altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", "token")
+        val result = altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", "token")
         Assertions.assertEquals(1, result.size)
         Assertions.assertEquals("111111112", result[0].organizationNumber)
     }
@@ -547,7 +547,7 @@ class AltinnKlientTest {
                 )
         )
 
-        val result = altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", "token")
+        val result = altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", "token")
         Assertions.assertEquals(1, result.size)
         Assertions.assertEquals("111111112", result[0].organizationNumber)
     }
@@ -586,8 +586,8 @@ class AltinnKlientTest {
                 )
         )
 
-        altinnKlient.hentOrganisasjoner("12345678901", "token")
-        altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("12345678901", "token")
+        altinnKlient.hentOrganisasjoner("00000000001", "token")
+        altinnKlient.hentOrganisasjonerMedRettighetKandidaterFraAltinn("00000000001", "token")
 
         wireMockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo("/altinn-tilganger")))
     }
