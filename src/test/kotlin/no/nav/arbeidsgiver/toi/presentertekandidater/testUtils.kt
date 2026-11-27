@@ -18,17 +18,11 @@ fun startMockOAuth2Server() {
     }
 }
 
-fun tilfeldigFødselsnummer(): String {
-    fun Int.tilStrengMedToTegn() = this.toString().let { if (it.length == 1) "0$it" else it }
-    fun Int.tilÅrstallMedToTegn() = this.toString().substring(2)
-    val tilfeldigDag = Random.nextInt(32).tilStrengMedToTegn()
-    val tilfeldigMåned = Random.nextInt(13).tilStrengMedToTegn()
-    val tilfeldigÅr = Random.nextInt(1910, 2010).tilÅrstallMedToTegn()
-    val tilfeldigPersonnummer = Random.nextInt(10000, 90000)
-    return "$tilfeldigDag$tilfeldigMåned$tilfeldigÅr$tilfeldigPersonnummer"
-}
+fun tilfeldigFødselsnummer(): String =
+    "000" + Random.nextInt(0, 100_000_000).toString().padStart(8, '0')
 
-fun tilfeldigVirksomhetsnummer() = tilfeldigFødselsnummer().substring(0, 9)
+fun tilfeldigVirksomhetsnummer(): String =
+    Random.nextInt(0, 1_000_000_000).toString().padStart(9, '0')
 
 fun lagreSamtykke(fødselsnummer: String) {
     SamtykkeRepository(dataSource).lagre(fødselsnummer)
